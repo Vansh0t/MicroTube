@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="8614bf07-8992-4d03-b225-24781825e948" ChangeDateTime="10/05/2023 14:10:41">
+    <Property Name="ElementName" Value="[dbo].[AppUser].[Name]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[AppUser]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Username" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f5e69ddc-808a-47da-96b3-f3ab768503cb" ChangeDateTime="10/05/2023 14:32:45">
+    <Property Name="ElementName" Value="[dbo].[AppUser].[PasswordResetExpiration]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[AppUser]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="PasswordResetStringExpiration" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="0bd7c7a5-9913-4c97-91bf-7a1eb7c68bb2" ChangeDateTime="10/05/2023 14:57:00">
+    <Property Name="ElementName" Value="[dbo].[EmailPasswordAuthenticationData].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[EmailPasswordAuthenticationData]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="UserId" />
+  </Operation>
+</Operations>
