@@ -15,7 +15,7 @@ builder.Services.AddSingleton<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddSingleton<IAppUserDataAccess, AppUserDataAccess>();
 builder.Services.AddSingleton<IUserManager, UserManager>();
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
-builder.Services.AddScoped<EmailPasswordAuthenticationDataAccess>();
+builder.Services.AddScoped<IEmailPasswordAuthenticationDataAccess, EmailPasswordAuthenticationDataAccess>();
 builder.Services.AddScoped<EmailPasswordAuthenticationProvider>();
 
 

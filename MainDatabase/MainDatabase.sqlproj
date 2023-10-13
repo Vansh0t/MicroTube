@@ -72,6 +72,12 @@
     <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_UpdateEmailConfirmation.sql" />
     <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_UpdateEmail.sql" />
     <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_UpdatePassword.sql" />
+    <Build Include="dbo\StoredProcedures\AppUser\AppUser_SetEmailConfirmationStatus.sql" />
+    <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_GetByEmailString.sql" />
+    <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_GetByPasswordString.sql" />
+    <Build Include="dbo\StoredProcedures\AppUser\AppUser_GetByEmail.sql" />
+    <Build Include="dbo\StoredProcedures\AppUser\AppUser_GetByUsername.sql" />
+    <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_GetWithUser.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="MainDatabase.refactorlog" />

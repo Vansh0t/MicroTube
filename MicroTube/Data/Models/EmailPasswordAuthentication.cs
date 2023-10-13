@@ -8,6 +8,7 @@
         public DateTime? EmailConfirmationStringExpiration { get; set; }
         public string? PasswordResetString { get; set; }
         public DateTime? PasswordResetStringExpiration { get; set; }
+        public string? PendingEmail { get; set; }
         public EmailPasswordAuthentication(string passwordHash)
         {
             PasswordHash = passwordHash;

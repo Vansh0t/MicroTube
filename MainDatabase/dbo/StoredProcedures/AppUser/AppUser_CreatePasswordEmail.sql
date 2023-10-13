@@ -7,8 +7,8 @@
 	@CreatedUserId int OUTPUT
 AS
 BEGIN
-		INSERT INTO dbo.AppUser (Username, Email, PublicUsername)
-		VALUES (@Username, @Email, @Username);
+		INSERT INTO dbo.AppUser (Username, Email, PublicUsername, IsEmailConfirmed)
+		VALUES (@Username, @Email, @Username, 0);
 
 		SET @CreatedUserId = SCOPE_IDENTITY();
 

@@ -2,7 +2,7 @@
 	@Id int
 AS
 BEGIN
-	SELECT Id, Username, Email
+	SELECT Id, Username, Email, PublicUsername
 	FROM dbo.AppUser
 	WHERE Id = @Id;
 END
