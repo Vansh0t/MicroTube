@@ -10,6 +10,7 @@ namespace MicroTube.Data.Access.SQLServer
         private const string SP_CREATE_USER = "dbo.AppUser_CreatePasswordEmail";
         private const string SP_GET = "dbo.EmailPasswordAuthentication_Get";
         private const string SP_GET_WITH_USER = "dbo.EmailPasswordAuthentication_GetWithUser";
+        private const string SP_GET_WITH_USER_CREDENTIAL = "dbo.EmailPasswordAuthentication_GetByCredentialWithUser";
         private const string SP_GET_BY_EMAIL_STRING = "dbo.EmailPasswordAuthentication_GetByEmailString";
         private const string SP_GET_BY_PASSWORD_STRING = "dbo.EmailPasswordAuthentication_GetByPasswordString";
         private const string SP_UPDATE_EMAIL = "dbo.EmailPasswordAuthentication_UpdateEmail";
@@ -78,6 +79,20 @@ namespace MicroTube.Data.Access.SQLServer
             };
             var result = await connection.QueryAsync<EmailPasswordAuthentication, AppUser, EmailPasswordAppUser>(
                 SP_GET_WITH_USER, (a, u) =>
+                {
+                    return new EmailPasswordAppUser(u, a);
+                }, parameters, commandType: CommandType.StoredProcedure);
+            return result.FirstOrDefault();
+        }
+        public async Task<EmailPasswordAppUser?> GetWithUserByCredential(string credential)
+        {
+            using IDbConnection connection = new SqlConnection(_configuration.GetDefaultConnectionString());
+            var parameters = new
+            {
+                Credential = credential
+            };
+            var result = await connection.QueryAsync<EmailPasswordAuthentication, AppUser, EmailPasswordAppUser>(
+                SP_GET_WITH_USER_CREDENTIAL, (a, u) =>
                 {
                     return new EmailPasswordAppUser(u, a);
                 }, parameters, commandType: CommandType.StoredProcedure);

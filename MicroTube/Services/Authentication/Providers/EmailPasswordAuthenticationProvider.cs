@@ -19,7 +19,8 @@ namespace MicroTube.Services.Authentication.Providers
         private readonly ILogger<EmailPasswordAuthenticationProvider> _logger;
         private readonly IAppUserDataAccess _userDataAccess;
         private readonly IConfiguration _configuration;
-
+        private readonly IJwtClaims _jwtClaims;
+        private readonly IJwtTokenProvider _jwtTokenProvider;
 
         public EmailPasswordAuthenticationProvider(IEmailPasswordAuthenticationDataAccess dataAccess,
                                                    IAppUserDataAccess userDataAccess,
@@ -28,7 +29,9 @@ namespace MicroTube.Services.Authentication.Providers
                                                    IPasswordValidator passwordValidator,
                                                    IPasswordEncryption passwordEncryption,
                                                    ILogger<EmailPasswordAuthenticationProvider> logger,
-                                                   IConfiguration configuration)
+                                                   IConfiguration configuration,
+                                                   IJwtClaims jwtClaims,
+                                                   IJwtTokenProvider jwtTokenProvider)
         {
             _dataAccess = dataAccess;
             _usernameValidator = usernameValidator;
@@ -38,6 +41,8 @@ namespace MicroTube.Services.Authentication.Providers
             _logger = logger;
             _userDataAccess = userDataAccess;
             _configuration = configuration;
+            _jwtClaims = jwtClaims;
+            _jwtTokenProvider = jwtTokenProvider;
         }
 
         public async Task<IServiceResult<AppUser>> CreateUser(
@@ -69,7 +74,7 @@ namespace MicroTube.Services.Authentication.Providers
                 return ServiceResult<AppUser>.FailInternal();
             }
 
-            EmailPasswordAuthentication authData = new EmailPasswordAuthentication(encryptedPassword);
+            EmailPasswordAuthentication authData = new EmailPasswordAuthentication { PasswordHash = encryptedPassword};
             try
             {
                 authData = ApplyEmailConfirmation(authData);
@@ -107,6 +112,26 @@ namespace MicroTube.Services.Authentication.Providers
             }
             _logger.LogInformation("New user {username} created with id {id}.", username, createdUserId);
             return new ServiceResult<AppUser>(201, createdUser);
+        }
+        public async Task<IServiceResult<string>> SignIn(string credential, string password)
+        {
+            if (string.IsNullOrWhiteSpace(credential) || string.IsNullOrWhiteSpace(password))
+            {
+                return ServiceResult<string>.Fail(400, "Invalid credential or password");
+            }
+
+            EmailPasswordAppUser? user = await _dataAccess.GetWithUserByCredential(credential);
+            if(user==null)
+            {
+                return ServiceResult<string>.Fail(400, "Invalid credential or password");
+            }
+            bool isPasswordValid = _passwordEncryption.Validate(user.Authentication.PasswordHash, password);
+            if(!isPasswordValid)
+            {
+                return ServiceResult<string>.Fail(400, "Invalid credential or password");
+            }
+            var jwtTokenResult = _jwtTokenProvider.GetToken(_jwtClaims.GetClaims(user));
+            return jwtTokenResult;
         }
         
         public async Task<IServiceResult> ConfirmEmail(int userId, string stringRaw)

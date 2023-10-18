@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MicroTube.Controllers.Authentication.DTO;
 using MicroTube.Services.Authentication.Providers;
-using System.Reflection;
 
 namespace MicroTube.Controllers.Authentication
 {
@@ -19,12 +18,26 @@ namespace MicroTube.Controllers.Authentication
         }
 
         [HttpPost("signup")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AuthenticationResponseDTO))]
         public async Task<IActionResult> SignUp(SignUpEmailPasswordDTO data)
         {
             var resultUser = await _emailPasswordAuthentication.CreateUser(data.Username, data.Email, data.Password);
-            if (resultUser.IsError)
+            var user = resultUser.ResultObject;
+            if (resultUser.IsError || user == null)
                 return StatusCode(resultUser.Code, resultUser.Error);
-            return Redirect("/");
+            var resultJWT = await _emailPasswordAuthentication.SignIn(user.Email, data.Password);
+            if (resultJWT.IsError || resultJWT.ResultObject == null)
+                return StatusCode(resultJWT.Code, resultJWT.Error);
+            return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));
+        }
+        [HttpPost("signin")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
+        public async Task<IActionResult> SignIn(SignInCredentialPasswordDTO data)
+        {
+            var resultJWT = await _emailPasswordAuthentication.SignIn(data.Credential, data.Password);
+            if (resultJWT.IsError || resultJWT.ResultObject == null)
+                return StatusCode(resultJWT.Code, resultJWT.Error);
+            return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));
         }
     }
 }

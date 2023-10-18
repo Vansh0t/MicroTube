@@ -7,7 +7,7 @@
         public string Email { get; set; }
         public string PublicUsername { get; set; }
         public bool IsEmailConfirmed { get; set; }
-        public AppUser(int id, string username, string email, bool isEmailConfirmed, string publicUsername)
+        public AppUser(int id, string username, string email, string publicUsername, bool isEmailConfirmed)
         {
             Id = id;
             Username = username;

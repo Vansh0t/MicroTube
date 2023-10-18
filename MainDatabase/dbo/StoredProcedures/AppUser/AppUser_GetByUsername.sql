@@ -2,7 +2,7 @@
 	@Username nvarchar(50)
 AS
 BEGIN
-	SELECT Id, Username, Email, PublicUsername
+	SELECT Id, Username, Email, PublicUsername, IsEmailConfirmed
 	FROM dbo.AppUser
 	WHERE Username = @Username;
 END

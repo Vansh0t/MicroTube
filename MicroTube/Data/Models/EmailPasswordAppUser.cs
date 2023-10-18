@@ -5,7 +5,7 @@
         public EmailPasswordAuthentication Authentication { get; set; }
         public EmailPasswordAppUser(AppUser user,
             EmailPasswordAuthentication authentication) 
-            : base(user.Id, user.Username, user.Email, user.IsEmailConfirmed, user.PublicUsername)
+            : base(user.Id, user.Username, user.Email, user.PublicUsername, user.IsEmailConfirmed)
         {
             Authentication = authentication;
         }

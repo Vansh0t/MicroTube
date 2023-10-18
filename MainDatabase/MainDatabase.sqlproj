@@ -22,6 +22,7 @@
     <SqlServerVerification>False</SqlServerVerification>
     <IncludeCompositeObjects>True</IncludeCompositeObjects>
     <TargetDatabaseSet>True</TargetDatabaseSet>
+    <GenerateCreateScript>False</GenerateCreateScript>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -78,11 +79,13 @@
     <Build Include="dbo\StoredProcedures\AppUser\AppUser_GetByEmail.sql" />
     <Build Include="dbo\StoredProcedures\AppUser\AppUser_GetByUsername.sql" />
     <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_GetWithUser.sql" />
+    <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_GetByCredentialWithUser.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="MainDatabase.refactorlog" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MainDatabase.publish.xml" />
+    <None Include="MainDatabase.Tests.publish.xml" />
   </ItemGroup>
 </Project>
