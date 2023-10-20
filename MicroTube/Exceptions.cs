@@ -14,4 +14,11 @@
 
         }
     }
+    public class RequiredObjectNotFoundException : Exception
+    {
+        public RequiredObjectNotFoundException(string message) : base(message)
+        {
+
+        }
+    }
 }

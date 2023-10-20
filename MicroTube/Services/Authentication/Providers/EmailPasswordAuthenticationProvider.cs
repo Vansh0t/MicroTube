@@ -3,6 +3,7 @@ using MicroTube.Data.Access;
 using MicroTube.Data.Access.SQLServer;
 using MicroTube.Data.Models;
 using MicroTube.Services.Cryptography;
+using MicroTube.Services.Email;
 using MicroTube.Services.Users;
 using MicroTube.Services.Validation;
 using System.Text;
@@ -21,6 +22,8 @@ namespace MicroTube.Services.Authentication.Providers
         private readonly IConfiguration _configuration;
         private readonly IJwtClaims _jwtClaims;
         private readonly IJwtTokenProvider _jwtTokenProvider;
+        private readonly ISecureTokensProvider _secureTokensProvider;
+        private readonly IAuthenticationEmailManager _authEmailManager;
 
         public EmailPasswordAuthenticationProvider(IEmailPasswordAuthenticationDataAccess dataAccess,
                                                    IAppUserDataAccess userDataAccess,
@@ -31,7 +34,9 @@ namespace MicroTube.Services.Authentication.Providers
                                                    ILogger<EmailPasswordAuthenticationProvider> logger,
                                                    IConfiguration configuration,
                                                    IJwtClaims jwtClaims,
-                                                   IJwtTokenProvider jwtTokenProvider)
+                                                   IJwtTokenProvider jwtTokenProvider,
+                                                   ISecureTokensProvider secureTokensProvider,
+                                                   IAuthenticationEmailManager authEmailManager)
         {
             _dataAccess = dataAccess;
             _usernameValidator = usernameValidator;
@@ -43,6 +48,8 @@ namespace MicroTube.Services.Authentication.Providers
             _configuration = configuration;
             _jwtClaims = jwtClaims;
             _jwtTokenProvider = jwtTokenProvider;
+            _secureTokensProvider = secureTokensProvider;
+            _authEmailManager = authEmailManager;
         }
 
         public async Task<IServiceResult<AppUser>> CreateUser(
@@ -75,9 +82,10 @@ namespace MicroTube.Services.Authentication.Providers
             }
 
             EmailPasswordAuthentication authData = new EmailPasswordAuthentication { PasswordHash = encryptedPassword};
+            string confirmationString;
             try
             {
-                authData = ApplyEmailConfirmation(authData);
+                authData = ApplyEmailConfirmation(authData, out confirmationString);
             }
             catch(Exception e)
             {
@@ -89,6 +97,7 @@ namespace MicroTube.Services.Authentication.Providers
             try
             {
                 createdUserId = await _dataAccess.CreateUser(username, email, authData);
+                await _authEmailManager.SendEmailConfirmation(email, confirmationString);
             }
             catch(SqlException e)
             {
@@ -134,20 +143,40 @@ namespace MicroTube.Services.Authentication.Providers
             return jwtTokenResult;
         }
         
-        public async Task<IServiceResult> ConfirmEmail(int userId, string stringRaw)
+        public async Task<IServiceResult<string>> ConfirmEmail(string stringRaw)
         {
-            var authData = await _dataAccess.Get(userId);
+            if (string.IsNullOrWhiteSpace(stringRaw))
+                return ServiceResult<string>.Fail(403, "Forbidden");
 
-            if(authData == null || authData.EmailConfirmationString == null || stringRaw == null
-                || DateTime.UtcNow > authData.EmailConfirmationStringExpiration
-                || !_passwordEncryption.Validate(authData.EmailConfirmationString, stringRaw))
+            string stringHash;
+            try
             {
-                return ServiceResult.Fail(403, "Forbidden");
+                stringHash = _secureTokensProvider.HashSecureToken(stringRaw);
+            }
+            catch(FormatException)
+            {
+                return ServiceResult<string>.Fail(403, "Forbidden");
+            }
+            var user = await _dataAccess.GetByEmailConfirmationString(stringHash);
+            if(user == null)
+            {
+                _logger.LogCritical($"User tried to confirm email, but not existed in database");
+                return ServiceResult<string>.FailInternal();
+            }
+
+            var authData = user.Authentication;
+            if(authData == null || authData.EmailConfirmationString == null
+                || DateTime.UtcNow > authData.EmailConfirmationStringExpiration
+                || !_secureTokensProvider.Validate(authData.EmailConfirmationString, stringRaw))
+            {
+                return ServiceResult<string>.Fail(403, "Forbidden");
             }
             authData.EmailConfirmationString = null;
             authData.EmailConfirmationStringExpiration = null;
             await _dataAccess.UpdateEmailConfirmation(authData, true);
-            return ServiceResult.Success();
+            user.IsEmailConfirmed = true;
+            var jwtTokenResult = _jwtTokenProvider.GetToken(_jwtClaims.GetClaims(user));
+            return jwtTokenResult;
         }
         public async Task<IServiceResult> StartEmailChange(int userId, string newEmail)
         {
@@ -163,16 +192,20 @@ namespace MicroTube.Services.Authentication.Providers
             if (authUser == null || authUser.Authentication == null || !authUser.IsEmailConfirmed)
                 return ServiceResult.Fail(403, "Forbidden");
 
-            authUser.Authentication = ApplyEmailConfirmation(authUser.Authentication);
+            authUser.Authentication = ApplyEmailConfirmation(authUser.Authentication, out string confirmationString);
             authUser.Authentication.PendingEmail = newEmail;
             await _dataAccess.UpdateEmailConfirmation(authUser.Authentication, authUser.IsEmailConfirmed);
+            await _authEmailManager.SendEmailChangeStart(newEmail, confirmationString);
             return ServiceResult.Success();
         }
-        public async Task<IServiceResult> ConfirmEmailChange(int userId, string stringRaw)
+        public async Task<IServiceResult> ConfirmEmailChange(string stringRaw)
         {
-            var authUser = await _dataAccess.GetWithUser(userId);
-            var authData = authUser?.Authentication;
-            if(authUser == null || authData == null  || authData.PendingEmail  == null || authData.EmailConfirmationString == null || stringRaw == null
+            if (string.IsNullOrWhiteSpace(stringRaw))
+                return ServiceResult<string>.Fail(403, "Forbidden");
+            var stringHash = _secureTokensProvider.HashSecureToken(stringRaw);
+            var user = await _dataAccess.GetByEmailConfirmationString(stringHash);
+            var authData = user?.Authentication;
+            if(user == null || authData == null  || authData.PendingEmail  == null || authData.EmailConfirmationString == null
                 || DateTime.UtcNow > authData.EmailConfirmationStringExpiration
                 || !_passwordEncryption.Validate(authData.EmailConfirmationString, stringRaw))
             {
@@ -186,25 +219,29 @@ namespace MicroTube.Services.Authentication.Providers
             authData.EmailConfirmationStringExpiration = null;
             authData.PendingEmail = null;
 
-            await _dataAccess.UpdateEmailAndConfirmation(authData, newEmail, authUser.IsEmailConfirmed);
+            await _dataAccess.UpdateEmailAndConfirmation(authData, newEmail, user.IsEmailConfirmed);
             return ServiceResult.Success();
         }
 
 
-        private EmailPasswordAuthentication ApplyEmailConfirmation(EmailPasswordAuthentication authData)
+        private EmailPasswordAuthentication ApplyEmailConfirmation(EmailPasswordAuthentication authData, out string confirmationString)
         {
-            string confirmationStringRaw = Utils.Cryptography.GetSecureRandomString(_configuration.GetValue<int>("EmailConfirmationString:Length"));
-            authData.EmailConfirmationString = _passwordEncryption.Encrypt(confirmationStringRaw);
+            string confirmationStringRaw = _secureTokensProvider.GenerateSecureToken();
+            string confirmationStringHash = _secureTokensProvider.HashSecureToken(confirmationStringRaw);
+            authData.EmailConfirmationString = confirmationStringHash;
             long emailConfirmationExpirationTicks = _configuration.GetValue<long>("EmailConfirmationString:ExpirationTicks");
             authData.EmailConfirmationStringExpiration = DateTime.UtcNow + new TimeSpan(emailConfirmationExpirationTicks);
+            confirmationString = confirmationStringRaw;
             return authData;
         }
-        private EmailPasswordAuthentication ApplyPasswordReset(EmailPasswordAuthentication authData)
+        private EmailPasswordAuthentication ApplyPasswordReset(EmailPasswordAuthentication authData, out string resetString)
         {
-            string resetStringRaw = Utils.Cryptography.GetSecureRandomString(_configuration.GetValue<int>("PasswordResetString:Length"));
-            authData.PasswordResetString = _passwordEncryption.Encrypt(resetStringRaw);
+            string resetStringRaw = _secureTokensProvider.GenerateSecureToken();
+            string resetStringHash = _secureTokensProvider.HashSecureToken(resetStringRaw);
+            authData.PasswordResetString = resetStringHash;
             long resetExpirationTicks = _configuration.GetValue<long>("PasswordResetString:ExpirationTicks");
             authData.PasswordResetStringExpiration = DateTime.UtcNow + new TimeSpan(resetExpirationTicks);
+            resetString = resetStringRaw;
             return authData;
         }
     }

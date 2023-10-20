@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MicroTube.Controllers.Authentication.DTO;
+using MicroTube.Services.Authentication;
 using MicroTube.Services.Authentication.Providers;
 
 namespace MicroTube.Controllers.Authentication
@@ -10,14 +12,16 @@ namespace MicroTube.Controllers.Authentication
     {
         private readonly ILogger<EmailPasswordController> _logger;
         private readonly EmailPasswordAuthenticationProvider _emailPasswordAuthentication;
+        private readonly IJwtClaims _claims;
 
-        public EmailPasswordController(ILogger<EmailPasswordController> logger, EmailPasswordAuthenticationProvider emailPasswordAuthentication)
+        public EmailPasswordController(ILogger<EmailPasswordController> logger, EmailPasswordAuthenticationProvider emailPasswordAuthentication, IJwtClaims claims)
         {
             _logger = logger;
             _emailPasswordAuthentication = emailPasswordAuthentication;
+            _claims = claims;
         }
 
-        [HttpPost("signup")]
+        [HttpPost("SignUp")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AuthenticationResponseDTO))]
         public async Task<IActionResult> SignUp(SignUpEmailPasswordDTO data)
         {
@@ -30,11 +34,20 @@ namespace MicroTube.Controllers.Authentication
                 return StatusCode(resultJWT.Code, resultJWT.Error);
             return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));
         }
-        [HttpPost("signin")]
+        [HttpPost("SignIn")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
         public async Task<IActionResult> SignIn(SignInCredentialPasswordDTO data)
         {
             var resultJWT = await _emailPasswordAuthentication.SignIn(data.Credential, data.Password);
+            if (resultJWT.IsError || resultJWT.ResultObject == null)
+                return StatusCode(resultJWT.Code, resultJWT.Error);
+            return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));
+        }
+        [HttpGet("ConfirmEmail")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
+        public async Task<IActionResult> ConfirmEmail(string emailConfirmationString)
+        {
+            var resultJWT = await _emailPasswordAuthentication.ConfirmEmail(emailConfirmationString);
             if (resultJWT.IsError || resultJWT.ResultObject == null)
                 return StatusCode(resultJWT.Code, resultJWT.Error);
             return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));

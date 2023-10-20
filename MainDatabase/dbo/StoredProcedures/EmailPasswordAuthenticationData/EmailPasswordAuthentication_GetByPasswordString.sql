@@ -2,7 +2,9 @@
 	@PasswordResetString nvarchar(100)
 AS
 BEGIN
-	SELECT * 
-	FROM dbo.EmailPasswordAuthentication
-	WHERE PasswordResetString = @PasswordResetString;
+	SELECT a.*, u.*
+	FROM dbo.EmailPasswordAuthentication a
+	INNER JOIN dbo.AppUser u 
+	ON a.UserId = u.Id
+	AND a.PasswordResetString = @PasswordResetString;
 END

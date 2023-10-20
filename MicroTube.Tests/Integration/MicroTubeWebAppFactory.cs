@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MicroTube.Services.Email;
+using MicroTube.Tests.Mocks;
 using MicroTube.Tests.Utils;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -29,6 +31,11 @@ namespace MicroTube.Tests.Integration
                 if (config != null)
                     services.Remove(config);
                 services.AddSingleton(ConfigurationProvider.GetConfiguration());
+
+                var authEmailManager = services.SingleOrDefault(_ => _.ServiceType == typeof(IAuthenticationEmailManager));
+                if (authEmailManager != null)
+                    services.Remove(authEmailManager);
+                services.AddSingleton<IAuthenticationEmailManager, MockAuthenticationEmailManager>();
             });
 
             builder.UseEnvironment("Development");

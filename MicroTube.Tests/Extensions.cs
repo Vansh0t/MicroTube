@@ -47,5 +47,9 @@ namespace MicroTube.Tests
             }
             return (email, username, password, responseContent); 
         }
+        public static void ApplyJWTBearer(this HttpClient client, string jwtToken)
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+        }
     }
 }

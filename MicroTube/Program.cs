@@ -5,6 +5,7 @@ using MicroTube.Data.Access.SQLServer;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.Authentication.Providers;
 using MicroTube.Services.Cryptography;
+using MicroTube.Services.Email;
 using MicroTube.Services.Users;
 using MicroTube.Services.Validation;
 using System.Text;
@@ -17,11 +18,14 @@ builder.Services.AddSingleton<IUsernameValidator, UsernameValidator>();
 builder.Services.AddSingleton<IPasswordValidator, DefaultPasswordValidator>();
 builder.Services.AddSingleton<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddSingleton<IAppUserDataAccess, AppUserDataAccess>();
+builder.Services.AddSingleton<IEmailManager, DefaultEmailManager>();
+builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEmailManager>();
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IEmailPasswordAuthenticationDataAccess, EmailPasswordAuthenticationDataAccess>();
 builder.Services.AddScoped<EmailPasswordAuthenticationProvider>();
 builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtClaims, JwtClaims>();
+builder.Services.AddTransient<ISecureTokensProvider, SHA256SecureTokensProvider>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

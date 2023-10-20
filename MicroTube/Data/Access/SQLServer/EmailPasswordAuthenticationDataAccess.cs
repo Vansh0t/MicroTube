@@ -116,7 +116,8 @@ namespace MicroTube.Data.Access.SQLServer
                 await connection.ExecuteAsync(
                     SP_UPDATE_EMAIL_CONFIRMATION, parameters, transaction, commandType: CommandType.StoredProcedure);
                 await connection.ExecuteAsync(
-                    SP_EMAIL_CONFIRMATION_SET, new { IsEmailConfirmed = isEmailConfirmed }, transaction, commandType: CommandType.StoredProcedure);
+                    SP_EMAIL_CONFIRMATION_SET, new { Id = auth.UserId, IsEmailConfirmed = isEmailConfirmed },
+                    transaction, commandType: CommandType.StoredProcedure);
                 transaction.Commit();
             }
             catch
@@ -150,7 +151,7 @@ namespace MicroTube.Data.Access.SQLServer
             };
             var emailUpdateParameters = new
             {
-                auth.UserId,
+                Id = auth.UserId,
                 Email = newEmail,
                 IsEmailConfirmed = isEmailConfirmed
             };
@@ -202,28 +203,34 @@ namespace MicroTube.Data.Access.SQLServer
             }
         }
 
-        public async Task<EmailPasswordAuthentication?> GetByEmailVerificationString(string emailVerificationString)
+        public async Task<EmailPasswordAppUser?> GetByEmailConfirmationString(string emailConfirmationString)
         {
             using IDbConnection connection = new SqlConnection(_configuration.GetDefaultConnectionString());
             var parameters = new
             {
-                EmailVerificationString = emailVerificationString
+                EmailConfirmationString = emailConfirmationString
             };
-            var result = await connection.QueryFirstOrDefaultAsync<EmailPasswordAuthentication>(
-                SP_GET_BY_EMAIL_STRING, parameters, commandType: CommandType.StoredProcedure);
-            return result;
+            var result = await connection.QueryAsync<EmailPasswordAuthentication, AppUser, EmailPasswordAppUser>(
+                SP_GET_BY_EMAIL_STRING, (a, u) =>
+                {
+                    return new EmailPasswordAppUser(u, a);
+                }, parameters, commandType: CommandType.StoredProcedure);
+            return result.FirstOrDefault();
         }
 
-        public async Task<EmailPasswordAuthentication?> GetByPasswordResetString(string passwordResetString)
+        public async Task<EmailPasswordAppUser?> GetByPasswordResetString(string passwordResetString)
         {
             using IDbConnection connection = new SqlConnection(_configuration.GetDefaultConnectionString());
             var parameters = new
             {
-                EmailVerificationString = passwordResetString
+                PasswordResetString = passwordResetString
             };
-            var result = await connection.QueryFirstOrDefaultAsync<EmailPasswordAuthentication>(
-                SP_GET_BY_PASSWORD_STRING, parameters, commandType: CommandType.StoredProcedure);
-            return result;
+            var result = await connection.QueryAsync<EmailPasswordAuthentication, AppUser, EmailPasswordAppUser>(
+                SP_GET_BY_PASSWORD_STRING, (a, u) =>
+                {
+                    return new EmailPasswordAppUser(u, a);
+                }, parameters, commandType: CommandType.StoredProcedure);
+            return result.FirstOrDefault();
         }
     }
 }
