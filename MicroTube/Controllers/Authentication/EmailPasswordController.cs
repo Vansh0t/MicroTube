@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MicroTube.Constants;
 using MicroTube.Controllers.Authentication.DTO;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.Authentication.Providers;
@@ -70,6 +71,37 @@ namespace MicroTube.Controllers.Authentication
             var resultJWT = await _emailPasswordAuthentication.ConfirmEmailChange(emailChangeConfirmationString);
             if (resultJWT.IsError)
                 return StatusCode(resultJWT.Code, resultJWT.Error);
+            return Ok("An email will be sent to this email if an account is registered under it.");
+        }
+        [HttpPost("ResetPassword")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ResetPasswordStart(ResetPasswordStartDTO resetData)
+        {
+            var result = await _emailPasswordAuthentication.StartPasswordReset(resetData.Email);
+            if(result.IsError)
+                return StatusCode(result.Code, result.Error);
+            return Ok("An email will be sent to this email if an account is registered under it.");
+        }
+        [HttpPost("ValidatePasswordReset")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
+        public async Task<IActionResult> ValidatePasswordReset([FromBody] string passwordResetString)
+        {
+            var result = await _emailPasswordAuthentication.UsePasswordResetString(passwordResetString);
+            if (result.IsError)
+                return StatusCode(result.Code, result.Error);
+            if (result.ResultObject == null)
+                throw new RequiredObjectNotFoundException("Result was a success, but ResultObject is null");
+            return Ok(new AuthenticationResponseDTO(result.ResultObject));
+        }
+        [Authorize(AuthorizationConstants.PASSWORD_RESET_ONLY_POLICY)]
+        [HttpPost("ChangePassword")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
+        public async Task<IActionResult> ChangePassword(PasswordChangeDTO changeData)
+        {
+            int userId = _claims.GetUserId(HttpContext.User);
+            var result = await  _emailPasswordAuthentication.ChangePassword(userId, changeData.NewPassword, changeData.ConfirmedNewPassword);
+            if (result.IsError)
+                return StatusCode(result.Code, result.Error);
             return Ok();
         }
     }

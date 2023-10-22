@@ -60,6 +60,7 @@ namespace MicroTube.Tests.Unit.Validation
         [InlineData(" ")]//empty space
         [InlineData("")]//empty
         [InlineData("**AA2!")]//has invalid characters
+        [InlineData("some@email.com")]//email like
         public void TestUsernameFail(string username)
         {
             IServiceResult result = _usernameValidator.Validate(username);

@@ -173,7 +173,7 @@ namespace MicroTube.Data.Access.SQLServer
             }
             
         }
-        public async Task UpdatePasswordHashAndReset(EmailPasswordAuthentication auth, string passwordHash)
+        public async Task UpdatePasswordHashAndReset(EmailPasswordAuthentication auth)
         {
             using IDbConnection connection = new SqlConnection(_configuration.GetDefaultConnectionString());
             var resetUpdateParameters = new
@@ -185,7 +185,7 @@ namespace MicroTube.Data.Access.SQLServer
             var passwordUpdateParameters = new
             {
                 auth.UserId,
-                PasswordHash = passwordHash,
+                auth.PasswordHash
             };
             connection.Open();
             using IDbTransaction transaction = connection.BeginTransaction();

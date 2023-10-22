@@ -24,6 +24,7 @@ namespace MicroTube.Services.Authentication.Providers
         private readonly IJwtTokenProvider _jwtTokenProvider;
         private readonly ISecureTokensProvider _secureTokensProvider;
         private readonly IAuthenticationEmailManager _authEmailManager;
+        private readonly IJwtPasswordResetTokenProvider _jwtPasswordResetTokenProvider;
 
         public EmailPasswordAuthenticationProvider(IEmailPasswordAuthenticationDataAccess dataAccess,
                                                    IAppUserDataAccess userDataAccess,
@@ -36,7 +37,8 @@ namespace MicroTube.Services.Authentication.Providers
                                                    IJwtClaims jwtClaims,
                                                    IJwtTokenProvider jwtTokenProvider,
                                                    ISecureTokensProvider secureTokensProvider,
-                                                   IAuthenticationEmailManager authEmailManager)
+                                                   IAuthenticationEmailManager authEmailManager,
+                                                   IJwtPasswordResetTokenProvider jwtPasswordResetTokenProvider)
         {
             _dataAccess = dataAccess;
             _usernameValidator = usernameValidator;
@@ -50,6 +52,7 @@ namespace MicroTube.Services.Authentication.Providers
             _jwtTokenProvider = jwtTokenProvider;
             _secureTokensProvider = secureTokensProvider;
             _authEmailManager = authEmailManager;
+            _jwtPasswordResetTokenProvider = jwtPasswordResetTokenProvider;
         }
 
         public async Task<IServiceResult<AppUser>> CreateUser(
@@ -226,7 +229,57 @@ namespace MicroTube.Services.Authentication.Providers
             await _dataAccess.UpdateEmailAndConfirmation(authData, newEmail, user.IsEmailConfirmed);
             return ServiceResult.Success();
         }
+        public async Task<IServiceResult> StartPasswordReset(string email)
+        {
+            var emailValidationResult = _emailValidator.Validate(email);
+            if (emailValidationResult.IsError)
+                return ServiceResult.Fail(403, "Forbidden");
 
+            var user =  await _dataAccess.GetWithUserByCredential(email);
+            if(user == null || !user.IsEmailConfirmed)
+                return ServiceResult.Success(); 
+
+            var authData = user.Authentication;
+            authData = ApplyPasswordReset(authData, out string passwordResetStringRaw);
+            await _dataAccess.UpdatePasswordReset(authData);
+            await _authEmailManager.SendPasswordResetStart(user.Email, passwordResetStringRaw);
+            return ServiceResult.Success();
+        }
+        public async Task<IServiceResult<string>> UsePasswordResetString(string passwordResetString)
+        {
+            if (string.IsNullOrWhiteSpace(passwordResetString))
+                return ServiceResult<string>.Fail(403, "Forbidden");
+
+            var resetStringHash = _secureTokensProvider.HashSecureToken(passwordResetString);
+            var user =  await _dataAccess.GetByPasswordResetString(resetStringHash);
+            if (user == null || !user.IsEmailConfirmed)
+                return ServiceResult<string>.Fail(403, "Forbidden");
+            var authData = user.Authentication;
+            if(authData.PasswordResetString == null || authData.PasswordResetStringExpiration == null
+                || DateTime.UtcNow > authData.PasswordResetStringExpiration)
+                return ServiceResult<string>.Fail(403, "Forbidden");
+            authData.PasswordResetString = null;
+            authData.PasswordResetStringExpiration = null;
+            await _dataAccess.UpdatePasswordReset(authData);
+            return _jwtPasswordResetTokenProvider.GetToken(user.Id.ToString());
+        }
+        public async Task<IServiceResult> ChangePassword(int userId, string newPassword, string confirmedNewPassword)
+        {
+            if (newPassword != confirmedNewPassword)
+                return ServiceResult.Fail(400, "Passwords don't match");
+            var validationResult = _passwordValidator.Validate(newPassword);
+            if (validationResult.IsError)
+                return ServiceResult.Fail(validationResult.Code, validationResult.Error);
+            var user = await _dataAccess.GetWithUser(userId);
+            if(user == null)
+                return ServiceResult.Fail(403, "Passwords don't match");
+            var authData = user.Authentication;
+            authData.PasswordResetString = null;
+            authData.PasswordResetStringExpiration = null;
+            authData.PasswordHash = _passwordEncryption.Encrypt(newPassword);
+            await _dataAccess.UpdatePasswordHashAndReset(authData);
+            return ServiceResult.Success();
+        }
 
         private EmailPasswordAuthentication ApplyEmailConfirmation(EmailPasswordAuthentication authData, out string confirmationString)
         {

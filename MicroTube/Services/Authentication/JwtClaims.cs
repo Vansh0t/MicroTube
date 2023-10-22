@@ -1,4 +1,5 @@
-﻿using MicroTube.Data.Models;
+﻿using MicroTube.Constants;
+using MicroTube.Data.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -27,6 +28,7 @@ namespace MicroTube.Services.Authentication
             return new Dictionary<string, string>
             {
                 { JwtRegisteredClaimNames.Sub, user.Id.ToString() },
+                { AuthorizationConstants.USER_CLAIM, "true" },
                 { EMAIL_CONFIRMED_CLAIM_NAME, user.IsEmailConfirmed.ToString() },
                 { PUBLIC_USERNAME_CLAIM_NAME, user.PublicUsername.ToString() }
             };

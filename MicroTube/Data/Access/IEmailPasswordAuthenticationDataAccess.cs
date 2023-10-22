@@ -11,6 +11,6 @@ namespace MicroTube.Data.Access
         public Task UpdateEmailConfirmation(EmailPasswordAuthentication auth, bool isEmailConfirmed);
         public Task UpdatePasswordReset(EmailPasswordAuthentication auth);
         public Task UpdateEmailAndConfirmation(EmailPasswordAuthentication auth, string newEmail, bool isEmailConfirmed);
-        public Task UpdatePasswordHashAndReset(EmailPasswordAuthentication auth, string passwordHash);
+        public Task UpdatePasswordHashAndReset(EmailPasswordAuthentication auth);
     }
 }
