@@ -52,5 +52,25 @@ namespace MicroTube.Controllers.Authentication
                 return StatusCode(resultJWT.Code, resultJWT.Error);
             return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));
         }
+        [Authorize]
+        [HttpPost("ChangeEmailStart")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeEmailStart(EmailChangeDTO emailChangeData)
+        {
+            var userId = _claims.GetUserId(HttpContext.User);
+            var resultJWT = await _emailPasswordAuthentication.StartEmailChange(userId, emailChangeData.NewEmail, emailChangeData.Password);
+            if (resultJWT.IsError)
+                return StatusCode(resultJWT.Code, resultJWT.Error);
+            return Ok();
+        }
+        [HttpGet("ChangeEmailConfirm")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeEmailEnd(string emailChangeConfirmationString)
+        {
+            var resultJWT = await _emailPasswordAuthentication.ConfirmEmailChange(emailChangeConfirmationString);
+            if (resultJWT.IsError)
+                return StatusCode(resultJWT.Code, resultJWT.Error);
+            return Ok();
+        }
     }
 }

@@ -19,18 +19,17 @@ namespace MicroTube.Tests.Integration
         {
             this.diagnosticMessageSink = diagnosticMessageSink;
         }
-
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             diagnosticMessageSink.OnMessage(new DiagnosticMessage("Creating test db"));
             TestDatabase.Create();
-
+            builder.UseConfiguration(ConfigurationProvider.GetConfiguration());
             builder.ConfigureServices(services =>
             {
-                var config = services.SingleOrDefault(_=>_.ServiceType == typeof(IConfiguration));
-                if (config != null)
-                    services.Remove(config);
-                services.AddSingleton(ConfigurationProvider.GetConfiguration());
+                //var config = services.SingleOrDefault(_=>_.ServiceType == typeof(IConfiguration));
+                //if (config != null)
+                //    services.Remove(config);
+                //services.AddSingleton(ConfigurationProvider.GetConfiguration());
 
                 var authEmailManager = services.SingleOrDefault(_ => _.ServiceType == typeof(IAuthenticationEmailManager));
                 if (authEmailManager != null)

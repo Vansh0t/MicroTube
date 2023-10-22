@@ -8,6 +8,7 @@ using MicroTube.Services.Cryptography;
 using MicroTube.Services.Email;
 using MicroTube.Services.Users;
 using MicroTube.Services.Validation;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,7 +27,6 @@ builder.Services.AddScoped<EmailPasswordAuthenticationProvider>();
 builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtClaims, JwtClaims>();
 builder.Services.AddTransient<ISecureTokensProvider, SHA256SecureTokensProvider>();
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -50,13 +50,15 @@ var app = builder.Build();
 
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+app.UseRouting();
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
-app.UseStaticFiles();
-app.UseRouting();
 app.MapFallbackToFile("index.html");
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

@@ -178,18 +178,19 @@ namespace MicroTube.Services.Authentication.Providers
             var jwtTokenResult = _jwtTokenProvider.GetToken(_jwtClaims.GetClaims(user));
             return jwtTokenResult;
         }
-        public async Task<IServiceResult> StartEmailChange(int userId, string newEmail)
+        public async Task<IServiceResult> StartEmailChange(int userId, string newEmail, string password)
         {
             var validationResult = _emailValidator.Validate(newEmail);
             if (validationResult.IsError)
                 return validationResult;
 
-            var emailOccupied = _userDataAccess.GetByEmail(newEmail) != null;
-            if (emailOccupied)
+            var userWithSameEmail = await _userDataAccess.GetByEmail(newEmail);
+            if (userWithSameEmail != null)
                 return ServiceResult.Fail(400, "Email already in use, try another one.");
 
             var authUser = await _dataAccess.GetWithUser(userId);
-            if (authUser == null || authUser.Authentication == null || !authUser.IsEmailConfirmed)
+            if (authUser == null || authUser.Authentication == null || !authUser.IsEmailConfirmed 
+                || !_passwordEncryption.Validate(authUser.Authentication.PasswordHash, password))
                 return ServiceResult.Fail(403, "Forbidden");
 
             authUser.Authentication = ApplyEmailConfirmation(authUser.Authentication, out string confirmationString);
@@ -202,18 +203,21 @@ namespace MicroTube.Services.Authentication.Providers
         {
             if (string.IsNullOrWhiteSpace(stringRaw))
                 return ServiceResult<string>.Fail(403, "Forbidden");
+
             var stringHash = _secureTokensProvider.HashSecureToken(stringRaw);
             var user = await _dataAccess.GetByEmailConfirmationString(stringHash);
             var authData = user?.Authentication;
-            if(user == null || authData == null  || authData.PendingEmail  == null || authData.EmailConfirmationString == null
+            if (user == null || authData == null || authData.PendingEmail == null || authData.EmailConfirmationString == null
                 || DateTime.UtcNow > authData.EmailConfirmationStringExpiration
-                || !_passwordEncryption.Validate(authData.EmailConfirmationString, stringRaw))
+                || !_secureTokensProvider.Validate(authData.EmailConfirmationString, stringRaw))
             {
                 return ServiceResult.Fail(403, "Forbidden");
             }
-            var emailOccupied = _userDataAccess.GetByEmail(authData.PendingEmail) != null;
-            if (emailOccupied)
+            var userWithSameEmail = await _userDataAccess.GetByEmail(authData.PendingEmail);
+            if (userWithSameEmail != null)
+            {
                 return ServiceResult.Fail(400, "Email already in use, try another one.");
+            }
             string newEmail = authData.PendingEmail;
             authData.EmailConfirmationString = null;
             authData.EmailConfirmationStringExpiration = null;

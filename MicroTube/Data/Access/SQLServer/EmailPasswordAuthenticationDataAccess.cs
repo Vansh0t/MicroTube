@@ -147,11 +147,12 @@ namespace MicroTube.Data.Access.SQLServer
             {
                 auth.UserId,
                 auth.EmailConfirmationString,
-                auth.EmailConfirmationStringExpiration
+                auth.EmailConfirmationStringExpiration,
+                auth.PendingEmail
             };
             var emailUpdateParameters = new
             {
-                Id = auth.UserId,
+                auth.UserId,
                 Email = newEmail,
                 IsEmailConfirmed = isEmailConfirmed
             };

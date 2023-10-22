@@ -34,7 +34,7 @@ namespace MicroTube.Tests
             string password = Guid.NewGuid().ToString().Replace("-", "");
             string email = Guid.NewGuid().ToString().Replace("-", "") + "@email.com";
             string username = Guid.NewGuid().ToString().Replace("-", "").Remove(0,8);
-            var response = await client.PostAsJsonAsync("authentication/emailpassword/signup", new SignUpEmailPasswordDTO(username, email, password));
+            var response = await client.PostAsJsonAsync("authentication/EmailPassword/SignUp", new SignUpEmailPasswordDTO(username, email, password));
             if(!response.IsSuccessStatusCode)
             {
                 string error = await response.Content.ReadAsStringAsync();
@@ -46,6 +46,21 @@ namespace MicroTube.Tests
                 throw new Exception("Response content is null");
             }
             return (email, username, password, responseContent); 
+        }
+        public static async Task<AuthenticationResponseDTO> SignInTestUser(this HttpClient client, string credential, string password)
+        {
+            var response = await client.PostAsJsonAsync("authentication/EmailPassword/SignIn", new SignInCredentialPasswordDTO(credential, password));
+            if (!response.IsSuccessStatusCode)
+            {
+                string error = await response.Content.ReadAsStringAsync();
+                throw new Exception(error + " " + credential + " " + password);
+            }
+            var responseContent = await response.Content.ReadFromJsonAsync<AuthenticationResponseDTO>();
+            if (responseContent == null)
+            {
+                throw new Exception("Response content is null");
+            }
+            return responseContent;
         }
         public static void ApplyJWTBearer(this HttpClient client, string jwtToken)
         {
