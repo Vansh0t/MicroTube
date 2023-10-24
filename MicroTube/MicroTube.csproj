@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.4" />
+    <PackageReference Include="MailKit" Version="4.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.11" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
@@ -76,5 +77,13 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Utils\" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Update="Templates\Email\EmailConfirmation.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Templates\Email\PasswordReset.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 </Project>

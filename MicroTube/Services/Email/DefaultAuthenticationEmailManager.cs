@@ -2,38 +2,67 @@
 {
     public class DefaultAuthenticationEmailManager : IAuthenticationEmailManager
     {
+        private const string EMAIL_CONFIRMATION_QUERY_STRING = "emailConfirmationString";
+        private const string PASSWORD_RESET_QUERY_STRING = "passwordResetString";
+
         private readonly ILogger<DefaultAuthenticationEmailManager> _logger;
         private readonly IEmailManager _emailManager;
+        private readonly IEmailTemplatesProvider _templatesProvider;
+        private readonly IConfiguration _config;
 
-        public DefaultAuthenticationEmailManager(ILogger<DefaultAuthenticationEmailManager> logger, IEmailManager emailManager)
+        public DefaultAuthenticationEmailManager(
+            ILogger<DefaultAuthenticationEmailManager> logger,
+            IEmailManager emailManager,
+            IEmailTemplatesProvider templatesProvider,
+            IConfiguration config)
         {
             _logger = logger;
             _emailManager = emailManager;
+            _templatesProvider = templatesProvider;
+            _config = config;
         }
 
-        public Task SendEmailChangeEnd(string recipient, string data)
+        public async Task SendEmailChangeEnd(string recipient, string data)
         {
-            throw new NotImplementedException();
+            await _emailManager.Send("Email Changed", recipient, "<b>Email changed successfully.</b>");
         }
 
-        public Task SendEmailChangeStart(string recipient, string data)
+        public async Task SendEmailChangeStart(string recipient, string data)
         {
-            throw new NotImplementedException();
+            var options = _config.GetRequiredByKey<EmailPasswordAuthEndpointsOptions>(EmailPasswordAuthEndpointsOptions.KEY);
+            var uriBuilder = new UriBuilder(options.EmailChange);
+            uriBuilder.Query = $"{EMAIL_CONFIRMATION_QUERY_STRING}={data}";
+            var url = uriBuilder.ToString();
+            _logger.LogInformation(url);
+            var template = await _templatesProvider.BuildEmailConfirmationTemplate(url);
+            await _emailManager.Send("Email Change Confirmation", recipient, template);
         }
 
-        public Task SendEmailConfirmation(string recipient, string data)
+        public async Task SendEmailConfirmation(string recipient, string data)
         {
-            throw new NotImplementedException();
+            var options = _config.GetRequiredByKey<EmailPasswordAuthEndpointsOptions>(EmailPasswordAuthEndpointsOptions.KEY);
+            var uriBuilder = new UriBuilder(options.EmailConfirmation);
+            uriBuilder.Query = $"{EMAIL_CONFIRMATION_QUERY_STRING}={data}";
+            var url = uriBuilder.ToString();
+            _logger.LogInformation(url);
+            var template = await _templatesProvider.BuildEmailConfirmationTemplate(url);
+            await _emailManager.Send("Email Confirmation", recipient, template);
         }
 
-        public Task SendPasswordResetEnd(string recipient, string data)
+        public async Task SendPasswordResetEnd(string recipient, string data)
         {
-            throw new NotImplementedException();
+            await _emailManager.Send("Password Changed", recipient, "<b>Password changed successfully.</b>");
         }
 
-        public Task SendPasswordResetStart(string recipient, string data)
+        public async Task SendPasswordResetStart(string recipient, string data)
         {
-            throw new NotImplementedException();
+            var options = _config.GetRequiredByKey<EmailPasswordAuthEndpointsOptions>(EmailPasswordAuthEndpointsOptions.KEY);
+            var uriBuilder = new UriBuilder(options.PasswordReset);
+            uriBuilder.Query = $"{PASSWORD_RESET_QUERY_STRING}={data}";
+            var url = uriBuilder.ToString();
+            _logger.LogInformation(url);
+            var template = await _templatesProvider.BuildPasswordResetTemplate(url);
+            await _emailManager.Send("Password Reset Requested", recipient, template);
         }
     }
 }

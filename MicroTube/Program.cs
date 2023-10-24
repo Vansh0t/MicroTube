@@ -22,6 +22,7 @@ builder.Services.AddSingleton<IPasswordValidator, DefaultPasswordValidator>();
 builder.Services.AddSingleton<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddSingleton<IAppUserDataAccess, AppUserDataAccess>();
 builder.Services.AddSingleton<IEmailManager, DefaultEmailManager>();
+builder.Services.AddSingleton<IEmailTemplatesProvider, DefaultEmailTemplatesProvider>();
 builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEmailManager>();
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IEmailPasswordAuthenticationDataAccess, EmailPasswordAuthenticationDataAccess>();
