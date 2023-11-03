@@ -17,5 +17,12 @@
                 throw new ConfigurationException($"Unable to bind configuration section {sectionKey} to {typeof(T)}");
             return result;
         }
-    }
+		public static string GetRequiredValue(this IConfiguration configuration, string path)
+		{
+			string? value = configuration[path];
+			if(value == null)
+				throw new ConfigurationException($"Required value is null. Path: {path}");
+			return value;
+		}		
+	}
 }

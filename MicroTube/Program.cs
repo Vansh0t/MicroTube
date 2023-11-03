@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using MicroTube;
 using MicroTube.Constants;
 using MicroTube.Data.Access;
 using MicroTube.Data.Access.SQLServer;
@@ -40,9 +41,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["JWT:Key"])),
-            ValidIssuer = config["JWT:Issuer"],
-            ValidAudience = config["JWT:Audience"]
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config.GetRequiredValue("JWT:Key"))),
+            ValidIssuer = config.GetRequiredValue("JWT:Issuer"),
+            ValidAudience = config.GetRequiredValue("JWT:Audience")
         };
     });
 builder.Services.AddAuthorization(options =>
@@ -52,6 +53,15 @@ builder.Services.AddAuthorization(options =>
 });
 builder.Services.AddControllersWithViews();
 builder.Services.AddOpenApiDocument();
+builder.Services.AddCors(options =>
+{
+	options.AddDefaultPolicy(policy =>
+	{
+		policy.WithOrigins(config.GetRequiredValue("ClientApp:URL"));
+		policy.AllowAnyHeader();
+		policy.AllowAnyMethod();
+	});
+});
 
 var app = builder.Build();
 
@@ -62,6 +72,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(
