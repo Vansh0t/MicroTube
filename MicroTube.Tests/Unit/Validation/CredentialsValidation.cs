@@ -33,7 +33,7 @@ namespace MicroTube.Tests.Unit.Validation
         [Fact]
         public void TestEmailSuccess()
         {
-            IServiceResult result = _emailValidator.Validate("test@email.com");
+            IServiceResult result = _emailValidator.Validate("somemail12@gmail.com");
             Assert.False(result.IsError);
         }
         [Theory]

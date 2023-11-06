@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.4" />
+    <PackageReference Include="Dapper" Version="2.1.15" />
     <PackageReference Include="MailKit" Version="4.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.11" />
@@ -32,6 +32,7 @@
     <None Remove="ClientApp\src\app\data\AppUser.ts" />
     <None Remove="ClientApp\src\app\data\DTO\AuthenticationResponseDTO.ts" />
     <None Remove="ClientApp\src\app\data\DTO\SignInCredentialPasswordDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\SignUpEmailPasswordDTO.ts" />
     <None Remove="ClientApp\src\app\home\home.component.html" />
     <None Remove="ClientApp\src\app\home\home.component.ts" />
     <None Remove="ClientApp\src\app\services\auth\AuthManager.ts" />
@@ -46,6 +47,9 @@
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\auth\signin.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\data\AppUser.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\SignUpEmailPasswordDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="ClientApp\src\app\data\DTO\SignInCredentialPasswordDTO.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
