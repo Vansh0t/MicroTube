@@ -15,7 +15,7 @@
 
         public async Task<string> BuildEmailConfirmationTemplate(string url)
         {
-            var templateLocation = Path.Join(GetTemplatesLocation(), EMAIL_CONFIRMATION_TEMPLATE_FILE_NAME);
+            var templateLocation = Path.Join(_config.GetAppRootPath(), GetTemplatesLocation(), EMAIL_CONFIRMATION_TEMPLATE_FILE_NAME);
             if (!File.Exists(templateLocation))
                 throw new RequiredObjectNotFoundException($"Unable to find email confirmation template at {templateLocation}");
             var result = await File.ReadAllTextAsync(templateLocation);
@@ -23,7 +23,7 @@
         }
         public async Task<string> BuildPasswordResetTemplate(string url)
         {
-            var templateLocation = Path.Join(GetTemplatesLocation(), PASSWORD_RESET_TEMPLATE_FILE_NAME);
+            var templateLocation = Path.Join(_config.GetAppRootPath(), GetTemplatesLocation(), PASSWORD_RESET_TEMPLATE_FILE_NAME);
             if (!File.Exists(templateLocation))
                 throw new RequiredObjectNotFoundException($"Unable to find password reset template at {templateLocation}");
             var result = await File.ReadAllTextAsync(templateLocation);

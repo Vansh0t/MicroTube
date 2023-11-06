@@ -33,7 +33,6 @@
             var uriBuilder = new UriBuilder(options.EmailChange);
             uriBuilder.Query = $"{EMAIL_CONFIRMATION_QUERY_STRING}={data}";
             var url = uriBuilder.ToString();
-            _logger.LogInformation(url);
             var template = await _templatesProvider.BuildEmailConfirmationTemplate(url);
             await _emailManager.Send("Email Change Confirmation", recipient, template);
         }
@@ -44,7 +43,6 @@
             var uriBuilder = new UriBuilder(options.EmailConfirmation);
             uriBuilder.Query = $"{EMAIL_CONFIRMATION_QUERY_STRING}={data}";
             var url = uriBuilder.ToString();
-            _logger.LogInformation(url);
             var template = await _templatesProvider.BuildEmailConfirmationTemplate(url);
             await _emailManager.Send("Email Confirmation", recipient, template);
         }
@@ -60,7 +58,6 @@
             var uriBuilder = new UriBuilder(options.PasswordReset);
             uriBuilder.Query = $"{PASSWORD_RESET_QUERY_STRING}={data}";
             var url = uriBuilder.ToString();
-            _logger.LogInformation(url);
             var template = await _templatesProvider.BuildPasswordResetTemplate(url);
             await _emailManager.Send("Password Reset Requested", recipient, template);
         }

@@ -23,6 +23,13 @@
 			if(value == null)
 				throw new ConfigurationException($"Required value is null. Path: {path}");
 			return value;
-		}		
+		}
+		public static string GetAppRootPath(this IConfiguration configuration)
+		{
+			string? value = configuration.GetValue<string>(WebHostDefaults.ContentRootKey);
+			if (value == null)
+				throw new ConfigurationException($"WebHostDefaults.ContentRootKey value is null.");
+			return value;
+		}
 	}
 }
