@@ -18,4 +18,20 @@ code {
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
+mat-mdc-form-field-bottom-align::before
+{
+  content: "";
+  display: none;
+  height: 16px;
+}
+*/
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/*mat-form-field .mat-mdc-form-field-subscript-wrapper {
+  content: "";
+  display: none;
+  height: 16px;
+}
 */

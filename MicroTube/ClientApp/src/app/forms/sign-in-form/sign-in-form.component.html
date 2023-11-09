@@ -1,0 +1,19 @@
+<div class="p-2">
+	<form class="w-100" (ngSubmit)="submit()" [formGroup]="formGroup">
+		<mat-form-field class="w-100" subscriptSizing="dynamic" color="accent" appearance="fill">
+			<mat-label>Email or Username</mat-label>
+			<input matInput [formControl]="credentialControl">
+			<mat-error class="small" *ngIf="getCredentialError() != null">{{getCredentialError()}}</mat-error>
+		</mat-form-field>
+		<mat-form-field class="mt-2 w-100" subscriptSizing="dynamic" color="accent" appearance="fill">
+			<mat-label>Password</mat-label>
+			<input type="password" matInput [formControl]="passwordControl">
+			<mat-error class="small" *ngIf="getPasswordError() != null">{{getPasswordError()}}</mat-error>
+		</mat-form-field>
+		<mat-error class="small ms-3" *ngIf="getServerError() != null">{{getServerError()}}</mat-error>
+		<div class="w-100 d-flex justify-content-around mt-1">
+			<mat-checkbox [formControl]="rememberMeControl">Remember Me</mat-checkbox>
+			<button mat-button color="accent" [disabled]="!formGroup.valid">Sign In</button>
+		</div>
+	</form>
+</div>
