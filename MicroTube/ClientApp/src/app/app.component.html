@@ -1,7 +1,7 @@
 <body class="mat-app-background">
   <mat-toolbar class="px-5">
 	  <h3 class="ps-2 me-auto"><button mat-button routerLink="/">MicroTube</button></h3>
-	<div *ngIf="!(authManager.jwtSignedInUser$ | async); else userProfile">
+	<div *ngIf="!(authManager.jwtSignedInUser$ | async) as user; else userProfile">
 		<button mat-button [matMenuTriggerFor]="signInMenu">Sign In</button>
 		<button mat-button routerLink="/signup">Sign Up</button>
 		<mat-menu #signInMenu>
@@ -10,6 +10,16 @@
 	</div>
 	<ng-template #userProfile>
 		<div class="d-flex align-items-center">
+			<div *ngIf="isUserEmailConfirmed() === false">
+				<button class="d-flex" mat-icon-button color="warn" [matMenuTriggerFor]="emailConfirmationReminder">
+					<mat-icon>
+						mark_email_unread
+					</mat-icon>
+				</button>
+				<mat-menu #emailConfirmationReminder>
+					<email-confirmation-reminder/>
+				</mat-menu>
+			</div>
 			<p class="mb-0">Welcome, <strong>{{authManager.jwtSignedInUser$.value?.publicUsername}}</strong>.</p>
 			<button mat-icon-button class="d-flex" color="primary" [matMenuTriggerFor]="signOutMenu" #signOutMenuTrigger><mat-icon>logout</mat-icon></button>
 			<mat-menu #signOutMenu>

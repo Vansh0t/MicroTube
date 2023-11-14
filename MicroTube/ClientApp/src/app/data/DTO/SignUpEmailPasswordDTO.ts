@@ -1,13 +1,13 @@
 
 export class SignUpEmailPasswordDTO
 {
-  Username: string;
-  Email: string;
-  Password: string;
+  username: string;
+  email: string;
+  password: string;
   constructor(username: string, email: string, password: string)
   {
-    this.Username = username;
-    this.Email = email;
-    this.Password = password;
+    this.username = username;
+    this.email = email;
+    this.password = password;
   }
 }

@@ -40,6 +40,8 @@ export class AuthManager
       if (jwtUser.isExpired())
       {
         //refresh jwt here;
+        this.jwtSignedInUser$ = new BehaviorSubject<JWTUser | null>(null);
+        return;
       }
       this.jwtSignedInUser$ = new BehaviorSubject<JWTUser | null>(jwtUser);
     }
@@ -58,7 +60,7 @@ export class AuthManager
   {
     authProvider.signUp()
       .subscribe({
-        next: this.onSignInResult.bind(this),
+        next: this.applyAuthResult.bind(this),
         error: onError
       });
     this.rememberUser = rememberUser;
@@ -67,7 +69,7 @@ export class AuthManager
   {
     authProvider.signIn()
       .subscribe({
-        next: this.onSignInResult.bind(this),
+        next: this.applyAuthResult.bind(this),
         error: onError
       });
     this.rememberUser = rememberUser;
@@ -83,7 +85,7 @@ export class AuthManager
     }
     return true;
   }
-  private onSignInResult(response: AuthenticationResponseDTO)
+  applyAuthResult(response: AuthenticationResponseDTO)
   {
     if (response == null || response.jwt == null || response.jwt.trim() == "")
       throw new Error("Got invalid sign in response. The response or response.jwt is null");

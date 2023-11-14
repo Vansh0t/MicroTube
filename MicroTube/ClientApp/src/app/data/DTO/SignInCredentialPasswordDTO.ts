@@ -1,11 +1,11 @@
 
 export class SignInCredentialPasswordDTO
 {
-  Credential: string;
-  Password: string;
+  credential: string;
+  password: string;
   constructor(credential: string, password:string)
   {
-    this.Credential = credential;
-    this.Password = password;
+    this.credential = credential;
+    this.password = password;
   }
 }

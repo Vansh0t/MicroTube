@@ -19,7 +19,8 @@ export class SignUpFormComponent {
   readonly usernameControl: FormControl;
   readonly emailControl: FormControl;
   readonly passwordControl: FormControl;
-  readonly passwordConfirmationControl;
+  readonly passwordConfirmationControl: FormControl;
+  readonly rememberMeControl: FormControl;
 
   private readonly authManager: AuthManager;
   private readonly authProvider: EmailPasswordAuthProvider;
@@ -47,19 +48,16 @@ export class SignUpFormComponent {
         authValidators.letterRequiredValidator,
         authValidators.usernameValidator]);
     this.emailControl = new FormControl("", [Validators.required, Validators.email]);
-    this.passwordControl = new FormControl("",
-      [Validators.required,
-        Validators.minLength(this.MIN_PASSWORD_LENGTH),
-        Validators.maxLength(this.MAX_PASSWORD_LENGTH),
-        authValidators.letterRequiredValidator,
-        authValidators.digitRequiredValidator]);
+    this.passwordControl = new FormControl("",authValidators.buildPasswordValidatorsArray());
     this.passwordConfirmationControl = new FormControl("");
+    this.rememberMeControl = new FormControl(false);
 
     this.formGroup = new FormGroup({
       usernameControl: this.usernameControl,
       emailControl: this.emailControl,
       passwordControl: this.passwordControl,
-      passwordConfirmationControl: this.passwordConfirmationControl
+      passwordConfirmationControl: this.passwordConfirmationControl,
+      rememberMeControl: this.rememberMeControl 
     }, [authValidators.buildPasswordsMatchValidator("passwordControl", "passwordConfirmationControl")]);
   }
   ngOnInit()
@@ -141,7 +139,7 @@ export class SignUpFormComponent {
     if (!this.formGroup.valid)
       return;
     this.authProvider.signUpData = new SignUpEmailPasswordDTO(this.usernameControl.value, this.emailControl.value, this.passwordControl.value);
-    this.authManager.signUp(this.authProvider, false, this.onServerError.bind(this));
+    this.authManager.signUp(this.authProvider, this.rememberMeControl.value, this.onServerError.bind(this));
   }
   getServerError()
   {
@@ -151,7 +149,7 @@ export class SignUpFormComponent {
   }
   private onUserSignedIn()
   {
-    if (this.authManager.jwtSignedInUser$.value != null)
+    if (this.authManager.isSignedIn())
       this.router.navigate(["/"]);
   }
   private onServerError(error: HttpErrorResponse)

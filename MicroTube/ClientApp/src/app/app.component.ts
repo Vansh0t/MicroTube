@@ -14,7 +14,10 @@ export class AppComponent {
   constructor(authManager: AuthManager)
   {
     this.authManager = authManager;
-    
+  }
+  isUserEmailConfirmed()
+  {
+    return this.authManager.jwtSignedInUser$.value?.isEmailConfirmed;
   }
   closeSignOutMenu()
   {

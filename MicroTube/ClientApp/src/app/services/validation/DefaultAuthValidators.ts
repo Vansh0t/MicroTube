@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { AbstractControl, FormGroup, ValidationErrors, ValidatorFn } from "@angular/forms";
+import { AbstractControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from "@angular/forms";
 @Injectable({
   providedIn: "root"
 })
@@ -53,5 +53,14 @@ export class DefaultAuthValidators
       return validatorError;
     };
   }
-  
+  buildPasswordValidatorsArray(): Array<(control: AbstractControl) => ValidationErrors | null>
+  {
+    const required = Validators.required;
+    const minLength = Validators.minLength(this.MIN_PASSWORD_LENGTH);
+    const maxLength = Validators.maxLength(this.MAX_PASSWORD_LENGTH);
+    const digit = this.digitRequiredValidator;
+    const letter = this.letterRequiredValidator;
+    //const passwordMatch = this.buildPasswordsMatchValidator(passwordControlKey, passwordConfirmationControlKey);
+    return [required, minLength, maxLength, digit, letter];
+  }
 }

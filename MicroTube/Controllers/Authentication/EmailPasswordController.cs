@@ -44,14 +44,28 @@ namespace MicroTube.Controllers.Authentication
                 return StatusCode(resultJWT.Code, resultJWT.Error);
             return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));
         }
-        [HttpGet("ConfirmEmail")]
+		[Authorize]
+		[HttpPost("ConfirmEmailResend")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		public async Task<IActionResult> ConfirmEmail()
+		{
+			int userId = _claims.GetUserId(User);
+			var resultJWT = await _emailPasswordAuthentication.ResendEmailConfirmation(userId);
+			if (resultJWT.IsError)
+				return StatusCode(resultJWT.Code, resultJWT.Error);
+			return Ok();
+		}
+		[HttpPost("ConfirmEmail")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
-        public async Task<IActionResult> ConfirmEmail(string emailConfirmationString)
+        public async Task<IActionResult> ConfirmEmail(MessageDTO emailConfirmationString)
         {
-            var resultJWT = await _emailPasswordAuthentication.ConfirmEmail(emailConfirmationString);
+            var resultJWT = await _emailPasswordAuthentication.ConfirmEmail(emailConfirmationString.Message);
             if (resultJWT.IsError || resultJWT.ResultObject == null)
                 return StatusCode(resultJWT.Code, resultJWT.Error);
-            return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));
+			if(User.Identity != null && User.Identity.IsAuthenticated)
+				return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));
+			return Ok();
         }
         [Authorize]
         [HttpPost("ChangeEmailStart")]
@@ -64,7 +78,7 @@ namespace MicroTube.Controllers.Authentication
                 return StatusCode(resultJWT.Code, resultJWT.Error);
             return Ok();
         }
-        [HttpGet("ChangeEmailConfirm")]
+        [HttpPost("ChangeEmailConfirm")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> ChangeEmailEnd(string emailChangeConfirmationString)
         {
@@ -74,19 +88,19 @@ namespace MicroTube.Controllers.Authentication
             return Ok("An email will be sent to this email if an account is registered under it.");
         }
         [HttpPost("ResetPassword")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MessageDTO))]
         public async Task<IActionResult> ResetPasswordStart(ResetPasswordStartDTO resetData)
         {
             var result = await _emailPasswordAuthentication.StartPasswordReset(resetData.Email);
             if(result.IsError)
                 return StatusCode(result.Code, result.Error);
-            return Ok("An email will be sent to this email if an account is registered under it.");
+            return Ok(new MessageDTO("An email will be sent to this address if an account is registered under it."));
         }
         [HttpPost("ValidatePasswordReset")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
-        public async Task<IActionResult> ValidatePasswordReset([FromBody] string passwordResetString)
+        public async Task<IActionResult> ValidatePasswordReset(MessageDTO passwordResetString)
         {
-            var result = await _emailPasswordAuthentication.UsePasswordResetString(passwordResetString);
+            var result = await _emailPasswordAuthentication.UsePasswordResetString(passwordResetString.Message);
             if (result.IsError)
                 return StatusCode(result.Code, result.Error);
             if (result.ResultObject == null)
@@ -99,7 +113,7 @@ namespace MicroTube.Controllers.Authentication
         public async Task<IActionResult> ChangePassword(PasswordChangeDTO changeData)
         {
             int userId = _claims.GetUserId(HttpContext.User);
-            var result = await  _emailPasswordAuthentication.ChangePassword(userId, changeData.NewPassword, changeData.ConfirmedNewPassword);
+            var result = await  _emailPasswordAuthentication.ChangePassword(userId, changeData.NewPassword);
             if (result.IsError)
                 return StatusCode(result.Code, result.Error);
             return Ok();

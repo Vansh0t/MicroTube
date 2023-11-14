@@ -28,11 +28,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ClientApp\src\app\auth\signin.component.ts" />
     <None Remove="ClientApp\src\app\data\AppUser.ts" />
     <None Remove="ClientApp\src\app\data\DTO\AuthenticationResponseDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\MessageDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\PasswordChangeDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\ResetPasswordDTO.ts" />
     <None Remove="ClientApp\src\app\data\DTO\SignInCredentialPasswordDTO.ts" />
     <None Remove="ClientApp\src\app\data\DTO\SignUpEmailPasswordDTO.ts" />
+    <None Remove="ClientApp\src\app\enums.ts" />
     <None Remove="ClientApp\src\app\home\home.component.html" />
     <None Remove="ClientApp\src\app\home\home.component.ts" />
     <None Remove="ClientApp\src\app\services\auth\AuthManager.ts" />
@@ -43,11 +46,20 @@
     <None Remove="ClientApp\src\app\services\http\interceptors\JWTAuthInterceptor.ts" />
     <None Remove="ClientApp\src\app\services\ServiceResult.ts" />
     <None Remove="ClientApp\src\app\services\validation\DefaultAuthValidators.ts" />
+    <None Remove="ClientApp\src\app\utils.ts" />
   </ItemGroup>
 
   <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\app\auth\signin.component.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\data\AppUser.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\MessageDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\PasswordChangeDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\ResetPasswordDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="ClientApp\src\app\data\DTO\SignUpEmailPasswordDTO.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
@@ -55,6 +67,7 @@
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="ClientApp\src\app\data\DTO\AuthenticationResponseDTO.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\enums.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\home\home.component.html">
       <SubType>Code</SubType>
     </TypeScriptCompile>
@@ -69,6 +82,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\services\http\interceptors\APIBaseURLInterceptor.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\services\ServiceResult.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\services\validation\DefaultAuthValidators.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\utils.ts" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

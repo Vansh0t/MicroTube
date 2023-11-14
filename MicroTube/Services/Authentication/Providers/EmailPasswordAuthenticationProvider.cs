@@ -145,7 +145,23 @@ namespace MicroTube.Services.Authentication.Providers
             var jwtTokenResult = _jwtTokenProvider.GetToken(_jwtClaims.GetClaims(user));
             return jwtTokenResult;
         }
-        
+        public async Task<IServiceResult> ResendEmailConfirmation(int userId)
+		{
+			var authUser = await _dataAccess.GetWithUser(userId);
+			if (authUser==null)
+			{
+				_logger.LogError($"Unable to resend email confirmation: User {userId} does not exist. ");
+				return ServiceResult.Fail(404, "User does not exists");
+			}
+			if(authUser.IsEmailConfirmed || authUser.Authentication == null)
+			{
+				return ServiceResult.Fail(400, "Action not required");
+			}
+			authUser.Authentication = ApplyEmailConfirmation(authUser.Authentication, out var confirmationString);
+			await _dataAccess.UpdateEmailConfirmation(authUser.Authentication, authUser.IsEmailConfirmed);
+			await _authEmailManager.SendEmailConfirmation(authUser.Email, confirmationString);
+			return ServiceResult.Success();
+		}
         public async Task<IServiceResult<string>> ConfirmEmail(string stringRaw)
         {
             if (string.IsNullOrWhiteSpace(stringRaw))
@@ -263,10 +279,8 @@ namespace MicroTube.Services.Authentication.Providers
             await _dataAccess.UpdatePasswordReset(authData);
             return _jwtPasswordResetTokenProvider.GetToken(user.Id.ToString());
         }
-        public async Task<IServiceResult> ChangePassword(int userId, string newPassword, string confirmedNewPassword)
+        public async Task<IServiceResult> ChangePassword(int userId, string newPassword)
         {
-            if (newPassword != confirmedNewPassword)
-                return ServiceResult.Fail(400, "Passwords don't match");
             var validationResult = _passwordValidator.Validate(newPassword);
             if (validationResult.IsError)
                 return ServiceResult.Fail(validationResult.Code, validationResult.Error);

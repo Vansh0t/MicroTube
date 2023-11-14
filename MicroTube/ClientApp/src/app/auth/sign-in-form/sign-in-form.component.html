@@ -11,9 +11,13 @@
 			<mat-error class="small" *ngIf="getPasswordError() != null">{{getPasswordError()}}</mat-error>
 		</mat-form-field>
 		<mat-error class="small ms-3" *ngIf="getServerError() != null">{{getServerError()}}</mat-error>
-		<div class="w-100 d-flex justify-content-around mt-1">
-			<mat-checkbox [formControl]="rememberMeControl">Remember Me</mat-checkbox>
-			<button mat-button color="accent" [disabled]="!formGroup.valid">Sign In</button>
+		<a class="ms-1 small" mat-button [matMenuTriggerFor]="resetPasswordMenu">Forgot password?</a>
+		<mat-menu #resetPasswordMenu>
+			<reset-password-form (click)="$event.stopPropagation()" />
+		</mat-menu>
+		<div class="w-100 d-flex">
+			<mat-checkbox class="me-auto" [formControl]="rememberMeControl">Remember Me</mat-checkbox>
+			<button class="me-2" mat-button color="accent" [disabled]="!formGroup.valid">Sign In</button>
 		</div>
 	</form>
 </div>

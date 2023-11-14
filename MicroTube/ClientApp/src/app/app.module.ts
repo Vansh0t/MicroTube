@@ -5,18 +5,19 @@ import { RouterModule } from "@angular/router";
 
 import { AppComponent } from "./app.component";
 import { HomeComponent } from "./home/home.component";
-import { FetchDataComponent } from "./fetch-data/fetch-data.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatButtonModule } from "@angular/material/button";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatInputModule } from "@angular/material/input";
-import { AppFormsModule } from "./forms/forms.module";
-import { SignUpFormComponent } from "./forms/sign-up-form/sign-up-form.component";
+import { AppAuthModule } from "./auth/auth.module";
+import { SignUpFormComponent } from "./auth/sign-up-form/sign-up-form.component";
 import { MatIconModule } from "@angular/material/icon";
 import { AuthManager } from "./services/auth/AuthManager";
 import { JWTAuthInterceptor } from "./services/http/interceptors/JWTAuthInterceptor";
 import { APIBaseURLInterceptor } from "./services/http/interceptors/APIBaseURLInterceptor";
+import { EmailConfirmationCallbackComponent } from "./auth/email-confirmation-callback/email-confirmation-callback.component";
+import { PasswordChangeFormComponent } from "./auth/password-change-form/password-change-form.component";
 
 
 export function getBaseUrl()
@@ -45,16 +46,17 @@ const providers = [
 
 @NgModule({
   declarations: [
-    AppComponent,
-    FetchDataComponent
+    AppComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: "ng-cli-universal" }),
     HttpClientModule,
-    AppFormsModule,
+    AppAuthModule,
     RouterModule.forRoot([
       { path: "", component: HomeComponent, pathMatch: "full" },
-      { path: "signup", component: SignUpFormComponent, pathMatch: "full" }
+      { path: "signup", component: SignUpFormComponent, pathMatch: "full" },
+      { path: "Authentication/EmailPassword/ConfirmEmail", component: EmailConfirmationCallbackComponent, pathMatch: "full" },
+      { path: "Authentication/EmailPassword/ResetPassword", component: PasswordChangeFormComponent, pathMatch: "full" }
     ]),
     BrowserAnimationsModule,
     MatToolbarModule,

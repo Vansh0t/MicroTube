@@ -3,11 +3,9 @@
     public class PasswordChangeDTO
     {
         public string NewPassword { get; set; }
-        public string ConfirmedNewPassword { get; set; }
-        public PasswordChangeDTO(string newPassword, string confirmedNewPassword)
+        public PasswordChangeDTO(string newPassword)
         {
             NewPassword = newPassword;
-            ConfirmedNewPassword = confirmedNewPassword;
         }
     }
 }

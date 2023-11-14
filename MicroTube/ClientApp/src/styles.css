@@ -27,11 +27,13 @@ mat-mdc-form-field-bottom-align::before
 */
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-/*mat-form-field .mat-mdc-form-field-subscript-wrapper {
-  content: "";
-  display: none;
-  height: 16px;
+/*.mat-mdc-dialog-container .mdc-dialog__content {
+  color: inherit !important;
 }
-*/
+
+.mat-mdc-dialog-container .mdc-dialog__content {
+  line-height: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: inherit !important;
+}*/

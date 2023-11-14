@@ -16,7 +16,7 @@ export class JWTAuthInterceptor implements HttpInterceptor
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>>
   {
-    if (!this.authManager.isSignedIn())
+    if (!this.authManager.isSignedIn() || req.headers.get("Authorization") != null)
       return next.handle(req);
     const authRequest = req.clone(
       {
