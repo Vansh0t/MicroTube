@@ -41,12 +41,7 @@ export class SignUpFormComponent {
     this.MAX_PASSWORD_LENGTH = authValidators.MAX_PASSWORD_LENGTH;
     this.router = router;
 
-    this.usernameControl = new FormControl("",
-      [Validators.required,
-        Validators.minLength(this.MIN_USERNAME_LENGTH),
-        Validators.maxLength(this.MAX_USERNAME_LENGTH),
-        authValidators.letterRequiredValidator,
-        authValidators.usernameValidator]);
+    this.usernameControl = new FormControl("", authValidators.buildUsernameValidatorsArray());
     this.emailControl = new FormControl("", [Validators.required, Validators.email]);
     this.passwordControl = new FormControl("",authValidators.buildPasswordValidatorsArray());
     this.passwordConfirmationControl = new FormControl("");
