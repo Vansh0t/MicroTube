@@ -26,17 +26,6 @@
         {
             await _emailManager.Send("Email Changed", recipient, "<b>Email changed successfully.</b>");
         }
-
-        public async Task SendEmailChangeStart(string recipient, string data)
-        {
-            var options = _config.GetRequiredByKey<EmailPasswordAuthEndpointsOptions>(EmailPasswordAuthEndpointsOptions.KEY);
-            var uriBuilder = new UriBuilder(options.EmailChange);
-            uriBuilder.Query = $"{EMAIL_CONFIRMATION_QUERY_STRING}={data}";
-            var url = uriBuilder.ToString();
-            var template = await _templatesProvider.BuildEmailConfirmationTemplate(url);
-            await _emailManager.Send("Email Change Confirmation", recipient, template);
-        }
-
         public async Task SendEmailConfirmation(string recipient, string data)
         {
             var options = _config.GetRequiredByKey<EmailPasswordAuthEndpointsOptions>(EmailPasswordAuthEndpointsOptions.KEY);

@@ -21,11 +21,15 @@ namespace MicroTube.Tests.Integration.Authentication.EmailPassword
         {
             var client = _appFactory.CreateClient();
             var authEmailManager = (MockAuthenticationEmailManager)_appFactory.Services.GetRequiredService<IAuthenticationEmailManager>();
-            await client.SignUpTestUser();
+            var testUser = await client.SignUpTestUser();
+			client.ApplyJWTBearer(testUser.response.JWT);
             Assert.NotNull(authEmailManager.SentEmailConfirmation);
-            string url = $"authentication/EmailPassword/ConfirmEmail?emailConfirmationString={authEmailManager.SentEmailConfirmation}";
-            var response = await client.GetAsync(url);
+			string confirmationString = authEmailManager.SentEmailConfirmation;
+
+			string url = $"authentication/EmailPassword/ConfirmEmail";
+			var response = await client.PostAsJsonAsync(url, new MessageDTO(confirmationString));
             Assert.True(response.IsSuccessStatusCode);
+			
             var jwt = await response.Content.ReadFromJsonAsync<AuthenticationResponseDTO>();
             Assert.NotNull(jwt);
             var parsedJWT = Cryptography.ValidateAndGetClaimsFromJWTToken(jwt.JWT);
@@ -57,8 +61,8 @@ namespace MicroTube.Tests.Integration.Authentication.EmailPassword
             Assert.True(dbUser.Authentication.EmailConfirmationStringExpiration > DateTime.UtcNow);
             Assert.False(emailConfirmationStringRaw == dbUser.Authentication.EmailConfirmationString);
 
-            url = $"authentication/EmailPassword/ChangeEmailConfirm?emailChangeConfirmationString={emailConfirmationStringRaw}";
-            response = await client.GetAsync(url);
+            url = $"authentication/EmailPassword/ConfirmEmail";
+			response = await client.PostAsJsonAsync(url, new MessageDTO(emailConfirmationStringRaw));
             //content = await response.Content.ReadAsStringAsync();
             Assert.True(response.IsSuccessStatusCode);
             dbUser = await TestDatabase.GetRequiredEmailPasswordUser(user.username);

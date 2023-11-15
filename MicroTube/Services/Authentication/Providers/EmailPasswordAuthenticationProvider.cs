@@ -182,8 +182,10 @@ namespace MicroTube.Services.Authentication.Providers
                 _logger.LogCritical($"User tried to confirm email, but not existed in database");
                 return ServiceResult<string>.FailInternal();
             }
+			if(user.IsEmailConfirmed)
+				return await ConfirmEmailChange(stringRaw);
 
-            var authData = user.Authentication;
+			var authData = user.Authentication;
             if(authData == null || authData.EmailConfirmationString == null
                 || DateTime.UtcNow > authData.EmailConfirmationStringExpiration
                 || !_secureTokensProvider.Validate(authData.EmailConfirmationString, stringRaw))
@@ -215,10 +217,10 @@ namespace MicroTube.Services.Authentication.Providers
             authUser.Authentication = ApplyEmailConfirmation(authUser.Authentication, out string confirmationString);
             authUser.Authentication.PendingEmail = newEmail;
             await _dataAccess.UpdateEmailConfirmation(authUser.Authentication, authUser.IsEmailConfirmed);
-            await _authEmailManager.SendEmailChangeStart(newEmail, confirmationString);
+            await _authEmailManager.SendEmailConfirmation(newEmail, confirmationString);
             return ServiceResult.Success();
         }
-        public async Task<IServiceResult> ConfirmEmailChange(string stringRaw)
+        public async Task<IServiceResult<string>> ConfirmEmailChange(string stringRaw)
         {
             if (string.IsNullOrWhiteSpace(stringRaw))
                 return ServiceResult<string>.Fail(403, "Forbidden");
@@ -230,12 +232,12 @@ namespace MicroTube.Services.Authentication.Providers
                 || DateTime.UtcNow > authData.EmailConfirmationStringExpiration
                 || !_secureTokensProvider.Validate(authData.EmailConfirmationString, stringRaw))
             {
-                return ServiceResult.Fail(403, "Forbidden");
+                return ServiceResult<string>.Fail(403, "Forbidden");
             }
             var userWithSameEmail = await _userDataAccess.GetByEmail(authData.PendingEmail);
             if (userWithSameEmail != null)
             {
-                return ServiceResult.Fail(400, "Email already in use, try another one.");
+                return ServiceResult<string>.Fail(400, "Email already in use, try another one.");
             }
             string newEmail = authData.PendingEmail;
             authData.EmailConfirmationString = null;
@@ -243,7 +245,9 @@ namespace MicroTube.Services.Authentication.Providers
             authData.PendingEmail = null;
 
             await _dataAccess.UpdateEmailAndConfirmation(authData, newEmail, user.IsEmailConfirmed);
-            return ServiceResult.Success();
+			user.Email = newEmail;
+			var jwtTokenResult = _jwtTokenProvider.GetToken(_jwtClaims.GetClaims(user));
+			return jwtTokenResult;
         }
         public async Task<IServiceResult> StartPasswordReset(string email)
         {

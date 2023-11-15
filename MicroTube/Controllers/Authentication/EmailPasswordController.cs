@@ -78,15 +78,6 @@ namespace MicroTube.Controllers.Authentication
                 return StatusCode(resultJWT.Code, resultJWT.Error);
             return Ok();
         }
-        [HttpPost("ChangeEmailConfirm")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangeEmailEnd(string emailChangeConfirmationString)
-        {
-            var resultJWT = await _emailPasswordAuthentication.ConfirmEmailChange(emailChangeConfirmationString);
-            if (resultJWT.IsError)
-                return StatusCode(resultJWT.Code, resultJWT.Error);
-            return Ok("An email will be sent to this email if an account is registered under it.");
-        }
         [HttpPost("ResetPassword")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MessageDTO))]
         public async Task<IActionResult> ResetPasswordStart(ResetPasswordStartDTO resetData)

@@ -52,7 +52,7 @@ namespace MicroTube.Tests.Integration.Authentication.EmailPassword
 
             client.ApplyJWTBearer(passwordResetJWT.JWT);
             url = "authentication/EmailPassword/ChangePassword";
-            response = await client.PostAsJsonAsync(url, new PasswordChangeDTO(newPassword, newPassword));
+            response = await client.PostAsJsonAsync(url, new PasswordChangeDTO(newPassword));
             dbUser = await TestDatabase.GetRequiredEmailPasswordUser(user.username);
             bool isNewPasswordValid = passwordEncryption.Validate(dbUser.Authentication.PasswordHash, newPassword);
             Assert.True(response.IsSuccessStatusCode);
