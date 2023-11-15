@@ -1,3 +1,6 @@
+@use '@angular/material' as mat;
+@import '@angular/material/theming';
+@import './custom-theme';
 /* You can add global styles to this file, and also import other style files */
 
 /* Provide sufficient contrast against white background */
@@ -27,6 +30,18 @@ mat-mdc-form-field-bottom-align::before
 */
 
 html, body { height: 100%; }
+a {
+  color: mat-color($MicroTube-primary, 50) !important;
+}
+.dense-minus-1 {
+  @include mat.all-component-densities(-1);
+}
+.dense-minus-2 {
+  @include mat.all-component-densities(-2);
+}
+.dense-minus-3 {
+  @include mat.all-component-densities(-3);
+}
 /*.mat-mdc-dialog-container .mdc-dialog__content {
   color: inherit !important;
 }

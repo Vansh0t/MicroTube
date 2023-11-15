@@ -1,4 +1,10 @@
-<div class="px-2 d-flex flex-column align-items-end">
-	<p class="mb-1">An email was sent to you.<br>Please, use it to confirm the email address.</p>
-	<button mat-button color="accent" (click)="resendConfirmationEmail()">Send Again</button>
-</div>
+<button class="d-flex" mat-icon-button color="warn" [matMenuTriggerFor]="emailConfirmationReminder">
+	<mat-icon>mark_email_unread</mat-icon>
+</button>
+<mat-menu #emailConfirmationReminder>
+	<div class="px-2 d-flex flex-column align-items-end" (click)="$event.stopPropagation()">
+		<p class="mb-1">An email was sent to you.<br>Please, use it to confirm the email address.</p>
+		<button mat-button color="accent" (click)="resendConfirmationEmail()">Send Again</button>
+	</div>
+</mat-menu>
+

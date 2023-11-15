@@ -15,7 +15,7 @@ import { ResetPasswordFormComponent } from "./reset-password-form/reset-password
 import { UtilityComponentsModule } from "../utility-components/utility-components.module";
 import { EmailConfirmationReminderComponent } from "./email-confirmation-reminder/email-confirmation-reminder.component";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
-import { PasswordChangeFormComponent } from './password-change-form/password-change-form.component';
+import { PasswordChangeFormComponent } from "./password-change-form/password-change-form.component";
 
 
 

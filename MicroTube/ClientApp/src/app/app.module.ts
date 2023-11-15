@@ -18,6 +18,8 @@ import { JWTAuthInterceptor } from "./services/http/interceptors/JWTAuthIntercep
 import { APIBaseURLInterceptor } from "./services/http/interceptors/APIBaseURLInterceptor";
 import { EmailConfirmationCallbackComponent } from "./auth/email-confirmation-callback/email-confirmation-callback.component";
 import { PasswordChangeFormComponent } from "./auth/password-change-form/password-change-form.component";
+import { UserModule } from "./user/user.module";
+import { EmailPasswordProfileComponent } from "./user/email-password-profile/email-password-profile.component";
 
 
 export function getBaseUrl()
@@ -55,6 +57,7 @@ const providers = [
     RouterModule.forRoot([
       { path: "", component: HomeComponent, pathMatch: "full" },
       { path: "signup", component: SignUpFormComponent, pathMatch: "full" },
+      { path: "user/profile", component: EmailPasswordProfileComponent, pathMatch: "full" },
       { path: "Authentication/EmailPassword/ConfirmEmail", component: EmailConfirmationCallbackComponent, pathMatch: "full" },
       { path: "Authentication/EmailPassword/ResetPassword", component: PasswordChangeFormComponent, pathMatch: "full" }
     ]),
@@ -63,7 +66,8 @@ const providers = [
     MatButtonModule,
     MatMenuModule,
     MatInputModule,
-    MatIconModule
+    MatIconModule,
+    UserModule
   ],
   providers: providers,
   bootstrap: [AppComponent]

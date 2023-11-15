@@ -8,6 +8,7 @@ import { SignUpEmailPasswordDTO } from "../../../data/DTO/SignUpEmailPasswordDTO
 import { ResetPasswordDTO } from "../../../data/DTO/ResetPasswordDTO";
 import { MessageDTO } from "../../../data/DTO/MessageDTO";
 import { PasswordChangeDTO } from "../../../data/DTO/PasswordChangeDTO";
+import { EmailChangeDTO } from "../../../data/DTO/EmailChangeDTO";
 @Injectable({
   providedIn:"root"
 })
@@ -74,6 +75,15 @@ export class EmailPasswordAuthProvider implements IAuthProvider
       Authorization: `Bearer ${passwordResetJWT}`
     });
     const result = this.client.post<HttpResponse<null>>("Authentication/EmailPassword/ChangePassword", new PasswordChangeDTO(newPassword), { headers: headers });
+    return result;
+  }
+  startEmailChange(email: string, password: string): Observable<HttpResponse<null>>
+  {
+    if (email == null || email.trim() == "")
+      throw new Error("invalid email");
+    if (password == null || password.trim() == "")
+      throw new Error("invalid password");
+    const result = this.client.post<HttpResponse<null>>("Authentication/EmailPassword/ChangeEmailStart", new EmailChangeDTO(email, password));
     return result;
   }
 }

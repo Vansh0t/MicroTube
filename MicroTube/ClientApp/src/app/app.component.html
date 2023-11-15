@@ -11,16 +11,9 @@
 	<ng-template #userProfile>
 		<div class="d-flex align-items-center">
 			<div *ngIf="isUserEmailConfirmed() === false">
-				<button class="d-flex" mat-icon-button color="warn" [matMenuTriggerFor]="emailConfirmationReminder">
-					<mat-icon>
-						mark_email_unread
-					</mat-icon>
-				</button>
-				<mat-menu #emailConfirmationReminder>
-					<email-confirmation-reminder/>
-				</mat-menu>
+				<email-confirmation-reminder/>
 			</div>
-			<p class="mb-0">Welcome, <strong>{{authManager.jwtSignedInUser$.value?.publicUsername}}</strong>.</p>
+			<p class="mb-0">Welcome, <a routerLink="/user/profile"><strong>{{authManager.jwtSignedInUser$.value?.publicUsername}}</strong></a>.</p>
 			<button mat-icon-button class="d-flex" color="primary" [matMenuTriggerFor]="signOutMenu" #signOutMenuTrigger><mat-icon>logout</mat-icon></button>
 			<mat-menu #signOutMenu>
 				<sign-out-form (click)="$event.stopPropagation()" (onCancelled)="closeSignOutMenu()" (onConfirmed) ="closeSignOutMenu()" />
