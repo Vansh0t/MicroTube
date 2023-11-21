@@ -3,6 +3,8 @@ using System.Data;
 using Dapper;
 using System.Net.Http.Json;
 using MicroTube.Controllers.Authentication.DTO;
+using System.Net;
+using System.Runtime.CompilerServices;
 
 namespace MicroTube.Tests
 {
@@ -66,5 +68,15 @@ namespace MicroTube.Tests
         {
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
         }
+		public static IEnumerable<Cookie> GetSetCookieKeyValues(this HttpResponseMessage response)
+		{
+			var responseCookies = response.Headers.GetValues("Set-Cookie");
+			var cookies = responseCookies.Select(_ =>
+			{
+				var split = _.Split('=');
+				return new Cookie(split[0].Trim(), split[1].Trim());
+			});
+			return cookies;
+		}
     }
 }

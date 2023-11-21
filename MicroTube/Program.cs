@@ -24,6 +24,8 @@ builder.Services.AddSingleton<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddSingleton<IAppUserDataAccess, AppUserDataAccess>();
 builder.Services.AddSingleton<IEmailManager, DefaultEmailManager>();
 builder.Services.AddSingleton<IEmailTemplatesProvider, DefaultEmailTemplatesProvider>();
+builder.Services.AddSingleton<IUserSessionDataAccess, AppUserSessionDataAccess>();
+builder.Services.AddSingleton<IUserSessionService, DefaultUserSessionService>();
 builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEmailManager>();
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IEmailPasswordAuthenticationDataAccess, EmailPasswordAuthenticationDataAccess>();
@@ -60,6 +62,7 @@ builder.Services.AddCors(options =>
 		policy.WithOrigins(config.GetRequiredValue("ClientApp:URL"));
 		policy.AllowAnyHeader();
 		policy.AllowAnyMethod();
+		policy.AllowCredentials();
 	});
 });
 

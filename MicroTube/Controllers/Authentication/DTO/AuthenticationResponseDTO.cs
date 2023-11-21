@@ -3,9 +3,11 @@
     public class AuthenticationResponseDTO
     {
         public string JWT { get; set; }
-        public AuthenticationResponseDTO(string jwt)
-        {
-            JWT = jwt;
-        }
-    }
+		//public string RefreshToken { get; set; }
+		public AuthenticationResponseDTO(string jwt/*, string refreshToken*/)
+		{
+			JWT = jwt;
+			//RefreshToken = refreshToken;
+		}
+	}
 }

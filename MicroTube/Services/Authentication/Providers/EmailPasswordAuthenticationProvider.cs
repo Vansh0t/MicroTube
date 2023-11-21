@@ -20,7 +20,7 @@ namespace MicroTube.Services.Authentication.Providers
         private readonly ILogger<EmailPasswordAuthenticationProvider> _logger;
         private readonly IAppUserDataAccess _userDataAccess;
         private readonly IConfiguration _configuration;
-        private readonly IJwtClaims _jwtClaims;
+        //private readonly IJwtClaims _jwtClaims;
         private readonly IJwtTokenProvider _jwtTokenProvider;
         private readonly ISecureTokensProvider _secureTokensProvider;
         private readonly IAuthenticationEmailManager _authEmailManager;
@@ -34,7 +34,7 @@ namespace MicroTube.Services.Authentication.Providers
                                                    IPasswordEncryption passwordEncryption,
                                                    ILogger<EmailPasswordAuthenticationProvider> logger,
                                                    IConfiguration configuration,
-                                                   IJwtClaims jwtClaims,
+                                                   //IJwtClaims jwtClaims,
                                                    IJwtTokenProvider jwtTokenProvider,
                                                    ISecureTokensProvider secureTokensProvider,
                                                    IAuthenticationEmailManager authEmailManager,
@@ -48,7 +48,7 @@ namespace MicroTube.Services.Authentication.Providers
             _logger = logger;
             _userDataAccess = userDataAccess;
             _configuration = configuration;
-            _jwtClaims = jwtClaims;
+            //_jwtClaims = jwtClaims;
             _jwtTokenProvider = jwtTokenProvider;
             _secureTokensProvider = secureTokensProvider;
             _authEmailManager = authEmailManager;
@@ -125,25 +125,24 @@ namespace MicroTube.Services.Authentication.Providers
             _logger.LogInformation("New user {username} created with id {id}.", username, createdUserId);
             return new ServiceResult<AppUser>(201, createdUser);
         }
-        public async Task<IServiceResult<string>> SignIn(string credential, string password)
+        public async Task<IServiceResult<AppUser>> SignIn(string credential, string password)
         {
             if (string.IsNullOrWhiteSpace(credential) || string.IsNullOrWhiteSpace(password))
             {
-                return ServiceResult<string>.Fail(400, "Invalid credential or password");
+                return ServiceResult<AppUser>.Fail(400, "Invalid credential or password");
             }
 
             EmailPasswordAppUser? user = await _dataAccess.GetWithUserByCredential(credential);
             if(user==null)
             {
-                return ServiceResult<string>.Fail(400, "Invalid credential or password");
+                return ServiceResult<AppUser>.Fail(400, "Invalid credential or password");
             }
             bool isPasswordValid = _passwordEncryption.Validate(user.Authentication.PasswordHash, password);
             if(!isPasswordValid)
             {
-                return ServiceResult<string>.Fail(400, "Invalid credential or password");
+                return ServiceResult<AppUser>.Fail(400, "Invalid credential or password");
             }
-            var jwtTokenResult = _jwtTokenProvider.GetToken(_jwtClaims.GetClaims(user));
-            return jwtTokenResult;
+            return ServiceResult<AppUser>.Success(user);
         }
         public async Task<IServiceResult> ResendEmailConfirmation(int userId)
 		{
@@ -162,10 +161,10 @@ namespace MicroTube.Services.Authentication.Providers
 			await _authEmailManager.SendEmailConfirmation(authUser.Email, confirmationString);
 			return ServiceResult.Success();
 		}
-        public async Task<IServiceResult<string>> ConfirmEmail(string stringRaw)
+        public async Task<IServiceResult<AppUser>> ConfirmEmail(string stringRaw)
         {
             if (string.IsNullOrWhiteSpace(stringRaw))
-                return ServiceResult<string>.Fail(403, "Forbidden");
+                return ServiceResult<AppUser>.Fail(403, "Forbidden");
 
             string stringHash;
             try
@@ -174,13 +173,13 @@ namespace MicroTube.Services.Authentication.Providers
             }
             catch(FormatException)
             {
-                return ServiceResult<string>.Fail(403, "Forbidden");
+                return ServiceResult<AppUser>.Fail(403, "Forbidden");
             }
             var user = await _dataAccess.GetByEmailConfirmationString(stringHash);
             if(user == null)
             {
                 _logger.LogCritical($"User tried to confirm email, but not existed in database");
-                return ServiceResult<string>.FailInternal();
+                return ServiceResult<AppUser>.FailInternal();
             }
 			if(user.IsEmailConfirmed)
 				return await ConfirmEmailChange(stringRaw);
@@ -190,14 +189,13 @@ namespace MicroTube.Services.Authentication.Providers
                 || DateTime.UtcNow > authData.EmailConfirmationStringExpiration
                 || !_secureTokensProvider.Validate(authData.EmailConfirmationString, stringRaw))
             {
-                return ServiceResult<string>.Fail(403, "Forbidden");
+                return ServiceResult<AppUser>.Fail(403, "Forbidden");
             }
             authData.EmailConfirmationString = null;
             authData.EmailConfirmationStringExpiration = null;
             await _dataAccess.UpdateEmailConfirmation(authData, true);
             user.IsEmailConfirmed = true;
-            var jwtTokenResult = _jwtTokenProvider.GetToken(_jwtClaims.GetClaims(user));
-            return jwtTokenResult;
+            return ServiceResult<AppUser>.Success(user);
         }
         public async Task<IServiceResult> StartEmailChange(int userId, string newEmail, string password)
         {
@@ -220,10 +218,10 @@ namespace MicroTube.Services.Authentication.Providers
             await _authEmailManager.SendEmailConfirmation(newEmail, confirmationString);
             return ServiceResult.Success();
         }
-        public async Task<IServiceResult<string>> ConfirmEmailChange(string stringRaw)
+        public async Task<IServiceResult<AppUser>> ConfirmEmailChange(string stringRaw)
         {
             if (string.IsNullOrWhiteSpace(stringRaw))
-                return ServiceResult<string>.Fail(403, "Forbidden");
+                return ServiceResult<AppUser>.Fail(403, "Forbidden");
 
             var stringHash = _secureTokensProvider.HashSecureToken(stringRaw);
             var user = await _dataAccess.GetByEmailConfirmationString(stringHash);
@@ -232,12 +230,12 @@ namespace MicroTube.Services.Authentication.Providers
                 || DateTime.UtcNow > authData.EmailConfirmationStringExpiration
                 || !_secureTokensProvider.Validate(authData.EmailConfirmationString, stringRaw))
             {
-                return ServiceResult<string>.Fail(403, "Forbidden");
+                return ServiceResult<AppUser>.Fail(403, "Forbidden");
             }
             var userWithSameEmail = await _userDataAccess.GetByEmail(authData.PendingEmail);
             if (userWithSameEmail != null)
             {
-                return ServiceResult<string>.Fail(400, "Email already in use, try another one.");
+                return ServiceResult<AppUser>.Fail(400, "Email already in use, try another one.");
             }
             string newEmail = authData.PendingEmail;
             authData.EmailConfirmationString = null;
@@ -246,8 +244,7 @@ namespace MicroTube.Services.Authentication.Providers
 
             await _dataAccess.UpdateEmailAndConfirmation(authData, newEmail, user.IsEmailConfirmed);
 			user.Email = newEmail;
-			var jwtTokenResult = _jwtTokenProvider.GetToken(_jwtClaims.GetClaims(user));
-			return jwtTokenResult;
+			return ServiceResult<AppUser>.Success(user);
         }
         public async Task<IServiceResult> StartPasswordReset(string email)
         {

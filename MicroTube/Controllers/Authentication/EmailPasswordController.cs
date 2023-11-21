@@ -4,45 +4,69 @@ using MicroTube.Constants;
 using MicroTube.Controllers.Authentication.DTO;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.Authentication.Providers;
+using MicroTube.Services.Cryptography;
 
 namespace MicroTube.Controllers.Authentication
 {
     [ApiController]
-    [Route("authentication/[controller]")]
+    [Route("Authentication/[controller]")]
     public class EmailPasswordController : ControllerBase
     {
         private readonly ILogger<EmailPasswordController> _logger;
         private readonly EmailPasswordAuthenticationProvider _emailPasswordAuthentication;
         private readonly IJwtClaims _claims;
+		private readonly IUserSessionService _userSession;
+		private readonly IJwtTokenProvider _jwtAccessTokenProvider;
+		private readonly IConfiguration _config;
 
-        public EmailPasswordController(ILogger<EmailPasswordController> logger, EmailPasswordAuthenticationProvider emailPasswordAuthentication, IJwtClaims claims)
-        {
-            _logger = logger;
-            _emailPasswordAuthentication = emailPasswordAuthentication;
-            _claims = claims;
-        }
+		public EmailPasswordController(
+			ILogger<EmailPasswordController> logger,
+			EmailPasswordAuthenticationProvider emailPasswordAuthentication,
+			IJwtClaims claims,
+			IUserSessionService userSession,
+			IJwtTokenProvider jwtAccessTokenProvider,
+			IConfiguration config)
+		{
+			_logger = logger;
+			_emailPasswordAuthentication = emailPasswordAuthentication;
+			_claims = claims;
+			_userSession = userSession;
+			_jwtAccessTokenProvider = jwtAccessTokenProvider;
+			_config = config;
+		}
 
-        [HttpPost("SignUp")]
+		[HttpPost("SignUp")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AuthenticationResponseDTO))]
         public async Task<IActionResult> SignUp(SignUpEmailPasswordDTO data)
         {
-            var resultUser = await _emailPasswordAuthentication.CreateUser(data.Username, data.Email, data.Password);
-            var user = resultUser.ResultObject;
-            if (resultUser.IsError || user == null)
-                return StatusCode(resultUser.Code, resultUser.Error);
-            var resultJWT = await _emailPasswordAuthentication.SignIn(user.Email, data.Password);
-            if (resultJWT.IsError || resultJWT.ResultObject == null)
-                return StatusCode(resultJWT.Code, resultJWT.Error);
-            return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));
+            var resultCreatedUser = await _emailPasswordAuthentication.CreateUser(data.Username, data.Email, data.Password);
+            if (resultCreatedUser.IsError)
+                return StatusCode(resultCreatedUser.Code, resultCreatedUser.Error);
+            var user = resultCreatedUser.GetRequiredObject();
+
+			var newSessionResult = await _userSession.CreateNewSession(user.Id);
+			if (newSessionResult.IsError)
+				return StatusCode(newSessionResult.Code, newSessionResult.Error);
+			var newSession = newSessionResult.GetRequiredObject();
+			HttpContext.AddRefreshTokenCookie(_config, newSession.RefreshTokenRaw, newSession.Session.ExpirationDateTime);
+            return Ok(new AuthenticationResponseDTO(newSession.AccessToken));
         }
         [HttpPost("SignIn")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
         public async Task<IActionResult> SignIn(SignInCredentialPasswordDTO data)
         {
-            var resultJWT = await _emailPasswordAuthentication.SignIn(data.Credential, data.Password);
-            if (resultJWT.IsError || resultJWT.ResultObject == null)
-                return StatusCode(resultJWT.Code, resultJWT.Error);
-            return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));
+            var signInResult = await _emailPasswordAuthentication.SignIn(data.Credential, data.Password);
+            if (signInResult.IsError)
+                return StatusCode(signInResult.Code, signInResult.Error);
+			var user = signInResult.GetRequiredObject();
+
+			var newSessionResult = await _userSession.CreateNewSession(user.Id);
+			if (newSessionResult.IsError)
+				return StatusCode(newSessionResult.Code, newSessionResult.Error);
+			var newSession = newSessionResult.GetRequiredObject();
+			HttpContext.AddRefreshTokenCookie(_config, newSession.RefreshTokenRaw, newSession.Session.ExpirationDateTime);
+
+			return Ok(new AuthenticationResponseDTO(newSession.AccessToken));
         }
 		[Authorize]
 		[HttpPost("ConfirmEmailResend")]
@@ -60,11 +84,19 @@ namespace MicroTube.Controllers.Authentication
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
         public async Task<IActionResult> ConfirmEmail(MessageDTO emailConfirmationString)
         {
-            var resultJWT = await _emailPasswordAuthentication.ConfirmEmail(emailConfirmationString.Message);
-            if (resultJWT.IsError || resultJWT.ResultObject == null)
-                return StatusCode(resultJWT.Code, resultJWT.Error);
+            var confirmedUser = await _emailPasswordAuthentication.ConfirmEmail(emailConfirmationString.Message);
+            if (confirmedUser.IsError)
+                return StatusCode(confirmedUser.Code, confirmedUser.Error);
+
 			if(User.Identity != null && User.Identity.IsAuthenticated)
-				return Ok(new AuthenticationResponseDTO(resultJWT.ResultObject));
+			{
+				var newSessionResult = await _userSession.CreateNewSession(confirmedUser.GetRequiredObject().Id);
+				if (newSessionResult.IsError)
+					return StatusCode(newSessionResult.Code, newSessionResult.Error);
+				var newSession = newSessionResult.GetRequiredObject();
+				HttpContext.AddRefreshTokenCookie(_config, newSession.RefreshTokenRaw, newSession.Session.ExpirationDateTime);
+				return Ok(new AuthenticationResponseDTO(newSession.AccessToken));
+			}
 			return Ok();
         }
         [Authorize]
@@ -88,15 +120,13 @@ namespace MicroTube.Controllers.Authentication
             return Ok(new MessageDTO("An email will be sent to this address if an account is registered under it."));
         }
         [HttpPost("ValidatePasswordReset")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PasswordResetTokenDTO))]
         public async Task<IActionResult> ValidatePasswordReset(MessageDTO passwordResetString)
         {
             var result = await _emailPasswordAuthentication.UsePasswordResetString(passwordResetString.Message);
             if (result.IsError)
                 return StatusCode(result.Code, result.Error);
-            if (result.ResultObject == null)
-                throw new RequiredObjectNotFoundException("Result was a success, but ResultObject is null");
-            return Ok(new AuthenticationResponseDTO(result.ResultObject));
+            return Ok(new PasswordResetTokenDTO(result.GetRequiredObject()));
         }
         [Authorize(AuthorizationConstants.PASSWORD_RESET_ONLY_POLICY)]
         [HttpPost("ChangePassword")]

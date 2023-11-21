@@ -1,4 +1,9 @@
-﻿namespace MicroTube
+﻿using MicroTube.Data.Models;
+using MicroTube.Services;
+using MicroTube.Services.Authentication;
+using MicroTube.Services.Cryptography;
+
+namespace MicroTube
 {
     public static class Extensions
     {
@@ -30,6 +35,33 @@
 			if (value == null)
 				throw new ConfigurationException($"WebHostDefaults.ContentRootKey value is null.");
 			return value;
+		}
+		public static IServiceResult<string> BuildJWTAccessToken(this IJwtTokenProvider tokenProvider, IJwtClaims claims, AppUser user)
+		{
+			return tokenProvider.GetToken(claims.GetClaims(user));
+		}
+		public static T GetRequiredObject<T>(this IServiceResult<T> result)
+		{
+			if (result.IsError)
+				throw new RequiredObjectNotFoundException($"{nameof(IServiceResult<T>)} for must not be and error.");
+			if (result.ResultObject == null)
+				throw new RequiredObjectNotFoundException($"A successful {nameof(IServiceResult<T>)} must always provide ResultObject.");
+			return result.ResultObject;
+		}
+		public static void AddRefreshTokenCookie(this HttpContext context, IConfiguration config, string refreshToken, DateTime expiration)
+		{
+			string path = config.GetRequiredByKey<string>("UserSession:RefreshPath");
+			string domain = config.GetRequiredValue("ClientApp:Domain");
+			CookieOptions options = new CookieOptions
+			{
+				Expires = expiration,
+				Domain = domain,
+				Path = path,
+				HttpOnly = true,
+				SameSite = SameSiteMode.None,
+				Secure = true,
+			};
+			context.Response.Cookies.Append(Constants.AuthorizationConstants.REFRESH_TOKEN_COOKIE_KEY, refreshToken, options);
 		}
 	}
 }
