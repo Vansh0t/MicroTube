@@ -37,12 +37,6 @@ export class AuthManager
     try
     {
       const jwtUser = new JWTUser(storageJWT);
-      if (jwtUser.isExpired())
-      {
-        //refresh jwt here;
-        this.jwtSignedInUser$ = new BehaviorSubject<JWTUser | null>(null);
-        return;
-      }
       this.jwtSignedInUser$ = new BehaviorSubject<JWTUser | null>(jwtUser);
     }
     catch

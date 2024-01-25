@@ -4,16 +4,16 @@ using System.Net.Http.Json;
 namespace MicroTube.Tests.Integration.Authentication.EmailPassword
 {
     [Collection(nameof(AppTestsCollection))]
-    public class SignInSignUp
+    public class SignInSignUpTests
     {
         private readonly MicroTubeWebAppFactory<Program> _appFactory;
 
-        public SignInSignUp(MicroTubeWebAppFactory<Program> appFactory)
+        public SignInSignUpTests(MicroTubeWebAppFactory<Program> appFactory)
         {
             _appFactory = appFactory;
         }
         [Fact]
-        public async Task TestSignUpSuccess()
+        public async Task SignUp_Success()
         {
             var client = _appFactory.CreateClient();
             var result = await client.SignUpTestUser();
@@ -21,7 +21,7 @@ namespace MicroTube.Tests.Integration.Authentication.EmailPassword
             Assert.NotNull(result.response.JWT);
         }
         [Fact]
-        public async Task TestSignInSuccess()
+        public async Task SignIn_Success()
         {
             var client = _appFactory.CreateClient();
             var signUp = await client.SignUpTestUser();

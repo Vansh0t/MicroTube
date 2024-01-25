@@ -59,7 +59,7 @@ namespace MicroTube
 				Path = path,
 				HttpOnly = true,
 				SameSite = SameSiteMode.None,
-				Secure = true,
+				Secure = true
 			};
 			context.Response.Cookies.Append(Constants.AuthorizationConstants.REFRESH_TOKEN_COOKIE_KEY, refreshToken, options);
 		}

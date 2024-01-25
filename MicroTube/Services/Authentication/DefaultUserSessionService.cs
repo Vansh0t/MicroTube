@@ -55,38 +55,61 @@ namespace MicroTube.Services.Authentication
 				_logger.LogError($"Failed to create a new access token for user {userId}, Error: {accessTokenResult.Error}");
 				return ServiceResult<NewSessionResult>.FailInternal();
 			}
-
 			return ServiceResult<NewSessionResult>.Success(new NewSessionResult(createdSession, refreshTokenRaw, accessTokenResult.GetRequiredObject()));
 		}
 		public async Task<IServiceResult<NewSessionResult>> RefreshSession(string refreshToken)
 		{
 			if (string.IsNullOrWhiteSpace(refreshToken))
 				return ServiceResult<NewSessionResult>.Fail(400, "Invalid token");
-
-			var tokenHash = _tokensProvider.HashSecureToken(refreshToken);
-
-			var session = await _dataAccess.GetSessionByToken(tokenHash);
-			
-			if (session == null || session.IsInvalidated || DateTime.UtcNow > session.ExpirationDateTime)
-				return ServiceResult<NewSessionResult>.Fail(403, "Token is expired or invalid");
-			if (session.PreviousToken == refreshToken)
+			string tokenHash;
+			try
 			{
-				await InvalidateSession(session, $"User session {session.UserId} was invalidated due to the same refresh token used twice.");
+				tokenHash = _tokensProvider.HashSecureToken(refreshToken);
+			}
+			catch (Exception e)
+			{
+				_logger.LogWarning(e, "Failed to hash a user provided refresh token.");
 				return ServiceResult<NewSessionResult>.Fail(403, "Token is expired or invalid");
 			}
+			var sessionTask = _dataAccess.GetSessionByToken(tokenHash);
+			var usedRefreshTokenTask = _dataAccess.GetUsedRefreshToken(tokenHash);
+			await Task.WhenAll(sessionTask, usedRefreshTokenTask);
+			var session = sessionTask.Result;
+			var usedRefreshToken = usedRefreshTokenTask.Result;
+			if (usedRefreshToken != null)
+			{
+				_logger.LogWarning("Got already used refresh token. Invalidating session {sessionId}", usedRefreshToken.SessionId);
+				if (session != null)
+				{
+					_logger.LogError("A session was returned for a token listed as used. Used token id: {usedTokenId}", usedRefreshToken.Id);
+				}
+				else
+				{
+					session = await _dataAccess.GetSessionById(usedRefreshToken.SessionId);
+					if(session == null)
+					{
+						_logger.LogError("An attempt to invalidate session failed: Session {sessionId} does not exist", usedRefreshToken.SessionId);
+						return ServiceResult<NewSessionResult>.Fail(403, "Token is expired or invalid");
+					}
+				}
+				await InvalidateSession(session, $"User session {session.UserId} was invalidated due to the same refresh token used twice.");
+				return ServiceResult<NewSessionResult>.Fail(403, "Token is expired or invalid");
+				//TO DO: Add user email notification, suggest credentials changing, etc.
+			}
+			if (session == null || session.IsInvalidated || DateTime.UtcNow > session.ExpirationDateTime)
+				return ServiceResult<NewSessionResult>.Fail(403, "Token is expired or invalid");
 			var user = await _userDataAccess.Get(session.UserId);
 			if (user == null)
 			{
-				_logger.LogError($"User {session.UserId} tried to update a session {session.Id}, but wasn't found in database");
+				_logger.LogError($"User {session.UserId} tried to update a session {session.Id}, but it wasn't found");
 				return ServiceResult<NewSessionResult>.FailInternal();
 			}
 			string newRefreshTokenRaw;
 			string newRefreshToken = GetHashedRefreshToken(out newRefreshTokenRaw);
-			session.PreviousToken = refreshToken;
 			session.Token = newRefreshToken;
 			session.IssuedDateTime = DateTime.UtcNow;
 			session.ExpirationDateTime = GetTokenTime(session.IssuedDateTime);
-			await _dataAccess.UpdateSession(session);
+			await _dataAccess.UpdateSession(session, new UsedRefreshToken[1] { new UsedRefreshToken {SessionId = session.Id, Token = tokenHash } });
 			var accessTokenResult = _accessTokenProvider.BuildJWTAccessToken(_claims, user);
 			if (accessTokenResult.IsError)
 			{
@@ -99,12 +122,13 @@ namespace MicroTube.Services.Authentication
 		{
 			_logger.LogError(reason);
 			session.IsInvalidated = true;
-			await _dataAccess.UpdateSession(session);
+			await _dataAccess.UpdateSession(session, null);
 		}
 		private string GetHashedRefreshToken(out string refreshTokenRaw)
 		{
 			refreshTokenRaw = _tokensProvider.GenerateSecureToken();
-			return _tokensProvider.HashSecureToken(refreshTokenRaw);
+			var tokenHash = _tokensProvider.HashSecureToken(refreshTokenRaw);
+			return tokenHash;
 		}
 		private DateTime GetTokenTime(DateTime issued)
 		{

@@ -2,11 +2,11 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { EmailPasswordAuthProvider } from "../../services/auth/providers/EmailPasswordAuthProvider";
 import { DefaultAuthValidators } from "../../services/validation/DefaultAuthValidators";
-import { AuthenticationResponseDTO } from "../../data/DTO/AuthenticationResponseDTO";
 import { ActivatedRoute } from "@angular/router";
 import { Subscription } from "rxjs";
 import { RequestStatus } from "../../enums";
 import { HttpErrorResponse } from "@angular/common/http";
+import { PasswordResetTokenDTO } from "../../data/DTO/PasswordResetTokenDTO";
 
 @Component({
   selector: "password-change-form",
@@ -126,7 +126,7 @@ export class PasswordChangeFormComponent implements OnInit, OnDestroy
       
     }
   }
-  private onGetResetJWT(authResponse: AuthenticationResponseDTO): void
+  private onGetResetJWT(authResponse: PasswordResetTokenDTO): void
   {
     this.status = RequestStatus.Success;
     this.showForm = true;

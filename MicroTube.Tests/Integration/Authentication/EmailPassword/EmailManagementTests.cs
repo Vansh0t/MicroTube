@@ -8,16 +8,16 @@ using System.Net.Http.Json;
 namespace MicroTube.Tests.Integration.Authentication.EmailPassword
 {
     [Collection(nameof(AppTestsCollection))]
-    public class EmailManagement
+    public class EmailManagementTests
     {
         private readonly MicroTubeWebAppFactory<Program> _appFactory;
 
-        public EmailManagement(MicroTubeWebAppFactory<Program> appFactory)
+        public EmailManagementTests(MicroTubeWebAppFactory<Program> appFactory)
         {
             _appFactory = appFactory;
         }
         [Fact]
-        public async Task ConfirmEmailSuccess()
+        public async Task ConfirmEmail_Success()
         {
             var client = _appFactory.CreateClient();
             var authEmailManager = (MockAuthenticationEmailManager)_appFactory.Services.GetRequiredService<IAuthenticationEmailManager>();
@@ -37,7 +37,7 @@ namespace MicroTube.Tests.Integration.Authentication.EmailPassword
             Assert.True(bool.Parse(claim));
         }
         [Fact]
-        public async Task ChangeEmailSuccess()
+        public async Task ChangeEmail_Success()
         {
             string newEmail = Guid.NewGuid().ToString().Replace("-", "")+"@email.com";
             var client = _appFactory.CreateClient();
@@ -53,7 +53,7 @@ namespace MicroTube.Tests.Integration.Authentication.EmailPassword
             //var content = await response.Content.ReadAsStringAsync();
             Assert.True(response.IsSuccessStatusCode);
 
-            var emailConfirmationStringRaw = authEmailManager.SentEmailChangeStart;
+            var emailConfirmationStringRaw = authEmailManager.SentEmailConfirmation;
             var dbUser = await TestDatabase.GetRequiredEmailPasswordUser(user.username);
             Assert.NotNull(emailConfirmationStringRaw);
             Assert.NotNull(dbUser.Authentication.EmailConfirmationString);

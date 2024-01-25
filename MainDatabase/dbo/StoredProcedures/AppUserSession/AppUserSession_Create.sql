@@ -5,6 +5,6 @@
     @ExpirationDateTime datetime
 AS
 BEGIN
-	INSERT INTO dbo.AppUserSession(UserId, Token, PreviousToken, IssuedDateTime, ExpirationDateTime)
-	VALUES (@UserID, @Token, NULL, @IssuedDateTime, @ExpirationDateTime);
+	INSERT INTO dbo.AppUserSession(UserId, Token, IssuedDateTime, ExpirationDateTime)
+	VALUES (@UserID, @Token, @IssuedDateTime, @ExpirationDateTime);
 END

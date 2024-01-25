@@ -1,5 +1,4 @@
-﻿using MicroTube.Data.Access;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace MicroTube.Services.Validation
 {

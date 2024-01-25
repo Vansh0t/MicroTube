@@ -40,7 +40,31 @@ namespace MicroTube.Tests.Utils
 	                       WHERE Username = @Username;";
             return await connection.QueryFirstOrDefaultAsync(sql, new { Username = username });
         }
-        public static async Task<AppUser> GetRequiredUser(string username)
+		public static async Task<AppUserSession?> GetUserSession(int userId)
+		{
+			using IDbConnection connection = new SqlConnection(ConfigurationProvider.GetConfiguration().GetDefaultConnectionString());
+			var parameters = new
+			{
+				UserId = userId
+			};
+			string sql = @"SELECT usedToken.*, userSession.*
+						FROM dbo.UsedRefreshToken usedToken
+						RIGHT JOIN dbo.AppUserSession userSession
+						ON usedToken.SessionId  =  userSession.Id
+						WHERE userSession.UserId = @UserId";
+			AppUserSession? session = null;
+			var result = await connection.QueryAsync<UsedRefreshToken, AppUserSession, UsedRefreshToken>(sql, (usedToken, userSession) =>
+			{
+				if (session == null)
+					session = userSession;
+				usedToken.Session = session;
+				session.UsedTokens.Add(usedToken);
+				return usedToken;
+			},
+			parameters);
+			return session;
+		}
+        public static async Task<AppUser> GetRequiredUser(string username) 
         {
             var user = await GetUser(username);
             if (user == null)

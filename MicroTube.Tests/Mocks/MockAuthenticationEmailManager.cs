@@ -4,7 +4,6 @@ namespace MicroTube.Tests.Mocks
 {
     public class MockAuthenticationEmailManager : IAuthenticationEmailManager
     {
-        public string? SentEmailChangeStart { get; private set; }
         public string? SentEmailChangeEnd { get; private set; }
         public string? SentEmailConfirmation { get; private set; }
         public string? SentPasswordResetStart { get; private set; }
@@ -14,13 +13,6 @@ namespace MicroTube.Tests.Mocks
             SentEmailChangeEnd = data;
             return Task.CompletedTask;
         }
-
-        public Task SendEmailChangeStart(string recipient, string data)
-        {
-            SentEmailChangeStart = data;
-            return Task.CompletedTask;
-        }
-
         public Task SendEmailConfirmation(string recipient, string data)
         {
             SentEmailConfirmation = data;

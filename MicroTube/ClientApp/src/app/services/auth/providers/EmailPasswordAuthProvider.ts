@@ -9,6 +9,7 @@ import { ResetPasswordDTO } from "../../../data/DTO/ResetPasswordDTO";
 import { MessageDTO } from "../../../data/DTO/MessageDTO";
 import { PasswordChangeDTO } from "../../../data/DTO/PasswordChangeDTO";
 import { EmailChangeDTO } from "../../../data/DTO/EmailChangeDTO";
+import { PasswordResetTokenDTO } from "../../../data/DTO/PasswordResetTokenDTO";
 @Injectable({
   providedIn:"root"
 })
@@ -28,7 +29,7 @@ export class EmailPasswordAuthProvider implements IAuthProvider
   {
     if (this.signInData == undefined)
       throw new Error("signInData must be provided before sign in attempt");
-    const result = this.client.post<AuthenticationResponseDTO>("Authentication/EmailPassword/SignIn", this.signInData);
+    const result = this.client.post<AuthenticationResponseDTO>("Authentication/EmailPassword/SignIn", this.signInData, { withCredentials: true });
     this.signInData = undefined;
     return result;
   }
@@ -36,7 +37,7 @@ export class EmailPasswordAuthProvider implements IAuthProvider
   {
     if (this.signUpData == undefined)
       throw new Error("signUpData must be provided before sign up attempt");
-    const result = this.client.post<AuthenticationResponseDTO>("Authentication/EmailPassword/SignUp", this.signUpData);
+    const result = this.client.post<AuthenticationResponseDTO>("Authentication/EmailPassword/SignUp", this.signUpData, { withCredentials: true });
     this.signUpData = undefined;
     return result;
   }
@@ -44,7 +45,7 @@ export class EmailPasswordAuthProvider implements IAuthProvider
   {
     if (confirmationString == null || confirmationString.trim() == "")
       throw new Error("invalid confirmation string");
-    const result = this.client.post<AuthenticationResponseDTO>("Authentication/EmailPassword/ConfirmEmail", new MessageDTO(confirmationString));
+    const result = this.client.post<AuthenticationResponseDTO>("Authentication/EmailPassword/ConfirmEmail", new MessageDTO(confirmationString), { withCredentials: true });
     return result;
   }
   requestPasswordReset(email: string): Observable<MessageDTO>
@@ -58,11 +59,11 @@ export class EmailPasswordAuthProvider implements IAuthProvider
     const result = this.client.post<null>("Authentication/EmailPassword/ConfirmEmailResend", null);
     return result;
   }
-  getPasswordResetToken(resetString: string): Observable<AuthenticationResponseDTO>
+  getPasswordResetToken(resetString: string): Observable<PasswordResetTokenDTO>
   {
     if (resetString == null || resetString.trim() == "")
       throw new Error("invalid reset string");
-    const result = this.client.post<AuthenticationResponseDTO>("Authentication/EmailPassword/ValidatePasswordReset", new MessageDTO(resetString));
+    const result = this.client.post<PasswordResetTokenDTO>("Authentication/EmailPassword/ValidatePasswordReset", new MessageDTO(resetString));
     return result;
   }
   changePassword(passwordResetJWT: string, newPassword: string): Observable<HttpResponse<null>>

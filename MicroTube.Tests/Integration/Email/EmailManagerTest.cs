@@ -5,17 +5,17 @@ using MicroTube.Services.Email;
 namespace MicroTube.Tests.Integration.Email
 {
     [Collection(nameof(AppTestsCollection))]
-    public class EmailManager
+    public class EmailManagerTest
     {
         private readonly MicroTubeWebAppFactory<Program> _appFactory;
 
-        public EmailManager(MicroTubeWebAppFactory<Program> appFactory)
+        public EmailManagerTest(MicroTubeWebAppFactory<Program> appFactory)
         {
             _appFactory = appFactory;
         }
         [Fact(Skip = "Skipped to prevent spam")]
         //[Fact]
-        public async Task TestSendEmail()
+        public async Task SendEmail_Success()
         {
             using var scope = _appFactory.Services.CreateScope();
             var emailManager = scope.ServiceProvider.GetRequiredService<IEmailManager>();

@@ -9,16 +9,16 @@ using System.Net.Http.Json;
 namespace MicroTube.Tests.Integration.Authentication.EmailPassword
 {
     [Collection(nameof(AppTestsCollection))]
-    public class PasswordManagement
+    public class PasswordManagementTests
     {
         private readonly MicroTubeWebAppFactory<Program> _appFactory;
 
-        public PasswordManagement(MicroTubeWebAppFactory<Program> appFactory)
+        public PasswordManagementTests(MicroTubeWebAppFactory<Program> appFactory)
         {
             _appFactory = appFactory;
         }
         [Fact]
-        public async Task ChangePasswordSuccess()
+        public async Task ChangePassword_Success()
         {
             string newPassword = Guid.NewGuid().ToString().Replace("-", "");
             var client = _appFactory.CreateClient();
@@ -41,16 +41,18 @@ namespace MicroTube.Tests.Integration.Authentication.EmailPassword
             Assert.NotNull(passwordResetStringRaw);
             Assert.False(passwordResetStringRaw == dbUser.Authentication.EmailConfirmationString);
 
-            url = "authentication/EmailPassword/ValidatePasswordReset";
-            response = await client.PostAsJsonAsync(url, passwordResetStringRaw);
-            var passwordResetJWT = await response.Content.ReadFromJsonAsync<AuthenticationResponseDTO>();
-            Assert.True(response.IsSuccessStatusCode);
-            Assert.NotNull(passwordResetJWT);
-            dbUser = await TestDatabase.GetRequiredEmailPasswordUser(user.username);
-            Assert.Null(dbUser.Authentication.PasswordResetString);
-            Assert.Null(dbUser.Authentication.PasswordResetStringExpiration);
+			url = "authentication/EmailPassword/ValidatePasswordReset";
+			response = await client.PostAsJsonAsync(url, new MessageDTO(passwordResetStringRaw));
+			PasswordResetTokenDTO? passwordResetAccessJwt = await response.Content.ReadFromJsonAsync<PasswordResetTokenDTO>();
+			Assert.NotNull(passwordResetAccessJwt);
+			Assert.NotNull(passwordResetAccessJwt.JWT);
+			Assert.True(response.IsSuccessStatusCode);
+			dbUser = await TestDatabase.GetRequiredEmailPasswordUser(user.username);
+			Assert.Null(dbUser.Authentication.PasswordResetString);
+			Assert.Null(dbUser.Authentication.PasswordResetStringExpiration);
+			client.ApplyJWTBearer(passwordResetAccessJwt.JWT);
+            
 
-            client.ApplyJWTBearer(passwordResetJWT.JWT);
             url = "authentication/EmailPassword/ChangePassword";
             response = await client.PostAsJsonAsync(url, new PasswordChangeDTO(newPassword));
             dbUser = await TestDatabase.GetRequiredEmailPasswordUser(user.username);
