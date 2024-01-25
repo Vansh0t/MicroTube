@@ -1,0 +1,54 @@
+@use '@angular/material' as mat;
+@import '@angular/material/theming';
+@import './custom-theme';
+/* You can add global styles to this file, and also import other style files */
+
+/* Provide sufficient contrast against white background */
+/*a {
+  color: #0366d6;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+code {
+  color: #e01a76;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+mat-mdc-form-field-bottom-align::before
+{
+  content: "";
+  display: none;
+  height: 16px;
+}
+*/
+
+html, body { height: 100%; }
+a {
+  color: mat-color($MicroTube-primary, 50) !important;
+}
+.dense-minus-1 {
+  @include mat.all-component-densities(-1);
+}
+.dense-minus-2 {
+  @include mat.all-component-densities(-2);
+}
+.dense-minus-3 {
+  @include mat.all-component-densities(-3);
+}
+/*.mat-mdc-dialog-container .mdc-dialog__content {
+  color: inherit !important;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__content {
+  line-height: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: inherit !important;
+}*/

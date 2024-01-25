@@ -1,0 +1,6 @@
+﻿CREATE TABLE [dbo].[UsedRefreshToken]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
+	[SessionId] INT NOT NULL FOREIGN KEY REFERENCES dbo.AppUserSession(Id) ON DELETE CASCADE,
+	[Token] nvarchar(50) NOT NULL
+)

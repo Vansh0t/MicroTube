@@ -22,6 +22,7 @@
     <SqlServerVerification>False</SqlServerVerification>
     <IncludeCompositeObjects>True</IncludeCompositeObjects>
     <TargetDatabaseSet>True</TargetDatabaseSet>
+    <GenerateCreateScript>False</GenerateCreateScript>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -61,6 +62,8 @@
     <Folder Include="dbo\StoredProcedures" />
     <Folder Include="dbo\StoredProcedures\AppUser" />
     <Folder Include="dbo\StoredProcedures\EmailPasswordAuthenticationData" />
+    <Folder Include="dbo\StoredProcedures\AppUserSession" />
+    <Folder Include="dbo\StoredProcedures\UsedRefreshToken" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\AppUser.sql" />
@@ -72,11 +75,26 @@
     <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_UpdateEmailConfirmation.sql" />
     <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_UpdateEmail.sql" />
     <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_UpdatePassword.sql" />
+    <Build Include="dbo\StoredProcedures\AppUser\AppUser_SetEmailConfirmationStatus.sql" />
+    <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_GetByEmailString.sql" />
+    <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_GetByPasswordString.sql" />
+    <Build Include="dbo\StoredProcedures\AppUser\AppUser_GetByEmail.sql" />
+    <Build Include="dbo\StoredProcedures\AppUser\AppUser_GetByUsername.sql" />
+    <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_GetWithUser.sql" />
+    <Build Include="dbo\StoredProcedures\EmailPasswordAuthenticationData\EmailPasswordAuthentication_GetByCredentialWithUser.sql" />
+    <Build Include="dbo\Tables\AppUserSession.sql" />
+    <Build Include="dbo\StoredProcedures\AppUserSession\AppUserSession_Create.sql" />
+    <Build Include="dbo\StoredProcedures\AppUserSession\AppUserSession_Update.sql" />
+    <Build Include="dbo\StoredProcedures\AppUserSession\AppUserSession_GetByToken.sql" />
+    <Build Include="dbo\Tables\UsedRefreshToken.sql" />
+    <Build Include="dbo\StoredProcedures\UsedRefreshToken\UsedRefreshToken_Create.sql" />
+    <Build Include="dbo\StoredProcedures\AppUserSession\AppUserSession_GetById.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="MainDatabase.refactorlog" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MainDatabase.publish.xml" />
+    <None Include="MainDatabase.Tests.publish.xml" />
   </ItemGroup>
 </Project>

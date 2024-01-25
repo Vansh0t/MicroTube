@@ -12,7 +12,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.4" />
+    <PackageReference Include="Dapper" Version="2.1.15" />
+    <PackageReference Include="MailKit" Version="4.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.11" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.20.0" />
@@ -26,15 +28,77 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\data\AppUser.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\AuthenticationResponseDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\EmailChangeDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\MessageDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\PasswordChangeDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\PasswordResetTokenDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\ResetPasswordDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\SignInCredentialPasswordDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\SignUpEmailPasswordDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\UserDTO.ts" />
+    <None Remove="ClientApp\src\app\enums.ts" />
     <None Remove="ClientApp\src\app\home\home.component.html" />
     <None Remove="ClientApp\src\app\home\home.component.ts" />
+    <None Remove="ClientApp\src\app\services\auth\AuthManager.ts" />
+    <None Remove="ClientApp\src\app\services\auth\JWTUser.ts" />
+    <None Remove="ClientApp\src\app\services\auth\providers\EmailPasswordAuthProvider.ts" />
+    <None Remove="ClientApp\src\app\services\auth\providers\IAuthProvider.ts" />
+    <None Remove="ClientApp\src\app\services\auth\SessionManager.ts" />
+    <None Remove="ClientApp\src\app\services\http\interceptors\APIBaseURLInterceptor.ts" />
+    <None Remove="ClientApp\src\app\services\http\interceptors\JWTAuthInterceptor.ts" />
+    <None Remove="ClientApp\src\app\services\ServiceResult.ts" />
+    <None Remove="ClientApp\src\app\services\user\ProfileManager.ts" />
+    <None Remove="ClientApp\src\app\services\validation\DefaultAuthValidators.ts" />
+    <None Remove="ClientApp\src\app\utils.ts" />
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\data\AppUser.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\PasswordResetTokenDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\EmailChangeDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\UserDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\MessageDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\PasswordChangeDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\ResetPasswordDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\SignUpEmailPasswordDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\SignInCredentialPasswordDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\AuthenticationResponseDTO.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\enums.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\home\home.component.html">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="ClientApp\src\app\home\home.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\auth\AuthManager.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\auth\SessionManager.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\auth\JWTUser.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\auth\providers\EmailPasswordAuthProvider.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\auth\providers\IAuthProvider.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\http\interceptors\JWTAuthInterceptor.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\services\http\interceptors\APIBaseURLInterceptor.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\ServiceResult.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\user\ProfileManager.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\validation\DefaultAuthValidators.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\utils.ts" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
@@ -55,19 +119,25 @@
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>
       <DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" />
-      <ResolvedFileToPublish Include="@(DistFiles-&gt;'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
         <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </ResolvedFileToPublish>
     </ItemGroup>
   </Target>
-  
-  <ItemGroup>
-    <EditorConfigFiles Remove="C:\Development\MicroTube\MicroTube\.editorconfig" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <None Include="C:\Development\MicroTube\MicroTube\.editorconfig" />
-  </ItemGroup>
+    <ItemGroup>
+    	<InternalsVisibleTo Include="MicroTube.Tests" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Utils\" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Update="Templates\Email\EmailConfirmation.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Templates\Email\PasswordReset.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 </Project>
