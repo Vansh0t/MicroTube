@@ -1,13 +1,13 @@
 
 export class UserDTO
 {
-  id: number;
+  id: string;
   username: string;
   email: string;
   publicUsername: string;
   isEmailConfirmed: string;
 
-  constructor(id: number, username: string, email: string, publicUsername: string, isEmailConfirmed: string)
+  constructor(id: string, username: string, email: string, publicUsername: string, isEmailConfirmed: string)
   {
     this.id = id;
     this.username = username;

@@ -20,7 +20,7 @@ namespace MicroTube.Data.Access.SQLServer
 			_configuration = configuration;
 		}
 
-		public async Task CreateSession(int userId, string token, DateTime issuedDateTime, DateTime expiresDateTime)
+		public async Task CreateSession(string userId, string token, DateTime issuedDateTime, DateTime expiresDateTime)
 		{
 			using IDbConnection connection = new SqlConnection(_configuration.GetDefaultConnectionString());
 			var parameters = new
@@ -34,7 +34,7 @@ namespace MicroTube.Data.Access.SQLServer
 			await connection.ExecuteAsync(SP_CREATE_SESSION, parameters, commandType: CommandType.StoredProcedure);
 		}
 
-		public async Task<AppUserSession?> GetSessionById(int sessionId)
+		public async Task<AppUserSession?> GetSessionById(string sessionId)
 		{
 			var parameters = new
 			{

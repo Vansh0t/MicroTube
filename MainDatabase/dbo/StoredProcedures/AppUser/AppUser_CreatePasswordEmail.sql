@@ -4,13 +4,15 @@
 	@PasswordHash nvarchar(100),
 	@EmailConfirmationString nvarchar(100),
 	@EmailConfirmationStringExpiration datetime,
-	@CreatedUserId int OUTPUT
+	@CreatedUserId uniqueidentifier OUTPUT
 AS
 BEGIN
+		DECLARE @OutputTable TABLE(id uniqueidentifier);
 		INSERT INTO dbo.AppUser (Username, Email, PublicUsername, IsEmailConfirmed)
+		OUTPUT INSERTED.Id INTO @OutputTable(id)
 		VALUES (@Username, @Email, @Username, 0);
-
-		SET @CreatedUserId = SCOPE_IDENTITY();
+		
+		SET @CreatedUserId = (SELECT id FROM @OutputTable);
 
 		INSERT INTO dbo.EmailPasswordAuthentication(UserId, PasswordHash, EmailConfirmationString, EmailConfirmationStringExpiration)
 		VALUES (@CreatedUserId, @PasswordHash, @EmailConfirmationString, @EmailConfirmationStringExpiration);

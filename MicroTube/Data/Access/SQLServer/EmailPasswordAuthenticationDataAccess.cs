@@ -33,7 +33,7 @@ namespace MicroTube.Data.Access.SQLServer
 
         
 
-        public async Task<int> CreateUser(string username, string email, EmailPasswordAuthentication auth)
+        public async Task<string?> CreateUser(string username, string email, EmailPasswordAuthentication auth)
         {
             using IDbConnection connection = new SqlConnection(_configuration.GetDefaultConnectionString());
             var parameters = new DynamicParameters();
@@ -42,7 +42,7 @@ namespace MicroTube.Data.Access.SQLServer
             parameters.Add("PasswordHash", auth.PasswordHash);
             parameters.Add("EmailConfirmationString", auth.EmailConfirmationString);
             parameters.Add("EmailConfirmationStringExpiration", auth.EmailConfirmationStringExpiration);
-            parameters.Add("CreatedUserId", 0, DbType.Int32, ParameterDirection.Output);
+            parameters.Add("CreatedUserId", " ", DbType.String, ParameterDirection.Output);
             connection.Open();
             using var transaction = connection.BeginTransaction();
             try
@@ -55,11 +55,13 @@ namespace MicroTube.Data.Access.SQLServer
                 transaction.Rollback();
                 throw;
             }
-            return parameters.Get<int>("@CreatedUserId");
+			var createdUserId = parameters.Get<string>("@CreatedUserId");
+
+			return string.IsNullOrWhiteSpace(createdUserId) ? null : createdUserId;
         }
 
         
-        public async Task<EmailPasswordAuthentication?> Get(int userId)
+        public async Task<EmailPasswordAuthentication?> Get(string userId)
         {
             using IDbConnection connection = new SqlConnection(_configuration.GetDefaultConnectionString());
             var parameters = new
@@ -70,7 +72,7 @@ namespace MicroTube.Data.Access.SQLServer
                 SP_GET, parameters, commandType: CommandType.StoredProcedure);
             return result.FirstOrDefault();
         }
-        public async Task<EmailPasswordAppUser?> GetWithUser(int userId)
+        public async Task<EmailPasswordAppUser?> GetWithUser(string userId)
         {
             using IDbConnection connection = new SqlConnection(_configuration.GetDefaultConnectionString());
             var parameters = new

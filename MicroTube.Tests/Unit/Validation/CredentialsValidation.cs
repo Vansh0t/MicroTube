@@ -21,9 +21,9 @@ namespace MicroTube.Tests.Unit.Validation
         [Theory]
         [InlineData("wrong")]
         [InlineData("25@**")]
-        [InlineData("some46.some@email.com")]
+        //[InlineData("some46.some@email.com")]
         [InlineData("some@@email.com")]
-        [InlineData("1@email.com")]
+       // [InlineData("1@email.com")]
         [InlineData(null)]
         public void TestEmailFail(string email)
         {

@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].[EmailPasswordAuthentication_UpdateEmail]
-	@UserId int,
+	@UserId uniqueidentifier,
 	@Email nvarchar(50),
 	@IsEmailConfirmed bit
 AS

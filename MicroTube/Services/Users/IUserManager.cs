@@ -4,7 +4,7 @@ namespace MicroTube.Services.Users
 {
     public interface IUserManager
     {
-        public Task<IServiceResult<AppUser>> GetUser(int id);
-        public Task<IServiceResult<AppUser>> GetUser(string credential);
+        public Task<IServiceResult<AppUser>> GetUserById(string id);
+        public Task<IServiceResult<AppUser>> GetUserByCredential(string credential);
     }
 }

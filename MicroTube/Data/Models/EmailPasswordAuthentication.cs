@@ -2,8 +2,8 @@
 {
     public class EmailPasswordAuthentication
     {
-        public int UserId { get; set; }
-        public required string PasswordHash { get; set; }
+		public Guid UserId { get; set; }
+		public required string PasswordHash { get; set; }
         public string? EmailConfirmationString { get; set; }
         public DateTime? EmailConfirmationStringExpiration { get; set; }
         public string? PasswordResetString { get; set; }

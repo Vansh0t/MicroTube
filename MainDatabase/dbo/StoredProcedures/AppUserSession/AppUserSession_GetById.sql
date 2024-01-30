@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].[AppUserSession_GetById]
-	@Id int
+	@Id uniqueidentifier
 AS
 BEGIN
 	SELECT usedToken.*, userSession.*

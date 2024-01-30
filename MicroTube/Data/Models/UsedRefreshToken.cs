@@ -2,8 +2,8 @@
 {
 	public class UsedRefreshToken
 	{
-		public int Id { get; set; }
-		required public int SessionId { get; set; }
+		public Guid Id { get; set; }
+		public Guid SessionId { get; set; }
 		required public string Token { get; set; }
 		public AppUserSession? Session { get; set; }
 	}

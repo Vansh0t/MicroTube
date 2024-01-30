@@ -6,7 +6,7 @@ namespace MicroTube.Services.Authentication
     public interface IJwtClaims
     {
         public Dictionary<string, string> GetClaims(AppUser user);
-        public int GetUserId(ClaimsPrincipal claimsBearer);
+        public string GetUserId(ClaimsPrincipal claimsBearer);
         public string GetUsername(ClaimsPrincipal claimsBearer);
         public bool GetIsEmailConfirmed(ClaimsPrincipal claimsBearer);
         public T GetRequiredClaim<T>(ClaimsPrincipal claimsBearer, string claimType);

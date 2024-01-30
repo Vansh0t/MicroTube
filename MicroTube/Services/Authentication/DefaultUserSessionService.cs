@@ -32,7 +32,7 @@ namespace MicroTube.Services.Authentication
 			_claims = claims;
 		}
 
-		public async Task<IServiceResult<NewSessionResult>> CreateNewSession(int userId)
+		public async Task<IServiceResult<NewSessionResult>> CreateNewSession(string userId)
 		{
 			string refreshTokenRaw;
 			string refreshToken = GetHashedRefreshToken(out refreshTokenRaw);
@@ -85,7 +85,7 @@ namespace MicroTube.Services.Authentication
 				}
 				else
 				{
-					session = await _dataAccess.GetSessionById(usedRefreshToken.SessionId);
+					session = await _dataAccess.GetSessionById(usedRefreshToken.SessionId.ToString());
 					if(session == null)
 					{
 						_logger.LogError("An attempt to invalidate session failed: Session {sessionId} does not exist", usedRefreshToken.SessionId);
@@ -98,7 +98,7 @@ namespace MicroTube.Services.Authentication
 			}
 			if (session == null || session.IsInvalidated || DateTime.UtcNow > session.ExpirationDateTime)
 				return ServiceResult<NewSessionResult>.Fail(403, "Token is expired or invalid");
-			var user = await _userDataAccess.Get(session.UserId);
+			var user = await _userDataAccess.Get(session.UserId.ToString());
 			if (user == null)
 			{
 				_logger.LogError($"User {session.UserId} tried to update a session {session.Id}, but it wasn't found");

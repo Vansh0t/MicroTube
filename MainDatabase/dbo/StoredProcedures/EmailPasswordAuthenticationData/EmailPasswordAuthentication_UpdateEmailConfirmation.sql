@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].[EmailPasswordAuthentication_UpdateEmailConfirmation]
-	@UserId int,
+	@UserId uniqueidentifier,
 	@EmailConfirmationString nvarchar(100),
 	@EmailConfirmationStringExpiration datetime,
 	@PendingEmail nvarchar(50)

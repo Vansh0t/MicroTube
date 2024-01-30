@@ -44,7 +44,7 @@ namespace MicroTube.Controllers.Authentication
                 return StatusCode(resultCreatedUser.Code, resultCreatedUser.Error);
             var user = resultCreatedUser.GetRequiredObject();
 
-			var newSessionResult = await _userSession.CreateNewSession(user.Id);
+			var newSessionResult = await _userSession.CreateNewSession(user.Id.ToString());
 			if (newSessionResult.IsError)
 				return StatusCode(newSessionResult.Code, newSessionResult.Error);
 			var newSession = newSessionResult.GetRequiredObject();
@@ -60,7 +60,7 @@ namespace MicroTube.Controllers.Authentication
                 return StatusCode(signInResult.Code, signInResult.Error);
 			var user = signInResult.GetRequiredObject();
 
-			var newSessionResult = await _userSession.CreateNewSession(user.Id);
+			var newSessionResult = await _userSession.CreateNewSession(user.Id.ToString());
 			if (newSessionResult.IsError)
 				return StatusCode(newSessionResult.Code, newSessionResult.Error);
 			var newSession = newSessionResult.GetRequiredObject();
@@ -73,7 +73,7 @@ namespace MicroTube.Controllers.Authentication
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> ConfirmEmail()
 		{
-			int userId = _claims.GetUserId(User);
+			string userId = _claims.GetUserId(User);
 			var resultJWT = await _emailPasswordAuthentication.ResendEmailConfirmation(userId);
 			if (resultJWT.IsError)
 				return StatusCode(resultJWT.Code, resultJWT.Error);
@@ -90,7 +90,7 @@ namespace MicroTube.Controllers.Authentication
 
 			if(User.Identity != null && User.Identity.IsAuthenticated)
 			{
-				var newSessionResult = await _userSession.CreateNewSession(confirmedUser.GetRequiredObject().Id);
+				var newSessionResult = await _userSession.CreateNewSession(confirmedUser.GetRequiredObject().Id.ToString());
 				if (newSessionResult.IsError)
 					return StatusCode(newSessionResult.Code, newSessionResult.Error);
 				var newSession = newSessionResult.GetRequiredObject();
@@ -133,7 +133,7 @@ namespace MicroTube.Controllers.Authentication
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
         public async Task<IActionResult> ChangePassword(PasswordChangeDTO changeData)
         {
-            int userId = _claims.GetUserId(HttpContext.User);
+            string userId = _claims.GetUserId(HttpContext.User);
             var result = await  _emailPasswordAuthentication.ChangePassword(userId, changeData.NewPassword);
             if (result.IsError)
                 return StatusCode(result.Code, result.Error);

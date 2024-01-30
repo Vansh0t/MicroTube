@@ -60,7 +60,7 @@ namespace MicroTube.Tests.Integration.Authentication
 			var signInUser = await client.SignUpTestUser();
 			var user = await userDataAccess.GetByUsername(signInUser.username);
 			Assert.NotNull(user);
-			int userId = user.Id;
+			string userId = user.Id.ToString();
 			var refreshResponse = await client.PostAsync("Authentication/Session/Refresh", null);
 			var cookieKeyValues = refreshResponse.GetSetCookieKeyValues();
 			var prevRefreshToken = cookieKeyValues.First(_ => _.Name == Constants.AuthorizationConstants.REFRESH_TOKEN_COOKIE_KEY).Value;
@@ -68,7 +68,7 @@ namespace MicroTube.Tests.Integration.Authentication
 			var refreshResponse1 = await client.PostAsync("Authentication/Session/Refresh", null);
 			refreshResponse.EnsureSuccessStatusCode();
 			refreshResponse1.EnsureSuccessStatusCode();
-			var session = await TestDatabase.GetUserSession(user.Id);
+			var session = await TestDatabase.GetUserSession(user.Id.ToString());
 			Assert.NotNull(session);
 			Assert.Equal(2, session.UsedTokens.Count);
 
@@ -82,7 +82,7 @@ namespace MicroTube.Tests.Integration.Authentication
 			Assert.False(otherRefreshResponse.IsSuccessStatusCode);
 			Assert.Equal(403, (int)otherRefreshResponse.StatusCode);
 			Assert.ThrowsAny<Exception>(()=> otherRefreshResponse.GetSetCookieKeyValues());
-			session = await TestDatabase.GetUserSession(user.Id);
+			session = await TestDatabase.GetUserSession(user.Id.ToString());
 			Assert.NotNull(session);
 			Assert.True(session.IsInvalidated);
 			var legitRefreshAfterInvalidation = await client.PostAsync("Authentication/Session/Refresh", null);

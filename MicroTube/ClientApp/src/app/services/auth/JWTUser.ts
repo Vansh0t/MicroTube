@@ -3,7 +3,7 @@ import { InvalidTokenError, JwtPayload, jwtDecode} from "jwt-decode";
 import { parseBoolean } from "../../utils";
 export class JWTUser
 {
-  readonly userId: number;
+  readonly userId: string;
   readonly publicUsername: string;
   readonly isEmailConfirmed: boolean;
   readonly issuedTime: DateTime;
@@ -17,7 +17,7 @@ export class JWTUser
   {
     const decodeResult = jwtDecode<JWTUserPayload>(jwtToken);
     this.validateJWTPayload(decodeResult);
-    this.userId = parseInt(<string>decodeResult.sub);
+    this.userId = <string>decodeResult.sub;
     this.expirationTime = DateTime.fromSeconds(<number>decodeResult.exp);
     this.issuedTime = DateTime.fromSeconds(<number>decodeResult.nbf);
     this.isEmailConfirmed = parseBoolean(<string>decodeResult.email_confirmed);

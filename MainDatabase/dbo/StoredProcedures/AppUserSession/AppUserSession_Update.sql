@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].[AppUserSession_Update]
-	@Id int,
+	@Id uniqueidentifier,
 	@Token nvarchar(50),
 	@IssuedDateTime datetime,
     @ExpirationDateTime datetime,
