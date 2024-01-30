@@ -11,7 +11,10 @@ using MicroTube.Services.Cryptography;
 using MicroTube.Services.Email;
 using MicroTube.Services.Users;
 using MicroTube.Services.Validation;
+using MicroTube.Services.VideoContent;
+using NSwag.Generation.Processors.Security;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection.Metadata;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,10 +29,13 @@ builder.Services.AddSingleton<IEmailManager, DefaultEmailManager>();
 builder.Services.AddSingleton<IEmailTemplatesProvider, DefaultEmailTemplatesProvider>();
 builder.Services.AddSingleton<IUserSessionDataAccess, AppUserSessionDataAccess>();
 builder.Services.AddSingleton<IUserSessionService, DefaultUserSessionService>();
+builder.Services.AddSingleton<IVideoPreUploadValidator, DefaultVideoPreUploadValidator>();
+builder.Services.AddSingleton<IVideoNameGenerator, GuidVideoNameGenerator>();
 builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEmailManager>();
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IEmailPasswordAuthenticationDataAccess, EmailPasswordAuthenticationDataAccess>();
 builder.Services.AddScoped<EmailPasswordAuthenticationProvider>();
+builder.Services.AddScoped<IVideoContentLocalStorage, DefaultVideoContentLocalStorage>();
 builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtPasswordResetTokenProvider, DefaultJwtPasswordResetTokenProvider>();
 builder.Services.AddTransient<IJwtClaims, JwtClaims>();
@@ -54,7 +60,19 @@ builder.Services.AddAuthorization(options =>
     options.DefaultPolicy = new AuthorizationPolicyBuilder(options.DefaultPolicy).RequireClaim(AuthorizationConstants.USER_CLAIM).Build();
 });
 builder.Services.AddControllersWithViews();
-builder.Services.AddOpenApiDocument();
+builder.Services.AddOpenApiDocument(options =>
+{
+	options.AddSecurity("Bearer", Enumerable.Empty<string>(), new NSwag.OpenApiSecurityScheme
+	{
+		Type = NSwag.OpenApiSecuritySchemeType.Http,
+		Name = "Authorization",
+		Description = "Default Auth",
+		In = NSwag.OpenApiSecurityApiKeyLocation.Header,
+		BearerFormat = "JWT",
+		Scheme = "Bearer"
+	});
+	options.OperationProcessors.Add(new OperationSecurityScopeProcessor("Bearer"));
+});
 builder.Services.AddCors(options =>
 {
 	options.AddDefaultPolicy(policy =>

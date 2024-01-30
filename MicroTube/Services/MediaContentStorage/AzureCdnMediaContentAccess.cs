@@ -4,13 +4,15 @@ namespace MicroTube.Services.MediaContentStorage
 {
 	public class AzureCdnMediaContentAccess
 	{
-		private BlobContainerClient _azureBlobs;
-		private ILogger<AzureCdnMediaContentAccess> _logger;
+		private readonly IConfiguration _config; 
+		private readonly BlobContainerClient _azureBlobs;
+		private readonly ILogger<AzureCdnMediaContentAccess> _logger;
 
-		public AzureCdnMediaContentAccess(BlobContainerClient azureBlobs, ILogger<AzureCdnMediaContentAccess> logger)
+		public AzureCdnMediaContentAccess(BlobContainerClient azureBlobs, ILogger<AzureCdnMediaContentAccess> logger, IConfiguration config)
 		{
 			_azureBlobs = azureBlobs;
 			_logger = logger;
+			_config = config;
 		}
 
 		public async Task<IServiceResult> Upload(Stream stream, string fileName, CancellationToken cancellationToken = default)

@@ -63,5 +63,14 @@ namespace MicroTube
 			};
 			context.Response.Cookies.Append(Constants.AuthorizationConstants.REFRESH_TOKEN_COOKIE_KEY, refreshToken, options);
 		}
+		public static T GetRequired<T>(this IConfigurationSection section) where T : class
+		{
+			T? result = section.Get<T>();
+			if (result == null)
+			{
+				throw new ConfigurationException($"Unable to find and map a required configuration section of type {typeof(T)}");
+			}
+			return result;
+		}
 	}
 }
