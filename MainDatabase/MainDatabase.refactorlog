@@ -28,4 +28,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="IssuedDateTime" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="1baf8ed3-7d46-4e88-90d3-c5fbad561486" ChangeDateTime="01/31/2024 13:11:08">
+    <Property Name="ElementName" Value="[dbo].[VideoUploadProgress].[Progress]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[VideoUploadProgress]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Status" />
+  </Operation>
 </Operations>

@@ -1,30 +1,17 @@
-﻿using Azure.Storage.Blobs;
-
-namespace MicroTube.Services.MediaContentStorage
+﻿namespace MicroTube.Services.MediaContentStorage
 {
-	public class AzureCdnMediaContentAccess
+	public class AzureCdnMediaContentAccess : ICdnMediaContentAccess
 	{
-		private readonly IConfiguration _config; 
-		private readonly BlobContainerClient _azureBlobs;
-		private readonly ILogger<AzureCdnMediaContentAccess> _logger;
+		private readonly IVideoContentRemoteStorage _videoRemoteStorage;
 
-		public AzureCdnMediaContentAccess(BlobContainerClient azureBlobs, ILogger<AzureCdnMediaContentAccess> logger, IConfiguration config)
+		public AzureCdnMediaContentAccess(IVideoContentRemoteStorage videoRemoteStorage)
 		{
-			_azureBlobs = azureBlobs;
-			_logger = logger;
-			_config = config;
+			_videoRemoteStorage = videoRemoteStorage;
 		}
 
-		public async Task<IServiceResult> Upload(Stream stream, string fileName, CancellationToken cancellationToken = default)
+		public async Task<IServiceResult> UploadVideo(Stream stream, string fileName, CancellationToken cancellationToken = default)
 		{
-			var response = await _azureBlobs.UploadBlobAsync(fileName, stream, cancellationToken);
-			var httpResponse = response.GetRawResponse();
-			if(httpResponse.IsError)
-			{
-				_logger.LogError("Failed to upload media content to Azure blob storage. {statusCode}, {reasonPhrase}", httpResponse.Status, httpResponse.ReasonPhrase);
-				return ServiceResult.FailInternal();
-			}
-			return ServiceResult.Success();
+			return await _videoRemoteStorage.Upload(stream, fileName, cancellationToken);
 		}
 	}
 }

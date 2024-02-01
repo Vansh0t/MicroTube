@@ -1,4 +1,5 @@
-﻿using MicroTube.Data.Models;
+﻿using Azure.Storage.Blobs;
+using MicroTube.Data.Models;
 using MicroTube.Services;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.Cryptography;
@@ -71,6 +72,12 @@ namespace MicroTube
 				throw new ConfigurationException($"Unable to find and map a required configuration section of type {typeof(T)}");
 			}
 			return result;
+		}
+		public static IServiceCollection AddAzureBlobStorage(this IServiceCollection services, string connectionString)
+		{
+			var blobServiceClient = new BlobServiceClient(connectionString);
+			services.AddSingleton(blobServiceClient);
+			return services;
 		}
 	}
 }

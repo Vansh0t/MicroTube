@@ -1,6 +1,5 @@
 ﻿using MicroTube.Data.Models;
 using MicroTube.Services.ConfigOptions;
-using System.IO;
 
 namespace MicroTube.Services.VideoContent
 {
