@@ -40,15 +40,25 @@ namespace MicroTube.Controllers.Videos
 		[Authorize]
 		[DisableRequestSizeLimit]
 		[RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
-		public async Task<IActionResult> Upload(IFormFile file)
+		public async Task<IActionResult> Upload([FromForm] VideoUploadDTO uploadData)
 		{
 			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
 			if (!isEmailConfirmed)
 				return StatusCode(403, "Email confirmation is required for this action");
 			string userId = _jwtClaims.GetUserId(User);
-			IServiceResult validationResult = _preUploadValidator.Validate(file);
-			if (validationResult.IsError)
-				return StatusCode(validationResult.Code, validationResult.Error);
+			IServiceResult fileValidationResult = _preUploadValidator.ValidateFile(uploadData.File);
+			IServiceResult titleValidationResult = _preUploadValidator.ValidateTitle(uploadData.Title);
+			IServiceResult descriptionValidationResult = _preUploadValidator.ValidateTitle(uploadData.Title);
+			string joinedError = "";
+			if (fileValidationResult.IsError)
+				joinedError += fileValidationResult.Error;
+			if (titleValidationResult.IsError)
+				joinedError += ", " + titleValidationResult.Error;
+			if (descriptionValidationResult.IsError)
+				joinedError += ", " + descriptionValidationResult.Error;
+			if (!string.IsNullOrWhiteSpace(joinedError))
+				return BadRequest(joinedError);
+			var file = uploadData.File;
 			using var stream = file.OpenReadStream();
 			var localSaveResult = await _videoLocalStorage.Save(stream, file.FileName);
 			if (localSaveResult.IsError)
@@ -56,7 +66,7 @@ namespace MicroTube.Controllers.Videos
 			var localSave = localSaveResult.GetRequiredObject();
 			try
 			{
-				var uploadProgressEntry = await _videoDataAccess.CreateUploadProgress(localSave.FullPath, userId);
+				var uploadProgressEntry = await _videoDataAccess.CreateUploadProgress(localSave.FullPath, userId, uploadData.Title, uploadData.Description);
 			}
 			catch(Exception e)
 			{
@@ -73,7 +83,7 @@ namespace MicroTube.Controllers.Videos
 		{
 			string userId = _jwtClaims.GetUserId(User);
 			var result = await _videoDataAccess.GetVideoUploadProgressListForUser(userId);
-			return Ok(result.Select(_ => new VideoUploadProgressDTO(_.Id.ToString(), _.Status)));
+			return Ok(result.Select(_ => new VideoUploadProgressDTO(_.Id.ToString(), _.Status, _.Title, _.Description)));
 		}
 	}
 }

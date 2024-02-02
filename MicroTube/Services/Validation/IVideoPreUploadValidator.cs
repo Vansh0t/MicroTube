@@ -2,6 +2,8 @@
 {
 	public interface IVideoPreUploadValidator
 	{
-		IServiceResult Validate(IFormFile file);
+		IServiceResult ValidateFile(IFormFile file);
+		IServiceResult ValidateTitle(string? title);
+		IServiceResult ValidateDescription(string? description);
 	}
 }

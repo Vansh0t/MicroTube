@@ -14,17 +14,19 @@ namespace MicroTube.Data.Access.SQLServer
 		{
 			_config = config;
 		}
-		public async Task<VideoUploadProgress?> CreateUploadProgress(string localFullPath, string uploaderId)
+		public async Task<VideoUploadProgress?> CreateUploadProgress(string localFullPath, string uploaderId, string title, string? description)
 		{
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
 			var parameters = new
 			{
 				LocalFullPath = localFullPath,
-				UploaderId = uploaderId
+				UploaderId = uploaderId,
+				Title = title,
+				Description = description
 			};
-			string sql = @"INSERT INTO dbo.VideoUploadProgress(LocalFullPath, UploaderId)
+			string sql = @"INSERT INTO dbo.VideoUploadProgress(LocalFullPath, UploaderId, Title, Description)
 							OUTPUT INSERTED.*
-							VALUES(@LocalFullPath, @UploaderId);";
+							VALUES(@LocalFullPath, @UploaderId, @Title, @Description);";
 			var result = await connection.QueryFirstOrDefaultAsync<VideoUploadProgress>(sql, parameters);
 			return result;
 		}
