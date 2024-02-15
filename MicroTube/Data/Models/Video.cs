@@ -4,6 +4,7 @@
 	{
 		public Guid Id { get; set; }
 		public required string Title { get; set; }
+		public string? Description { get; set; }
 		public Guid UploaderId { get; set; }
 		public AppUser? Uploader { get; set; }
 		public Guid FileMetaId { get; set; }
