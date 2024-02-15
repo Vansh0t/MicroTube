@@ -2,8 +2,8 @@
 {
 	public class AppUserSession
 	{
-		public int Id { get; set; }
-		public int UserId { get; set; }
+		public Guid Id { get; set; }
+		public Guid UserId { get; set; }
 		public required string Token { get; set; }
 		public DateTime IssuedDateTime { get; set; }
 		public DateTime ExpirationDateTime { get; set; }

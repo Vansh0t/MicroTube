@@ -30,7 +30,7 @@ namespace MicroTube.Controllers.User
 			var user = await _dataAccess.Get(userId);
 			if (user == null)
 				return NotFound("User does not exists");
-			return Ok(new UserDTO(user.Id, user.Username, user.Email, user.PublicUsername, user.IsEmailConfirmed ));
+			return Ok(new UserDTO(user.Id.ToString(), user.Username, user.Email, user.PublicUsername, user.IsEmailConfirmed ));
 		}
         
     }

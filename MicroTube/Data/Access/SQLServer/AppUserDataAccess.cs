@@ -19,7 +19,7 @@ namespace MicroTube.Data.Access.SQLServer
             _configuration = configuration;
         }
 
-        public async Task<AppUser?> Get(int id)
+        public async Task<AppUser?> Get(string id)
         {
             using IDbConnection connection = new SqlConnection(_configuration.GetDefaultConnectionString());
             var parameters = new

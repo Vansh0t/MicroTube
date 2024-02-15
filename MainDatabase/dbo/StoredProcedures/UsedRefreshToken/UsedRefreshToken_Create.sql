@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].[UsedRefreshToken_Create]
-	@SessionId int,
+	@SessionId uniqueidentifier,
 	@Token nvarchar(50)
 AS
 BEGIN

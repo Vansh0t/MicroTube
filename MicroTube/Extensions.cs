@@ -1,4 +1,5 @@
-﻿using MicroTube.Data.Models;
+﻿using Azure.Storage.Blobs;
+using MicroTube.Data.Models;
 using MicroTube.Services;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.Cryptography;
@@ -62,6 +63,21 @@ namespace MicroTube
 				Secure = true
 			};
 			context.Response.Cookies.Append(Constants.AuthorizationConstants.REFRESH_TOKEN_COOKIE_KEY, refreshToken, options);
+		}
+		public static T GetRequired<T>(this IConfigurationSection section) where T : class
+		{
+			T? result = section.Get<T>();
+			if (result == null)
+			{
+				throw new ConfigurationException($"Unable to find and map a required configuration section of type {typeof(T)}");
+			}
+			return result;
+		}
+		public static IServiceCollection AddAzureBlobStorage(this IServiceCollection services, string connectionString)
+		{
+			var blobServiceClient = new BlobServiceClient(connectionString);
+			services.AddSingleton(blobServiceClient);
+			return services;
 		}
 	}
 }

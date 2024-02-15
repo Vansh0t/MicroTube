@@ -4,9 +4,9 @@ namespace MicroTube.Data.Access
 {
     public interface IUserSessionDataAccess
     {
-        Task CreateSession(int userId, string token, DateTime issuedDateTime, DateTime expirationDateTime);
+        Task CreateSession(string userId, string token, DateTime issuedDateTime, DateTime expirationDateTime);
         Task<AppUserSession?> GetSessionByToken(string token);
-        Task<AppUserSession?> GetSessionById(int sessionId);
+        Task<AppUserSession?> GetSessionById(string sessionId);
         Task UpdateSession(AppUserSession session, IEnumerable<UsedRefreshToken>? newUsedRefreshTokens);
 		Task<UsedRefreshToken?> GetUsedRefreshToken(string token);
 

@@ -6,7 +6,7 @@ namespace MicroTube.Data.Access
     {
         public Task<EmailPasswordAppUser?> GetByEmailConfirmationString(string emailVerificationString);
         public Task<EmailPasswordAppUser?> GetByPasswordResetString(string passwordResetString);
-        public Task<EmailPasswordAppUser?> GetWithUser(int userId);
+        public Task<EmailPasswordAppUser?> GetWithUser(string userId);
         public Task<EmailPasswordAppUser?> GetWithUserByCredential(string credential);
         public Task UpdateEmailConfirmation(EmailPasswordAuthentication auth, bool isEmailConfirmed);
         public Task UpdatePasswordReset(EmailPasswordAuthentication auth);

@@ -45,9 +45,9 @@ namespace MicroTube.Services.Authentication
             return (T)conversionResult;
         }
 
-        public int GetUserId(ClaimsPrincipal claimsBearer)
+        public string GetUserId(ClaimsPrincipal claimsBearer)
         {
-            return GetRequiredClaim<int>(claimsBearer, JwtRegisteredClaimNames.Sub);
+            return GetRequiredClaim<string>(claimsBearer, JwtRegisteredClaimNames.Sub);
         }
 
         public string GetUsername(ClaimsPrincipal claimsBearer)

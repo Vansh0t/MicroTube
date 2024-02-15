@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].[EmailPasswordAuthentication_UpdatePassword]
-	@UserId int,
+	@UserId uniqueidentifier,
 	@PasswordHash nvarchar(100)
 AS
 BEGIN

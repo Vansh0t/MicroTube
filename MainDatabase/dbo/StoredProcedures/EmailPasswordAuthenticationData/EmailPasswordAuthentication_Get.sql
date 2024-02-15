@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].[EmailPasswordAuthentication_Get]
-	@UserID int
+	@UserID uniqueidentifier
 AS
 BEGIN
 	SELECT * 

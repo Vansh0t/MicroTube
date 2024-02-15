@@ -96,7 +96,7 @@ namespace MicroTube.Services.Authentication.Providers
                 return ServiceResult<AppUser>.FailInternal();
             }
 
-            int createdUserId;
+            string? createdUserId;
             try
             {
                 createdUserId = await _dataAccess.CreateUser(username, email, authData);
@@ -144,7 +144,7 @@ namespace MicroTube.Services.Authentication.Providers
             }
             return ServiceResult<AppUser>.Success(user);
         }
-        public async Task<IServiceResult> ResendEmailConfirmation(int userId)
+        public async Task<IServiceResult> ResendEmailConfirmation(string userId)
 		{
 			var authUser = await _dataAccess.GetWithUser(userId);
 			if (authUser==null)
@@ -197,7 +197,7 @@ namespace MicroTube.Services.Authentication.Providers
             user.IsEmailConfirmed = true;
             return ServiceResult<AppUser>.Success(user);
         }
-        public async Task<IServiceResult> StartEmailChange(int userId, string newEmail, string password)
+        public async Task<IServiceResult> StartEmailChange(string userId, string newEmail, string password)
         {
             var validationResult = _emailValidator.Validate(newEmail);
             if (validationResult.IsError)
@@ -280,7 +280,7 @@ namespace MicroTube.Services.Authentication.Providers
             await _dataAccess.UpdatePasswordReset(authData);
             return _jwtPasswordResetTokenProvider.GetToken(user.Id.ToString());
         }
-        public async Task<IServiceResult> ChangePassword(int userId, string newPassword)
+        public async Task<IServiceResult> ChangePassword(string userId, string newPassword)
         {
             var validationResult = _passwordValidator.Validate(newPassword);
             if (validationResult.IsError)

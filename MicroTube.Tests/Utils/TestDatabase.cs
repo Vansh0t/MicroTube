@@ -40,7 +40,7 @@ namespace MicroTube.Tests.Utils
 	                       WHERE Username = @Username;";
             return await connection.QueryFirstOrDefaultAsync(sql, new { Username = username });
         }
-		public static async Task<AppUserSession?> GetUserSession(int userId)
+		public static async Task<AppUserSession?> GetUserSession(string userId)
 		{
 			using IDbConnection connection = new SqlConnection(ConfigurationProvider.GetConfiguration().GetDefaultConnectionString());
 			var parameters = new

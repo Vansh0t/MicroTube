@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].[AppUser_SetEmailConfirmationStatus]
-	@Id int,
+	@Id uniqueidentifier,
 	@IsEmailConfirmed bit
 AS
 BEGIN

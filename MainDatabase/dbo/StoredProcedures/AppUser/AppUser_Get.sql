@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].[AppUser_Get]
-	@Id int
+	@Id uniqueidentifier
 AS
 BEGIN
 	SELECT Id, Username, Email, PublicUsername, IsEmailConfirmed
