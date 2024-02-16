@@ -1,7 +1,8 @@
 ﻿namespace MicroTube.Services.MediaContentStorage
 {
-	public interface IVideoContentRemoteStorage
+	public interface IVideoContentRemoteStorage<TOptions>
 	{
-		Task<IServiceResult> Upload(Stream stream, string fileName, CancellationToken cancellationToken);
+		Task<IServiceResult> Upload(Stream stream, TOptions options, CancellationToken cancellationToken = default);
+		Task<IServiceResult> Delete(TOptions options, CancellationToken cancellationToken = default);
 	}
 }

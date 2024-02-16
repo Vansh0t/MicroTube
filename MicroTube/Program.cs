@@ -1,3 +1,5 @@
+using Hangfire;
+using Hangfire.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
@@ -5,6 +7,7 @@ using MicroTube;
 using MicroTube.Constants;
 using MicroTube.Data.Access;
 using MicroTube.Data.Access.SQLServer;
+using MicroTube.Data.Models;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.Authentication.Providers;
 using MicroTube.Services.Cryptography;
@@ -21,7 +24,7 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 // Add services to the container.
 builder.Services.AddAzureBlobStorage(config.GetRequiredValue("AzureBlobStorage:ConnectionString"));
-builder.Services.AddSingleton<IVideoContentRemoteStorage, AzureBlobVideoContentRemoteStorage>();
+builder.Services.AddSingleton<IVideoContentRemoteStorage<AzureBlobUploadOptions>, AzureBlobVideoContentRemoteStorage>();
 builder.Services.AddSingleton<ICdnMediaContentAccess, AzureCdnMediaContentAccess>();
 builder.Services.AddSingleton<IEmailValidator, EmailValidator>();
 builder.Services.AddSingleton<IUsernameValidator, UsernameValidator>();
@@ -35,7 +38,8 @@ builder.Services.AddSingleton<IUserSessionDataAccess, AppUserSessionDataAccess>(
 builder.Services.AddSingleton<IUserSessionService, DefaultUserSessionService>();
 builder.Services.AddSingleton<IVideoPreUploadValidator, DefaultVideoPreUploadValidator>();
 builder.Services.AddSingleton<IVideoNameGenerator, GuidVideoNameGenerator>();
-builder.Services.AddSingleton<IVideoProcessingQueue, PathBasedVideoProcessingQueue>();
+builder.Services.AddScoped<IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>, AzureBlobVideoPreprocessingPipeline>();
+builder.Services.AddScoped<IVideoProcessingPipeline, DefaultVideoProcessingPipeline>();
 builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEmailManager>();
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IEmailPasswordAuthenticationDataAccess, EmailPasswordAuthenticationDataAccess>();
@@ -45,7 +49,6 @@ builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtPasswordResetTokenProvider, DefaultJwtPasswordResetTokenProvider>();
 builder.Services.AddTransient<IJwtClaims, JwtClaims>();
 builder.Services.AddTransient<ISecureTokensProvider, SHA256SecureTokensProvider>();
-builder.Services.AddTransient<IVideoProcessingPipeline, DefaultVideoProcessingPipeline>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -53,7 +56,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidateLifetime = true,
+            ValidateLifetime = false,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config.GetRequiredValue("JWT:Key"))),
             ValidIssuer = config.GetRequiredValue("JWT:Issuer"),
@@ -89,8 +92,15 @@ builder.Services.AddCors(options =>
 		policy.AllowCredentials();
 	});
 });
-builder.Services.AddHostedService<VideoProcessingBackgroundService>();
-
+builder.Services.AddHangfire(hangfireConfig =>
+{
+	hangfireConfig.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+	.UseSimpleAssemblyNameTypeSerializer()
+	.UseRecommendedSerializerSettings()
+	.UseSqlServerStorage(config.GetDefaultConnectionString())
+	.UseColouredConsoleLogProvider();
+});
+builder.Services.AddHangfireServer();
 var app = builder.Build();
 
 
@@ -103,6 +113,7 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHangfireDashboard();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");

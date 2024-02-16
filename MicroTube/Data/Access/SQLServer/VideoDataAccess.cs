@@ -14,19 +14,20 @@ namespace MicroTube.Data.Access.SQLServer
 		{
 			_config = config;
 		}
-		public async Task<VideoUploadProgress?> CreateUploadProgress(string localFullPath, string uploaderId, string title, string? description)
+		public async Task<VideoUploadProgress?> CreateUploadProgress(VideoUploadProgressCreationOptions options)
 		{
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
 			var parameters = new
 			{
-				LocalFullPath = localFullPath,
-				UploaderId = uploaderId,
-				Title = title,
-				Description = description
+				options.RemoteCacheFileName,
+				options.RemoteCacheLocation,
+				options.UploaderId,
+				options.Title,
+				options.Description
 			};
-			string sql = @"INSERT INTO dbo.VideoUploadProgress(LocalFullPath, UploaderId, Title, Description)
+			string sql = @"INSERT INTO dbo.VideoUploadProgress(RemoteCacheFileName, RemoteCacheLocation, UploaderId, Title, Description)
 							OUTPUT INSERTED.*
-							VALUES(@LocalFullPath, @UploaderId, @Title, @Description);";
+							VALUES(@RemoteCacheFileName, @RemoteCacheLocation, @UploaderId, @Title, @Description);";
 			var result = await connection.QueryFirstOrDefaultAsync<VideoUploadProgress>(sql, parameters);
 			return result;
 		}
@@ -41,15 +42,16 @@ namespace MicroTube.Data.Access.SQLServer
 			var result = await connection.QueryFirstOrDefaultAsync<VideoUploadProgress>(sql, parameters);
 			return result;
 		}
-		public async Task<int> UpdateUploadStatus(string id, VideoUploadStatus status)
+		public async Task<int> UpdateUploadProgress(string id, VideoUploadStatus status, string? message)
 		{
 			var parameters = new
 			{
 				Id = id,
-				Status = status
+				Status = status,
+				Message = message
 			};
 			string sql = @"UPDATE dbo.VideoUploadProgress 
-							SET Status = @Status
+							SET Status = @Status, Message = @Message
 							WHERE Id = @Id;";
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
 			var result = await connection.ExecuteAsync(sql, parameters);

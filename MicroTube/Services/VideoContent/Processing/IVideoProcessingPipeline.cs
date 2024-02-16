@@ -2,6 +2,7 @@
 {
 	public interface IVideoProcessingPipeline
 	{
-		Task<IServiceResult> Process(string videoFilePath, CancellationToken cancellationToken);
+		Task<IServiceResult> Process(string videoFilePath, CancellationToken cancellationToken = default);
+		void Test( string text);
 	}
 }
