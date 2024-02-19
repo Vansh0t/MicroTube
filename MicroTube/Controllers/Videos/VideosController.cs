@@ -23,6 +23,7 @@ namespace MicroTube.Controllers.Videos
 			var result = videos.Select(_ =>
 				new VideoDTO
 				{
+					Id = _.Id.ToString(),
 					Url = _.Url,
 					Title = _.Title,
 					Description = _.Description,

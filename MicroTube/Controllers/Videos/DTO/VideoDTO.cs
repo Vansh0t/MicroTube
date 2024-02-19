@@ -2,6 +2,7 @@
 {
 	public class VideoDTO
 	{
+		public required string Id { get; set; }
 		public required string Url { get; set; }
 		public required string Title { get; set; }
 		public required DateTime UploadTime { get; set; }
