@@ -1,81 +1,52 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MicroTube.Controllers.Authentication.DTO;
+using MicroTube.Controllers.User.DTO;
+using MicroTube.Controllers.Videos.DTO;
 using MicroTube.Data.Access;
+using MicroTube.Data.Models;
 using MicroTube.Services;
 using MicroTube.Services.Authentication;
-using MicroTube.Services.Validation;
-using MicroTube.Services.VideoContent;
 using MicroTube.Services.VideoContent.Processing;
 
 namespace MicroTube.Controllers.Videos
 {
-	[Route("Videos/[controller]")]
+    [Route("Videos/[controller]")]
 	[ApiController]
 	public class VideoUploadController : ControllerBase
 	{
 		private readonly IJwtClaims _jwtClaims;
-		private readonly IVideoPreUploadValidator _preUploadValidator;
-		private readonly IVideoContentLocalStorage _videoLocalStorage;
 		private readonly IVideoDataAccess _videoDataAccess;
-		private readonly IVideoProcessingQueue _videoProcessingQueue;
-		private readonly ILogger<VideoUploadController> _logger;
+		private readonly IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress> _preprocessingPipeline;
 		public VideoUploadController(
 			IJwtClaims jwtClaims,
-			IVideoPreUploadValidator preUploadValidator,
-			IVideoContentLocalStorage videoLocalStorage,
 			IVideoDataAccess videoDataAccess,
-			IVideoProcessingQueue videoProcessingQueue,
-			ILogger<VideoUploadController> logger)
+			IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress> preprocessingPipeline)
 		{
 			_jwtClaims = jwtClaims;
-			_preUploadValidator = preUploadValidator;
-			_videoLocalStorage = videoLocalStorage;
 			_videoDataAccess = videoDataAccess;
-			_videoProcessingQueue = videoProcessingQueue;
-			_logger = logger;
+			_preprocessingPipeline = preprocessingPipeline;
 		}
 
 		[HttpPost]
 		[Authorize]
 		[DisableRequestSizeLimit]
 		[RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
+		[ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(VideoUploadProgressDTO))]
 		public async Task<IActionResult> Upload([FromForm] VideoUploadDTO uploadData)
 		{
 			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
 			if (!isEmailConfirmed)
 				return StatusCode(403, "Email confirmation is required for this action");
 			string userId = _jwtClaims.GetUserId(User);
-			IServiceResult fileValidationResult = _preUploadValidator.ValidateFile(uploadData.File);
-			IServiceResult titleValidationResult = _preUploadValidator.ValidateTitle(uploadData.Title);
-			IServiceResult descriptionValidationResult = _preUploadValidator.ValidateTitle(uploadData.Title);
-			string joinedError = "";
-			if (fileValidationResult.IsError)
-				joinedError += fileValidationResult.Error;
-			if (titleValidationResult.IsError)
-				joinedError += ", " + titleValidationResult.Error;
-			if (descriptionValidationResult.IsError)
-				joinedError += ", " + descriptionValidationResult.Error;
-			if (!string.IsNullOrWhiteSpace(joinedError))
-				return BadRequest(joinedError);
-			var file = uploadData.File;
-			using var stream = file.OpenReadStream();
-			var localSaveResult = await _videoLocalStorage.Save(stream, file.FileName);
-			if (localSaveResult.IsError)
-				return StatusCode(localSaveResult.Code, localSaveResult.Error);
-			var localSave = localSaveResult.GetRequiredObject();
-			try
-			{
-				var uploadProgressEntry = await _videoDataAccess.CreateUploadProgress(localSave.FullPath, userId, uploadData.Title, uploadData.Description);
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Failed to create a video upload entry. Cancelling the processing and deleting from local storage.");
-				_videoLocalStorage.TryDelete(localSave.FullPath);
-				return StatusCode(500);
-			}
-			_videoProcessingQueue.EnqueueForProcessing(localSave.FullPath);
-			return Ok();
+			var preprocessingData = new VideoPreprocessingOptions(userId, uploadData.Title, uploadData.Description, uploadData.File);
+			var preprocessingResult = await _preprocessingPipeline.PreprocessVideo(preprocessingData);
+			if (preprocessingResult.IsError)
+				return StatusCode(preprocessingResult.Code, preprocessingResult.Error);
+			var uploadProgress = preprocessingResult.GetRequiredObject();
+			var result = new VideoUploadProgressDTO(userId, uploadProgress.Status, uploadData.Title, uploadProgress.Description, uploadProgress.Message);
+			return Accepted(result);
 		}
 		[HttpGet("progress")]
 		[Authorize]
@@ -83,7 +54,7 @@ namespace MicroTube.Controllers.Videos
 		{
 			string userId = _jwtClaims.GetUserId(User);
 			var result = await _videoDataAccess.GetVideoUploadProgressListForUser(userId);
-			return Ok(result.Select(_ => new VideoUploadProgressDTO(_.Id.ToString(), _.Status, _.Title, _.Description)));
+			return Ok(result.Select(_ => new VideoUploadProgressDTO(_.Id.ToString(), _.Status, _.Title, _.Description, _.Message)));
 		}
 	}
 }

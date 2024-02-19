@@ -21,4 +21,15 @@
 
         }
     }
+	public class BackgroundJobException: Exception
+	{
+		public BackgroundJobException(string? message, Exception? innerException): base(message, innerException)
+		{
+
+		}
+		public BackgroundJobException(string? message): base(message)
+		{
+
+		}
+	}
 }
