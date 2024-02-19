@@ -8,8 +8,6 @@ using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services;
 using MicroTube.Services.Authentication;
-using MicroTube.Services.MediaContentStorage;
-using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent.Processing;
 
 namespace MicroTube.Controllers.Videos
@@ -20,20 +18,14 @@ namespace MicroTube.Controllers.Videos
 	{
 		private readonly IJwtClaims _jwtClaims;
 		private readonly IVideoDataAccess _videoDataAccess;
-		private readonly ILogger<VideoUploadController> _logger;
-		private readonly IBackgroundJobClient _backgroundJobClient;
 		private readonly IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress> _preprocessingPipeline;
 		public VideoUploadController(
 			IJwtClaims jwtClaims,
 			IVideoDataAccess videoDataAccess,
-			ILogger<VideoUploadController> logger,
-			IBackgroundJobClient backgroundJobClient,
 			IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress> preprocessingPipeline)
 		{
 			_jwtClaims = jwtClaims;
 			_videoDataAccess = videoDataAccess;
-			_logger = logger;
-			_backgroundJobClient = backgroundJobClient;
 			_preprocessingPipeline = preprocessingPipeline;
 		}
 
@@ -55,14 +47,6 @@ namespace MicroTube.Controllers.Videos
 			var uploadProgress = preprocessingResult.GetRequiredObject();
 			var result = new VideoUploadProgressDTO(userId, uploadProgress.Status, uploadData.Title, uploadProgress.Description, uploadProgress.Message);
 			return Accepted(result);
-		}
-		[HttpGet("hangfiretest")]
-		[DisableRequestSizeLimit]
-		[RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
-		public async Task<IActionResult> HangfireTest()
-		{
-			//_backgroundJobClient.Enqueue<IVideoProcessingPipeline>(videoProcessing => videoProcessing.Test("TEXT"));
-			return Ok();
 		}
 		[HttpGet("progress")]
 		[Authorize]
