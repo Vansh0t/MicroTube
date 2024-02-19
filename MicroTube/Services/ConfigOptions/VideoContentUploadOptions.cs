@@ -3,20 +3,13 @@
 	public class VideoContentUploadOptions
 	{
 		public static string KEY = "VideoContentUpload";
-		public string AbsoluteLocalStoragePath { get; set; }
-		public long MaxFileSizeBytes { get; set; }
-		public int LocalStorageUploadBufferSizeBytes { get; set; }
-		public int RemoteStorageUploadBufferSizeBytes { get; set; }
 		public string RemoteStorageLocation { get; set; }
-		public HashSet<string> AllowedContentTypes { get; set; } = new HashSet<string>();
-		public HashSet<string> AllowedFileExtensions { get; set; } = new HashSet<string>();
-		public VideoContentUploadOptions(string absoluteLocalStoragePath, long maxFileSizeBytes, int localStorageUploadBufferSizeBytes, string remoteStorageLocation, int remoteStorageUploadBufferSizeBytes)
+		public string CdnUrl { get; set; }
+
+		public VideoContentUploadOptions(string remoteStorageLocation, string cdnUrl)
 		{
-			AbsoluteLocalStoragePath = absoluteLocalStoragePath;
-			MaxFileSizeBytes = maxFileSizeBytes;
-			LocalStorageUploadBufferSizeBytes = localStorageUploadBufferSizeBytes;
 			RemoteStorageLocation = remoteStorageLocation;
-			RemoteStorageUploadBufferSizeBytes = remoteStorageUploadBufferSizeBytes;
+			CdnUrl = cdnUrl;
 		}
 	}
 }

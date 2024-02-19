@@ -12,7 +12,7 @@ namespace MicroTube.Services.VideoContent.Processing
 	{
 		private readonly ILogger<AzureBlobVideoPreprocessingPipeline> _logger;
 		private readonly IConfiguration _config;
-		private readonly IVideoContentRemoteStorage<AzureBlobUploadOptions> _remoteStorage;
+		private readonly IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _remoteStorage;
 		private readonly IVideoPreUploadValidator _preUploadValidator;
 		private readonly IVideoNameGenerator _videoNameGenerator;
 		private readonly IVideoDataAccess _videoDataAccess;
@@ -21,7 +21,7 @@ namespace MicroTube.Services.VideoContent.Processing
 		public AzureBlobVideoPreprocessingPipeline(
 			ILogger<AzureBlobVideoPreprocessingPipeline> logger,
 			IConfiguration config,
-			IVideoContentRemoteStorage<AzureBlobUploadOptions> remoteStorage,
+			IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage,
 			IVideoPreUploadValidator preUploadValidator,
 			IVideoNameGenerator videoNameGenerator,
 			IVideoDataAccess videoDataAccess,
@@ -61,7 +61,7 @@ namespace MicroTube.Services.VideoContent.Processing
 				await _videoDataAccess.UpdateUploadProgress(progress.Id.ToString(), VideoUploadStatus.Fail, "Internal Error. Please, try again later.");
 				return ServiceResult<VideoUploadProgress>.FailInternal();
 			}
-			_backgroundJobClient.Enqueue<IVideoProcessingPipeline>(processing => processing.Test("PROCESSING STARTED"));
+			_backgroundJobClient.Enqueue<IVideoProcessingPipeline>(processing => processing.Process(generatedFileName, processingOptions.RemoteStorageCacheLocation, default));
 			return ServiceResult<VideoUploadProgress>.Success(progress);
 			
 		}
@@ -104,8 +104,8 @@ namespace MicroTube.Services.VideoContent.Processing
 			{
 				AccessTier = AccessTier.Cold
 			};
-			var remoteUploadOptions = new AzureBlobUploadOptions(fileName, cacheLocation, blobUploadOptions);
-			var remoteSaveResult = await _remoteStorage.Upload(stream, remoteUploadOptions);
+			var remoteUploadAccessOptions = new AzureBlobAccessOptions(fileName, cacheLocation);
+			var remoteSaveResult = await _remoteStorage.Upload(stream, remoteUploadAccessOptions, blobUploadOptions);
 			if (remoteSaveResult.IsError)
 				return ServiceResult.Fail(remoteSaveResult.Code, remoteSaveResult.Error!);
 			return ServiceResult.Success();

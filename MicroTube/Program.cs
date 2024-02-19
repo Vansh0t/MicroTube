@@ -1,3 +1,5 @@
+using Azure.Storage.Blobs.Models;
+using FFMpegCore;
 using Hangfire;
 using Hangfire.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,7 +26,7 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 // Add services to the container.
 builder.Services.AddAzureBlobStorage(config.GetRequiredValue("AzureBlobStorage:ConnectionString"));
-builder.Services.AddSingleton<IVideoContentRemoteStorage<AzureBlobUploadOptions>, AzureBlobVideoContentRemoteStorage>();
+builder.Services.AddSingleton<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>, AzureBlobVideoContentRemoteStorage>();
 builder.Services.AddSingleton<ICdnMediaContentAccess, AzureCdnMediaContentAccess>();
 builder.Services.AddSingleton<IEmailValidator, EmailValidator>();
 builder.Services.AddSingleton<IUsernameValidator, UsernameValidator>();
@@ -39,7 +41,8 @@ builder.Services.AddSingleton<IUserSessionService, DefaultUserSessionService>();
 builder.Services.AddSingleton<IVideoPreUploadValidator, DefaultVideoPreUploadValidator>();
 builder.Services.AddSingleton<IVideoNameGenerator, GuidVideoNameGenerator>();
 builder.Services.AddScoped<IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>, AzureBlobVideoPreprocessingPipeline>();
-builder.Services.AddScoped<IVideoProcessingPipeline, DefaultVideoProcessingPipeline>();
+builder.Services.AddScoped<IVideoProcessingPipeline, AzureBlobVideoProcessingPipeline>();
+builder.Services.AddScoped<IVideoThumbnailsService, FFMpegVideoThumbnailsService>();
 builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEmailManager>();
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IEmailPasswordAuthenticationDataAccess, EmailPasswordAuthenticationDataAccess>();
@@ -98,9 +101,12 @@ builder.Services.AddHangfire(hangfireConfig =>
 	.UseSimpleAssemblyNameTypeSerializer()
 	.UseRecommendedSerializerSettings()
 	.UseSqlServerStorage(config.GetDefaultConnectionString())
-	.UseColouredConsoleLogProvider();
+	.UseColouredConsoleLogProvider()
+	.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });//TODO: temp for development
+	
 });
 builder.Services.AddHangfireServer();
+//GlobalFFOptions.Configure(options => options.BinaryFolder = config.GetRequiredValue("FFmpegLocation"));
 var app = builder.Build();
 
 

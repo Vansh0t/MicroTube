@@ -18,25 +18,25 @@ namespace MicroTube.Services.MediaContentStorage
         }
         public async Task<IServiceResult<FileMeta>> Save(Stream stream, string fileName, CancellationToken cancellationToken = default)
         {
-            VideoContentUploadOptions options = _config
-                .GetRequiredSection(VideoContentUploadOptions.KEY)
-                .GetRequired<VideoContentUploadOptions>();
-            string fileExtension = Path.GetExtension(fileName);
-            string videoFileName = _videoNameGenerator.GenerateVideoName() + fileExtension;
-            string fullPath = Path.Join(options.AbsoluteLocalStoragePath, videoFileName);
-            Directory.CreateDirectory(options.AbsoluteLocalStoragePath);
-            using var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
-            try
-            {
-                await stream.CopyToAsync(fileStream, options.LocalStorageUploadBufferSizeBytes, cancellationToken);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Failed to save a video file locally.");
-                TryDelete(fullPath);
-                return ServiceResult<FileMeta>.FailInternal();
-            }
-            return ServiceResult<FileMeta>.Success(new FileMeta { Name = videoFileName, Path = options.AbsoluteLocalStoragePath });
+            //VideoContentUploadOptions options = _config
+            //    .GetRequiredSection(VideoContentUploadOptions.KEY)
+            //    .GetRequired<VideoContentUploadOptions>();
+            //string fileExtension = Path.GetExtension(fileName);
+            //string videoFileName = _videoNameGenerator.GenerateVideoName() + fileExtension;
+            //string fullPath = Path.Join(options.AbsoluteLocalStoragePath, videoFileName);
+            //Directory.CreateDirectory(options.AbsoluteLocalStoragePath);
+            //using var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+            //try
+            //{
+            //    await stream.CopyToAsync(fileStream, options.LocalStorageUploadBufferSizeBytes, cancellationToken);
+            //}
+            //catch (Exception e)
+            //{
+            //    _logger.LogError(e, "Failed to save a video file locally.");
+            //    TryDelete(fullPath);
+            //    return ServiceResult<FileMeta>.FailInternal();
+            //}
+            return ServiceResult<FileMeta>.Success(null/*new FileMeta { Name = videoFileName, Path = options.AbsoluteLocalStoragePath }*/);
         }
         public bool TryDelete(string fullFilePath)
         {

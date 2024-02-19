@@ -57,14 +57,14 @@ namespace MicroTube.Data.Access.SQLServer
 			var result = await connection.ExecuteAsync(sql, parameters);
 			return result;
 		}
-		public async Task<VideoUploadProgress?> GetUploadProgressByLocalFullPath(string localFullPath)
+		public async Task<VideoUploadProgress?> GetUploadProgressByFileName(string fileName)
 		{
 			var parameters = new
 			{
-				LocalFullPath = localFullPath
+				RemoteCacheFileName = fileName
 			};
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
-			string sql = @"SELECT * FROM dbo.VideoUploadProgress WHERE LocalFullPath = @LocalFullPath;";
+			string sql = @"SELECT * FROM dbo.VideoUploadProgress WHERE RemoteCacheFileName = @RemoteCacheFileName;";
 			var result = await connection.QueryFirstOrDefaultAsync<VideoUploadProgress>(sql, parameters);
 			return result;
 		} 
@@ -77,6 +77,33 @@ namespace MicroTube.Data.Access.SQLServer
 			string sql = @"SELECT * FROM dbo.VideoUploadProgress WHERE UploaderId = @UploaderId";
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
 			var result = await connection.QueryAsync<VideoUploadProgress>(sql, parameters);
+			return result;
+		}
+		public async Task<Video?> CreateVideo(Video video)
+		{
+			var parameters = new
+			{
+				video.UploaderId,
+				video.Title,
+				video.Description,
+				video.Url,
+				video.SnapshotUrls,
+				video.ThumbnailUrls,
+				video.UploadTime
+			};
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			string sql = @"INSERT INTO dbo.Video(UploaderId, Title, Description, Url, SnapshotUrls, ThumbnailUrls, UploadTime)
+							OUTPUT INSERTED.*
+							VALUES(@UploaderId, @Title, @Description, @Url, @SnapshotUrls, @ThumbnailUrls, @UploadTime);";
+			var result = await connection.QueryFirstOrDefaultAsync<Video>(sql, parameters);
+			return result;
+		}
+		//TO DO: add filtering, sorting, etc
+		public async Task<IEnumerable<Video>> GetVideos()
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			string sql = @"SELECT * FROM dbo.Video;";
+			var result = await connection.QueryAsync<Video>(sql);
 			return result;
 		}
 	}

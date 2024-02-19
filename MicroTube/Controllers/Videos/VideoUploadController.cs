@@ -61,7 +61,7 @@ namespace MicroTube.Controllers.Videos
 		[RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
 		public async Task<IActionResult> HangfireTest()
 		{
-			_backgroundJobClient.Enqueue<IVideoProcessingPipeline>(videoProcessing => videoProcessing.Test("TEXT"));
+			//_backgroundJobClient.Enqueue<IVideoProcessingPipeline>(videoProcessing => videoProcessing.Test("TEXT"));
 			return Ok();
 		}
 		[HttpGet("progress")]

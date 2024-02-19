@@ -42,4 +42,18 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="InitialFileName" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="439288eb-f243-4667-911e-bc944e88a1b2" ChangeDateTime="02/18/2024 16:55:55">
+    <Property Name="ElementName" Value="[dbo].[Video].[SubcontentUrls]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Video]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ThumbnailUrls" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="b5d19ab4-ea73-4f19-81ee-e546bbcda4db" ChangeDateTime="02/18/2024 16:56:14">
+    <Property Name="ElementName" Value="[dbo].[Video].[SnapshotsUrls]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Video]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="SnapshotUrls" />
+  </Operation>
 </Operations>

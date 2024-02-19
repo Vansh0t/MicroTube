@@ -7,7 +7,9 @@
 		public string? Description { get; set; }
 		public Guid UploaderId { get; set; }
 		public AppUser? Uploader { get; set; }
-		public Guid FileMetaId { get; set; }
-		public FileMeta? FileMeta { get; set; }
+		public required string Url { get; set; }
+		public string? ThumbnailUrls { get; set; }
+		public string? SnapshotUrls { get; set; }
+		public required DateTime UploadTime { get; set; }
 	}
 }
