@@ -12,5 +12,6 @@ namespace MicroTube.Data.Access
 		Task<IEnumerable<VideoUploadProgress>> GetVideoUploadProgressListForUser(string userId);
 		Task<Video?> CreateVideo(Video video);
 		Task<IEnumerable<Video>> GetVideos();
+		Task<Video?> GetVideo(string id);
 	}
 }

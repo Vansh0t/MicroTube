@@ -98,12 +98,23 @@ namespace MicroTube.Data.Access.SQLServer
 			var result = await connection.QueryFirstOrDefaultAsync<Video>(sql, parameters);
 			return result;
 		}
-		//TO DO: add filtering, sorting, etc
+		//TODO: add filtering, sorting, etc
 		public async Task<IEnumerable<Video>> GetVideos()
 		{
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
 			string sql = @"SELECT * FROM dbo.Video;";
 			var result = await connection.QueryAsync<Video>(sql);
+			return result;
+		}
+		public async Task<Video?> GetVideo(string id)
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			var parameters = new
+			{
+				Id = id
+			};
+			string sql = @"SELECT * FROM dbo.Video WHERE Id = @Id;";
+			var result = await connection.QueryFirstOrDefaultAsync<Video>(sql, parameters);
 			return result;
 		}
 	}

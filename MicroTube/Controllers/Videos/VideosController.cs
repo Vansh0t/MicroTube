@@ -4,7 +4,7 @@ using MicroTube.Data.Access;
 
 namespace MicroTube.Controllers.Videos
 {
-    [Route("[controller]")]
+	[Route("[controller]")]
 	[ApiController]
 	public class VideosController : ControllerBase
 	{
@@ -31,6 +31,25 @@ namespace MicroTube.Controllers.Videos
 					ThumbnailUrls = _.ThumbnailUrls,
 					UploadTime = _.UploadTime
 				});
+			return Accepted(result);
+		}
+		[HttpGet("{id}")]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VideoDTO>))]
+		public async Task<IActionResult> Get(string id)
+		{
+			var video = await _videoDataAccess.GetVideo(id);
+			if (video == null)
+				return NotFound("Video not found");
+			var result = new VideoDTO
+			{
+				Id = video.Id.ToString(),
+				Url = video.Url,
+				Title = video.Title,
+				Description = video.Description,
+				SnapshotUrls = video.SnapshotUrls,
+				ThumbnailUrls = video.ThumbnailUrls,
+				UploadTime = video.UploadTime
+			};
 			return Accepted(result);
 		}
 	}
