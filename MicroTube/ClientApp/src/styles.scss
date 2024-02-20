@@ -29,9 +29,15 @@ mat-mdc-form-field-bottom-align::before
 }
 */
 
-html, body { height: 100%; }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif !important;
+}
 a {
   color: mat-color($MicroTube-primary, 50) !important;
+  max-width: 100%;
+  height:auto;
 }
 .dense-minus-1 {
   @include mat.all-component-densities(-1);
@@ -41,6 +47,9 @@ a {
 }
 .dense-minus-3 {
   @include mat.all-component-densities(-3);
+}
+.caption-grey {
+  color: mat-color($MicroTube-primary, 100) !important;
 }
 /*.mat-mdc-dialog-container .mdc-dialog__content {
   color: inherit !important;

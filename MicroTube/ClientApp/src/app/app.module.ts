@@ -20,6 +20,7 @@ import { EmailConfirmationCallbackComponent } from "./auth/email-confirmation-ca
 import { PasswordChangeFormComponent } from "./auth/password-change-form/password-change-form.component";
 import { UserModule } from "./user/user.module";
 import { EmailPasswordProfileComponent } from "./user/email-password-profile/email-password-profile.component";
+import { VideoListingModule } from "./video-listing/video-listing.module";
 
 
 export function getBaseUrl()
@@ -48,7 +49,8 @@ const providers = [
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: "ng-cli-universal" }),
@@ -67,7 +69,8 @@ const providers = [
     MatMenuModule,
     MatInputModule,
     MatIconModule,
-    UserModule
+    UserModule,
+    VideoListingModule
   ],
   providers: providers,
   bootstrap: [AppComponent]

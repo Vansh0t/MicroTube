@@ -45,6 +45,7 @@
     <None Remove="ClientApp\src\app\data\DTO\SignInCredentialPasswordDTO.ts" />
     <None Remove="ClientApp\src\app\data\DTO\SignUpEmailPasswordDTO.ts" />
     <None Remove="ClientApp\src\app\data\DTO\UserDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\VideoDTO.ts" />
     <None Remove="ClientApp\src\app\enums.ts" />
     <None Remove="ClientApp\src\app\home\home.component.html" />
     <None Remove="ClientApp\src\app\home\home.component.ts" />
@@ -53,11 +54,13 @@
     <None Remove="ClientApp\src\app\services\auth\providers\EmailPasswordAuthProvider.ts" />
     <None Remove="ClientApp\src\app\services\auth\providers\IAuthProvider.ts" />
     <None Remove="ClientApp\src\app\services\auth\SessionManager.ts" />
+    <None Remove="ClientApp\src\app\services\formatting\TimeFormatter.ts" />
     <None Remove="ClientApp\src\app\services\http\interceptors\APIBaseURLInterceptor.ts" />
     <None Remove="ClientApp\src\app\services\http\interceptors\JWTAuthInterceptor.ts" />
     <None Remove="ClientApp\src\app\services\ServiceResult.ts" />
     <None Remove="ClientApp\src\app\services\user\ProfileManager.ts" />
     <None Remove="ClientApp\src\app\services\validation\DefaultAuthValidators.ts" />
+    <None Remove="ClientApp\src\app\services\videos\VideoService.ts" />
     <None Remove="ClientApp\src\app\utils.ts" />
   </ItemGroup>
 
@@ -67,6 +70,9 @@
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="ClientApp\src\app\data\DTO\EmailChangeDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\VideoDTO.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="ClientApp\src\app\data\DTO\UserDTO.ts">
@@ -98,6 +104,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\services\auth\JWTUser.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\services\auth\providers\EmailPasswordAuthProvider.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\services\auth\providers\IAuthProvider.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\formatting\TimeFormatter.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\services\http\interceptors\JWTAuthInterceptor.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
@@ -105,6 +112,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\services\ServiceResult.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\services\user\ProfileManager.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\services\validation\DefaultAuthValidators.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\videos\VideoService.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\utils.ts" />
   </ItemGroup>
 

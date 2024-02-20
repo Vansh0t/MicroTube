@@ -1,0 +1,18 @@
+<div class="video-card">
+	<a [routerLink]="getWatchRouterLink()">
+		<div class="video-preview-container">
+			<img mat-card-image
+				 class="video-preview"
+				 (mouseenter)="onVideoPreviewHoverStart()"
+				 (mouseleave)="onVideoPreviewHoverEnd()"
+				 [src]="currentThumbnailSrc">
+		</div>
+		
+	</a>
+	<a [routerLink]="getWatchRouterLink()">
+		<div class="video-info">
+			<h3 class="video-title">{{video?.title}}</h3>
+			<p class="mat-caption caption-grey">{{getUploadTimeText()}}</p>
+		</div>
+	</a>
+</div>

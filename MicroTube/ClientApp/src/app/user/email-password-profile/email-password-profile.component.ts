@@ -5,11 +5,10 @@ import { Router } from "@angular/router";
 import { UserDTO } from "../../data/DTO/UserDTO";
 import { Observable, Subscription, catchError, tap, throwError } from "rxjs";
 import { ProfileManager } from "../../services/user/ProfileManager";
-import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
+import { HttpErrorResponse } from "@angular/common/http";
 import { EmailPasswordAuthProvider } from "../../services/auth/providers/EmailPasswordAuthProvider";
 import { MessageDTO } from "../../data/DTO/MessageDTO";
 import { InfoPopupDialogComponent } from "../../utility-components/info-popup-dialog/info-popup-dialog.component";
-import { Dialog } from "@angular/cdk/dialog";
 import { MatDialog } from "@angular/material/dialog";
 import { JWTUser } from "../../services/auth/JWTUser";
 
@@ -75,7 +74,6 @@ export class EmailPasswordProfileComponent implements OnInit, OnDestroy
   {
     if (this.emailChangeGroup.valid)
     {
-      console.log("req");
       this.authProvider.startEmailChange(this.emailChangeNewEmailControl.value, this.emailChangePasswordControl.value)
         .subscribe({
           next: this.onEmailChangeResponse.bind(this),

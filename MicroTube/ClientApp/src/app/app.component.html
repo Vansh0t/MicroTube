@@ -1,6 +1,6 @@
 <body class="mat-app-background">
   <mat-toolbar class="px-5">
-	  <h3 class="ps-2 me-auto"><button mat-button routerLink="/">MicroTube</button></h3>
+	  <button mat-button class="ps-2 me-auto" routerLink="/">MicroTube</button>
 	<div *ngIf="!(authManager.jwtSignedInUser$ | async) as user; else userProfile">
 		<button mat-button [matMenuTriggerFor]="signInMenu">Sign In</button>
 		<button mat-button routerLink="/signup">Sign Up</button>
@@ -22,7 +22,7 @@
 		
 	</ng-template>
   </mat-toolbar>
-  <main class="container">
-    <router-outlet></router-outlet>
+  <main class="container-fluid">
+	  <router-outlet></router-outlet>
   </main>
 </body>
