@@ -1,0 +1,13 @@
+<div>
+	<div *ngIf="video$ | async as video; else loading">
+		<div class="video-player-container">
+			<video-js-player class="video-player"
+							 [options]="buildVideoPlayerOptions(video.url)"></video-js-player>
+		</div>
+			<h2>{{video.title}}</h2>
+			<h3>{{video.description}}</h3>
+	</div>
+	<ng-template #loading>
+		<h2>Loading...</h2>
+	</ng-template>
+</div>

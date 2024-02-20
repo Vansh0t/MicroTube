@@ -4,12 +4,16 @@ import { VideoCardComponent } from "./video-card/video-card.component";
 import { MatCardModule } from "@angular/material/card";
 import { RouterModule } from "@angular/router";
 import { VideoListingMainComponent } from "./video-listing-main/video-listing-main.component";
+import { VideoWatchComponent } from "./video-watch/video-watch.component";
+import { VideoJsPlayerComponent } from './video-js-player/video-js-player.component';
 
 
 @NgModule({
   declarations: [
     VideoCardComponent,
-    VideoListingMainComponent
+    VideoListingMainComponent,
+    VideoWatchComponent,
+    VideoJsPlayerComponent
   ],
   imports: [
     CommonModule,
@@ -18,7 +22,8 @@ import { VideoListingMainComponent } from "./video-listing-main/video-listing-ma
   ],
   exports: [
     VideoCardComponent,
-    VideoListingMainComponent
+    VideoListingMainComponent,
+    VideoWatchComponent
   ]
 })
 export class VideoListingModule { }

@@ -27,4 +27,15 @@ export class VideoService
       );
     return result;
   }
+  getVideo(id: string): Observable<VideoDTO>
+  {
+    const result = this.client.get<VideoRawDTO>("Videos/"+id)
+      .pipe(
+        map(response =>
+        {
+          return new VideoDTO(response);
+        })
+      );
+    return result;
+  }
 }

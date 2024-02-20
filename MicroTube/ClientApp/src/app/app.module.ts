@@ -21,6 +21,7 @@ import { PasswordChangeFormComponent } from "./auth/password-change-form/passwor
 import { UserModule } from "./user/user.module";
 import { EmailPasswordProfileComponent } from "./user/email-password-profile/email-password-profile.component";
 import { VideoListingModule } from "./video-listing/video-listing.module";
+import { VideoWatchComponent } from "./video-listing/video-watch/video-watch.component";
 
 
 export function getBaseUrl()
@@ -58,6 +59,7 @@ const providers = [
     AppAuthModule,
     RouterModule.forRoot([
       { path: "", component: HomeComponent, pathMatch: "full" },
+      { path: "watch/:id", component: VideoWatchComponent, pathMatch: "full" },
       { path: "signup", component: SignUpFormComponent, pathMatch: "full" },
       { path: "user/profile", component: EmailPasswordProfileComponent, pathMatch: "full" },
       { path: "Authentication/EmailPassword/ConfirmEmail", component: EmailConfirmationCallbackComponent, pathMatch: "full" },

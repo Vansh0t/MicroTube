@@ -32,7 +32,8 @@
             "styles": [
               "src/styles.scss",
               "src/custom-theme.scss",
-              "src/bootstrap.css"
+              "src/bootstrap.css",
+              "video.js/dist/video-js.css"
             ],
             "scripts": []
           },

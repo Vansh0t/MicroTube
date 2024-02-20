@@ -33,7 +33,6 @@ export class VideoCardComponent implements OnInit
   }
   onVideoPreviewHoverStart()
   {
-    console.log("hover");
     this.thumbnailsRotation = timer(this.thumbnailsRotationDelayMs, this.thumbnailsRotationDelayMs)
       .subscribe({ next: this.nextThumbnail.bind(this) });
   }
@@ -58,7 +57,6 @@ export class VideoCardComponent implements OnInit
     if (this.video != undefined && this.video.thumbnailUrls != null)
     {
       this.currentThumbnailSrc = this.video.thumbnailUrls[index];
-      console.log(this.currentThumbnailSrc);
       this.currentThumbnailIndex = index;
     }
   }
