@@ -4,7 +4,7 @@ namespace MicroTube.Services.Validation
 {
 	public class DefaultVideoPreUploadValidator : IVideoPreUploadValidator
 	{
-		private const int MAX_TITLE_LENGTH = 50;
+		private const int MAX_TITLE_LENGTH = 200;
 		private const int MIN_TITLE_LENGTH = 2;
 		private const int MAX_DESCRIPTION_LENGTH = 1000;
 		private readonly IConfiguration _config;
