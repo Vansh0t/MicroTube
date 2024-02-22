@@ -1,7 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { VideoDTO, VideoRawDTO } from "../../data/DTO/VideoDTO";
+import { VideoDTO, VideoRawDTO, VideoUploadDTO } from "../../data/DTO/VideoDTO";
 import { Observable, map } from "rxjs";
+import { VideoUploadProgressDTO } from "../../data/DTO/VideoUploadProgressDTO";
 
 
 @Injectable({
@@ -36,6 +37,16 @@ export class VideoService
           return new VideoDTO(response);
         })
       );
+    return result;
+  }
+  uploadVideo(data: VideoUploadDTO): Observable<VideoUploadProgressDTO>
+  {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    if (data.description != null)
+      formData.append("description", data.description);
+    formData.append("file", data.file.files[0]);
+    const result = this.client.post<VideoUploadProgressDTO>("Videos/VideoUpload", formData);
     return result;
   }
 }

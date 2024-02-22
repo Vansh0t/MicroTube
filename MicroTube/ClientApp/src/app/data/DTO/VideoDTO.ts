@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import { FileInput } from "ngx-custom-material-file-input";
 
 
 /*public required string Id { get; set; }
@@ -40,4 +41,11 @@ export interface VideoRawDTO
   description: string | null;
   thumbnailUrls: string | undefined;
   snapshotUrls: string | undefined;
+}
+
+export interface VideoUploadDTO
+{
+  title: string;
+  description: string | null;
+  file: FileInput;
 }

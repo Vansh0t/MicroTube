@@ -33,6 +33,7 @@ html, body {
   height: 100%;
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif !important;
+  background-color: mat-color($MicroTube-primary, 900) !important;
 }
 a {
   color: mat-color($MicroTube-primary, 50) !important;
@@ -51,6 +52,9 @@ a {
 .caption-grey {
   color: mat-color($MicroTube-primary, 100) !important;
 }
+/*.h1, h2, h3, h4, h5, h6, p, span {
+  color: white;
+}*/
 /*.mat-mdc-dialog-container .mdc-dialog__content {
   color: inherit !important;
 }

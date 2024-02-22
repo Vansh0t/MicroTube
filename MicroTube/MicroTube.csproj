@@ -46,6 +46,7 @@
     <None Remove="ClientApp\src\app\data\DTO\SignUpEmailPasswordDTO.ts" />
     <None Remove="ClientApp\src\app\data\DTO\UserDTO.ts" />
     <None Remove="ClientApp\src\app\data\DTO\VideoDTO.ts" />
+    <None Remove="ClientApp\src\app\data\DTO\VideoUploadProgressDTO.ts" />
     <None Remove="ClientApp\src\app\enums.ts" />
     <None Remove="ClientApp\src\app\home\home.component.html" />
     <None Remove="ClientApp\src\app\home\home.component.ts" />
@@ -60,6 +61,7 @@
     <None Remove="ClientApp\src\app\services\ServiceResult.ts" />
     <None Remove="ClientApp\src\app\services\user\ProfileManager.ts" />
     <None Remove="ClientApp\src\app\services\validation\DefaultAuthValidators.ts" />
+    <None Remove="ClientApp\src\app\services\validation\DefaultVideoFileUploadValidators.ts" />
     <None Remove="ClientApp\src\app\services\videos\VideoService.ts" />
     <None Remove="ClientApp\src\app\utils.ts" />
   </ItemGroup>
@@ -70,6 +72,9 @@
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="ClientApp\src\app\data\DTO\EmailChangeDTO.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\VideoUploadProgressDTO.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="ClientApp\src\app\data\DTO\VideoDTO.ts">
@@ -111,6 +116,9 @@
     <TypeScriptCompile Include="ClientApp\src\app\services\http\interceptors\APIBaseURLInterceptor.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\services\ServiceResult.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\services\user\ProfileManager.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\services\validation\DefaultVideoFileUploadValidators.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="ClientApp\src\app\services\validation\DefaultAuthValidators.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\services\videos\VideoService.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\utils.ts" />

@@ -17,7 +17,7 @@ export class TimeFormatter
     }
     if (timeDifferenceHours < 24)
     {
-      return Math.round(timeDifferenceHours) + "hours ago";
+      return Math.round(timeDifferenceHours) + " hours ago";
     }
     const timeDifferenceDays = timeDifference.as("days");
     if (timeDifferenceDays < 2)
@@ -26,7 +26,7 @@ export class TimeFormatter
     }
     if (timeDifferenceDays < 31)
     {
-      return Math.round(timeDifferenceDays) + "days ago";
+      return Math.round(timeDifferenceDays) + " days ago";
     }
     const timeDifferenceMonths = timeDifference.as("months");
     if (timeDifferenceMonths < 2)
@@ -35,9 +35,9 @@ export class TimeFormatter
     }
     if (timeDifferenceMonths < 12)
     {
-      return Math.round(timeDifferenceMonths) + "months ago";
+      return Math.round(timeDifferenceMonths) + " months ago";
     }
     const timeDifferenceYears = timeDifference.as("years");
-    return timeDifferenceYears < 2 ? "1 year ago" : Math.round(timeDifferenceYears) + "years ago";
+    return timeDifferenceYears < 2 ? "1 year ago" : Math.round(timeDifferenceYears) + " years ago";
   }
 }
