@@ -44,7 +44,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			var inputFile = new InputFile(filePath);
 			var ffprobe = new Engine(_config.GetRequiredValue("FFmpegLocation"));
 			var videoAnylisis = await ffprobe.GetMetaDataAsync(inputFile, cancellationToken);
-			double framesCount = videoAnylisis.Duration.TotalSeconds * videoAnylisis.VideoData.Fps;
+			double framesCount = Math.Floor(videoAnylisis.Duration.TotalSeconds * videoAnylisis.VideoData.Fps);
 			string ffmpegCustomArgs = string.Format(FFMPEG_THUMBNAILS_ARGS,
 				framesCount, processingOptions.ThumbnailsAmount, processingOptions.ThumbnailsWidth, processingOptions.ThumbnailsHeight);
 			var options = new ConversionOptions
@@ -53,7 +53,6 @@ namespace MicroTube.Services.VideoContent.Processing
 			};
 			var outputFile = new OutputFile(Path.Join(thumbnailsDirectory, "thumbnail%4d.jpg"));
 			var ffmpeg = new Engine(_config.GetRequiredValue("FFmpegLocation"));
-			var data = await ffmpeg.GetMetaDataAsync(inputFile, cancellationToken);
 			await ffmpeg.ConvertAsync(inputFile, outputFile, options, cancellationToken);
 			var files = Directory.GetFiles(thumbnailsDirectory);
 			var thumbnailPaths = files.Where(_=>_.Contains("thumbnail"));//TODO: this could use more robust filtering
