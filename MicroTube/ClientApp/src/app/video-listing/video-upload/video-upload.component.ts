@@ -55,7 +55,7 @@ export class VideoUploadComponent implements OnDestroy
       file: this.fileControl.value
     };
     this.uploadProgressSubscription = this.videoService.uploadVideo(videoData).subscribe({
-      next: () => this.router.navigate(["Videos/VideoUpload/Progress"]),
+      next: () => this.router.navigate(["upload/list"]),
       error: (error: HttpErrorResponse) =>
       {
         this.uploadProgressSubscription?.unsubscribe();

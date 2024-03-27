@@ -29,7 +29,8 @@ namespace MicroTube.Controllers.Videos
 					Description = _.Description,
 					SnapshotUrls = _.SnapshotUrls,
 					ThumbnailUrls = _.ThumbnailUrls,
-					UploadTime = _.UploadTime
+					UploadTime = _.UploadTime,
+					LengthSeconds = _.LengthSeconds
 				});
 			return Accepted(result);
 		}
@@ -48,7 +49,8 @@ namespace MicroTube.Controllers.Videos
 				Description = video.Description,
 				SnapshotUrls = video.SnapshotUrls,
 				ThumbnailUrls = video.ThumbnailUrls,
-				UploadTime = video.UploadTime
+				UploadTime = video.UploadTime,
+				LengthSeconds = video.LengthSeconds
 			};
 			return Accepted(result);
 		}

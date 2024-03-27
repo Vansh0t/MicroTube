@@ -11,5 +11,6 @@
 		public string? ThumbnailUrls { get; set; }
 		public string? SnapshotUrls { get; set; }
 		public required DateTime UploadTime { get; set; }
+		public required int LengthSeconds { get; set; }
 	}
 }

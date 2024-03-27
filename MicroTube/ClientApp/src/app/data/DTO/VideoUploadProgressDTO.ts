@@ -3,8 +3,10 @@ export interface VideoUploadProgressDTO
   id: string,
   title: string;
   description: string | null;
-  status: VideoUploadStatus;
+  status: string;
   message: string | null;
+  lengthSeconds: number | null,
+  lengthHuman: string | null;
+  timestamp: string;
+  timestampHuman: string | null;
 }
-//public enum VideoUploadStatus {InQueue, InProgress, Fail, Success}
-export enum VideoUploadStatus { InQueue, InProgress, Fail, Success }

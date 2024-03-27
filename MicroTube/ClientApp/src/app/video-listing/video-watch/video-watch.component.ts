@@ -33,10 +33,12 @@ export class VideoWatchComponent implements OnInit
       return;
     }
     this.video$ = this.videoService.getVideo(this.videoId);
+    
   }
   buildVideoPlayerOptions(videoUrl :string)
   {
     const videoMimeType = mime.getType(videoUrl);
+    console.log(videoUrl);
     return {
       fill: true,
       autoplay: false,

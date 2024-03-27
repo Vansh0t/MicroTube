@@ -48,6 +48,7 @@ namespace MicroTube.Services.VideoContent.Processing
 																			  processingOptions.RemoteStorageCacheLocation,
 																			  generatedFileName,
 																			  data.VideoTitle,
+																			  DateTime.UtcNow,
 																			  data.VideoDescription);
 			var progressCreationResult = await CreateVideoUploadProgress(uploadProgressCreationOptions);
 			if(progressCreationResult.IsError)
@@ -58,7 +59,9 @@ namespace MicroTube.Services.VideoContent.Processing
 			if(remoteCacheUploadResult.IsError)
 			{
 				_logger.LogError("Setting upload progress {uploadProgressId} to fail due to remote cache upload fail.", progress.Id);
-				await _videoDataAccess.UpdateUploadProgress(progress.Id.ToString(), VideoUploadStatus.Fail, "Internal Error. Please, try again later.");
+				progress.Status = VideoUploadStatus.Fail;
+				progress.Message = "Internal Error. Please, try again later.";
+				await _videoDataAccess.UpdateUploadProgress(progress);
 				return ServiceResult<VideoUploadProgress>.FailInternal();
 			}
 			_backgroundJobClient.Enqueue<IVideoProcessingPipeline>(processing => processing.Process(generatedFileName, processingOptions.RemoteStorageCacheLocation, default));

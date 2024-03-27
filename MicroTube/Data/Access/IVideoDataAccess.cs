@@ -7,7 +7,7 @@ namespace MicroTube.Data.Access
     {
         Task<VideoUploadProgress?> CreateUploadProgress(VideoUploadProgressCreationOptions options);
         Task<VideoUploadProgress?> GetUploadProgressById(string id);
-		Task<int> UpdateUploadProgress(string id, VideoUploadStatus status, string? message = null);
+		Task<int> UpdateUploadProgress(VideoUploadProgress uploadProgress);
 		Task<VideoUploadProgress?> GetUploadProgressByFileName(string fileName);
 		Task<IEnumerable<VideoUploadProgress>> GetVideoUploadProgressListForUser(string userId);
 		Task<Video?> CreateVideo(Video video);

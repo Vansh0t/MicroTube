@@ -23,6 +23,7 @@ import { EmailPasswordProfileComponent } from "./user/email-password-profile/ema
 import { VideoListingModule } from "./video-listing/video-listing.module";
 import { VideoWatchComponent } from "./video-listing/video-watch/video-watch.component";
 import { VideoUploadComponent } from "./video-listing/video-upload/video-upload.component";
+import { UploadProgressListComponent } from "./video-listing/upload-progress-list/upload-progress-list.component";
 
 
 export function getBaseUrl()
@@ -62,10 +63,11 @@ const providers = [
       { path: "", component: HomeComponent, pathMatch: "full" },
       { path: "watch/:id", component: VideoWatchComponent, pathMatch: "full" },
       { path: "upload", component: VideoUploadComponent, pathMatch: "full" },
+      { path: "upload/list", component: UploadProgressListComponent, pathMatch: "full" },
       { path: "signup", component: SignUpFormComponent, pathMatch: "full" },
       { path: "user/profile", component: EmailPasswordProfileComponent, pathMatch: "full" },
       { path: "Authentication/EmailPassword/ConfirmEmail", component: EmailConfirmationCallbackComponent, pathMatch: "full" },
-      { path: "Authentication/EmailPassword/ResetPassword", component: PasswordChangeFormComponent, pathMatch: "full" }
+      { path: "Authentication/EmailPassword/ResetPassword", component: PasswordChangeFormComponent, pathMatch: "full" },
     ]),
     BrowserAnimationsModule,
     MatToolbarModule,

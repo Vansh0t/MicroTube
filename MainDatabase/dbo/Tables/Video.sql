@@ -7,5 +7,6 @@
 	[Url] NVARCHAR(100) NOT NULL,
 	[ThumbnailUrls] VARCHAR(MAX) DEFAULT NULL, 
     [SnapshotUrls] VARCHAR(MAX) NULL DEFAULT NULL,
-	[UploadTime] DATETIME NOT NULL
+	[UploadTime] DATETIME NOT NULL, 
+    [LengthSeconds] INT NOT NULL DEFAULT 1 
 )

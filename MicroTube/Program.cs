@@ -23,6 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 // Add services to the container.
 builder.Services.AddAzureBlobStorage(config.GetRequiredValue("AzureBlobStorage:ConnectionString"));
+builder.Services.AddSingleton<IVideoAnalyzer, FFMpegVideoAnalyzer>();
 //builder.Services.AddSingleton<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>, AzureBlobVideoContentRemoteStorage>();
 builder.Services.AddSingleton<IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions>, OfflineVideoContentRemoteStorage>();
 //builder.Services.AddSingleton<ICdnMediaContentAccess, AzureCdnMediaContentAccess>();

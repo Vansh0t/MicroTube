@@ -14,15 +14,18 @@ import { MatIconModule } from "@angular/material/icon";
 import { MaterialFileInputModule } from "ngx-custom-material-file-input";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatButtonModule } from "@angular/material/button";
-
-
+import { UploadProgressListComponent } from "./upload-progress-list/upload-progress-list.component";
+import { MatTableModule } from "@angular/material/table";
+import { MatPaginatorModule } from "@angular/material/paginator";
+import { MatSortModule } from "@angular/material/sort";
 @NgModule({
   declarations: [
     VideoCardComponent,
     VideoListingMainComponent,
     VideoWatchComponent,
     VideoJsPlayerComponent,
-    VideoUploadComponent
+    VideoUploadComponent,
+    UploadProgressListComponent
   ],
   imports: [
     CommonModule,
@@ -34,13 +37,17 @@ import { MatButtonModule } from "@angular/material/button";
     MatIconModule,
     MaterialFileInputModule,
     MatProgressSpinnerModule,
-    MatButtonModule
+    MatButtonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule
   ],
   exports: [
     VideoCardComponent,
     VideoListingMainComponent,
     VideoWatchComponent,
-    VideoUploadComponent
+    VideoUploadComponent,
+    UploadProgressListComponent
   ]
 })
 export class VideoListingModule { }

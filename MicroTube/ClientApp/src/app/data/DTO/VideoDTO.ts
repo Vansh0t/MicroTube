@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { DateTime, Duration } from "luxon";
 import { FileInput } from "ngx-custom-material-file-input";
 
 
@@ -18,6 +18,8 @@ export class VideoDTO
   description: string | null;
   thumbnailUrls: string[] | undefined;
   snapshotUrls: string[] | undefined;
+  length: Duration;
+  lengthHuman: string | null;
   constructor(
     raw: VideoRawDTO
   )
@@ -28,7 +30,9 @@ export class VideoDTO
     this.uploadTime = DateTime.fromISO(raw.uploadTime);
     this.description = raw.description;
     this.thumbnailUrls = raw.thumbnailUrls?.split(";"); 
-    this.snapshotUrls = raw.snapshotUrls?.split(";"); 
+    this.snapshotUrls = raw.snapshotUrls?.split(";");
+    this.length = Duration.fromDurationLike({ seconds: raw.lengthSeconds });
+    this.lengthHuman = this.length.toISOTime({ suppressMilliseconds: true });
   }
 }
 
@@ -41,6 +45,7 @@ export interface VideoRawDTO
   description: string | null;
   thumbnailUrls: string | undefined;
   snapshotUrls: string | undefined;
+  lengthSeconds: number;
 }
 
 export interface VideoUploadDTO

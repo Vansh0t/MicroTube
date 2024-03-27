@@ -1,0 +1,12 @@
+.status-success {
+  color: green;
+}
+.status-fail {
+color: red;
+}
+.status-in-queue {
+  color: orange
+}
+.status-in-progress {
+color: olivedrab
+}

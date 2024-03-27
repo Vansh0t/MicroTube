@@ -5,7 +5,10 @@
 				 class="video-preview"
 				 (mouseenter)="onVideoPreviewHoverStart()"
 				 (mouseleave)="onVideoPreviewHoverEnd()"
-				 [src]="currentThumbnailSrc">
+				 [src]="currentThumbnailSrc"/>
+		<div class="video-length-container">
+			<p>{{video?.lengthHuman}}</p>
+		</div>
 		</div>
 	</a>
 	<a [routerLink]="getWatchRouterLink()">

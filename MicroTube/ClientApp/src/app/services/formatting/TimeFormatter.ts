@@ -13,7 +13,7 @@ export class TimeFormatter
     const timeDifferenceHours = timeDifference.as("hours");
     if (timeDifferenceHours < 1)
     {
-      return "less than our ago";
+      return "less than hour ago";
     }
     if (timeDifferenceHours < 24)
     {

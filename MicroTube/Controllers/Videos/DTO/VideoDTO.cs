@@ -9,6 +9,7 @@
 		public string? Description { get; set; }
 		public string? ThumbnailUrls { get; set; }
 		public string? SnapshotUrls { get; set; }
+		public required int LengthSeconds { get; set; }
 
 	}
 }

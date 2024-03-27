@@ -1,6 +1,6 @@
 <div>
   <mat-toolbar class="px-5">
-	  <button mat-button class="ps-2 me-auto" routerLink="/">MicroTube</button>
+	  <button mat-button class="ps-2 me-auto" routerLink="/"><h2 class="mb-0">MicroTube</h2></button>
 	<div *ngIf="!(authManager.jwtSignedInUser$ | async) as user; else userProfile">
 		<button mat-button [matMenuTriggerFor]="signInMenu">Sign In</button>
 		<button mat-button routerLink="/signup">Sign Up</button>

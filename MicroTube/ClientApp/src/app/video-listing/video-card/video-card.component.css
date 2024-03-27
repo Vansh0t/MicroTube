@@ -1,5 +1,5 @@
 .video-card {
-  width: 30rem;
+  width: 24rem;
 display:flex;
 flex-direction:column;
 gap:0.625rem;
@@ -9,6 +9,7 @@ gap:0.625rem;
   height: 15rem;
   background-color: black;
   border-radius: var(--mdc-elevated-card-container-shape, var(--mdc-shape-medium, 4px));
+position:relative;
 }
 .video-preview {
   width:100%;
@@ -25,3 +26,13 @@ object-fit:contain;
   a {
     text-decoration: none;
   }
+.video-length-container {
+  position: absolute;
+  height: 24px;
+padding: 4px;
+  background-color: black;
+  right: 0;
+  bottom: 0;
+  border-radius: var(--mdc-elevated-card-container-shape, var(--mdc-shape-medium, 4px));
+border-bottom-left-radius: 0;
+}
