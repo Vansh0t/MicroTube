@@ -6,7 +6,7 @@ import { VideoDTO } from "../../data/DTO/VideoDTO";
 @Component({
   selector: "video-listing-main",
   templateUrl: "./video-listing-main.component.html",
-  styleUrls: ["./video-listing-main.component.css"]
+  styleUrls: ["./video-listing-main.component.scss"]
 })
 export class VideoListingMainComponent implements OnInit
 {

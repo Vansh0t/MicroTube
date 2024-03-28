@@ -7,7 +7,7 @@ import { DateTime } from "luxon";
 @Component({
   selector: "video-card",
   templateUrl: "./video-card.component.html",
-  styleUrls: ["./video-card.component.css"]
+  styleUrls: ["./video-card.component.scss"]
 })
 export class VideoCardComponent implements OnInit
 {

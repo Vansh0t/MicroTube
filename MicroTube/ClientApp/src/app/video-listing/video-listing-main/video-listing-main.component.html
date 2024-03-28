@@ -1,5 +1,5 @@
-<div class="video-listing-main">
+<div class="video-listing-main grid-container">
 	<div *ngFor="let video of videos$ | async">
-		<video-card [video] = "video"/>
+		<video-card [video]="video" />
 	</div>
 </div>
