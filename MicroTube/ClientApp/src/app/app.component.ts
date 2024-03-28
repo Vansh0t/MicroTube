@@ -23,8 +23,4 @@ export class AppComponent {
   {
     return this.authManager.jwtSignedInUser$.value?.isEmailConfirmed;
   }
-  closeSignOutMenu()
-  {
-    this.signOutMenuTrigger.closeMenu();
-  }
 }
