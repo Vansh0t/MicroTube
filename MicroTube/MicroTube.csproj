@@ -153,6 +153,7 @@
     	<InternalsVisibleTo Include="MicroTube.Tests" />
     </ItemGroup>
     <ItemGroup>
+      <Folder Include="ClientApp\src\assets\img\logo\" />
       <Folder Include="Utils\" />
     </ItemGroup>
     <ItemGroup>

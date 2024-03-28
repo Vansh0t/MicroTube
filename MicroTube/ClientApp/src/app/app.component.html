@@ -1,6 +1,8 @@
 <div>
 	<mat-toolbar class="global-horizontal-padding">
-		<button mat-button class="ps-2 me-auto" routerLink="/"><h2 class="mb-0">MicroTube</h2></button>
+		<button mat-button class="ps-2 me-auto" routerLink="/">
+			<img class="logo-header" src="/assets/img/logo/microtube-logo-full-white.svg" />
+		</button>
 		<div *ngIf="!(authManager.jwtSignedInUser$ | async) as user; else userProfile">
 			<button mat-button [matMenuTriggerFor]="signInMenu">Sign In</button>
 			<button mat-button routerLink="/signup">Sign Up</button>
