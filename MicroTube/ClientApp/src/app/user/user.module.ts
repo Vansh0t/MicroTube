@@ -8,11 +8,16 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { ReactiveFormsModule } from "@angular/forms";
 import { AppAuthModule } from "../auth/auth.module";
 import { UtilityComponentsModule } from "../utility-components/utility-components.module";
+import { ProfilePopupComponent } from "./profile-popup/profile-popup.component";
+import { RouterModule } from "@angular/router";
+import { MatMenuModule } from "@angular/material/menu";
+import { MatIconModule } from "@angular/material/icon";
 
 
 @NgModule({
   declarations: [
-    EmailPasswordProfileComponent
+    EmailPasswordProfileComponent,
+    ProfilePopupComponent
   ],
   imports: [
     CommonModule,
@@ -22,10 +27,14 @@ import { UtilityComponentsModule } from "../utility-components/utility-component
     MatFormFieldModule,
     ReactiveFormsModule,
     AppAuthModule,
-    UtilityComponentsModule
+    UtilityComponentsModule,
+    RouterModule,
+    MatMenuModule,
+    MatIconModule
   ],
   exports: [
-    EmailPasswordProfileComponent
+    EmailPasswordProfileComponent,
+    ProfilePopupComponent
   ]
 })
 export class UserModule { }

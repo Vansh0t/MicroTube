@@ -30,9 +30,11 @@
               "src/assets"
             ],
             "styles": [
+              "src/bootstrap.css",
               "src/styles.scss",
               "src/custom-theme.scss",
-              "src/bootstrap.css"
+              "src/breakpoints.scss",
+              "video.js/dist/video-js.css"
             ],
             "scripts": []
           },

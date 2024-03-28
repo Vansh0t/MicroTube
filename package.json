@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "video.js": "^8.10.0"
+  }
+}

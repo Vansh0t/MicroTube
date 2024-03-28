@@ -1,0 +1,39 @@
+<div class="video-upload-container">
+	<div *ngIf ="uploadProgressSubscription == null; else loading;">
+		<form (ngSubmit)="submit()" [formGroup]="formGroup">
+			<h2>Upload a video</h2>
+			<mat-form-field class="w-100" subscriptSizing="dynamic" color="accent" appearance="fill">
+				<mat-label>Title</mat-label>
+				<textarea matInput
+						  [formControl]="titleControl"
+						  [maxlength]="videoUploadValidation.MAX_TITLE_LENGTH"
+						  cdkTextareaAutosize></textarea>
+				<mat-error class="small" *ngIf="getTitleError() != null">{{getTitleError()}}</mat-error>
+			</mat-form-field>
+			<mat-form-field class="mt-2 w-100" subscriptSizing="dynamic" color="accent" appearance="fill">
+				<mat-label>Description</mat-label>
+				<textarea matInput
+						  [formControl]="descriptionControl"
+						  [maxlength]="videoUploadValidation.MAX_DESCRIPTION_LENGTH"
+						  cdkTextareaAutosize
+						  cdkAutosizeMinRows="4"></textarea>
+				<mat-error class="small" *ngIf="getDescriptionError() != null">{{getDescriptionError()}}</mat-error>
+			</mat-form-field>
+			<div class="d-flex align-items-end justify-content-between mt-4">
+				<mat-form-field subscriptSizing="dynamic" color="accent" appearance="outline">
+					<mat-label>File</mat-label>
+					<ngx-mat-file-input placeholder="Choose a video file" formControlName="fileControl" [accept]="acceptString"></ngx-mat-file-input>
+					<mat-icon matSuffix color="accent">movie</mat-icon>
+					<mat-error class="small" *ngIf="getFileError() != null">{{getFileError()}}</mat-error>
+				</mat-form-field>
+				<button mat-raised-button color="accent" class="ms-5" [disabled]="!formGroup.valid">Upload video</button>
+			</div>
+			<mat-error class="small ms-3" *ngIf="uploadServerError != null">{{uploadServerError}}</mat-error>
+			
+		</form>
+	</div>
+	<ng-template #loading>
+		<mat-spinner></mat-spinner>
+	</ng-template>
+</div>
+

@@ -3,6 +3,7 @@ using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
+using System.Diagnostics;
 
 namespace MicroTube.Services.VideoContent.Processing
 {
@@ -15,6 +16,7 @@ namespace MicroTube.Services.VideoContent.Processing
 		private readonly IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _remoteStorage;
 		private readonly ICdnMediaContentAccess _mediaCdnAccess;
 		private readonly IVideoThumbnailsService _thumbnailService;
+		private readonly IVideoAnalyzer _videoAnalyzer;
 
 		public AzureBlobVideoProcessingPipeline(
 			IConfiguration config,
@@ -23,7 +25,8 @@ namespace MicroTube.Services.VideoContent.Processing
 			IVideoContentLocalStorage videoLocalStorage,
 			ICdnMediaContentAccess mediaCdnAccess,
 			IVideoThumbnailsService thumbnailService,
-			IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage)
+			IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage,
+			IVideoAnalyzer videoAnalyzer)
 		{
 			_config = config;
 			_logger = logger;
@@ -32,19 +35,24 @@ namespace MicroTube.Services.VideoContent.Processing
 			_mediaCdnAccess = mediaCdnAccess;
 			_thumbnailService = thumbnailService;
 			_remoteStorage = remoteStorage;
+			_videoAnalyzer = videoAnalyzer;
 		}
 		public async Task Process(string videoFileName, string videoFileLocation, CancellationToken cancellationToken = default)
 		{
 			VideoProcessingOptions processingOptions = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
 			VideoUploadProgress? uploadProgress = null;
 			string? videoPath = null;
+			Stopwatch stopwatch = Stopwatch.StartNew();
 			try
 			{
 				uploadProgress = await GetVideoUploadProgressForFilePath(videoFileName);
 				cancellationToken.ThrowIfCancellationRequested();
-				await _videoDataAccess.UpdateUploadProgress(uploadProgress.Id.ToString(), VideoUploadStatus.InProgress);
-				cancellationToken.ThrowIfCancellationRequested();
 				videoPath = await DownloadFromRemoteProcessingCache(videoFileName, videoFileLocation, processingOptions.AbsoluteLocalStoragePath, cancellationToken);
+				cancellationToken.ThrowIfCancellationRequested();
+				uploadProgress = await UpdateProgressFromAnalyzeResult(videoPath, uploadProgress, cancellationToken);
+				uploadProgress.Status = VideoUploadStatus.InProgress;
+				EnsureUploadProgressLengthIsSet(uploadProgress);
+				await _videoDataAccess.UpdateUploadProgress(uploadProgress);
 				cancellationToken.ThrowIfCancellationRequested();
 				(IEnumerable<string> thumbnailPaths,
 				IEnumerable<string> snapshotPaths) = await MakeImagesSubcontent(videoPath, processingOptions.AbsoluteLocalStoragePath, cancellationToken);
@@ -55,6 +63,7 @@ namespace MicroTube.Services.VideoContent.Processing
 				IEnumerable<Uri> subcontentUrls = await UploadVideoSubcontentToCdn(subcontentDirectory, videoFileName, cancellationToken);
 				cancellationToken.ThrowIfCancellationRequested();
 				(string snapshotUrls, string thumbnailUrls) = FormatUrls(snapshotPaths, thumbnailPaths, subcontentUrls);
+				EnsureUploadProgressLengthIsSet(uploadProgress);
 				var createdVideo = await _videoDataAccess.CreateVideo(
 					new Video
 					{
@@ -64,10 +73,15 @@ namespace MicroTube.Services.VideoContent.Processing
 						Url = cdnVideoUrl.ToString(),
 						ThumbnailUrls = thumbnailUrls,
 						SnapshotUrls = snapshotUrls,
-						UploadTime = DateTime.UtcNow
+						UploadTime = DateTime.UtcNow,
+						LengthSeconds = uploadProgress.LengthSeconds!.Value
 					}
 					);
-				await _videoDataAccess.UpdateUploadProgress(uploadProgress.Id.ToString(), VideoUploadStatus.Success);
+				var processingTime = stopwatch.Elapsed;
+				uploadProgress.Status = VideoUploadStatus.Success;
+				if (uploadProgress.Message == null)
+					uploadProgress.Message = $"Upload successfully completed. Time: {processingTime}.";
+				await _videoDataAccess.UpdateUploadProgress(uploadProgress);
 			}
 			catch(Exception e)
 			{
@@ -75,6 +89,13 @@ namespace MicroTube.Services.VideoContent.Processing
 				{
 					//TODO: set to InQueue if retries are available
 					await RevertProcessingOperation(videoFileName);
+					if (uploadProgress != null)
+					{
+						uploadProgress.Status = VideoUploadStatus.Fail;
+						if (uploadProgress.Message == null)
+							uploadProgress.Message = "Unknown error";
+						await _videoDataAccess.UpdateUploadProgress(uploadProgress);
+					}
 				}
 				catch { }
 				throw;
@@ -83,7 +104,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			{
 				try
 				{
-					await CleanupProcessingOperation(videoFileName, uploadProgress, videoPath, processingOptions);
+					CleanupProcessingOperation(videoFileName, videoPath, processingOptions);
 				}
 				catch { }
 			}
@@ -161,17 +182,31 @@ namespace MicroTube.Services.VideoContent.Processing
 		{
 			await _mediaCdnAccess.DeleteAllVideoData(videoFileName);
 		}
-		private async Task CleanupProcessingOperation(
+		private void CleanupProcessingOperation(
 			string videoFileName,
-			VideoUploadProgress? videoUploadProgress,
 			string? videoPath,
 			VideoProcessingOptions processingOptions)
 		{
-			if (videoUploadProgress != null)
-				await _videoDataAccess.UpdateUploadProgress(videoUploadProgress.Id.ToString(), VideoUploadStatus.Fail);
 			if (videoPath != null)
 				_videoLocalStorage.TryDelete(videoPath);
 			_videoLocalStorage.TryDelete(Path.Join(processingOptions.AbsoluteLocalStoragePath, Path.GetFileNameWithoutExtension(videoFileName)));
+		}
+		private async Task<VideoUploadProgress> UpdateProgressFromAnalyzeResult(string videoPath, VideoUploadProgress uploadProgress, CancellationToken cancellationToken)
+		{
+			var videoMetaData = await _videoAnalyzer.Analyze(videoPath, cancellationToken);
+			uploadProgress.LengthSeconds = videoMetaData.LengthSeconds;
+			uploadProgress.Fps = (int)videoMetaData.Fps;
+			uploadProgress.Format = videoMetaData.Format;
+			uploadProgress.FrameSize = videoMetaData.FrameSize;
+			return uploadProgress;
+		}
+		private void EnsureUploadProgressLengthIsSet(VideoUploadProgress uploadProgress)
+		{
+			if (uploadProgress.LengthSeconds == null)
+			{
+				uploadProgress.Message = "Failed to read video duration";
+				throw new BackgroundJobException("Failed to read video duration for upload progress " + uploadProgress.Id);
+			}
 		}
 	}
 }

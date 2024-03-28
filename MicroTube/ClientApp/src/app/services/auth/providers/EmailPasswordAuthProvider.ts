@@ -16,14 +16,12 @@ import { PasswordResetTokenDTO } from "../../../data/DTO/PasswordResetTokenDTO";
 export class EmailPasswordAuthProvider implements IAuthProvider
 {
   private readonly client: HttpClient;
-  private readonly BASE_URL: string;
 
   signInData: SignInCredentialPasswordDTO | undefined = undefined;
   signUpData: SignUpEmailPasswordDTO | undefined = undefined;
-  constructor(client: HttpClient, @Inject("BASE_URL") baseUrl: string)
+  constructor(client: HttpClient)
   {
     this.client = client;
-    this.BASE_URL = baseUrl;
   }
   signIn(): Observable<AuthenticationResponseDTO>
   {

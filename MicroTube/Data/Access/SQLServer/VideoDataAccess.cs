@@ -23,11 +23,36 @@ namespace MicroTube.Data.Access.SQLServer
 				options.RemoteCacheLocation,
 				options.UploaderId,
 				options.Title,
-				options.Description
+				options.Description,
+				options.LengthSeconds,
+				options.Format,
+				options.Fps,
+				options.FrameSize,
+				options.Timestamp
 			};
-			string sql = @"INSERT INTO dbo.VideoUploadProgress(RemoteCacheFileName, RemoteCacheLocation, UploaderId, Title, Description)
+			string sql = @"INSERT INTO dbo.VideoUploadProgress(
+								RemoteCacheFileName, 
+								RemoteCacheLocation, 
+								UploaderId, 
+								Title, 
+								Description, 
+								LengthSeconds,
+								Fps,
+								Format,
+								FrameSize,
+								Timestamp)
 							OUTPUT INSERTED.*
-							VALUES(@RemoteCacheFileName, @RemoteCacheLocation, @UploaderId, @Title, @Description);";
+							VALUES(
+								@RemoteCacheFileName, 
+								@RemoteCacheLocation, 
+								@UploaderId, 
+								@Title, 
+								@Description, 
+								@LengthSeconds,
+								@Fps,
+								@Format,
+								@FrameSize,
+								@Timestamp);";
 			var result = await connection.QueryFirstOrDefaultAsync<VideoUploadProgress>(sql, parameters);
 			return result;
 		}
@@ -42,19 +67,33 @@ namespace MicroTube.Data.Access.SQLServer
 			var result = await connection.QueryFirstOrDefaultAsync<VideoUploadProgress>(sql, parameters);
 			return result;
 		}
-		public async Task<int> UpdateUploadProgress(string id, VideoUploadStatus status, string? message)
+		public async Task<int> UpdateUploadProgress(VideoUploadProgress uploadProgress)
 		{
-			var parameters = new
-			{
-				Id = id,
-				Status = status,
-				Message = message
-			};
+			//var parameters = new
+			//{
+			//	uploadProgress.Id,
+			//	uploadProgress.Title,
+			//	uploadProgress.Description,
+			//	uploadProgress.UploaderId,
+			//	uploadProgress.Status,
+			//	uploadProgress.Message,
+			//	uploadProgress.
+			//};
 			string sql = @"UPDATE dbo.VideoUploadProgress 
-							SET Status = @Status, Message = @Message
+							SET 
+								Title = @Title, 
+								Description = @Description, 
+								UploaderId = @UploaderId,
+								Status = @Status,
+								Message = @Message,
+								LengthSeconds = @LengthSeconds,
+								Fps = @Fps,
+								Format = @Format,
+								FrameSize = @FrameSize,
+								Timestamp = @Timestamp
 							WHERE Id = @Id;";
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
-			var result = await connection.ExecuteAsync(sql, parameters);
+			var result = await connection.ExecuteAsync(sql, uploadProgress);
 			return result;
 		}
 		public async Task<VideoUploadProgress?> GetUploadProgressByFileName(string fileName)
@@ -89,21 +128,34 @@ namespace MicroTube.Data.Access.SQLServer
 				video.Url,
 				video.SnapshotUrls,
 				video.ThumbnailUrls,
-				video.UploadTime
+				video.UploadTime,
+				video.LengthSeconds
+
 			};
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
-			string sql = @"INSERT INTO dbo.Video(UploaderId, Title, Description, Url, SnapshotUrls, ThumbnailUrls, UploadTime)
+			string sql = @"INSERT INTO dbo.Video(UploaderId, Title, Description, Url, SnapshotUrls, ThumbnailUrls, UploadTime, LengthSeconds)
 							OUTPUT INSERTED.*
-							VALUES(@UploaderId, @Title, @Description, @Url, @SnapshotUrls, @ThumbnailUrls, @UploadTime);";
+							VALUES(@UploaderId, @Title, @Description, @Url, @SnapshotUrls, @ThumbnailUrls, @UploadTime, @LengthSeconds);";
 			var result = await connection.QueryFirstOrDefaultAsync<Video>(sql, parameters);
 			return result;
 		}
-		//TO DO: add filtering, sorting, etc
+		//TODO: add filtering, sorting, etc
 		public async Task<IEnumerable<Video>> GetVideos()
 		{
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
 			string sql = @"SELECT * FROM dbo.Video;";
 			var result = await connection.QueryAsync<Video>(sql);
+			return result;
+		}
+		public async Task<Video?> GetVideo(string id)
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			var parameters = new
+			{
+				Id = id
+			};
+			string sql = @"SELECT * FROM dbo.Video WHERE Id = @Id;";
+			var result = await connection.QueryFirstOrDefaultAsync<Video>(sql, parameters);
 			return result;
 		}
 	}

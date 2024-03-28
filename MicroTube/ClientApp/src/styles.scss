@@ -29,9 +29,16 @@ mat-mdc-form-field-bottom-align::before
 }
 */
 
-html, body { height: 100%; }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif !important;
+  background-color: mat-color($MicroTube-primary, 900) !important;
+}
 a {
-  color: mat-color($MicroTube-primary, 50) !important;
+  color: white;
+  max-width: 100%;
+  height:auto;
 }
 .dense-minus-1 {
   @include mat.all-component-densities(-1);
@@ -42,13 +49,13 @@ a {
 .dense-minus-3 {
   @include mat.all-component-densities(-3);
 }
-/*.mat-mdc-dialog-container .mdc-dialog__content {
-  color: inherit !important;
+.caption-grey {
+  color: mat-color($MicroTube-primary, 100) !important;
 }
+$xs: screen and (max-width: 599px);
+$sm: screen and (min-width: 600px) and (max-width: 959px);
+$md: screen and (min-width: 960px) and (max-width: 1279px);
+$lg: screen and (min-width: 1280px) and (max-width: 1919px);
+$xl: screen and (min-width: 1920px) and (max-width: 5000px);
 
-.mat-mdc-dialog-container .mdc-dialog__content {
-  line-height: inherit !important;
-  font-size: inherit !important;
-  font-weight: inherit !important;
-  letter-spacing: inherit !important;
-}*/
+

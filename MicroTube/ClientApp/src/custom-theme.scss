@@ -27,9 +27,10 @@ $MicroTube-theme: mat.define-dark-theme((
     warn: $MicroTube-warn,
   )
 ));
-
+$MicroTube-typography: mat.define-typography-config();
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include mat.all-component-themes($MicroTube-theme);
+@include mat.typography-hierarchy($MicroTube-typography);
 

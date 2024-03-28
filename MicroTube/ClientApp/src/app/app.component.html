@@ -1,28 +1,32 @@
-<body class="mat-app-background">
-  <mat-toolbar class="px-5">
-	  <h3 class="ps-2 me-auto"><button mat-button routerLink="/">MicroTube</button></h3>
-	<div *ngIf="!(authManager.jwtSignedInUser$ | async) as user; else userProfile">
-		<button mat-button [matMenuTriggerFor]="signInMenu">Sign In</button>
-		<button mat-button routerLink="/signup">Sign Up</button>
-		<mat-menu #signInMenu>
-			<sign-in-form (click)="$event.stopPropagation();" />
-		</mat-menu>
-	</div>
-	<ng-template #userProfile>
-		<div class="d-flex align-items-center">
-			<div *ngIf="isUserEmailConfirmed() === false">
-				<email-confirmation-reminder/>
-			</div>
-			<p class="mb-0">Welcome, <a routerLink="/user/profile"><strong>{{authManager.jwtSignedInUser$.value?.publicUsername}}</strong></a>.</p>
-			<button mat-icon-button class="d-flex" color="primary" [matMenuTriggerFor]="signOutMenu" #signOutMenuTrigger><mat-icon>logout</mat-icon></button>
-			<mat-menu #signOutMenu>
-				<sign-out-form (click)="$event.stopPropagation()" (onCancelled)="closeSignOutMenu()" (onConfirmed) ="closeSignOutMenu()" />
+<div>
+	<mat-toolbar class="global-horizontal-padding">
+		<button mat-button class="ps-2 me-auto" routerLink="/">
+			<img class="logo-header" src="/assets/img/logo/microtube-logo-full-white.svg" />
+		</button>
+		<div *ngIf="!(authManager.jwtSignedInUser$ | async) as user; else userProfile">
+			<button mat-button [matMenuTriggerFor]="signInMenu">Sign In</button>
+			<button mat-button routerLink="/signup">Sign Up</button>
+			<mat-menu #signInMenu>
+				<sign-in-form (click)="$event.stopPropagation();" />
 			</mat-menu>
 		</div>
-		
-	</ng-template>
-  </mat-toolbar>
-  <main class="container">
-    <router-outlet></router-outlet>
+		<ng-template #userProfile>
+			<div class="d-flex align-items-center">
+				<div *ngIf="isUserEmailConfirmed() === false">
+					<email-confirmation-reminder />
+				</div>
+				<h4 class="m-0">{{authManager.jwtSignedInUser$.value?.publicUsername}}</h4>
+				<button mat-icon-button color="accent" [matMenuTriggerFor]="profileMenu"><mat-icon>account_circle</mat-icon></button>
+				<mat-menu #profileMenu>
+					<profile-popup />
+				</mat-menu>
+			</div>
+
+		</ng-template>
+	</mat-toolbar>
+  <main>
+	  <div class="global-horizontal-padding">
+		  <router-outlet></router-outlet>
+	  </div>
   </main>
-</body>
+</div>

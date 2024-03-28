@@ -45,7 +45,17 @@ namespace MicroTube.Controllers.Videos
 			if (preprocessingResult.IsError)
 				return StatusCode(preprocessingResult.Code, preprocessingResult.Error);
 			var uploadProgress = preprocessingResult.GetRequiredObject();
-			var result = new VideoUploadProgressDTO(userId, uploadProgress.Status, uploadData.Title, uploadProgress.Description, uploadProgress.Message);
+			var result = new VideoUploadProgressDTO(
+				userId,
+				uploadProgress.Status,
+				uploadData.Title,
+				uploadProgress.Description,
+				uploadProgress.Message,
+				uploadProgress.Timestamp,
+				uploadProgress.LengthSeconds,
+				uploadProgress.Fps,
+				uploadProgress.FrameSize,
+				uploadProgress.Format);
 			return Accepted(result);
 		}
 		[HttpGet("progress")]
@@ -54,7 +64,18 @@ namespace MicroTube.Controllers.Videos
 		{
 			string userId = _jwtClaims.GetUserId(User);
 			var result = await _videoDataAccess.GetVideoUploadProgressListForUser(userId);
-			return Ok(result.Select(_ => new VideoUploadProgressDTO(_.Id.ToString(), _.Status, _.Title, _.Description, _.Message)));
+			return Ok(result.Select(_ => 
+			new VideoUploadProgressDTO(
+				_.Id.ToString(), 
+				_.Status, 
+				_.Title, 
+				_.Description, 
+				_.Message, 
+				_.Timestamp,
+				_.LengthSeconds,
+				_.Fps,
+				_.FrameSize,
+				_.Format)));
 		}
 	}
 }

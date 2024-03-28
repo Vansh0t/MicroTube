@@ -30,6 +30,8 @@
     "jquery": "^3.6.3",
     "jwt-decode": "^4.0.0",
     "luxon": "^3.4.3",
+    "mime": "^4.0.1",
+    "ngx-custom-material-file-input": "^2.0.0",
     "oidc-client": "^1.11.5",
     "popper.js": "^1.16.0",
     "run-script-os": "^1.1.6",
@@ -39,7 +41,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.1.6",
-    "@angular/cli": "^15.1.6",
+    "@angular/cli": "^15.2.10",
     "@angular/compiler-cli": "^15.1.5",
     "@types/jasmine": "~4.3.1",
     "@types/jasminewd2": "~2.0.10",
