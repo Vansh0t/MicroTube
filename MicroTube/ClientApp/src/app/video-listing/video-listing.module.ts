@@ -18,6 +18,8 @@ import { UploadProgressListComponent } from "./upload-progress-list/upload-progr
 import { MatTableModule } from "@angular/material/table";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatSortModule } from "@angular/material/sort";
+import { MatMenuModule } from "@angular/material/menu";
+
 @NgModule({
   declarations: [
     VideoCardComponent,
@@ -40,7 +42,8 @@ import { MatSortModule } from "@angular/material/sort";
     MatButtonModule,
     MatTableModule,
     MatPaginatorModule,
-    MatSortModule
+    MatSortModule,
+    MatMenuModule
   ],
   exports: [
     VideoCardComponent,

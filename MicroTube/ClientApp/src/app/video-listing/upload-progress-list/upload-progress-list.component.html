@@ -1,41 +1,49 @@
 <div class="mat-elevation-z8 d-flex justify-content-center" *ngIf="!authManager.isSignedIn(); else list">
 	<h2 class="mt-auto mb-auto">Please, sign in to view this content</h2>
 </div>
-<ng-template #list class="mat-elevation-z8">
-	<table mat-table [dataSource]="uiListDataSource" matSort matSortActive="timestamp" matSortDirection="desc" matSortDisableClear="true">
-		<ng-container matColumnDef="timestamp">
-			<th mat-header-cell *matHeaderCellDef mat-sort-header>Time</th>
-			<td mat-cell *matCellDef="let progress"> {{progress.timestampHuman}} </td>
-		</ng-container>
-		<ng-container matColumnDef="title">
-			<th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
-			<td mat-cell *matCellDef="let progress"> {{progress.title}} </td>
-		</ng-container>
-		<ng-container matColumnDef="status">
-			<th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-			<td mat-cell [ngClass]="getProgressStatusStyleClass(progress)" *matCellDef="let progress">
-				{{progress.status}}
-				<mat-icon>{{getProgressStatusIcon(progress)}}</mat-icon>
+<ng-template #list >
+	<div class="mat-elevation-z8 root-container">
+		<table mat-table [dataSource]="uiListDataSource" matSort matSortActive="timestamp" matSortDirection="desc" matSortDisableClear="true">
+			<ng-container matColumnDef="timestamp">
+				<th mat-header-cell *matHeaderCellDef mat-sort-header>Time</th>
+				<td mat-cell *matCellDef="let progress"> {{progress.timestampHuman}} </td>
+			</ng-container>
+			<ng-container matColumnDef="title">
+				<th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
+				<td mat-cell *matCellDef="let progress" class="title-cell-content"> {{progress.title}} </td>
+			</ng-container>
+			<ng-container matColumnDef="status">
+				<th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+				<td mat-cell class="status-cell" [ngClass]="getProgressStatusStyleClass(progress)" *matCellDef="let progress">
+					{{progress.status}}
+					<mat-icon>{{getProgressStatusIcon(progress)}}</mat-icon>
+					<button mat-button *ngIf="progress.message != null" [matMenuTriggerFor]="message"><mat-icon>info</mat-icon> info</button>
+					<mat-menu #message>
+						<div class="p-2" (click)="$event.stopPropagation()">
+							<p class="m-0">{{progress.message}}</p>
+						</div>
+					</mat-menu>
 				</td>
-		</ng-container>
-		<ng-container matColumnDef="description">
-			<th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
-			<td mat-cell *matCellDef="let progress"> {{progress.description}} </td>
-		</ng-container>
-		<ng-container matColumnDef="lengthSeconds">
-			<th mat-header-cell *matHeaderCellDef mat-sort-header>Duration</th>
-			<td mat-cell *matCellDef="let progress"> {{progress.lengthHuman}} </td>
-		</ng-container>
-		<ng-container matColumnDef="fps">
-			<th mat-header-cell *matHeaderCellDef mat-sort-header>FPS</th>
-			<td mat-cell *matCellDef="let progress"> {{progress.fps}} </td>
-		</ng-container>
-		<ng-container matColumnDef="format">
-			<th mat-header-cell *matHeaderCellDef mat-sort-header>Format</th>
-			<td mat-cell *matCellDef="let progress"> {{progress.format}} </td>
-		</ng-container>
-		<tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
-		<tr mat-row *matRowDef="let row; columns: tableColumns;"></tr>
-	</table>
-	<mat-paginator pageSize="11" hidePageSize="true" showFirstLastButtons></mat-paginator>
+			</ng-container>
+			<ng-container matColumnDef="description">
+				<th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
+				<td mat-cell *matCellDef="let progress" class="description-cell-content"> {{progress.description}} </td>
+			</ng-container>
+			<ng-container matColumnDef="lengthSeconds">
+				<th mat-header-cell *matHeaderCellDef mat-sort-header>Duration</th>
+				<td mat-cell *matCellDef="let progress"> {{progress.lengthHuman}} </td>
+			</ng-container>
+			<ng-container matColumnDef="fps">
+				<th mat-header-cell *matHeaderCellDef mat-sort-header>FPS</th>
+				<td mat-cell *matCellDef="let progress"> {{progress.fps}} </td>
+			</ng-container>
+			<ng-container matColumnDef="format">
+				<th mat-header-cell *matHeaderCellDef mat-sort-header>Format</th>
+				<td mat-cell *matCellDef="let progress"> {{progress.format}} </td>
+			</ng-container>
+			<tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+			<tr mat-row *matRowDef="let row; columns: tableColumns;"></tr>
+		</table>
+	</div>
+		<mat-paginator pageSize="10" hidePageSize="true" showFirstLastButtons></mat-paginator>
 </ng-template>
