@@ -1,0 +1,10 @@
+.video-player-container {
+  height: 56vw;
+  max-height: 82vh;
+  width: 100%;
+}
+.root-container {
+  position:absolute;
+  left:0;
+  width: 100%;
+}
