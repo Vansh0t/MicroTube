@@ -24,8 +24,7 @@ import { VideoListingModule } from "./video-listing/video-listing.module";
 import { VideoWatchComponent } from "./video-listing/video-watch/video-watch.component";
 import { VideoUploadComponent } from "./video-listing/video-upload/video-upload.component";
 import { UploadProgressListComponent } from "./video-listing/upload-progress-list/upload-progress-list.component";
-
-
+import { UtilityComponentsModule } from "./utility-components/utility-components.module";
 export function getBaseUrl()
 {
   return document.getElementsByTagName("base")[0].href;
@@ -76,7 +75,8 @@ const providers = [
     MatInputModule,
     MatIconModule,
     UserModule,
-    VideoListingModule
+    VideoListingModule,
+    UtilityComponentsModule
   ],
   providers: providers,
   bootstrap: [AppComponent]

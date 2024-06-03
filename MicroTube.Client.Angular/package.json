@@ -5,8 +5,8 @@
     "ng": "ng",
     "prestart": "node aspnetcore-https",
     "start": "run-script-os",
-    "start:windows": "ng serve --port 44466 --ssl --ssl-cert \"%APPDATA%\\ASP.NET\\https\\%npm_package_name%.pem\" --ssl-key \"%APPDATA%\\ASP.NET\\https\\%npm_package_name%.key\"",
-    "start:default": "ng serve --port 44466 --ssl --ssl-cert \"$HOME/.aspnet/https/${npm_package_name}.pem\" --ssl-key \"$HOME/.aspnet/https/${npm_package_name}.key\"",
+    "start:windows": "ng serve --host 0.0.0.0 --port 44466 --ssl --ssl-cert \"%APPDATA%\\ASP.NET\\https\\%npm_package_name%.pem\" --ssl-key \"%APPDATA%\\ASP.NET\\https\\%npm_package_name%.key\"",
+    "start:default": "ng serve --host 0.0.0.0 --port 44466 --poll --ssl --ssl-cert \"$HOME/.aspnet/https/${npm_package_name}.pem\" --ssl-key \"$HOME/.aspnet/https/${npm_package_name}.key\"",
     "build": "ng build",
     "build:ssr": "ng run MicroTube:server:dev",
     "watch": "ng build --watch --configuration development",
@@ -37,6 +37,7 @@
     "run-script-os": "^1.1.6",
     "rxjs": "~7.8.0",
     "tslib": "^2.5.0",
+    "video.js": "^8.10.0",
     "zone.js": "~0.12.0"
   },
   "devDependencies": {
