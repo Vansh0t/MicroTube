@@ -23,4 +23,8 @@ export class AppComponent {
   {
     return this.authManager.jwtSignedInUser$.value?.isEmailConfirmed;
   }
+  searchVideo(searchText: string | null)
+  {
+    console.log(searchText);
+  }
 }

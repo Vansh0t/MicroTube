@@ -1,9 +1,10 @@
 <div>
-	<mat-toolbar class="global-horizontal-padding">
-		<button mat-button class="ps-2 me-auto" routerLink="/">
-			<img class="logo-header" src="/assets/img/logo/microtube-logo-full-white.svg" />
+	<mat-toolbar class="global-horizontal-padding d-flex justify-content-between">
+		<button mat-button class="ps-2" routerLink="/">
+			<img class="logo-header logo-full" src="/assets/img/logo/microtube-logo-full-white.svg" />
+			<img class="logo-header logo-small" src="/assets/img/logo/microtube-icon-white.svg" />
 		</button>
-		<suggestion-search-bar/>
+		<suggestion-search-bar [onSubmit]="searchVideo"/>
 		<div *ngIf="!(authManager.jwtSignedInUser$ | async) as user; else userProfile">
 			<button mat-button [matMenuTriggerFor]="signInMenu">Sign In</button>
 			<button mat-button routerLink="/signup">Sign Up</button>

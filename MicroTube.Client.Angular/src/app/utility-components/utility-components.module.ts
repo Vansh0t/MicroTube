@@ -5,6 +5,10 @@ import { InfoPopupDialogComponent } from "./info-popup-dialog/info-popup-dialog.
 import { MatButtonModule } from "@angular/material/button";
 import { SuggestionSearchBarComponent } from "./suggestion-search-bar/suggestion-search-bar.component";
 import { MatInputModule } from "@angular/material/input";
+import { MatIconModule } from "@angular/material/icon";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { ReactiveFormsModule } from "@angular/forms";
+import { MatAutocompleteModule } from "@angular/material/autocomplete";
 
 
 
@@ -17,7 +21,11 @@ import { MatInputModule } from "@angular/material/input";
     CommonModule,
     MatDialogModule,
     MatButtonModule,
-    MatInputModule
+    MatInputModule,
+    MatIconModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatAutocompleteModule
   ],
   exports: [
     InfoPopupDialogComponent,
