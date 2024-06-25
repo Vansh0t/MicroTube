@@ -1,8 +1,12 @@
 ﻿using Azure.Storage.Blobs;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
 using MicroTube.Data.Models;
 using MicroTube.Services;
 using MicroTube.Services.Authentication;
+using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
+using Namotion.Reflection;
 
 namespace MicroTube
 {
@@ -77,6 +81,17 @@ namespace MicroTube
 		{
 			var blobServiceClient = new BlobServiceClient(connectionString);
 			services.AddSingleton(blobServiceClient);
+			return services;
+		}
+		public static IServiceCollection AddElasticSearchClient(this IServiceCollection services, IConfiguration config)
+		{
+			var options = config.GetRequiredByKey<ElasticSearchOptions>(ElasticSearchOptions.KEY);
+			var nodesPool = new SingleNodePool(new Uri(options.Url));
+			var apiKey = new ApiKey(options.ApiKey);
+			var clientSettings = new ElasticsearchClientSettings(nodesPool)
+				.Authentication(apiKey);
+			var elasticSearchClient = new ElasticsearchClient(clientSettings);
+			services.AddSingleton(elasticSearchClient);
 			return services;
 		}
 	}

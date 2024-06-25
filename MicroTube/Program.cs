@@ -1,3 +1,4 @@
+using Elastic.Clients.Elasticsearch;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +13,7 @@ using MicroTube.Services.Authentication.Providers;
 using MicroTube.Services.Cryptography;
 using MicroTube.Services.Email;
 using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.Search;
 using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent;
 using MicroTube.Services.VideoContent.Processing;
@@ -27,6 +29,7 @@ builder.Services.AddSingleton<IVideoAnalyzer, FFMpegVideoAnalyzer>();
 //builder.Services.AddSingleton<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>, AzureBlobVideoContentRemoteStorage>();
 builder.Services.AddSingleton<IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions>, OfflineVideoContentRemoteStorage>();
 //builder.Services.AddSingleton<ICdnMediaContentAccess, AzureCdnMediaContentAccess>();
+builder.Services.AddElasticSearchClient(config);
 builder.Services.AddSingleton<ICdnMediaContentAccess, OfflineCdnMediaContentAccess>();
 builder.Services.AddSingleton<IEmailValidator, EmailValidator>();
 builder.Services.AddSingleton<IUsernameValidator, UsernameValidator>();
@@ -50,6 +53,8 @@ builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IEmailPasswordAuthenticationDataAccess, EmailPasswordAuthenticationDataAccess>();
 builder.Services.AddScoped<EmailPasswordAuthenticationProvider>();
 builder.Services.AddScoped<IVideoContentLocalStorage, DefaultVideoContentLocalStorage>();
+builder.Services.AddScoped<IVideoIndexingService, DefaultVideoIndexingService>();
+builder.Services.AddScoped<IVideoSearchService, ElasticVideoSearchService>();
 builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtPasswordResetTokenProvider, DefaultJwtPasswordResetTokenProvider>();
 builder.Services.AddTransient<IJwtClaims, JwtClaims>();
@@ -138,6 +143,6 @@ else
     app.UseOpenApi();
     app.UseSwaggerUi3();
 }
+RecurringJob.AddOrUpdate<IVideoIndexingService>("VideoSearchIndexing", service => service.EnsureVideoIndices(), Cron.Minutely);
 app.Run();
-
 public partial class Program { }

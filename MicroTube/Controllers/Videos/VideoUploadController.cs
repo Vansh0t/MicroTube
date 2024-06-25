@@ -1,12 +1,8 @@
-﻿using Hangfire;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MicroTube.Controllers.Authentication.DTO;
-using MicroTube.Controllers.User.DTO;
 using MicroTube.Controllers.Videos.DTO;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
-using MicroTube.Services;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.VideoContent.Processing;
 

@@ -20,6 +20,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
     <PackageReference Include="Dapper" Version="2.1.15" />
+    <PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.13.14" />
     <PackageReference Include="FFMpegCore" Version="5.1.0" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.10" />
     <PackageReference Include="Hangfire.Core" Version="1.8.10" />

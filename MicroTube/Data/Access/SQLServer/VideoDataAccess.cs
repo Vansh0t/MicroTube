@@ -129,15 +129,45 @@ namespace MicroTube.Data.Access.SQLServer
 				video.SnapshotUrls,
 				video.ThumbnailUrls,
 				video.UploadTime,
-				video.LengthSeconds
-
+				video.LengthSeconds,
+				video.SearchIndexId
 			};
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
-			string sql = @"INSERT INTO dbo.Video(UploaderId, Title, Description, Url, SnapshotUrls, ThumbnailUrls, UploadTime, LengthSeconds)
+			string sql = @"INSERT INTO dbo.Video(UploaderId, Title, Description, Url, SnapshotUrls, ThumbnailUrls, UploadTime, LengthSeconds, SearchIndexId)
 							OUTPUT INSERTED.*
-							VALUES(@UploaderId, @Title, @Description, @Url, @SnapshotUrls, @ThumbnailUrls, @UploadTime, @LengthSeconds);";
+							VALUES(@UploaderId, @Title, @Description, @Url, @SnapshotUrls, @ThumbnailUrls, @UploadTime, @LengthSeconds, @SearchIndexId);";
 			var result = await connection.QueryFirstOrDefaultAsync<Video>(sql, parameters);
 			return result;
+		}
+		public async Task UpdateVideo(Video video)
+		{
+			var parameters = new
+			{
+				video.Id,
+				video.UploaderId,
+				video.Title,
+				video.Description,
+				video.Url,
+				video.SnapshotUrls,
+				video.ThumbnailUrls,
+				video.UploadTime,
+				video.LengthSeconds,
+				video.SearchIndexId
+			};
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			string sql = @"UPDATE dbo.Video 
+						   SET 
+						   UploaderId = @UploaderId,
+						   Title = @Title,
+						   Description = @Description,
+						   Url = @Url,
+						   SnapshotUrls = @SnapshotUrls,
+						   ThumbnailUrls = @ThumbnailUrls,
+						   UploadTime = @UploadTime,
+						   LengthSeconds = @LengthSeconds,
+						   SearchIndexId = @SearchIndexId
+						   WHERE Id = @Id;";
+			await connection.ExecuteAsync(sql, parameters);
 		}
 		//TODO: add filtering, sorting, etc
 		public async Task<IEnumerable<Video>> GetVideos()
