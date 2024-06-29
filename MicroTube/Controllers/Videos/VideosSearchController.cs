@@ -26,7 +26,7 @@ namespace MicroTube.Controllers.Videos
 				return StatusCode(result.Code);
 			return Ok(result.GetRequiredObject().Select(_ => {
 				return new VideoSearchSuggestion(
-								_.Text.ToString());
+								_);
 			}));
 		}
 		[HttpGet("videos/{text}")]

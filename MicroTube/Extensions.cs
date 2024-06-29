@@ -2,6 +2,7 @@
 using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Analysis;
 using Elastic.Clients.Elasticsearch.Cluster;
+using Elastic.Clients.Elasticsearch.Core.Search;
 using Elastic.Clients.Elasticsearch.IndexManagement;
 using Elastic.Clients.Elasticsearch.Mapping;
 using Elastic.Transport;
@@ -123,8 +124,10 @@ namespace MicroTube
 				Properties = new Properties
 				{
 					{"title", new TextProperty() { Analyzer = "ngram_analyzer"} },
-					{"description", new TextProperty() { Analyzer = "standard"} }
-				}
+					{"description", new TextProperty() { Analyzer = "standard"} },
+					{"suggest", new CompletionProperty() }
+				},
+				
 			};
 			var indexSettings = new IndexSettings()
 			{

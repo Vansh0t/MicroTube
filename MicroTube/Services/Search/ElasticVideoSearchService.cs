@@ -1,9 +1,11 @@
 ﻿using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.Core.Search;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
+using System.Collections.Immutable;
 
 namespace MicroTube.Services.Search
 {
@@ -32,7 +34,7 @@ namespace MicroTube.Services.Search
 
 		public async Task<IServiceResult<Video>> IndexVideo(Video video)
 		{
-			var videoIndexData = new VideoSearchIndex(video.Id.ToString(), video.Title, video.Description);
+			var videoIndexData = new VideoSearchIndex(video.Id.ToString(), video.Title, video.Description, video.Title);
 			try
 			{
 				string indexId = await _searchDataAccess.IndexVideo(videoIndexData);
@@ -94,28 +96,58 @@ namespace MicroTube.Services.Search
 			}
 			return ServiceResult<IReadOnlyCollection<VideoSearchIndex>>.Success(result.Documents);
 		}
-		public async Task<IServiceResult<IReadOnlyCollection<VideoSearchSuggestionIndex>>> GetSuggestions(string text)
+		public async Task<IServiceResult<IReadOnlyCollection<string>>> GetSuggestions(string text)
 		{
 			VideoSearchOptions options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
-			var matchQuery = new MatchQuery(new Field("Text")) { Query = text };
-			var shouldQuery = new BoolQuery
+			string suggestName = "title_suggest";
+			var completion = new CompletionSuggester
 			{
-				MinimumShouldMatch = 1,
-				Should = new Query[1] { matchQuery }
+				Field = "suggest",
+				SkipDuplicates = true,
+				Size = options.MaxSuggestions
 			};
-			var result = await _client.SearchAsync<VideoSearchSuggestionIndex>(search =>
+			var suggester = new Suggester()
 			{
-				search.Index(options.SuggestionsIndexName)
-				.From(0)
-				.Size(options.MaxSuggestions)
-				.Query(shouldQuery);
+				Text = text,
+				Suggesters = new Dictionary<string, FieldSuggester>()
+				{
+					{ suggestName,  completion}
+				}
+			};
+			var response = await _client.SearchAsync<VideoSearchIndex>(search =>
+			{
+				search.Index(options.VideosIndexName)
+				.Suggest(suggester);
 			});
-			if (!result.IsValidResponse)
+
+			if (!response.IsValidResponse)
 			{
-				_logger.LogError("Failed to get suggestions attempt from ElasticSearch. " + result.ToString());
-				return ServiceResult<IReadOnlyCollection<VideoSearchSuggestionIndex>>.FailInternal();
+				_logger.LogError("Failed to get suggestions attempt from ElasticSearch. " + response.ToString());
+				return ServiceResult<IReadOnlyCollection<string>>.FailInternal();
 			}
-			return ServiceResult<IReadOnlyCollection<VideoSearchSuggestionIndex>>.Success(result.Documents);
+			return ReadSuggestionsResponse(response, suggestName);
+		}
+		private ServiceResult<IReadOnlyCollection<string>> ReadSuggestionsResponse(SearchResponse<VideoSearchIndex> response, string suggestName)
+		{
+			if (response.Suggest == null)
+			{
+				return ServiceResult<IReadOnlyCollection<string>>.Success(Array.Empty<string>());
+			}
+			var completionResult = response.Suggest.GetCompletion(suggestName);
+			if (completionResult == null)
+			{
+				return ServiceResult<IReadOnlyCollection<string>>.Success(Array.Empty<string>());
+			}
+			var firstCompletion = completionResult.FirstOrDefault();
+			if (firstCompletion == null)
+			{
+				return ServiceResult<IReadOnlyCollection<string>>.Success(Array.Empty<string>());
+			}
+
+			var finalResult = firstCompletion.Options
+				.Where(_=>_.Source != null)
+				.Select(_ => _.Source!.Suggest).ToImmutableArray();
+			return ServiceResult<IReadOnlyCollection<string>>.Success(finalResult);
 		}
 	}
 }
