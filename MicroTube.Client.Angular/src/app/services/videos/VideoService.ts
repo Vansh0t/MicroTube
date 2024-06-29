@@ -4,6 +4,7 @@ import { VideoDTO, VideoRawDTO, VideoUploadDTO } from "../../data/DTO/VideoDTO";
 import { Observable, map } from "rxjs";
 import { VideoUploadProgressDTO } from "../../data/DTO/VideoUploadProgressDTO";
 import { DateTime, Duration } from "luxon";
+import { VideoSearchSuggestion } from "../../data/DTO/VideoSearchSuggestionDTO";
 
 
 @Injectable({
@@ -70,6 +71,15 @@ export class VideoService
           return response;
         }
     ));
+    return result;
+  }
+  getSearchSuggestions(text: string): Observable<VideoSearchSuggestion[]>
+  {
+    if (text && !text.trim())
+    {
+      throw new Error("Empty text string provided.");
+    }
+    const result = this.client.get<VideoSearchSuggestion[]>("Videos/VideosSearch/suggestions/" + text);
     return result;
   }
 }

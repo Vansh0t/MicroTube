@@ -1,6 +1,5 @@
 import { Component, Input } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { Observable } from "rxjs";
 
 @Component({
   selector: "suggestion-search-bar",
@@ -14,7 +13,7 @@ export class SuggestionSearchBarComponent
   readonly inputControl = new FormControl<string>("");
   @Input() onSubmit: ((searchText: string | null) => void) | undefined;
   @Input() onInputChanged: ((searchText: string | null) => void) | undefined;
-  @Input() suggestionsSource: Observable<string[]> | undefined;
+  @Input() suggestionsSource: string[] | null = null;
 
   submit()
   {
