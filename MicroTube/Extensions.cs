@@ -1,15 +1,20 @@
 ﻿using Azure.Storage.Blobs;
 using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.Analysis;
+using Elastic.Clients.Elasticsearch.Cluster;
+using Elastic.Clients.Elasticsearch.IndexManagement;
+using Elastic.Clients.Elasticsearch.Mapping;
 using Elastic.Transport;
 using MicroTube.Data.Models;
 using MicroTube.Services;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
-using Namotion.Reflection;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace MicroTube
 {
+	//TODO: Needs refactoring.
     public static class Extensions
     {
         private const string DEFAULT_CONNECTION_STRING_NAME = "ConnectionStrings:Default";
@@ -91,8 +96,51 @@ namespace MicroTube
 			var clientSettings = new ElasticsearchClientSettings(nodesPool)
 				.Authentication(apiKey);
 			var elasticSearchClient = new ElasticsearchClient(clientSettings);
+			EnsureElasticsearchIndices(elasticSearchClient, config);
 			services.AddSingleton(elasticSearchClient);
 			return services;
+		}
+		private static void EnsureElasticsearchIndices(ElasticsearchClient client, IConfiguration config)
+		{
+			var options = config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
+			var analysisSettings = new IndexSettingsAnalysis();
+			analysisSettings.TokenFilters = new TokenFilters
+			{
+				{"lowercase", new LowercaseTokenFilter() },
+				{"edge_ngram", new EdgeNGramTokenFilter() { MinGram = 2, MaxGram = 5, PreserveOriginal= true} }
+			};
+			var nGramAnalyzer = new CustomAnalyzer()
+			{
+				Tokenizer = "standard",
+				Filter = new string[2] { "lowercase", "edge_ngram" }
+			};
+			analysisSettings.Analyzers = new Analyzers
+			{
+				{ "ngram_analyzer", nGramAnalyzer }
+			};
+			TypeMapping mapping = new TypeMapping()
+			{
+				Properties = new Properties
+				{
+					{"title", new TextProperty() { Analyzer = "ngram_analyzer"} },
+					{"description", new TextProperty() { Analyzer = "standard"} }
+				}
+			};
+			var indexSettings = new IndexSettings()
+			{
+				Analysis = analysisSettings,
+			};
+			var createResult = client.Indices.Create((IndexName)options.VideosIndexName, 
+				_ => {
+					_.Settings(indexSettings);
+					_.Mappings(mapping);
+					}) ;
+			//var settingsResult = client.Indices.PutSettings(indexSettings, (IndexName)options.VideosIndexName);
+			Console.WriteLine(createResult.DebugInformation);
+
+
+			//Console.WriteLine(settingsResult.DebugInformation);
+			
 		}
 	}
 }

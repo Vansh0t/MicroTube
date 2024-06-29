@@ -2,9 +2,11 @@
 
 namespace MicroTube.Services.Search
 {
-	public interface IVideoSearchService
+    public interface IVideoSearchService
 	{
-		Task<IServiceResult<IReadOnlyCollection<VideoSearchIndexData>>> GetSuggestions(string input);
 		Task<IServiceResult<Video>> IndexVideo(Video video);
+		Task<IServiceResult<IReadOnlyCollection<VideoSearchIndex>>> GetVideos(string text);
+		Task<IServiceResult> IndexSearchSuggestion(string text);
+		Task<IServiceResult<IReadOnlyCollection<VideoSearchSuggestionIndex>>> GetSuggestions(string input);
 	}
 }

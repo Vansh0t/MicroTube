@@ -2,12 +2,10 @@
 {
 	public class VideoSearchSuggestion
 	{
-		public string Id { get; set; }
-		public string Title { get; set; }
-		public VideoSearchSuggestion(string id, string title)
+		public string Text { get; set; }
+		public VideoSearchSuggestion(string text)
 		{
-			Id = id;
-			Title = title;
+			Text = text;
 		}
 	}
 }

@@ -188,5 +188,17 @@ namespace MicroTube.Data.Access.SQLServer
 			var result = await connection.QueryFirstOrDefaultAsync<Video>(sql, parameters);
 			return result;
 		}
+
+		public async Task<IEnumerable<Video>> GetVideosByIds(IEnumerable<string> ids)
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			var parameters = new
+			{
+				Ids = ids
+			};
+			string sql = @"SELECT * FROM dbo.Video WHERE Id IN @Ids;";
+			var result = await connection.QueryAsync<Video>(sql, parameters);
+			return result;
+		}
 	}
 }
