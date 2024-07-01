@@ -24,4 +24,4 @@
 LICENSE
 README.md
 ./dist
-**/angular
+**/.angular
