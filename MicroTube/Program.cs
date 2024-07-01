@@ -129,7 +129,7 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapHangfireDashboard();
+app.MapHangfireDashboard(new DashboardOptions() { Authorization = new[] { new HangfireDashboardAnonymousAuthorizationFilter()} });
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
