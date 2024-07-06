@@ -1,9 +1,9 @@
 import { Component, ViewChild } from "@angular/core";
 import { AuthManager } from "./services/auth/AuthManager";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { SessionManager } from "./services/auth/SessionManager";
 import { VideoService } from "./services/videos/VideoService";
-import { map, Observable } from "rxjs";
+import { map, Subscription } from "rxjs";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-root",
@@ -12,19 +12,18 @@ import { map, Observable } from "rxjs";
 })
 export class AppComponent {
   title = "app";
-  private readonly sessionManager: SessionManager;
+  readonly router: Router;
   readonly authManager: AuthManager;
   readonly videoService: VideoService;
   @ViewChild(MatMenuTrigger)
   signOutMenuTrigger!: MatMenuTrigger;
-  videoSearchSuggestions$: Observable<string[]> | null = null;
-  constructor(authManager: AuthManager, sessionManager: SessionManager, videoService: VideoService)
+  videoSearchSuggestionsSubscription: Subscription | null = null;
+  videoSearchSuggestionsSource: string[] = [];
+  constructor(authManager: AuthManager, videoService: VideoService, router: Router)
   {
+    this.router = router;
     this.videoService = videoService;
     this.authManager = authManager;
-    this.sessionManager = sessionManager;
-    console.log(this.videoService);
-    console.log(this.authManager);
   }
   isUserEmailConfirmed()
   {
@@ -32,20 +31,22 @@ export class AppComponent {
   }
   searchVideo(searchText: string | null)
   {
-    console.log(searchText);
+    this.router.navigate(["/"], { queryParams: { videoSearch: searchText } });
   }
   updateSearchSuggestions(text: string | null)
   {
     if (!text || !text.trim())
     {
-      this.videoSearchSuggestions$ = new Observable<string[]>();
+      this.videoSearchSuggestionsSource.length = 0;
       return;
     }
-    console.log(this.videoService);
-    console.log(this.authManager);
-    this.videoSearchSuggestions$ = this.videoService.getSearchSuggestions(text)
+    this.videoSearchSuggestionsSubscription = this.videoService.getSearchSuggestions(text)
       .pipe(
-        map(res => res.map(_ => _.text)));
-    this.videoSearchSuggestions$.subscribe(_ => console.log(_));
+        map(res => res.map(_ => _.text)))
+      .subscribe(suggestions =>
+      {
+        this.videoSearchSuggestionsSource.length = 0;
+        suggestions.forEach(_ => this.videoSearchSuggestionsSource.push(_));
+      });
   }
 }

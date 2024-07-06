@@ -65,7 +65,6 @@ export class EmailConfirmationCallbackComponent implements OnInit, OnDestroy
   }
   redirectToMain()
   {
-    console.log("redirect");
     this.router.navigate(["/"]);
   }
 }

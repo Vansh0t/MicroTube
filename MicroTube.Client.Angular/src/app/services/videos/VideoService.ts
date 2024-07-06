@@ -82,4 +82,18 @@ export class VideoService
     const result = this.client.get<VideoSearchSuggestion[]>("Videos/VideosSearch/suggestions/" + text);
     return result;
   }
+  searchVideos(text: string): Observable<VideoDTO[]>
+  {
+    if (text && !text.trim())
+    {
+      throw new Error("Empty text string provided.");
+    }
+    const result = this.client.get<VideoRawDTO[]>("Videos/VideosSearch/videos/" + text).pipe(
+      map(response =>
+      {
+        return response.map(raw => new VideoDTO(raw));
+      })
+    );
+    return result;
+  }
 }

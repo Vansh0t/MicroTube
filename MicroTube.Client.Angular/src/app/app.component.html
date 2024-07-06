@@ -4,7 +4,7 @@
 			<img class="logo-header logo-full" src="/assets/img/logo/microtube-logo-full-white.svg" />
 			<img class="logo-header logo-small" src="/assets/img/logo/microtube-icon-white.svg" />
 		</button>
-		<suggestion-search-bar [suggestionsSource]="videoSearchSuggestions$ | async" [onSubmit]="searchVideo.bind(this)" [onInputChanged]="updateSearchSuggestions.bind(this)" />
+		<suggestion-search-bar [suggestionsSource]="videoSearchSuggestionsSource" [onSubmit]="searchVideo.bind(this)" [onInputChanged]="updateSearchSuggestions.bind(this)" />
 		<div *ngIf="!(authManager.jwtSignedInUser$ | async) as user; else userProfile">
 			<button mat-button [matMenuTriggerFor]="signInMenu">Sign In</button>
 			<button mat-button routerLink="/signup">Sign Up</button>
