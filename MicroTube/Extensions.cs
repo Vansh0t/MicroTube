@@ -1,8 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Analysis;
-using Elastic.Clients.Elasticsearch.Cluster;
-using Elastic.Clients.Elasticsearch.Core.Search;
 using Elastic.Clients.Elasticsearch.IndexManagement;
 using Elastic.Clients.Elasticsearch.Mapping;
 using Elastic.Transport;
@@ -11,7 +9,6 @@ using MicroTube.Services;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace MicroTube
 {
@@ -125,7 +122,7 @@ namespace MicroTube
 				{
 					{"title", new TextProperty() { Analyzer = "ngram_analyzer"} },
 					{"description", new TextProperty() { Analyzer = "standard"} },
-					{"suggest", new CompletionProperty() }
+					{"titleSuggestion", new SearchAsYouTypeProperty() }
 				},
 				
 			};

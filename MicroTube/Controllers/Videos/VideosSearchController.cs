@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MicroTube.Controllers.Videos.DTO;
 using MicroTube.Data.Access;
+using MicroTube.Data.Models;
 using MicroTube.Services.Search;
 
 namespace MicroTube.Controllers.Videos
@@ -12,10 +13,12 @@ namespace MicroTube.Controllers.Videos
 	{
 		private readonly IVideoSearchService _searchService;
 		private readonly IVideoDataAccess _videoDataAccess;
-		public VideosSearchController(IVideoSearchService searchService, IVideoDataAccess videoDataAccess)
+		private readonly ILogger<VideosSearchController> _logger;
+		public VideosSearchController(IVideoSearchService searchService, IVideoDataAccess videoDataAccess, ILogger<VideosSearchController> logger)
 		{
 			_searchService = searchService;
 			_videoDataAccess = videoDataAccess;
+			_logger = logger;
 		}
 
 		[HttpGet("suggestions/{text}")]
@@ -35,8 +38,11 @@ namespace MicroTube.Controllers.Videos
 			var indicesResult = await _searchService.GetVideos(text);
 			if (indicesResult.IsError)
 				return StatusCode(indicesResult.Code);
-			var videosResult = await _videoDataAccess.GetVideosByIds(indicesResult.GetRequiredObject().Select(_=>_.Id));
-			return Ok(videosResult.Select(VideoDTO.FromModel));
+			var indicesData = indicesResult.GetRequiredObject();
+			var videosResult = await _videoDataAccess.GetVideosByIds(indicesData.Select(_=>_.Id));
+			IEnumerable<Video> videosResultSorted = indicesData.Join(
+				videosResult, outer => outer.Id, inner => inner.Id.ToString(), (index, result)=> result);
+			return Ok(videosResultSorted.Select(VideoDTO.FromModel));
 		}
 	}
 }

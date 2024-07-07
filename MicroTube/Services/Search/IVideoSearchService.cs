@@ -6,7 +6,6 @@ namespace MicroTube.Services.Search
 	{
 		Task<IServiceResult<Video>> IndexVideo(Video video);
 		Task<IServiceResult<IReadOnlyCollection<VideoSearchIndex>>> GetVideos(string text);
-		Task<IServiceResult> IndexSearchSuggestion(string text);
 		Task<IServiceResult<IReadOnlyCollection<string>>> GetSuggestions(string input);
 	}
 }

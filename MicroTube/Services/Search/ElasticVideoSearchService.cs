@@ -50,28 +50,6 @@ namespace MicroTube.Services.Search
 			
 			return ServiceResult<Video>.Success(video);
 		}
-		public async Task<IServiceResult> IndexSearchSuggestion(string text)
-		{
-			if(string.IsNullOrWhiteSpace(text))
-			{
-				return ServiceResult.Fail(400, "Bad input string, ignoring suggestion");
-			}
-			try
-			{
-				string hash = _md5Hash.HashAsString(text);
-				VideoSearchSuggestionIndex? suggestionIndex = await _searchDataAccess.GetSuggestion(hash);
-				if (suggestionIndex == null)
-					suggestionIndex = new VideoSearchSuggestionIndex(hash, text, 1);
-				await _searchDataAccess.IndexSuggestion(suggestionIndex);
-			}
-			catch (Exception e)
-			{
-				var error = $"Failed to index search suggestion {text}";
-				_logger.LogError(e, $"Failed to index search suggestion {text}");
-				return ServiceResult.Fail(500, error);
-			}
-			return ServiceResult.Success();
-		}
 		public async Task<IServiceResult<IReadOnlyCollection<VideoSearchIndex>>> GetVideos(string text)
 		{
 			VideoSearchOptions options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
@@ -99,25 +77,37 @@ namespace MicroTube.Services.Search
 		public async Task<IServiceResult<IReadOnlyCollection<string>>> GetSuggestions(string text)
 		{
 			VideoSearchOptions options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
-			string suggestName = "title_suggest";
-			var completion = new CompletionSuggester
+			MultiMatchQuery query = new MultiMatchQuery()
 			{
-				Field = "suggest",
-				SkipDuplicates = true,
-				Size = options.MaxSuggestions
-			};
-			var suggester = new Suggester()
-			{
-				Text = text,
-				Suggesters = new Dictionary<string, FieldSuggester>()
+				Query = text,
+				Type = TextQueryType.PhrasePrefix,
+				Analyzer = "keyword",
+				Fields = Fields.FromStrings(new string[3]
 				{
-					{ suggestName,  completion}
-				}
+					"titleSuggestion",
+					"titleSuggestion._2gram",
+					"titleSuggestion._3gram"
+				})
 			};
+			//string suggestName = "title_suggestiom";
+			//var completion = new CompletionSuggester
+			//{
+			//	Field = "titleSuggestion",
+			//	SkipDuplicates = true,
+			//	Size = options.MaxSuggestions
+			//};
+			//var suggester = new Suggester()
+			//{
+			//	Text = text,
+			//	Suggesters = new Dictionary<string, FieldSuggester>()
+			//	{
+			//		{ suggestName,  completion}
+			//	}
+			//};
 			var response = await _client.SearchAsync<VideoSearchIndex>(search =>
 			{
 				search.Index(options.VideosIndexName)
-				.Suggest(suggester);
+				.Query(query);
 			});
 
 			if (!response.IsValidResponse)
@@ -125,28 +115,31 @@ namespace MicroTube.Services.Search
 				_logger.LogError("Failed to get suggestions attempt from ElasticSearch. " + response.ToString());
 				return ServiceResult<IReadOnlyCollection<string>>.FailInternal();
 			}
-			return ReadSuggestionsResponse(response, suggestName);
+			return ReadSuggestionsResponse(response);
 		}
-		private ServiceResult<IReadOnlyCollection<string>> ReadSuggestionsResponse(SearchResponse<VideoSearchIndex> response, string suggestName)
+		private ServiceResult<IReadOnlyCollection<string>> ReadSuggestionsResponse(SearchResponse<VideoSearchIndex> response/*, string suggestName*/)
 		{
-			if (response.Suggest == null)
-			{
-				return ServiceResult<IReadOnlyCollection<string>>.Success(Array.Empty<string>());
-			}
-			var completionResult = response.Suggest.GetCompletion(suggestName);
-			if (completionResult == null)
-			{
-				return ServiceResult<IReadOnlyCollection<string>>.Success(Array.Empty<string>());
-			}
-			var firstCompletion = completionResult.FirstOrDefault();
-			if (firstCompletion == null)
-			{
-				return ServiceResult<IReadOnlyCollection<string>>.Success(Array.Empty<string>());
-			}
-
-			var finalResult = firstCompletion.Options
-				.Where(_=>_.Source != null)
-				.Select(_ => _.Source!.Suggest).ToImmutableArray();
+			//if (response.Suggest == null)
+			//{
+			//	return ServiceResult<IReadOnlyCollection<string>>.Success(Array.Empty<string>());
+			//}
+			//var completionResult = response.Suggest.GetCompletion(suggestName);
+			//if (completionResult == null)
+			//{
+			//	return ServiceResult<IReadOnlyCollection<string>>.Success(Array.Empty<string>());
+			//}
+			//var firstCompletion = completionResult.FirstOrDefault();
+			//if (firstCompletion == null)
+			//{
+			//	return ServiceResult<IReadOnlyCollection<string>>.Success(Array.Empty<string>());
+			//}
+			//
+			//var finalResult = firstCompletion.Options
+			//	.Where(_=>_.Source != null)
+			//	.Select(_ => _.Source!.TitleSuggestion).ToImmutableArray();
+			//return ServiceResult<IReadOnlyCollection<string>>.Success(finalResult);
+			var finalResult = response.Hits
+				.Select(_ => _.Source!.TitleSuggestion).ToImmutableArray();
 			return ServiceResult<IReadOnlyCollection<string>>.Success(finalResult);
 		}
 	}
