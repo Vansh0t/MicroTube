@@ -1,5 +1,6 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ViewChild } from "@angular/core";
 import { FormControl } from "@angular/forms";
+import { MatAutocomplete } from "@angular/material/autocomplete";
 
 @Component({
   selector: "suggestion-search-bar",
@@ -8,19 +9,22 @@ import { FormControl } from "@angular/forms";
 })
 export class SuggestionSearchBarComponent
 {
-  private readonly MAX_SUGGESTIONS = 6;
-
   readonly inputControl = new FormControl<string>("");
   @Input() onSubmit: ((searchText: string | null) => void) | undefined;
   @Input() onInputChanged: ((searchText: string | null) => void) | undefined;
   @Input() suggestionsSource: string[] | null = null;
+
+  @ViewChild("auto") autocomplete!: MatAutocomplete;
 
   submit()
   {
     const inputText = this.inputControl.value;
     console.log("Submit");
     if (this.onSubmit != null)
+    {
       this.onSubmit(inputText);
+      this.autocomplete.options.forEach(_ => _.deselect());
+    }
   }
   inputChanged()
   {
