@@ -1,11 +1,11 @@
 <div class="d-flex align-items-center">
 	<mat-form-field style="width:40vw" subscriptSizing="dynamic" class="dense-minus-3" appearance="outline">
-		<input matInput [formControl]="inputControl" type="text" [matAutocomplete]="auto" (input)="inputChanged()" />
-		<mat-autocomplete #auto="matAutocomplete">
+		<input matInput [formControl]="inputControl" type="text" [matAutocomplete]="auto" (input)="inputChanged()" (keyup.enter)="submit()" />
+		<mat-autocomplete #auto="matAutocomplete" hideSingleSelectionIndicator="true" (optionSelected)="submit()">
 			<mat-option *ngFor="let suggestion of suggestionsSource" [value]="suggestion">
 				{{suggestion}}
 			</mat-option>
 		</mat-autocomplete>
 	</mat-form-field>
-	<button mat-icon-button (click)="submit()"><mat-icon>search</mat-icon></button>
+	<button class="ms-1" mat-icon-button (click)="submit()"><mat-icon>search</mat-icon></button>
 </div>

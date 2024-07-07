@@ -18,6 +18,7 @@ export class SuggestionSearchBarComponent
   submit()
   {
     const inputText = this.inputControl.value;
+    console.log("Submit");
     if (this.onSubmit != null)
       this.onSubmit(inputText);
   }
