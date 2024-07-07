@@ -81,7 +81,7 @@ namespace MicroTube.Services.Search
 			{
 				Query = text,
 				Type = TextQueryType.PhrasePrefix,
-				Analyzer = "keyword",
+				Analyzer = "simple",
 				Fields = Fields.FromStrings(new string[3]
 				{
 					"titleSuggestion",
