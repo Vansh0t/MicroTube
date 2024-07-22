@@ -12,6 +12,8 @@
 		public string? SnapshotUrls { get; set; }
 		public required DateTime UploadTime { get; set; }
 		public required int LengthSeconds { get; set; }
+		public int Views { get; set; }
+		public int Likes { get; set; }
 		public string? SearchIndexId { get; set; }
 	}
 }

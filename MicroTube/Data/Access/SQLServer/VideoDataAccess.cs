@@ -130,12 +130,14 @@ namespace MicroTube.Data.Access.SQLServer
 				video.ThumbnailUrls,
 				video.UploadTime,
 				video.LengthSeconds,
-				video.SearchIndexId
+				video.SearchIndexId,
+				video.Views,
+				video.Likes
 			};
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
-			string sql = @"INSERT INTO dbo.Video(UploaderId, Title, Description, Url, SnapshotUrls, ThumbnailUrls, UploadTime, LengthSeconds, SearchIndexId)
+			string sql = @"INSERT INTO dbo.Video(UploaderId, Title, Description, Url, SnapshotUrls, ThumbnailUrls, UploadTime, LengthSeconds, SearchIndexId, Views, Likes)
 							OUTPUT INSERTED.*
-							VALUES(@UploaderId, @Title, @Description, @Url, @SnapshotUrls, @ThumbnailUrls, @UploadTime, @LengthSeconds, @SearchIndexId);";
+							VALUES(@UploaderId, @Title, @Description, @Url, @SnapshotUrls, @ThumbnailUrls, @UploadTime, @LengthSeconds, @SearchIndexId, @Views, @Likes);";
 			var result = await connection.QueryFirstOrDefaultAsync<Video>(sql, parameters);
 			return result;
 		}

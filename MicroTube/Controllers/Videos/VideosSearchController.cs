@@ -32,10 +32,15 @@ namespace MicroTube.Controllers.Videos
 								_);
 			}));
 		}
-		[HttpGet("videos/{text}")]
-		public async Task<IActionResult> GetVideos(string text)
+		[HttpGet("videos")]
+		public async Task<IActionResult> GetVideos([FromQuery] VideoSearchParametersDTO searchParameters)
 		{
-			var indicesResult = await _searchService.GetVideos(text);
+			_logger.LogInformation($"{searchParameters.Text} {searchParameters.Sort} {searchParameters.TimeFilter} {searchParameters.LengthFilter}");
+			var indicesResult = await _searchService.GetVideos(
+				searchParameters.Text,
+				searchParameters.Sort,
+				searchParameters.TimeFilter,
+				searchParameters.LengthFilter);
 			if (indicesResult.IsError)
 				return StatusCode(indicesResult.Code);
 			var indicesData = indicesResult.GetRequiredObject();
