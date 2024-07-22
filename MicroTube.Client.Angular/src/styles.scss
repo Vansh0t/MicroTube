@@ -1,5 +1,4 @@
 @use '@angular/material' as mat;
-@import '@angular/material/theming';
 @import './custom-theme';
 /* You can add global styles to this file, and also import other style files */
 
@@ -33,7 +32,7 @@ html, body {
   height: 100%;
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif !important;
-  background-color: mat-color($MicroTube-primary, 900) !important;
+  background-color: mat.get-color-from-palette($MicroTube-primary, 900) !important;
 }
 a {
   color: white;
@@ -50,7 +49,7 @@ a {
   @include mat.all-component-densities(-3);
 }
 .caption-grey {
-  color: mat-color($MicroTube-primary, 100) !important;
+  color: mat.get-color-from-palette($MicroTube-primary, 100) !important;
 }
 $xs: screen and (max-width: 599px);
 $sm: screen and (min-width: 600px) and (max-width: 959px);
