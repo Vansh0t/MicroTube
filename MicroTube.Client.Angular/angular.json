@@ -75,11 +75,11 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "MicroTube:build:production"
+              "buildTarget": "MicroTube:build:production"
             },
             "development": {
-              "browserTarget": "MicroTube:build:development",
-              "proxyConfig": "proxy.conf.js"
+              "proxyConfig": "proxy.conf.js",
+              "buildTarget": "MicroTube:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -87,7 +87,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "MicroTube:build"
+            "buildTarget": "MicroTube:build"
           }
         },
         "test": {
