@@ -7,7 +7,7 @@ namespace MicroTube.Services.Search
 		Task<IServiceResult<Video>> IndexVideo(Video video);
 		Task<IServiceResult<IReadOnlyCollection<VideoSearchIndex>>> GetVideos(
 			string text,
-			VideoSortType sortType = VideoSortType.Default,
+			VideoSortType sortType = VideoSortType.Relevance,
 			VideoTimeFilterType timeFilter = VideoTimeFilterType.None,
 			VideoLengthFilterType lengthFilter = VideoLengthFilterType.None);
 		Task<IServiceResult<IReadOnlyCollection<string>>> GetSuggestions(string input);

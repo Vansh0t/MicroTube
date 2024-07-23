@@ -49,5 +49,31 @@ namespace MicroTube.Controllers.Videos
 				videosResult, outer => outer.Id, inner => inner.Id.ToString(), (index, result)=> result);
 			return Ok(videosResultSorted.Select(VideoDTO.FromModel));
 		}
+		[HttpGet("controls")]
+		public IActionResult GetControls()
+		{
+			var controls = new SearchControlsDTO()
+			{
+				LengthFilterOptions = new string[3] {
+					nameof(VideoLengthFilterType.Short),
+					nameof(VideoLengthFilterType.Medium),
+					nameof(VideoLengthFilterType.Long)
+				},
+				TimeFilterOptions = new string[5] {
+					nameof(VideoTimeFilterType.LastDay),
+					nameof(VideoTimeFilterType.LastWeek),
+					nameof(VideoTimeFilterType.LastMonth),
+					nameof(VideoTimeFilterType.LastSixMonths),
+					nameof(VideoTimeFilterType.LastYear),
+				},
+				SortOptions = new string[4] {
+					nameof(VideoSortType.Relevance),
+					nameof(VideoSortType.Time),
+					nameof(VideoSortType.Rating),
+					nameof(VideoSortType.Views),
+				}
+			};
+			return Ok(controls);
+		}
 	}
 }

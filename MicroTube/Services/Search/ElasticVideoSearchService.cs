@@ -60,7 +60,7 @@ namespace MicroTube.Services.Search
 		}
 		public async Task<IServiceResult<IReadOnlyCollection<VideoSearchIndex>>> GetVideos(
 			string text,
-			VideoSortType sortType = VideoSortType.Default,
+			VideoSortType sortType = VideoSortType.Relevance,
 			VideoTimeFilterType timeFilter = VideoTimeFilterType.None,
 			VideoLengthFilterType lengthFilter = VideoLengthFilterType.None)
 		{
@@ -127,7 +127,7 @@ namespace MicroTube.Services.Search
 		}
 		private SortOptionsDescriptor<VideoSearchIndex>? BuildVideoSearchSort(VideoSortType sortType)
 		{
-			if (sortType == VideoSortType.Default)
+			if (sortType == VideoSortType.Relevance)
 				return null;
 			var sort = new SortOptionsDescriptor<VideoSearchIndex>();
 			if (sortType == VideoSortType.Time)
