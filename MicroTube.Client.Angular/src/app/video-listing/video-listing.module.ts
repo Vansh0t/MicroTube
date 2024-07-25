@@ -19,6 +19,8 @@ import { MatTableModule } from "@angular/material/table";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatSortModule } from "@angular/material/sort";
 import { MatMenuModule } from "@angular/material/menu";
+import { MatOptionModule } from "@angular/material/core";
+import { MatSelectModule } from "@angular/material/select";
 
 @NgModule({
   declarations: [
@@ -43,7 +45,9 @@ import { MatMenuModule } from "@angular/material/menu";
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
-    MatMenuModule
+    MatMenuModule,
+    MatOptionModule,
+    MatSelectModule
   ],
   exports: [
     VideoCardComponent,

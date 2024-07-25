@@ -1,10 +1,11 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { VideoDTO, VideoRawDTO, VideoUploadDTO } from "../../data/DTO/VideoDTO";
 import { Observable, map } from "rxjs";
 import { VideoUploadProgressDTO } from "../../data/DTO/VideoUploadProgressDTO";
 import { DateTime, Duration } from "luxon";
 import { VideoSearchSuggestion } from "../../data/DTO/VideoSearchSuggestionDTO";
+import { SearchControlsDTO, VideoSearchParametersDTO } from "../../data/DTO/VideoSearchDTO";
 
 
 @Injectable({
@@ -82,18 +83,40 @@ export class VideoService
     const result = this.client.get<VideoSearchSuggestion[]>("Videos/VideosSearch/suggestions/" + text);
     return result;
   }
-  searchVideos(text: string): Observable<VideoDTO[]>
+  searchVideos(parameters: VideoSearchParametersDTO): Observable<VideoDTO[]>
   {
-    if (text && !text.trim())
+    if (!parameters.text.trim())
     {
       throw new Error("Empty text string provided.");
     }
-    const result = this.client.get<VideoRawDTO[]>("Videos/VideosSearch/videos/" + text).pipe(
+    let urlParams = new HttpParams();
+    urlParams = urlParams.set("text", parameters.text);
+    if (parameters.sort)
+      urlParams = urlParams.set("sort", parameters.sort);
+    if (parameters.lengthFilter)
+      urlParams = urlParams.set("lengthFilter", parameters.lengthFilter);
+    if (parameters.timeFilter)
+      urlParams = urlParams.set("timeFilter", parameters.timeFilter);
+    console.log(urlParams.toString());
+    return this.searchVideosByQueryString(urlParams.toString());
+  }
+  searchVideosByQueryString(parameters: string): Observable<VideoDTO[]>
+  {
+    if (!parameters.trim())
+    {
+      throw new Error("Empty parameters string provided.");
+    }
+    const result = this.client.get<VideoRawDTO[]>("Videos/VideosSearch/videos?" + parameters).pipe(
       map(response =>
       {
         return response.map(raw => new VideoDTO(raw));
       })
     );
+    return result;
+  }
+  getSearchControls(): Observable<SearchControlsDTO>
+  {
+    const result = this.client.get<SearchControlsDTO>("Videos/VideosSearch/controls");
     return result;
   }
 }

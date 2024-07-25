@@ -27,12 +27,15 @@ mat-mdc-form-field-bottom-align::before
   height: 16px;
 }
 */
-
+:root {
+  color-scheme: dark;
+}
 html, body {
   height: 100%;
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif !important;
   background-color: mat.get-color-from-palette($MicroTube-primary, 900) !important;
+  
 }
 a {
   color: white;

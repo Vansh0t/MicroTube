@@ -1,5 +1,41 @@
-<div class="video-listing-main grid-container">
-	<div *ngFor="let video of videos$ | async">
-		<video-card [video]="video" />
+<div class="w-100">
+	@if(isSearch) {
+	@if(searchControls$ | async; as searchControls) {
+	<div class="d-flex flex-row gap-2 dense-minus-1">
+		<mat-form-field>
+			<mat-label>Sort</mat-label>
+			<mat-select [formControl]="sortControl">
+				@for (sort of searchControls.sortOptions; track sort) {
+				<mat-option [value]="sort">{{formatOption(sort)}}</mat-option>
+				}
+			</mat-select>
+		</mat-form-field>
+		<mat-form-field>
+			<mat-label>Upload Time</mat-label>
+			<mat-select [formControl]="timeFilterControl">
+				<mat-option>--</mat-option>
+				@for (filter of searchControls.timeFilterOptions; track filter) {
+				<mat-option [value]="filter">{{formatOption(filter)}}</mat-option>
+				}
+			</mat-select>
+		</mat-form-field>
+		<mat-form-field>
+			<mat-label>Length</mat-label>
+			<mat-select [formControl]="lengthFilterControl">
+				@for (filter of searchControls.lengthFilterOptions; track filter) {
+				<mat-option [value]="filter">{{formatOption(filter)}}</mat-option>
+				}
+			</mat-select>
+		</mat-form-field>
+
+
+	</div>
+		  }
+	}
+	<div class="video-listing-main grid-container">
+		<div *ngFor="let video of videos$ | async">
+			<video-card [video]="video" />
+		</div>
 	</div>
 </div>
+
