@@ -15,6 +15,7 @@ import { VideoSearchService } from "../../services/videos/VideoSearchService";
 export class VideoListingMainComponent implements OnInit, OnDestroy
 {
   readonly optionsFormats: { [id: string]: string; } = {
+    Time: "Upload Time",
     LastDay: "This Day",
     LastWeek: "This Week",
     LastMonth: "This Month",
@@ -115,27 +116,18 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   {
     this.timeFilterControl.valueChanges.subscribe((val) =>
     {
-      if (val)
-      {
-        this.searchService.setTimeFilter(val);
-        this.searchService.search();
-      }
+      this.searchService.setTimeFilter(val);
+      this.searchService.search();
     });
     this.lengthFilterControl.valueChanges.subscribe((val) =>
     {
-      if (val)
-      {
-        this.searchService.setLengthFilter(val);
-        this.searchService.search();
-      }
+      this.searchService.setLengthFilter(val);
+      this.searchService.search();
     });
     this.sortControl.valueChanges.subscribe((val) =>
     {
-      if (val)
-      {
-        this.searchService.setSort(val);
-        this.searchService.search();
-      }
+      this.searchService.setSort(val);
+      this.searchService.search();
     });
   }
 }

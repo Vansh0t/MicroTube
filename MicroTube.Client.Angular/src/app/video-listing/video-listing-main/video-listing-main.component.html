@@ -5,6 +5,7 @@
 		<mat-form-field>
 			<mat-label>Sort</mat-label>
 			<mat-select [formControl]="sortControl">
+				<mat-option>--</mat-option>
 				@for (sort of searchControls.sortOptions; track sort) {
 				<mat-option [value]="sort">{{formatOption(sort)}}</mat-option>
 				}
@@ -22,6 +23,7 @@
 		<mat-form-field>
 			<mat-label>Length</mat-label>
 			<mat-select [formControl]="lengthFilterControl">
+				<mat-option>--</mat-option>
 				@for (filter of searchControls.lengthFilterOptions; track filter) {
 				<mat-option [value]="filter">{{formatOption(filter)}}</mat-option>
 				}
