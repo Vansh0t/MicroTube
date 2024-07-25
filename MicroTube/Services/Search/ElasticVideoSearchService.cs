@@ -70,6 +70,7 @@ namespace MicroTube.Services.Search
 			var filters = BuildFilters(timeFilter, lengthFilter);
 			var shouldQuery = new BoolQuery
 			{
+				MinimumShouldMatch = 1,
 				Should = new Query[2] { matchQueryTitle, matchQueryDescription },
 				Filter = filters
 			};
