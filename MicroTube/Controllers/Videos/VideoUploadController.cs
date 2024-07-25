@@ -28,7 +28,7 @@ namespace MicroTube.Controllers.Videos
 		[HttpPost]
 		[Authorize]
 		[DisableRequestSizeLimit]
-		[RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
+		[RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = long.MaxValue)]
 		[ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(VideoUploadProgressDTO))]
 		public async Task<IActionResult> Upload([FromForm] VideoUploadDTO uploadData)
 		{
