@@ -8,5 +8,8 @@
 	[ThumbnailUrls] VARCHAR(MAX) DEFAULT NULL, 
     [SnapshotUrls] VARCHAR(MAX) NULL DEFAULT NULL,
 	[UploadTime] DATETIME NOT NULL, 
-    [LengthSeconds] INT NOT NULL DEFAULT 1 
+    [LengthSeconds] INT NOT NULL DEFAULT 1, 
+    [SearchIndexId] NVARCHAR(50) NULL, 
+    [Views] INT NOT NULL DEFAULT 0, 
+    [Likes] INT NOT NULL DEFAULT 0 
 )

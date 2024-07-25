@@ -7,7 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroTube", "MicroTube\Micr
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "MainDatabase", "MainDatabase\MainDatabase.sqlproj", "{291CEF0F-5722-41FF-AC72-F237F346F29E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroTube.Tests", "MicroTube.Tests\MicroTube.Tests.csproj", "{F2D1D21F-AE00-4143-A243-7C5B7E8ABEFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroTube.Tests", "MicroTube.Tests\MicroTube.Tests.csproj", "{F2D1D21F-AE00-4143-A243-7C5B7E8ABEFC}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{F2F81E75-DEB4-403C-9F13-9C83FA22C952}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "MicroTube.Client.Angular", "MicroTube.Client.Angular\MicroTube.Client.Angular.esproj", "{D847838F-FD1F-4E60-8CAC-B5F0A790E324}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +33,16 @@ Global
 		{F2D1D21F-AE00-4143-A243-7C5B7E8ABEFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2D1D21F-AE00-4143-A243-7C5B7E8ABEFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2D1D21F-AE00-4143-A243-7C5B7E8ABEFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2F81E75-DEB4-403C-9F13-9C83FA22C952}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2F81E75-DEB4-403C-9F13-9C83FA22C952}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2F81E75-DEB4-403C-9F13-9C83FA22C952}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2F81E75-DEB4-403C-9F13-9C83FA22C952}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D847838F-FD1F-4E60-8CAC-B5F0A790E324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D847838F-FD1F-4E60-8CAC-B5F0A790E324}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D847838F-FD1F-4E60-8CAC-B5F0A790E324}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{D847838F-FD1F-4E60-8CAC-B5F0A790E324}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D847838F-FD1F-4E60-8CAC-B5F0A790E324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D847838F-FD1F-4E60-8CAC-B5F0A790E324}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

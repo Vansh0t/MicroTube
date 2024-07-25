@@ -4,16 +4,23 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <SpaRoot>ClientApp\</SpaRoot>
-    <SpaProxyServerUrl>https://localhost:44466</SpaProxyServerUrl>
-    <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>ab258953-eff6-4f16-9ee9-798f29fe3889</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\**" />
+    <Content Remove="wwwroot\**" />
+    <EmbeddedResource Remove="wwwroot\**" />
+    <None Remove="wwwroot\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
     <PackageReference Include="Dapper" Version="2.1.15" />
+    <PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.13.14" />
     <PackageReference Include="FFMpegCore" Version="5.1.0" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.10" />
     <PackageReference Include="Hangfire.Core" Version="1.8.10" />
@@ -22,146 +29,23 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.11" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
     <PackageReference Include="MimeMapping" Version="3.0.1" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.20.0" />
     <PackageReference Include="xFFmpeg.NET" Version="7.2.0" />
   </ItemGroup>
-
   <ItemGroup>
-    <!-- Don't publish the SPA source files, but do show them in the project files list -->
-    <Content Remove="$(SpaRoot)**" />
-    <None Remove="$(SpaRoot)**" />
-    <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  	<InternalsVisibleTo Include="MicroTube.Tests" />
   </ItemGroup>
-
   <ItemGroup>
-    <None Remove="ClientApp\src\app\data\AppUser.ts" />
-    <None Remove="ClientApp\src\app\data\DTO\AuthenticationResponseDTO.ts" />
-    <None Remove="ClientApp\src\app\data\DTO\EmailChangeDTO.ts" />
-    <None Remove="ClientApp\src\app\data\DTO\MessageDTO.ts" />
-    <None Remove="ClientApp\src\app\data\DTO\PasswordChangeDTO.ts" />
-    <None Remove="ClientApp\src\app\data\DTO\PasswordResetTokenDTO.ts" />
-    <None Remove="ClientApp\src\app\data\DTO\ResetPasswordDTO.ts" />
-    <None Remove="ClientApp\src\app\data\DTO\SignInCredentialPasswordDTO.ts" />
-    <None Remove="ClientApp\src\app\data\DTO\SignUpEmailPasswordDTO.ts" />
-    <None Remove="ClientApp\src\app\data\DTO\UserDTO.ts" />
-    <None Remove="ClientApp\src\app\data\DTO\VideoDTO.ts" />
-    <None Remove="ClientApp\src\app\data\DTO\VideoUploadProgressDTO.ts" />
-    <None Remove="ClientApp\src\app\enums.ts" />
-    <None Remove="ClientApp\src\app\home\home.component.html" />
-    <None Remove="ClientApp\src\app\home\home.component.ts" />
-    <None Remove="ClientApp\src\app\services\auth\AuthManager.ts" />
-    <None Remove="ClientApp\src\app\services\auth\JWTUser.ts" />
-    <None Remove="ClientApp\src\app\services\auth\providers\EmailPasswordAuthProvider.ts" />
-    <None Remove="ClientApp\src\app\services\auth\providers\IAuthProvider.ts" />
-    <None Remove="ClientApp\src\app\services\auth\SessionManager.ts" />
-    <None Remove="ClientApp\src\app\services\formatting\TimeFormatter.ts" />
-    <None Remove="ClientApp\src\app\services\http\interceptors\APIBaseURLInterceptor.ts" />
-    <None Remove="ClientApp\src\app\services\http\interceptors\JWTAuthInterceptor.ts" />
-    <None Remove="ClientApp\src\app\services\ServiceResult.ts" />
-    <None Remove="ClientApp\src\app\services\user\ProfileManager.ts" />
-    <None Remove="ClientApp\src\app\services\validation\DefaultAuthValidators.ts" />
-    <None Remove="ClientApp\src\app\services\validation\DefaultVideoFileUploadValidators.ts" />
-    <None Remove="ClientApp\src\app\services\videos\VideoService.ts" />
-    <None Remove="ClientApp\src\app\utils.ts" />
+    <Folder Include="Utils\" />
   </ItemGroup>
-
   <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\app\data\AppUser.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\PasswordResetTokenDTO.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\EmailChangeDTO.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\VideoUploadProgressDTO.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\VideoDTO.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\UserDTO.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\MessageDTO.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\PasswordChangeDTO.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\ResetPasswordDTO.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\SignUpEmailPasswordDTO.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\SignInCredentialPasswordDTO.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\data\DTO\AuthenticationResponseDTO.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\enums.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\home\home.component.html">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\home\home.component.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\services\auth\AuthManager.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\services\auth\SessionManager.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\services\auth\JWTUser.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\services\auth\providers\EmailPasswordAuthProvider.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\services\auth\providers\IAuthProvider.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\services\formatting\TimeFormatter.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\services\http\interceptors\JWTAuthInterceptor.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\services\http\interceptors\APIBaseURLInterceptor.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\services\ServiceResult.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\services\user\ProfileManager.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\services\validation\DefaultVideoFileUploadValidators.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\app\services\validation\DefaultAuthValidators.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\services\videos\VideoService.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\utils.ts" />
+    <None Update="Templates\Email\EmailConfirmation.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Email\PasswordReset.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
-
-    <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
-    <!-- Ensure Node.js is installed -->
-    <Exec Command="node --version" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-    </Exec>
-    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
-    <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-  </Target>
-  
-  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
-    <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --configuration production" />
-
-    <!-- Include the newly-built files in the publish output -->
-    <ItemGroup>
-      <DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" />
-      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
-        <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      </ResolvedFileToPublish>
-    </ItemGroup>
-  </Target>
-    <ItemGroup>
-    	<InternalsVisibleTo Include="MicroTube.Tests" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="ClientApp\src\assets\img\logo\" />
-      <Folder Include="Utils\" />
-    </ItemGroup>
-    <ItemGroup>
-      <None Update="Templates\Email\EmailConfirmation.html">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Templates\Email\PasswordReset.html">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
 </Project>

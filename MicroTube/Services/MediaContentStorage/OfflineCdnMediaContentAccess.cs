@@ -7,7 +7,7 @@ namespace MicroTube.Services.MediaContentStorage
 	{
 		private const int MAXIMUM_UPLOAD_CONCURRENCY = 8;
 
-		private const string OFFLINE_CDN_LOCATION = "C:\\VideosOfflineRemoteCdn";
+		private const string OFFLINE_CDN_LOCATION = "/data/";
 		private readonly IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions> _videoRemoteStorage;
 		private readonly IConfiguration _config;
 		private readonly ILogger<OfflineCdnMediaContentAccess> _logger;

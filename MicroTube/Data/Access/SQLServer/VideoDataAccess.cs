@@ -129,15 +129,47 @@ namespace MicroTube.Data.Access.SQLServer
 				video.SnapshotUrls,
 				video.ThumbnailUrls,
 				video.UploadTime,
-				video.LengthSeconds
-
+				video.LengthSeconds,
+				video.SearchIndexId,
+				video.Views,
+				video.Likes
 			};
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
-			string sql = @"INSERT INTO dbo.Video(UploaderId, Title, Description, Url, SnapshotUrls, ThumbnailUrls, UploadTime, LengthSeconds)
+			string sql = @"INSERT INTO dbo.Video(UploaderId, Title, Description, Url, SnapshotUrls, ThumbnailUrls, UploadTime, LengthSeconds, SearchIndexId, Views, Likes)
 							OUTPUT INSERTED.*
-							VALUES(@UploaderId, @Title, @Description, @Url, @SnapshotUrls, @ThumbnailUrls, @UploadTime, @LengthSeconds);";
+							VALUES(@UploaderId, @Title, @Description, @Url, @SnapshotUrls, @ThumbnailUrls, @UploadTime, @LengthSeconds, @SearchIndexId, @Views, @Likes);";
 			var result = await connection.QueryFirstOrDefaultAsync<Video>(sql, parameters);
 			return result;
+		}
+		public async Task UpdateVideo(Video video)
+		{
+			var parameters = new
+			{
+				video.Id,
+				video.UploaderId,
+				video.Title,
+				video.Description,
+				video.Url,
+				video.SnapshotUrls,
+				video.ThumbnailUrls,
+				video.UploadTime,
+				video.LengthSeconds,
+				video.SearchIndexId
+			};
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			string sql = @"UPDATE dbo.Video 
+						   SET 
+						   UploaderId = @UploaderId,
+						   Title = @Title,
+						   Description = @Description,
+						   Url = @Url,
+						   SnapshotUrls = @SnapshotUrls,
+						   ThumbnailUrls = @ThumbnailUrls,
+						   UploadTime = @UploadTime,
+						   LengthSeconds = @LengthSeconds,
+						   SearchIndexId = @SearchIndexId
+						   WHERE Id = @Id;";
+			await connection.ExecuteAsync(sql, parameters);
 		}
 		//TODO: add filtering, sorting, etc
 		public async Task<IEnumerable<Video>> GetVideos()
@@ -156,6 +188,18 @@ namespace MicroTube.Data.Access.SQLServer
 			};
 			string sql = @"SELECT * FROM dbo.Video WHERE Id = @Id;";
 			var result = await connection.QueryFirstOrDefaultAsync<Video>(sql, parameters);
+			return result;
+		}
+
+		public async Task<IEnumerable<Video>> GetVideosByIds(IEnumerable<string> ids)
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			var parameters = new
+			{
+				Ids = ids
+			};
+			string sql = @"SELECT * FROM dbo.Video WHERE Id IN @Ids;";
+			var result = await connection.QueryAsync<Video>(sql, parameters);
 			return result;
 		}
 	}

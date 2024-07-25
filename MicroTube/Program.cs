@@ -1,3 +1,4 @@
+using Elastic.Clients.Elasticsearch;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -5,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using MicroTube;
 using MicroTube.Constants;
 using MicroTube.Data.Access;
+using MicroTube.Data.Access.Elasticsearch;
 using MicroTube.Data.Access.SQLServer;
 using MicroTube.Data.Models;
 using MicroTube.Services.Authentication;
@@ -12,6 +14,7 @@ using MicroTube.Services.Authentication.Providers;
 using MicroTube.Services.Cryptography;
 using MicroTube.Services.Email;
 using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.Search;
 using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent;
 using MicroTube.Services.VideoContent.Processing;
@@ -23,10 +26,12 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 // Add services to the container.
 builder.Services.AddAzureBlobStorage(config.GetRequiredValue("AzureBlobStorage:ConnectionString"));
+builder.Services.AddSingleton<IMD5HashProvider, MD5HashProvider>();
 builder.Services.AddSingleton<IVideoAnalyzer, FFMpegVideoAnalyzer>();
 //builder.Services.AddSingleton<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>, AzureBlobVideoContentRemoteStorage>();
 builder.Services.AddSingleton<IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions>, OfflineVideoContentRemoteStorage>();
 //builder.Services.AddSingleton<ICdnMediaContentAccess, AzureCdnMediaContentAccess>();
+builder.Services.AddElasticSearchClient(config);
 builder.Services.AddSingleton<ICdnMediaContentAccess, OfflineCdnMediaContentAccess>();
 builder.Services.AddSingleton<IEmailValidator, EmailValidator>();
 builder.Services.AddSingleton<IUsernameValidator, UsernameValidator>();
@@ -37,6 +42,7 @@ builder.Services.AddSingleton<IVideoDataAccess, VideoDataAccess>();
 builder.Services.AddSingleton<IEmailManager, DefaultEmailManager>();
 builder.Services.AddSingleton<IEmailTemplatesProvider, DefaultEmailTemplatesProvider>();
 builder.Services.AddSingleton<IUserSessionDataAccess, AppUserSessionDataAccess>();
+builder.Services.AddSingleton<IVideoSearchDataAccess, ElasticsearchVideoIndicesAccess>();
 builder.Services.AddSingleton<IUserSessionService, DefaultUserSessionService>();
 builder.Services.AddSingleton<IVideoPreUploadValidator, DefaultVideoPreUploadValidator>();
 builder.Services.AddSingleton<IVideoNameGenerator, GuidVideoNameGenerator>();
@@ -50,6 +56,8 @@ builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IEmailPasswordAuthenticationDataAccess, EmailPasswordAuthenticationDataAccess>();
 builder.Services.AddScoped<EmailPasswordAuthenticationProvider>();
 builder.Services.AddScoped<IVideoContentLocalStorage, DefaultVideoContentLocalStorage>();
+builder.Services.AddScoped<IVideoIndexingService, DefaultVideoIndexingService>();
+builder.Services.AddScoped<IVideoSearchService, ElasticVideoSearchService>();
 builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtPasswordResetTokenProvider, DefaultJwtPasswordResetTokenProvider>();
 builder.Services.AddTransient<IJwtClaims, JwtClaims>();
@@ -121,7 +129,7 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapHangfireDashboard();
+app.MapHangfireDashboard(new DashboardOptions() { Authorization = new[] { new HangfireDashboardAnonymousAuthorizationFilter()} });
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
@@ -138,6 +146,6 @@ else
     app.UseOpenApi();
     app.UseSwaggerUi3();
 }
+RecurringJob.AddOrUpdate<IVideoIndexingService>("VideoSearchIndexing", service => service.EnsureVideoIndices(), Cron.Minutely);
 app.Run();
-
 public partial class Program { }

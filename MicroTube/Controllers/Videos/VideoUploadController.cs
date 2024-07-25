@@ -1,12 +1,8 @@
-﻿using Hangfire;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MicroTube.Controllers.Authentication.DTO;
-using MicroTube.Controllers.User.DTO;
 using MicroTube.Controllers.Videos.DTO;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
-using MicroTube.Services;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.VideoContent.Processing;
 
@@ -32,7 +28,7 @@ namespace MicroTube.Controllers.Videos
 		[HttpPost]
 		[Authorize]
 		[DisableRequestSizeLimit]
-		[RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
+		[RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = long.MaxValue)]
 		[ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(VideoUploadProgressDTO))]
 		public async Task<IActionResult> Upload([FromForm] VideoUploadDTO uploadData)
 		{

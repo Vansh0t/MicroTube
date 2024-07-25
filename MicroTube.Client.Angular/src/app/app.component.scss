@@ -1,0 +1,45 @@
+@import "../breakpoints.scss";
+
+/*.outlet-container {
+  padding-inline: 4%;
+}*/
+.global-horizontal-padding {
+  padding-inline: 1%;
+}
+.logo-header {
+  
+}
+.logo-full {
+  max-width: 10rem;
+  display: none;
+}
+.logo-small {
+  max-width: 3.125rem;
+  display: block;
+}
+@include sm {
+  .global-horizontal-padding {
+    padding-inline: 1%;
+  }
+
+  .logo-full {
+    display: block;
+  }
+
+  .logo-small {
+    display: none;
+  }
+}
+@include md {
+  .global-horizontal-padding {
+    padding-inline: 2.5%;
+  }
+}
+@include lg {
+  .global-horizontal-padding {
+    padding-inline: 4%;
+  }
+  
+}
+
+

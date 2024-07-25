@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.94-alpha">
+  <PropertyGroup>
+    <StartupCommand>npm start</StartupCommand>
+    <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
+    <!-- Allows the build (or compile) script located on package.json to run on Build -->
+    <ShouldRunBuildScript>false</ShouldRunBuildScript>
+    <!-- Command to create an optimized build of the project that's ready for publishing -->
+    <ProductionBuildCommand>npm run build</ProductionBuildCommand>
+    <!-- Folder where production build objects will be placed -->
+    <BuildOutputFolder>$(MSBuildProjectDirectory)\dist\MicroTube.Client.Angular</BuildOutputFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove=".vscode/launch.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptConfiguration Remove="dist\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="dist\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="dist\styles.c0319646232d82a3.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="dist\runtime.c05133e8e61d1415.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="dist\polyfills.8dbb6bfac609134d.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="dist\main.d32addd1478f835f.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="dist\3rdpartylicenses.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptConfiguration Remove=".vscode\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove=".vscode\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove=".vscode/launch.json" />
+  </ItemGroup>
+</Project>

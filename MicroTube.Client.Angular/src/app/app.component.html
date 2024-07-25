@@ -1,0 +1,34 @@
+<div>
+	<mat-toolbar class="global-horizontal-padding d-flex justify-content-between">
+		<button mat-button class="ps-2" routerLink="/">
+			<img class="logo-header logo-full" src="/assets/img/logo/microtube-logo-full-white.svg" />
+			<img class="logo-header logo-small" src="/assets/img/logo/microtube-icon-white.svg" />
+		</button>
+		<suggestion-search-bar [suggestionsSource]="videoSearchSuggestionsSource" [onSubmit]="searchVideo.bind(this)" [onInputChanged]="updateSearchSuggestions.bind(this)" />
+		<div *ngIf="!(authManager.jwtSignedInUser$ | async) as user; else userProfile">
+			<button mat-button [matMenuTriggerFor]="signInMenu">Sign In</button>
+			<button mat-button routerLink="/signup">Sign Up</button>
+			<mat-menu #signInMenu>
+				<sign-in-form (click)="$event.stopPropagation();" />
+			</mat-menu>
+		</div>
+		<ng-template #userProfile>
+			<div class="d-flex align-items-center">
+				<div *ngIf="isUserEmailConfirmed() === false">
+					<email-confirmation-reminder />
+				</div>
+				<h4 class="m-0">{{authManager.jwtSignedInUser$.value?.publicUsername}}</h4>
+				<button mat-icon-button color="accent" [matMenuTriggerFor]="profileMenu"><mat-icon>account_circle</mat-icon></button>
+				<mat-menu #profileMenu>
+					<profile-popup />
+				</mat-menu>
+			</div>
+
+		</ng-template>
+	</mat-toolbar>
+  <main>
+	  <div class="global-horizontal-padding">
+		  <router-outlet></router-outlet>
+	  </div>
+  </main>
+</div>

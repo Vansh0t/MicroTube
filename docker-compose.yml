@@ -1,0 +1,84 @@
+
+services:
+  microtube:
+    image: app
+    build:
+      context: ./MicroTube
+    depends_on:
+       main_database:
+         condition: service_completed_successfully
+    environment:
+     - ASPNETCORE_ENVIRONMENT=Development
+     - ASPNETCORE_URLS=https://+:7146;
+     - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+     - ASPNETCORE_Kestrel__Certificates__Default__Path=/root/.aspnet/https/microtube.pfx
+    ports:
+      - "7146:7146"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - offline-cdn:/data/videos
+      - offline-cdn:/data/videos/cache
+  client-angular:
+    image: app/client/angular
+    ports: 
+      - "44466:44466"
+    develop:
+      watch:
+        - action: sync
+          path: ./MicroTube.Client.Angular
+          target: ./app
+    build:
+      context: ./MicroTube.Client.Angular
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql-server
+    hostname: sql-server
+    ports:
+      - "1433:1433"
+    env_file:
+      - MainDatabase/private.env
+  main_database:
+    image: db/main
+    container_name: MicroTubeMainDb
+    hostname: MicroTubeMainDb
+    depends_on:
+      - mssql
+    env_file:
+      - MainDatabase/private.env
+    build:
+        context: .
+        dockerfile: MainDatabase/Dockerfile
+  offline_cdn:
+    image: caddy:alpine
+    container_name: OfflineCDN
+    hostname: OfflineCDN
+    volumes:
+      - offline-cdn:/data/videos
+      - offline-cdn:/data/videos/cache
+    ports:
+      - "2015:2015"
+    entrypoint: ["caddy", "file-server", "--listen", "0.0.0.0:2015", "--root", "/data/"]
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: elasticsearch
+    hostname: elasticsearch
+    ports: 
+      - "9200:9200"
+    environment: 
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.audit.logfile.events.emit_request_body = true
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.13.4
+    container_name: kibana
+    hostname: kibana
+    ports: 
+      - "5601:5601"
+    environment:
+      - XPACK_SECURITY_ENABLED=false
+volumes:
+  offline-cdn:

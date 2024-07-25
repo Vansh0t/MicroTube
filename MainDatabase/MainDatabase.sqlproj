@@ -36,7 +36,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>publish/</OutputPath>
     <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <DebugSymbols>true</DebugSymbols>
@@ -101,5 +101,7 @@
   <ItemGroup>
     <None Include="MainDatabase.publish.xml" />
     <None Include="MainDatabase.Tests.publish.xml" />
+    <None Include="private.env" />
+    <None Include="Dockerfile" />
   </ItemGroup>
 </Project>
