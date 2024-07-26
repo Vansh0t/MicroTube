@@ -1,10 +1,13 @@
 @import "../breakpoints.scss";
 
-/*.outlet-container {
-  padding-inline: 4%;
-}*/
+.outlet-container {
+  /*overflow-y:scroll;*/
+  overflow-y: auto;
+  max-height: 92vh;
+}
 .global-horizontal-padding {
   padding-inline: 1%;
+  
 }
 .logo-header {
   

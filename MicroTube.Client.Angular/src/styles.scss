@@ -35,7 +35,7 @@ html, body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif !important;
   background-color: mat.get-color-from-palette($MicroTube-primary, 900) !important;
-  
+  overflow-y:hidden;
 }
 a {
   color: white;
