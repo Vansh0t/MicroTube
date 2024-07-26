@@ -6,25 +6,31 @@
 }
 .grid-container {
   display: grid;
-  gap: 1rem;
+  gap: 0.825rem;
 }
 @include xs {
   .grid-container {
     grid-template-columns: 100%;
   }
 }
-@include md {
+@include sm {
   .grid-container {
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 49% 49%;
   }
 }
-/*@include lg {
+@include md {
   .grid-container {
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 49% 49%;
   }
-}*/
+}
+@include lg {
+  .grid-container {
+    grid-template-columns: 32% 32% 32%;
+    
+  }
+}
 @include xl {
   .grid-container {
-    grid-template-columns: 33% 33% 33%;
+    grid-template-columns: 25% 25% 25% 25%;
   }
 }

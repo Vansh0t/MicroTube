@@ -42,26 +42,26 @@ object-fit:contain;
 }
 @include xs {
   .video-preview-container {
-    height: 44vw;
+    height: 53.5vw;
   }
 }
 @include sm {
   .video-preview-container {
-    height: 44vw;
+    height: 26.42vw;
   }
 }
 @include md {
   .video-preview-container {
-    height: 28vw;
+    height: 25.7vw;
   }
 }
-/*@include lg {
+@include lg {
   .video-preview-container {
-    height: 26vw;
+    height: 16.51vw;
   }
-}*/
+}
 @include xl {
   .video-preview-container {
-    height: 20vw;
+    height: 12.9vw;
   }
 }
