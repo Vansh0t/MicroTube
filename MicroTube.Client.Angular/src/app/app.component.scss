@@ -1,10 +1,22 @@
+@use '@angular/material' as mat;
 @import "../breakpoints.scss";
-
-/*.outlet-container {
-  padding-inline: 4%;
-}*/
+@import '../custom-theme';
+.video-search-bar {
+  width:40vw;
+  max-width: 32rem;
+}
+mat-toolbar {
+  background-color: transparent;
+}
+.outlet-container {
+  /*overflow-y:scroll;*/
+  
+  overflow-y: auto;
+  max-height: 92vh;
+}
 .global-horizontal-padding {
   padding-inline: 1%;
+  
 }
 .logo-header {
   

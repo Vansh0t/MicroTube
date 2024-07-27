@@ -1,5 +1,5 @@
 <div class="d-flex align-items-center">
-	<mat-form-field style="width:40vw" subscriptSizing="dynamic" class="dense-minus-3" appearance="outline">
+	<mat-form-field subscriptSizing="dynamic" class="dense-minus-3 w-100" appearance="outline">
 		<input matInput [formControl]="inputControl" type="text" [matAutocomplete]="auto" (input)="inputChanged()" (keyup.enter)="submit()" />
 
 		<mat-autocomplete #auto="matAutocomplete" hideSingleSelectionIndicator="true" autoSelectActiveOption="false" (optionSelected)="submit()">

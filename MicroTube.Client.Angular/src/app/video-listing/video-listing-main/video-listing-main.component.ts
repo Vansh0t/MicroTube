@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { VideoService } from "../../services/videos/VideoService";
 import { Observable, Subscription } from "rxjs";
 import { VideoDTO } from "../../data/DTO/VideoDTO";
-import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { SearchControlsDTO, VideoSearchParametersDTO } from "../../data/DTO/VideoSearchDTO";
 import { FormControl } from "@angular/forms";
 import { VideoSearchService } from "../../services/videos/VideoSearchService";
@@ -25,18 +25,14 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   private readonly videoService: VideoService;
   private readonly activatedRoute: ActivatedRoute;
   private readonly router: Router;
-  private readonly searchService: VideoSearchService;
-  private routerSubscription: Subscription | null = null;
-  private prevSearchParameters: VideoSearchParametersDTO | null = null;
+  readonly searchService: VideoSearchService;
+  private searchSubscription: Subscription | null = null;
+  private searchControlsFetchSubscription: Subscription | null = null;
   timeFilterControl = new FormControl();
   lengthFilterControl = new FormControl();
   sortControl = new FormControl();
   videos$: Observable<VideoDTO[]> | null = null;
-  searchControls$: Observable<SearchControlsDTO> | null = null;
-  get isSearch(): boolean
-  {
-    return this.prevSearchParameters != null;
-  }
+  searchControls: SearchControlsDTO | null = null;
   constructor(videoService: VideoService, activatedRoute: ActivatedRoute, router: Router, searchService: VideoSearchService)
   {
     this.searchService = searchService;
@@ -46,33 +42,23 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   }
   ngOnDestroy()
   {
-    this.routerSubscription?.unsubscribe();
+    this.searchSubscription?.unsubscribe();
+    this.searchControlsFetchSubscription?.unsubscribe();
   }
   ngOnInit(): void
   {
-    this.updateVideos();
-    this.routerSubscription = this.router.events.subscribe((event) =>
-    {
-      if (event instanceof (NavigationEnd))
-        this.updateVideos();
-    });
-    this.initControlsUI();
+    this.updateVideos(this.searchService.videoSearchParameters$.value);
+    this.searchSubscription = this.searchService.videoSearchParameters$.subscribe(this.updateVideos.bind(this));
+    this.searchControlsFetchSubscription = this.videoService.getSearchControls().subscribe(this.initControlsUI.bind(this));
   }
-  updateVideos()
+  updateVideos(params: VideoSearchParametersDTO| null)
   {
-    const params = this.parseQueryString();
-    if (params && JSON.stringify(this.prevSearchParameters) != JSON.stringify(params))
+    if (!params)
     {
-      this.prevSearchParameters = params;
-      this.videos$ = this.videoService.searchVideos(params);
-    }
-    else if (!params)
-    {
-      this.prevSearchParameters = null;
-      this.searchService.resetSearch();
       this.videos$ = this.videoService.getVideos();
       return;
     }
+    this.videos$ = this.videoService.searchVideos(params);
     this.updateSearchControls(params);
   }
   formatOption(key: string)
@@ -83,27 +69,11 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
     }
     return key;
   }
-  private parseQueryString(): VideoSearchParametersDTO | null
-  {
-    const textParam = <string>this.activatedRoute.snapshot.queryParams["text"]?.trim();
-    if (!textParam)
-      return null;
-    const sortParam = <string>this.activatedRoute.snapshot.queryParams["sort"]?.trim();
-    const timeFilterParam = <string>this.activatedRoute.snapshot.queryParams["timeFilter"]?.trim();
-    const lengthFilterParam = <string>this.activatedRoute.snapshot.queryParams["lengthFilter"]?.trim();
-    const params: VideoSearchParametersDTO = {
-      text: textParam,
-      sort: sortParam,
-      timeFilter: timeFilterParam,
-      lengthFilter: lengthFilterParam
-    };
-    return params;
-  }
+  
   private updateSearchControls(params: VideoSearchParametersDTO | null)
   {
-    if (this.isSearch && params)
+    if (this.searchService.isSearch && params)
     {
-      this.searchControls$ = this.videoService.getSearchControls();
       if (params.sort)
         this.sortControl.setValue(params.sort, { emitEvent: false });
       if (params.timeFilter)
@@ -112,22 +82,23 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
         this.lengthFilterControl.setValue(params.lengthFilter, { emitEvent: false });
     }
   }
-  private initControlsUI()
+  private initControlsUI(controls: SearchControlsDTO)
   {
+    this.searchControls = controls;
     this.timeFilterControl.valueChanges.subscribe((val) =>
     {
       this.searchService.setTimeFilter(val);
-      this.searchService.search();
+      this.searchService.navigateWithQueryString();
     });
     this.lengthFilterControl.valueChanges.subscribe((val) =>
     {
       this.searchService.setLengthFilter(val);
-      this.searchService.search();
+      this.searchService.navigateWithQueryString();
     });
     this.sortControl.valueChanges.subscribe((val) =>
     {
       this.searchService.setSort(val);
-      this.searchService.search();
+      this.searchService.navigateWithQueryString();
     });
   }
 }
