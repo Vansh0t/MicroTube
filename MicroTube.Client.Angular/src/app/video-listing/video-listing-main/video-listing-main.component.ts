@@ -27,11 +27,12 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   private readonly router: Router;
   readonly searchService: VideoSearchService;
   private searchSubscription: Subscription | null = null;
+  private searchControlsFetchSubscription: Subscription | null = null;
   timeFilterControl = new FormControl();
   lengthFilterControl = new FormControl();
   sortControl = new FormControl();
   videos$: Observable<VideoDTO[]> | null = null;
-  searchControls$: Observable<SearchControlsDTO> | null = null;
+  searchControls: SearchControlsDTO | null = null;
   constructor(videoService: VideoService, activatedRoute: ActivatedRoute, router: Router, searchService: VideoSearchService)
   {
     this.searchService = searchService;
@@ -42,12 +43,13 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   ngOnDestroy()
   {
     this.searchSubscription?.unsubscribe();
+    this.searchControlsFetchSubscription?.unsubscribe();
   }
   ngOnInit(): void
   {
     this.updateVideos(this.searchService.videoSearchParameters$.value);
     this.searchSubscription = this.searchService.videoSearchParameters$.subscribe(this.updateVideos.bind(this));
-    this.initControlsUI();
+    this.searchControlsFetchSubscription = this.videoService.getSearchControls().subscribe(this.initControlsUI.bind(this));
   }
   updateVideos(params: VideoSearchParametersDTO| null)
   {
@@ -72,7 +74,6 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   {
     if (this.searchService.isSearch && params)
     {
-      this.searchControls$ = this.videoService.getSearchControls();
       if (params.sort)
         this.sortControl.setValue(params.sort, { emitEvent: false });
       if (params.timeFilter)
@@ -81,8 +82,9 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
         this.lengthFilterControl.setValue(params.lengthFilter, { emitEvent: false });
     }
   }
-  private initControlsUI()
+  private initControlsUI(controls: SearchControlsDTO)
   {
+    this.searchControls = controls;
     this.timeFilterControl.valueChanges.subscribe((val) =>
     {
       this.searchService.setTimeFilter(val);
