@@ -25,7 +25,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   private readonly videoService: VideoService;
   private readonly activatedRoute: ActivatedRoute;
   private readonly router: Router;
-  private readonly searchService: VideoSearchService;
+  readonly searchService: VideoSearchService;
   private routerSubscription: Subscription | null = null;
   private prevSearchParameters: VideoSearchParametersDTO | null = null;
   timeFilterControl = new FormControl();
@@ -33,10 +33,6 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   sortControl = new FormControl();
   videos$: Observable<VideoDTO[]> | null = null;
   searchControls$: Observable<SearchControlsDTO> | null = null;
-  get isSearch(): boolean
-  {
-    return this.prevSearchParameters != null;
-  }
   constructor(videoService: VideoService, activatedRoute: ActivatedRoute, router: Router, searchService: VideoSearchService)
   {
     this.searchService = searchService;
@@ -61,6 +57,8 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   updateVideos()
   {
     const params = this.parseQueryString();
+    if (params && !this.searchService.isSearch)
+      this.searchService.setParameters(params);
     if (params && JSON.stringify(this.prevSearchParameters) != JSON.stringify(params))
     {
       this.prevSearchParameters = params;
@@ -101,7 +99,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   }
   private updateSearchControls(params: VideoSearchParametersDTO | null)
   {
-    if (this.isSearch && params)
+    if (this.searchService.isSearch && params)
     {
       this.searchControls$ = this.videoService.getSearchControls();
       if (params.sort)

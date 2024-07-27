@@ -9,6 +9,10 @@ export class VideoSearchService
 {
   private readonly router: Router;
   private videoSearchParameters: VideoSearchParametersDTO | null = null;
+  get isSearch()
+  {
+    return this.videoSearchParameters != null;
+  }
   constructor(router: Router)
   {
     this.router = router;
@@ -41,20 +45,22 @@ export class VideoSearchService
     else
       console.warn("Video search parameters were not initialized.");
   }
+  setParameters(videoSearchParameters: VideoSearchParametersDTO)
+  {
+    this.videoSearchParameters = videoSearchParameters;
+  }
   search()
   {
-    console.log(this.videoSearchParameters);
     if (!this.videoSearchParameters)
     {
       console.warn("Video search parameters must be set before executing the search.");
       return;
     }
-    console.log(this.videoSearchParameters);
     this.router.navigate(["/"], { queryParams: this.videoSearchParameters });
   }
   resetSearch()
   {
-    console.log("reset");
     this.videoSearchParameters = null;
   }
+  
 }

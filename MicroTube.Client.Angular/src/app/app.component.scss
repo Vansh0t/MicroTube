@@ -1,7 +1,12 @@
+@use '@angular/material' as mat;
 @import "../breakpoints.scss";
-
+@import '../custom-theme';
+mat-toolbar {
+  background-color: transparent;
+}
 .outlet-container {
   /*overflow-y:scroll;*/
+  
   overflow-y: auto;
   max-height: 92vh;
 }

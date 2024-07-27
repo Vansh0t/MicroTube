@@ -18,7 +18,7 @@
 					<email-confirmation-reminder />
 				</div>
 				<h4 class="m-0">{{authManager.jwtSignedInUser$.value?.publicUsername}}</h4>
-				<button mat-icon-button color="accent" [matMenuTriggerFor]="profileMenu"><mat-icon>account_circle</mat-icon></button>
+				<button mat-icon-button [matMenuTriggerFor]="profileMenu"><mat-icon>account_circle</mat-icon></button>
 				<mat-menu #profileMenu>
 					<profile-popup />
 				</mat-menu>
