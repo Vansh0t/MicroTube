@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { VideoService } from "../../services/videos/VideoService";
 import { Observable, Subscription } from "rxjs";
 import { VideoDTO } from "../../data/DTO/VideoDTO";
-import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { SearchControlsDTO, VideoSearchParametersDTO } from "../../data/DTO/VideoSearchDTO";
 import { FormControl } from "@angular/forms";
 import { VideoSearchService } from "../../services/videos/VideoSearchService";
@@ -26,8 +26,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   private readonly activatedRoute: ActivatedRoute;
   private readonly router: Router;
   readonly searchService: VideoSearchService;
-  private routerSubscription: Subscription | null = null;
-  private prevSearchParameters: VideoSearchParametersDTO | null = null;
+  private searchSubscription: Subscription | null = null;
   timeFilterControl = new FormControl();
   lengthFilterControl = new FormControl();
   sortControl = new FormControl();
@@ -42,35 +41,22 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   }
   ngOnDestroy()
   {
-    this.routerSubscription?.unsubscribe();
+    this.searchSubscription?.unsubscribe();
   }
   ngOnInit(): void
   {
-    this.updateVideos();
-    this.routerSubscription = this.router.events.subscribe((event) =>
-    {
-      if (event instanceof (NavigationEnd))
-        this.updateVideos();
-    });
+    this.updateVideos(this.searchService.videoSearchParameters$.value);
+    this.searchSubscription = this.searchService.videoSearchParameters$.subscribe(this.updateVideos.bind(this));
     this.initControlsUI();
   }
-  updateVideos()
+  updateVideos(params: VideoSearchParametersDTO| null)
   {
-    const params = this.parseQueryString();
-    if (params && !this.searchService.isSearch)
-      this.searchService.setParameters(params);
-    if (params && JSON.stringify(this.prevSearchParameters) != JSON.stringify(params))
+    if (!params)
     {
-      this.prevSearchParameters = params;
-      this.videos$ = this.videoService.searchVideos(params);
-    }
-    else if (!params)
-    {
-      this.prevSearchParameters = null;
-      this.searchService.resetSearch();
       this.videos$ = this.videoService.getVideos();
       return;
     }
+    this.videos$ = this.videoService.searchVideos(params);
     this.updateSearchControls(params);
   }
   formatOption(key: string)
@@ -81,22 +67,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
     }
     return key;
   }
-  private parseQueryString(): VideoSearchParametersDTO | null
-  {
-    const textParam = <string>this.activatedRoute.snapshot.queryParams["text"]?.trim();
-    if (!textParam)
-      return null;
-    const sortParam = <string>this.activatedRoute.snapshot.queryParams["sort"]?.trim();
-    const timeFilterParam = <string>this.activatedRoute.snapshot.queryParams["timeFilter"]?.trim();
-    const lengthFilterParam = <string>this.activatedRoute.snapshot.queryParams["lengthFilter"]?.trim();
-    const params: VideoSearchParametersDTO = {
-      text: textParam,
-      sort: sortParam,
-      timeFilter: timeFilterParam,
-      lengthFilter: lengthFilterParam
-    };
-    return params;
-  }
+  
   private updateSearchControls(params: VideoSearchParametersDTO | null)
   {
     if (this.searchService.isSearch && params)
@@ -115,17 +86,17 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
     this.timeFilterControl.valueChanges.subscribe((val) =>
     {
       this.searchService.setTimeFilter(val);
-      this.searchService.search();
+      this.searchService.navigateWithQueryString();
     });
     this.lengthFilterControl.valueChanges.subscribe((val) =>
     {
       this.searchService.setLengthFilter(val);
-      this.searchService.search();
+      this.searchService.navigateWithQueryString();
     });
     this.sortControl.valueChanges.subscribe((val) =>
     {
       this.searchService.setSort(val);
-      this.searchService.search();
+      this.searchService.navigateWithQueryString();
     });
   }
 }

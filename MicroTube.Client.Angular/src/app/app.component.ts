@@ -20,6 +20,7 @@ export class AppComponent implements OnInit
   readonly router: Router;
   readonly authManager: AuthManager;
   readonly videoService: VideoService;
+  searchSubscription: Subscription | null = null;
   @ViewChild(MatMenuTrigger)
   signOutMenuTrigger!: MatMenuTrigger;
   @ViewChild(SuggestionSearchBarComponent)
@@ -39,10 +40,14 @@ export class AppComponent implements OnInit
     this.authManager = authManager;
     this.activatedRoute = activatedRoute;
   }
-    ngOnInit(): void {
-      const textParam = <string>this.activatedRoute.snapshot.queryParams["text"]?.trim();
-      if (textParam)
-        this.suggestionSearchBar.inputControl.setValue(textParam, { emitEvent: false });
+  ngOnInit(): void
+  {
+    this.searchSubscription = this.searchService.videoSearchParameters$.subscribe((params) =>
+    {
+      if (params)
+        this.suggestionSearchBar.inputControl.setValue(params.text, { emitEvent: false });
+    });
+      
     }
   isUserEmailConfirmed()
   {
@@ -51,11 +56,14 @@ export class AppComponent implements OnInit
   searchVideo(searchText: string | null)
   {
     if (!searchText?.trim())
-      this.router.navigate(["/"]);
+    {
+      this.searchService.resetSearch();
+      this.searchService.navigateWithQueryString();
+    }
     else
     {
       this.searchService.setText(searchText);
-      this.searchService.search();
+      this.searchService.navigateWithQueryString();
     }
   }
   updateSearchSuggestions(text: string | null)
