@@ -124,7 +124,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			var remoteCacheDownloadResult = await _remoteStorage.Download(saveToPath, remoteAccessOptions, cancellationToken);
 			if(remoteCacheDownloadResult.IsError)
 			{
-				throw new BackgroundJobException($"Failed to download from remote cache for processing. File: {fileName}, Location: {fileLocation}, SaveTo: {saveToPath}.");
+				throw new BackgroundJobException($"Failed to download from remote cache for processing. File: {fileName}, Location: {fileLocation}, SaveTo: {saveToPath}. {remoteCacheDownloadResult.Error}");
 			}
 			return remoteCacheDownloadResult.GetRequiredObject();
 		}
@@ -137,11 +137,11 @@ namespace MicroTube.Services.VideoContent.Processing
 			var thumbnailsResult = makeThumbnailsTask.Result;
 			if (snapshotsResult.IsError)
 			{
-				throw new BackgroundJobException($"Failed to create snapshots. File: {videoFilePath}, SaveTo: {saveToPath}.");
+				throw new BackgroundJobException($"Failed to create snapshots. File: {videoFilePath}, SaveTo: {saveToPath}. {snapshotsResult.Error}");
 			}
 			if (thumbnailsResult.IsError)
 			{
-				throw new BackgroundJobException($"Failed to create thumbnails. File: {videoFilePath}, SaveTo: {saveToPath}.");
+				throw new BackgroundJobException($"Failed to create thumbnails. File: {videoFilePath}, SaveTo: {saveToPath}. {thumbnailsResult.Error}");
 			}
 			return (thumbnailsResult.GetRequiredObject(), snapshotsResult.GetRequiredObject());
 		}
@@ -151,7 +151,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			var videoUploadResult = await _mediaCdnAccess.UploadVideo(fileStream, videoFileName, cancellationToken);
 			if (videoUploadResult.IsError)
 			{
-				throw new BackgroundJobException($"Failed to upload video file to CDN. Path: {videoFilePath}.");
+				throw new BackgroundJobException($"Failed to upload video file to CDN. Path: {videoFilePath}. {videoUploadResult.Error}");
 			}
 			return videoUploadResult.GetRequiredObject();
 		}
@@ -160,7 +160,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			var subcontentUploadResult = await _mediaCdnAccess.UploadVideoSubcontent(subcontentDirectory, videoFileName, cancellationToken);
 			if (subcontentUploadResult.IsError)
 			{
-				throw new BackgroundJobException($"Failed to upload video subcontent to CDN. File: {videoFileName}, SubcontentLocation: {subcontentDirectory}.");
+				throw new BackgroundJobException($"Failed to upload video subcontent to CDN. File: {videoFileName}, SubcontentLocation: {subcontentDirectory}. {subcontentUploadResult.Error}");
 			}
 			return subcontentUploadResult.GetRequiredObject();
 		}
