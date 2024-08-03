@@ -6,6 +6,6 @@
 		public int FrameCount { get; set; }
 		public int LengthSeconds { get; set; }
 		public float Fps { get; set; }
-		public string? FrameSize { get; set; } 
+		public required string FrameSize { get; set; } 
 	}
 }

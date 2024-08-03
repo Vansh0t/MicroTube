@@ -1,8 +1,10 @@
 ﻿using Azure.Storage.Blobs.Models;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
+using MicroTube.Services.Base;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.VideoContent.Processing.Stages;
 using System.Diagnostics;
 
 namespace MicroTube.Services.VideoContent.Processing
@@ -17,6 +19,8 @@ namespace MicroTube.Services.VideoContent.Processing
 		private readonly ICdnMediaContentAccess _mediaCdnAccess;
 		private readonly IVideoThumbnailsService _thumbnailService;
 		private readonly IVideoAnalyzer _videoAnalyzer;
+
+		public PipelineState State => throw new NotImplementedException();
 
 		public AzureBlobVideoProcessingPipeline(
 			IConfiguration config,
@@ -207,6 +211,31 @@ namespace MicroTube.Services.VideoContent.Processing
 				uploadProgress.Message = "Failed to read video duration";
 				throw new BackgroundJobException("Failed to read video duration for upload progress " + uploadProgress.Id);
 			}
+		}
+
+		public void AddStage(IPipelineStage<DefaultVideoProcessingContext> stage)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void InsertStage(IPipelineStage<DefaultVideoProcessingContext> stage, int index)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void RemoveStage(IPipelineStage<DefaultVideoProcessingContext> stage)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void RemoveStageAt(int index)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<DefaultVideoProcessingContext> Execute(DefaultVideoProcessingContext? context, CancellationToken cancellationToken = default)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
