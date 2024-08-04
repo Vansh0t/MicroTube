@@ -30,6 +30,6 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 	public class Cdn
 	{
 		public IEnumerable<Uri>? ThumbnailEndpoints { get; set; }
-		public Uri? VideoEndpoint { get; set; }
+		public IEnumerable<Uri>? VideoEndpoints { get; set; }
 	}
 }

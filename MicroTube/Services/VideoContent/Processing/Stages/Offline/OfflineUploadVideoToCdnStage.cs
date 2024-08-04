@@ -25,21 +25,33 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 			{
 				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(OfflineUploadVideoToCdnStage)}");
 			}
-			var videoCdnUrl = await UploadVideoToCdn(context.LocalCache.SourcePath, context.RemoteCache.VideoFileName, cancellationToken);
+			IEnumerable<string> qualityTierPaths = GetQualityTierPaths(context.LocalCache.QualityTiersLocation);
+			List<Task<Uri>> uploadTasks = new List<Task<Uri>>();
+			foreach(var tierPath in qualityTierPaths)
+			{
+				var task = UploadVideoToCdn(tierPath, Path.GetFileName(tierPath), cancellationToken);
+				uploadTasks.Add(task);
+			}
+			await Task.WhenAll(uploadTasks);
+			IEnumerable<Uri> videoUrls = uploadTasks.Where(_ => _.IsCompletedSuccessfully).Select(_ => _.Result);
 			if (context.Cdn == null)
 				context.Cdn = new Cdn();
-			context.Cdn.VideoEndpoint = videoCdnUrl;
+			context.Cdn.VideoEndpoints = videoUrls;
 			return context;
 		}
-		private async Task<Uri> UploadVideoToCdn(string localCacheSourceVideoPath, string normalizedVideoName, CancellationToken cancellationToken)
+		private async Task<Uri> UploadVideoToCdn(string localCacheSourceVideoPath, string videoName, CancellationToken cancellationToken)
 		{
 			using var fileStream = new FileStream(localCacheSourceVideoPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-			var videoUploadResult = await _mediaCdnAccess.UploadVideo(fileStream, normalizedVideoName, cancellationToken);
+			var videoUploadResult = await _mediaCdnAccess.UploadVideo(fileStream, videoName, cancellationToken);
 			if (videoUploadResult.IsError)
 			{
 				throw new BackgroundJobException($"Failed to upload video file to CDN. Path: {localCacheSourceVideoPath}. {videoUploadResult.Error}");
 			}
 			return videoUploadResult.GetRequiredObject();
+		}
+		private IEnumerable<string> GetQualityTierPaths(string containingLocation)
+		{
+			return Directory.GetFiles(containingLocation);
 		}
 	}
 }

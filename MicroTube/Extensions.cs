@@ -15,7 +15,7 @@ using MicroTube.Services.VideoContent.Processing.Stages.Offline;
 
 namespace MicroTube
 {
-	//TODO: Needs refactoring.
+    //TODO: Needs refactoring.
     public static class Extensions
     {
         private const string DEFAULT_CONNECTION_STRING_NAME = "ConnectionStrings:Default";

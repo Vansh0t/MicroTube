@@ -22,7 +22,6 @@ namespace MicroTube.Services.VideoContent.Processing
 			try
 			{
 				VideoProcessingOptions processingOptions = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
-				string snapshotsDirectory = EnsureOutputLocation(filePath, saveToPath);
 				string ffmpegCustomArgs = string.Format(FFMPEG_SNAPSHOTS_ARGS,
 					processingOptions.SnapshotsIntervalSeconds, processingOptions.SnapshotsWidth, processingOptions.SnapshotsHeight);
 				var options = new ConversionOptions
@@ -30,10 +29,10 @@ namespace MicroTube.Services.VideoContent.Processing
 					ExtraArguments = ffmpegCustomArgs
 				};
 				var inputFile = new InputFile(filePath);
-				var outputFile = new OutputFile(Path.Join(snapshotsDirectory, "snapshot%4d.jpg"));
+				var outputFile = new OutputFile(Path.Join(saveToPath, "snapshot%4d.jpg"));
 				var ffmpeg = new Engine(_config["FFmpegLocation"]);
 				await ffmpeg.ConvertAsync(inputFile, outputFile, options, cancellationToken);
-				var files = Directory.GetFiles(snapshotsDirectory);
+				var files = Directory.GetFiles(saveToPath);
 				var snapshotPaths = files.Where(_ => _.Contains("snapshot")); //TO DO: this could use more robust filtering
 				return ServiceResult<IEnumerable<string>>.Success(snapshotPaths);
 			}
@@ -49,7 +48,6 @@ namespace MicroTube.Services.VideoContent.Processing
 			try
 			{
 				VideoProcessingOptions processingOptions = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
-				string thumbnailsDirectory = EnsureOutputLocation(filePath, saveToPath);
 				var inputFile = new InputFile(filePath);
 				var ffprobe = new Engine(_config.GetRequiredValue("FFmpegLocation"));
 				var videoAnylisis = await ffprobe.GetMetaDataAsync(inputFile, cancellationToken);
@@ -60,10 +58,10 @@ namespace MicroTube.Services.VideoContent.Processing
 				{
 					ExtraArguments = ffmpegCustomArgs
 				};
-				var outputFile = new OutputFile(Path.Join(thumbnailsDirectory, "thumbnail%4d.jpg"));
+				var outputFile = new OutputFile(Path.Join(saveToPath, "thumbnail%4d.jpg"));
 				var ffmpeg = new Engine(_config.GetRequiredValue("FFmpegLocation"));
 				await ffmpeg.ConvertAsync(inputFile, outputFile, options, cancellationToken);
-				var files = Directory.GetFiles(thumbnailsDirectory);
+				var files = Directory.GetFiles(saveToPath);
 				var thumbnailPaths = files.Where(_ => _.Contains("thumbnail"));//TODO: this could use more robust filtering
 				return ServiceResult<IEnumerable<string>>.Success(thumbnailPaths);
 			}
@@ -73,12 +71,5 @@ namespace MicroTube.Services.VideoContent.Processing
 			}
 			
 		} 
-		private string EnsureOutputLocation(string filePath, string saveToPath)
-		{
-			string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
-			string directory = Path.Join(saveToPath, fileNameWithoutExtension);
-			Directory.CreateDirectory(directory);
-			return directory;
-		}
 	}
 }
