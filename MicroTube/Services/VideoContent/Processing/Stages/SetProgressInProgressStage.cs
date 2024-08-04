@@ -16,32 +16,24 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 
         protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
         {
-            ValidateContext(context);
-            string localCacheSourcePath = Path.Join(context!.LocalCache!.VideoFileLocation, context.LocalCache.VideoFileName);
-            context!.UploadProgress = await UpdateProgressFromAnalyzeResult(localCacheSourcePath, context.UploadProgress!, cancellationToken);
+			if (context == null)
+			{
+				throw new ArgumentNullException($"Context must not be null for stage {nameof(SetProgressInProgressStage)}");
+			}
+			if (context.UploadProgress == null)
+			{
+				throw new ArgumentNullException($"{nameof(context.UploadProgress)} must not be null for stage {nameof(SetProgressInProgressStage)}");
+			}
+			if (context.LocalCache == null)
+			{
+				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(SetProgressInProgressStage)}");
+			}
+			string localCacheSourcePath = context.LocalCache.SourcePath;
+            context.UploadProgress = await UpdateProgressFromAnalyzeResult(localCacheSourcePath, context.UploadProgress, cancellationToken);
             context.UploadProgress.Status = VideoUploadStatus.InProgress;
             EnsureUploadProgressLengthIsSet(context.UploadProgress);
             await _dataAccess.UpdateUploadProgress(context.UploadProgress);
             return context;
-        }
-        private void ValidateContext(DefaultVideoProcessingContext? context)
-        {
-            if (context == null)
-            {
-                throw new ArgumentNullException($"Context must not be null for stage {nameof(SetProgressInProgressStage)}");
-            }
-            if (context.UploadProgress == null)
-            {
-                throw new ArgumentNullException($"{nameof(context.UploadProgress)} must not be null for stage {nameof(SetProgressInProgressStage)}");
-            }
-            if (context.LocalCache == null)
-            {
-                throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(SetProgressInProgressStage)}");
-            }
-            if (string.IsNullOrWhiteSpace(Path.Join(context.LocalCache.VideoFileLocation, context.LocalCache.VideoFileName)))
-            {
-                throw new ArgumentNullException($"Joined local cache source path must not be null for stage {nameof(SetProgressInProgressStage)}");
-            }
         }
         private async Task<VideoUploadProgress> UpdateProgressFromAnalyzeResult(string localCacheVideoSourcePath, VideoUploadProgress uploadProgress, CancellationToken cancellationToken)
         {

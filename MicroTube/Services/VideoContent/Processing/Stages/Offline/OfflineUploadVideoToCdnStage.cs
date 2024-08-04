@@ -13,32 +13,23 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
 		{
-			ValidateContext(context);
-			string localCacheSourcePath = Path.Join(context!.LocalCache!.VideoFileLocation, context.LocalCache.VideoFileName);
-			var videoCdnUrl = await UploadVideoToCdn(localCacheSourcePath, context.SourceVideoNormalizedName!, cancellationToken);
-			if (context.Cdn == null)
-				context.Cdn = new Cdn();
-			context.Cdn.VideoEndpoint = videoCdnUrl;
-			return context;
-		}
-		private void ValidateContext(DefaultVideoProcessingContext? context)
-		{
 			if (context == null)
 			{
 				throw new ArgumentNullException($"Context must not be null for stage {nameof(OfflineUploadVideoToCdnStage)}");
 			}
-			if (context.SourceVideoNormalizedName == null)
-			{
-				throw new ArgumentNullException($"{nameof(context.SourceVideoNormalizedName)} must not be null for stage {nameof(OfflineUploadVideoToCdnStage)}");
-			}
 			if (context.LocalCache == null)
+			{
+				throw new ArgumentNullException($"{nameof(context.LocalCache)} must not be null for stage {nameof(OfflineUploadVideoToCdnStage)}");
+			}
+			if (context.RemoteCache == null)
 			{
 				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(OfflineUploadVideoToCdnStage)}");
 			}
-			if (string.IsNullOrWhiteSpace(Path.Join(context.LocalCache.VideoFileLocation, context.LocalCache.VideoFileName)))
-			{
-				throw new ArgumentNullException($"Joined local cache source path must not be null for stage {nameof(OfflineUploadVideoToCdnStage)}");
-			}
+			var videoCdnUrl = await UploadVideoToCdn(context.LocalCache.SourcePath, context.RemoteCache.VideoFileName, cancellationToken);
+			if (context.Cdn == null)
+				context.Cdn = new Cdn();
+			context.Cdn.VideoEndpoint = videoCdnUrl;
+			return context;
 		}
 		private async Task<Uri> UploadVideoToCdn(string localCacheSourceVideoPath, string normalizedVideoName, CancellationToken cancellationToken)
 		{

@@ -13,37 +13,23 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
 		{
-			ValidateContext(context);
-			string thumbnail = context!.Subcontent!.ThumbnailPaths!.First();
-			string? thumbnailsLocation = Path.GetDirectoryName(thumbnail);
-			if(string.IsNullOrWhiteSpace(thumbnailsLocation))
-			{
-				throw new BackgroundJobException("Thumbnails containing location cannot be null or empty");
-			}
-			var thumbnailEndpoints = await UploadThumbnailsToCdn(thumbnailsLocation, context.SourceVideoNormalizedName!, cancellationToken);
-			if (context.Cdn == null)
-				context.Cdn = new Cdn();
-			context.Cdn.ThumbnailEndpoints = thumbnailEndpoints;
-			return context;
-		}
-		private void ValidateContext(DefaultVideoProcessingContext? context)
-		{
 			if (context == null)
 			{
 				throw new ArgumentNullException($"Context must not be null for stage {nameof(OfflineUploadThumbnailsToCdnStage)}");
 			}
-			if (context.SourceVideoNormalizedName == null)
+			if (context.LocalCache == null)
 			{
-				throw new ArgumentNullException($"{nameof(context.RemoteCache.VideoFileName)} must not be null for stage {nameof(OfflineUploadThumbnailsToCdnStage)}");
+				throw new ArgumentNullException($"{nameof(context.LocalCache)} must not be null for stage {nameof(OfflineUploadThumbnailsToCdnStage)}");
 			}
-			if (context.Subcontent == null)
+			if (context.RemoteCache == null)
 			{
-				throw new ArgumentNullException($"{nameof(context.Subcontent)} must not be null for stage {nameof(OfflineUploadThumbnailsToCdnStage)}");
+				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(OfflineUploadThumbnailsToCdnStage)}");
 			}
-			if (context.Subcontent.ThumbnailPaths == null || context.Subcontent.ThumbnailPaths.FirstOrDefault() == null)
-			{
-				throw new ArgumentNullException($"{nameof(context.Subcontent.ThumbnailPaths)} must not be null for stage {nameof(OfflineUploadThumbnailsToCdnStage)}");
-			}
+			var thumbnailEndpoints = await UploadThumbnailsToCdn(context.LocalCache.ThumbnailsLocation, context.RemoteCache.VideoFileName, cancellationToken);
+			if (context.Cdn == null)
+				context.Cdn = new Cdn();
+			context.Cdn.ThumbnailEndpoints = thumbnailEndpoints;
+			return context;
 		}
 		private async Task<IEnumerable<Uri>> UploadThumbnailsToCdn(string localCacheThumbnailsLocation, string normalizedSourceName, CancellationToken cancellationToken)
 		{

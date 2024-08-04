@@ -12,25 +12,17 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
         }
         protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
         {
-            ValidateContext(context);
-            VideoUploadProgress uploadProgress = await GetUploadProgressForFileSourceVideo(context!.SourceVideoNormalizedName!);
+			if (context == null)
+			{
+				throw new ArgumentNullException($"Context must not be null for stage {nameof(FetchVideoUploadProgressStage)}");
+			}
+			if (context.RemoteCache == null)
+			{
+				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(FetchVideoUploadProgressStage)}");
+			}
+			VideoUploadProgress uploadProgress = await GetUploadProgressForFileSourceVideo(context.RemoteCache.VideoFileName);
             context.UploadProgress = uploadProgress;
             return context;
-        }
-        private void ValidateContext(DefaultVideoProcessingContext? context)
-        {
-            if (context == null)
-            {
-                throw new ArgumentNullException($"Context must not be null for stage {nameof(FetchVideoUploadProgressStage)}");
-            }
-            if (context.RemoteCache == null)
-            {
-                throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(FetchVideoUploadProgressStage)}");
-            }
-            if (string.IsNullOrWhiteSpace(context.SourceVideoNormalizedName))
-            {
-                throw new ArgumentNullException($"{context.SourceVideoNormalizedName} must not be null for stage {nameof(FetchVideoUploadProgressStage)}");
-            }
         }
         private async Task<VideoUploadProgress> GetUploadProgressForFileSourceVideo(string sourceName)
         {

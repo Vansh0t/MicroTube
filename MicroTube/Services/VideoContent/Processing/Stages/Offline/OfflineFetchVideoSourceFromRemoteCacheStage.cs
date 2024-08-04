@@ -1,10 +1,14 @@
 ﻿using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
+using System.Reflection.Metadata.Ecma335;
+using System.Security;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 {
     public class OfflineFetchVideoSourceFromRemoteCacheStage : VideoProcessingStage
     {
+		private const string THUMBNAILS_SUBLOCATION = "thumbs";
+		private const string QUALITY_TIERS_SUBLOCATION = "tiers";
         private readonly IConfiguration _config;
         private readonly IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions> _remoteStorage;
 		public OfflineFetchVideoSourceFromRemoteCacheStage(
@@ -15,36 +19,36 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 		}
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
         {
-            ValidateContext(context);
+			if (context == null)
+			{
+				throw new ArgumentNullException($"Context must not be null for stage {nameof(OfflineFetchVideoSourceFromRemoteCacheStage)}");
+			}
+			if (context.RemoteCache == null)
+			{
+				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(OfflineFetchVideoSourceFromRemoteCacheStage)}");
+			}
 			VideoProcessingOptions options = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
-			string downloadedPath = await DownloadSourceFromRemoteCache(context!.RemoteCache!.VideoFileName!, context.RemoteCache.VideoFileLocation!, options.AbsoluteLocalStoragePath, cancellationToken);
+			string workingLocation = CreateWorkingLocation(options.AbsoluteLocalStoragePath, context.SourceVideoNameWithoutExtension!);
+			string downloadedPath = await DownloadSourceFromRemoteCache(
+				context.RemoteCache.VideoFileName,
+				context.RemoteCache.VideoFileLocation,
+				workingLocation,
+				cancellationToken);
             string localCacheFileName = Path.GetFileName(downloadedPath);
             string? localCacheFileLocation = Path.GetDirectoryName(downloadedPath);
-            context.LocalCache = new SourceVideoLocalCache
+			if (string.IsNullOrWhiteSpace(localCacheFileLocation))
+			{
+				throw new SecurityException($"A video source file was downloaded in invalid location {downloadedPath}");
+			}
+			context.LocalCache = new VideoProcessingLocalCache
             {
-                VideoFileLocation = localCacheFileLocation,
-                VideoFileName = localCacheFileName
-            };
+                SourceLocation = localCacheFileLocation,
+                SourceFileName = localCacheFileName,
+				WorkingLocation = workingLocation,
+				ThumbnailsLocation = CreateThumbnailsLocation(workingLocation),
+				QualityTiersLocation = CreateQualityTiersLocation(workingLocation)
+			};
             return context;
-        }
-        private void ValidateContext(DefaultVideoProcessingContext? context)
-        {
-            if (context == null)
-            {
-                throw new ArgumentNullException($"Context must not be null for stage {nameof(OfflineFetchVideoSourceFromRemoteCacheStage)}");
-            }
-            if (context.RemoteCache == null)
-            {
-                throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(OfflineFetchVideoSourceFromRemoteCacheStage)}");
-            }
-            if (string.IsNullOrWhiteSpace(context.RemoteCache.VideoFileName))
-            {
-                throw new ArgumentNullException($"{context.RemoteCache.VideoFileName} must not be null for stage {nameof(OfflineFetchVideoSourceFromRemoteCacheStage)}");
-            }
-            if (string.IsNullOrWhiteSpace(context.RemoteCache.VideoFileLocation))
-            {
-                throw new ArgumentNullException($"{context.RemoteCache.VideoFileLocation} must not be null for stage {nameof(OfflineFetchVideoSourceFromRemoteCacheStage)}");
-            }
         }
         private async Task<string> DownloadSourceFromRemoteCache(string sourceFileName, string sourceLocation, string saveToPath, CancellationToken cancellationToken)
         {
@@ -56,5 +60,23 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
             }
             return remoteCacheDownloadResult.GetRequiredObject();
         }
-    }
+		private string CreateWorkingLocation(string path, string normalizedFileName)
+		{
+			string newLocation = Path.Join(path, normalizedFileName);
+			Directory.CreateDirectory(newLocation);
+			return newLocation;
+		}
+		private string CreateThumbnailsLocation(string workingLocation)
+		{
+			string thumbnailsLocation = Path.Join(workingLocation, THUMBNAILS_SUBLOCATION);
+			Directory.CreateDirectory(thumbnailsLocation);
+			return thumbnailsLocation;
+		}
+		private string CreateQualityTiersLocation(string workingLocation)
+		{
+			string thumbnailsLocation = Path.Join(workingLocation, QUALITY_TIERS_SUBLOCATION);
+			Directory.CreateDirectory(thumbnailsLocation);
+			return thumbnailsLocation;
+		}
+	}
 }

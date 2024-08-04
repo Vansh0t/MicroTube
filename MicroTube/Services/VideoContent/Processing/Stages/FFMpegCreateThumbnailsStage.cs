@@ -1,5 +1,4 @@
 ﻿using MicroTube.Services.ConfigOptions;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages
 {
@@ -16,30 +15,17 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
         {
+			if (context == null)
+			{
+				throw new ArgumentNullException($"Context must not be null for stage {nameof(FFMpegCreateThumbnailsStage)}");
+			}
+			if (context.LocalCache == null)
+			{
+				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(FFMpegCreateThumbnailsStage)}");
+			}
 			VideoProcessingOptions options = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
-			ValidateContext(context);
-            string localCacheSourcePath = Path.Join(context!.LocalCache!.VideoFileLocation, context.LocalCache.VideoFileName);
-            var thumbnailPaths = await MakeThumbnails(localCacheSourcePath, options.AbsoluteLocalStoragePath, cancellationToken);
-            context.Subcontent = new Subcontent
-            {
-                ThumbnailPaths = thumbnailPaths
-            };
+            var thumbnailPaths = await MakeThumbnails(context.LocalCache.SourcePath, context.LocalCache.ThumbnailsLocation, cancellationToken);
             return context;
-        }
-        private void ValidateContext(DefaultVideoProcessingContext? context)
-        {
-            if (context == null)
-            {
-                throw new ArgumentNullException($"Context must not be null for stage {nameof(FFMpegCreateThumbnailsStage)}");
-            }
-            if (context.LocalCache == null)
-            {
-                throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(FFMpegCreateThumbnailsStage)}");
-            }
-            if (string.IsNullOrWhiteSpace(Path.Join(context.LocalCache.VideoFileLocation, context.LocalCache.VideoFileName)))
-            {
-                throw new ArgumentNullException($"Joined local cache source path must not be null for stage {nameof(FFMpegCreateThumbnailsStage)}");
-            }
         }
         private async Task<IEnumerable<string>> MakeThumbnails(string localCacheSourcePath, string saveToPath, CancellationToken cancellationToken)
         {
