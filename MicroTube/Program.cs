@@ -116,7 +116,18 @@ builder.Services.AddHangfire(hangfireConfig =>
 	.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });//TODO: temp for development
 	
 });
-builder.Services.AddHangfireServer();
+builder.Services.AddHangfireServer(options =>
+{
+	options.ServerName = "VideoProcessing_1";
+	options.WorkerCount = 1;
+	options.Queues = new[] { "video_processing" };
+});
+builder.Services.AddHangfireServer(options =>
+{
+	options.ServerName = "VideoIndexing_1";
+	options.WorkerCount = 1;
+	options.Queues = new[] { "video_indexing" };
+});
 //GlobalFFOptions.Configure(options => options.BinaryFolder = config.GetRequiredValue("FFmpegLocation"));
 var app = builder.Build();
 
@@ -147,6 +158,6 @@ else
     app.UseOpenApi();
     app.UseSwaggerUi3();
 }
-RecurringJob.AddOrUpdate<IVideoIndexingService>("VideoSearchIndexing", service => service.EnsureVideoIndices(), Cron.Minutely);
+RecurringJob.AddOrUpdate<IVideoIndexingService>("VideoSearchIndexing", "video_indexing", service => service.EnsureVideoIndices(), Cron.Minutely);
 app.Run();
 public partial class Program { }

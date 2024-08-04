@@ -66,12 +66,12 @@ namespace MicroTube.Services.VideoContent.Processing
 				await _videoDataAccess.UpdateUploadProgress(progress);
 				return ServiceResult<VideoUploadProgress>.FailInternal();
 			}
-			_backgroundJobClient.Enqueue<IVideoProcessingPipeline>(
+			_backgroundJobClient.Enqueue<IVideoProcessingPipeline>("video_processing",
 				processing => processing.Execute(
 					new DefaultVideoProcessingContext() 
 					{ 
-						SourceVideoNormalizedName = generatedFileName, 
-						RemoteCache = new SourceVideoRemoteCache 
+						SourceVideoNameWithoutExtension = Path.GetFileNameWithoutExtension(generatedFileName), 
+						RemoteCache = new VideoProcessingRemoteCache 
 						{ 
 							VideoFileName = generatedFileName, 
 							VideoFileLocation = options.RemoteStorageCacheLocation
@@ -82,7 +82,6 @@ namespace MicroTube.Services.VideoContent.Processing
 		}
 		public IServiceResult ValidateUploadData(VideoPreprocessingOptions data)
 		{
-			_logger.LogInformation(data.VideoTitle);
 			IServiceResult fileValidationResult = _preUploadValidator.ValidateFile(data.VideoFile);
 			IServiceResult titleValidationResult = _preUploadValidator.ValidateTitle(data.VideoTitle);
 			IServiceResult descriptionValidationResult = _preUploadValidator.ValidateDescription(data.VideoDescription);
