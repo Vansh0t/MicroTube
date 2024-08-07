@@ -1,0 +1,18 @@
+@if(qualityOptions != null && qualityOptions.length > 0) {
+<div class="quality-select" (click)="isExpanded = !isExpanded">
+	<div class="internal-container">
+
+		@if(isExpanded) {
+		@for(option of qualityOptions; track option){
+		<button class="option clickable" [class.active]="option == selectedQuality" (click)="setQuality(qualityOptions.indexOf(option))">
+			<mat-icon class="selected-marker" aria-hidden="true">circle</mat-icon>
+			<p>{{option.label}}</p>
+		</button>
+		}
+		}
+		@if(selectedQuality != null) {
+		<button class="option quality-select-button clickable"><p>{{selectedQuality.label}}</p></button>
+		}
+	</div>
+</div>
+		}

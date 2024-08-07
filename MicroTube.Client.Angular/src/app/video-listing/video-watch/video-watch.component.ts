@@ -4,6 +4,7 @@ import { VideoService } from "../../services/videos/VideoService";
 import { Observable } from "rxjs";
 import { VideoDTO } from "../../data/DTO/VideoDTO";
 import mime from "mime";
+import { NgxPlayerOptions, QualityOption } from "../ngx-player/ngx-player.component";
 
 @Component({
   selector: "video-watch",
@@ -15,6 +16,7 @@ export class VideoWatchComponent implements OnInit
   private readonly route: ActivatedRoute;
   private readonly router: Router;
   private readonly videoService: VideoService;
+  private videoPlayerOptions: NgxPlayerOptions | null = null;
   private videoId: string | null = null;
 
   video$: Observable<VideoDTO> | null = null;
@@ -26,6 +28,7 @@ export class VideoWatchComponent implements OnInit
   }
   ngOnInit(): void
   {
+    
     this.videoId = this.route.snapshot.paramMap.get("id");
     if (this.videoId == null)
     {
@@ -35,20 +38,34 @@ export class VideoWatchComponent implements OnInit
     this.video$ = this.videoService.getVideo(this.videoId);
     
   }
-  buildVideoPlayerOptions(videoUrl :string)
+  getVideoPlayerOptions(videoUrls: string): NgxPlayerOptions
   {
-    const videoMimeType = mime.getType(videoUrl);
-    console.log(videoUrl);
-    return {
-      fill: true,
-      autoplay: false,
-      controls: true,
-      sources: [{
-        src: videoUrl,
-        type: videoMimeType == null ? "" : videoMimeType
-      }],
-      muted: false,
-      responsive: true
+    if (this.videoPlayerOptions)
+      return this.videoPlayerOptions;
+    const splitUrls = videoUrls.split(";");
+    const qualityOptions: QualityOption[] = splitUrls.map(_ =>
+    {
+      const videoMimeType = mime.getType(_);
+      const height = parseInt(this.getQualityTierFromUrl(_));
+      return {
+        label: height + "p",
+        height: height,
+        sourceUrl: _,
+        mediaType: videoMimeType == null ? "" : videoMimeType
+      };
+    }).sort((a, b) => b.height - a.height);
+    this.videoPlayerOptions = {
+      qualityOptions: qualityOptions,
+      selectedQualityIndex: qualityOptions.length - (qualityOptions.length-1)
     };
+    return this.videoPlayerOptions;
+  }
+  getQualityTierFromUrl(url: string)
+  {
+    const filename = url.split("/").pop();
+    if (!filename)
+      throw new Error("Invalid url");
+    const tierString = filename.split(".")[0].split("_").pop();
+    return tierString ? tierString: "";
   }
 }

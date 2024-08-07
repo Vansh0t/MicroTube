@@ -97,7 +97,6 @@ export class VideoService
       urlParams = urlParams.set("lengthFilter", parameters.lengthFilter);
     if (parameters.timeFilter)
       urlParams = urlParams.set("timeFilter", parameters.timeFilter);
-    console.log(urlParams.toString());
     return this.searchVideosByQueryString(urlParams.toString());
   }
   searchVideosByQueryString(parameters: string): Observable<VideoDTO[]>

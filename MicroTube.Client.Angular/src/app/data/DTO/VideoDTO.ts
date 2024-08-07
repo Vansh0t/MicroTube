@@ -12,7 +12,7 @@ import { FileInput } from "ngx-custom-material-file-input";
 export class VideoDTO
 {
   id: string;
-  url: string;
+  urls: string;
   title: string;
   uploadTime: DateTime;
   description: string | null;
@@ -25,7 +25,7 @@ export class VideoDTO
   )
   {
     this.id = raw.id;
-    this.url = raw.url;
+    this.urls = raw.urls;
     this.title = raw.title;
     this.uploadTime = DateTime.fromISO(raw.uploadTime);
     this.description = raw.description;
@@ -39,7 +39,7 @@ export class VideoDTO
 export interface VideoRawDTO
 {
   id: string;
-  url: string;
+  urls: string;
   title: string;
   uploadTime: string;
   description: string | null;

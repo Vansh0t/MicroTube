@@ -26,6 +26,7 @@
     "@angular/platform-server": "^17.3.12",
     "@angular/router": "^17.3.12",
     "@types/luxon": "^3.3.3",
+    "@videogular/ngx-videogular": "^8.0.0",
     "bootstrap": "^5.2.3",
     "jquery": "^3.6.3",
     "jwt-decode": "^4.0.0",
@@ -38,12 +39,14 @@
     "rxjs": "~7.8.0",
     "tslib": "^2.6.3",
     "video.js": "^8.10.0",
+    "videojs-hls-quality-selector": "^2.0.0",
     "zone.js": "~0.14.8"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.3.8",
     "@angular/cli": "^17.3.8",
     "@angular/compiler-cli": "^17.3.12",
+    "@types/core-js": "^2.5.8",
     "@types/jasmine": "~4.3.1",
     "@types/jasminewd2": "~2.0.10",
     "@types/node": "^18.14.0",
