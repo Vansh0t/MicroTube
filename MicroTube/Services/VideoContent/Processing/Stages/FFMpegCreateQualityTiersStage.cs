@@ -32,6 +32,7 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 				cancellationToken);
 			if (qualityTiersResult.IsError)
 				throw new BackgroundJobException($"Failed to make quality tiers. {qualityTiersResult.Error}");
+			context.LocalCache.QualityTierPaths = qualityTiersResult.GetRequiredObject();
 			return context;
 		}
 	}

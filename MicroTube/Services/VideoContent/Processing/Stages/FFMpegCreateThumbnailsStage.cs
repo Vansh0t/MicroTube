@@ -23,8 +23,9 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 			{
 				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(FFMpegCreateThumbnailsStage)}");
 			}
-			VideoProcessingOptions options = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
-            var thumbnailPaths = await MakeThumbnails(context.LocalCache.SourcePath, context.LocalCache.ThumbnailsLocation, cancellationToken);
+
+			string thumbnailsSource = GetQualityTierSourceForThumbnailCreation(context);
+			var thumbnailPaths = await MakeThumbnails(thumbnailsSource, context.LocalCache.ThumbnailsLocation, cancellationToken);
             return context;
         }
         private async Task<IEnumerable<string>> MakeThumbnails(string localCacheSourcePath, string saveToPath, CancellationToken cancellationToken)
@@ -36,5 +37,18 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
             }
             return thumbnailsResult.GetRequiredObject();
         }
+		private string GetQualityTierSourceForThumbnailCreation(DefaultVideoProcessingContext context)
+		{
+			if (context.LocalCache == null)
+			{
+				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(FFMpegCreateThumbnailsStage)}");
+			}
+			if (context.LocalCache.QualityTierPaths == null || context.LocalCache.QualityTierPaths.Count == 0)
+			{
+				throw new ArgumentNullException($"{context.LocalCache.QualityTierPaths} must not be null or empty for stage {nameof(FFMpegCreateThumbnailsStage)}");
+			}
+			VideoProcessingOptions options = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
+			return context.LocalCache.QualityTierPaths.Last(_ => _.Key <= options.ThumbnailsQualityTier).Value;
+		}
     }
 }

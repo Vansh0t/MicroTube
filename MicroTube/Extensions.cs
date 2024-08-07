@@ -119,6 +119,7 @@ namespace MicroTube
 			services.AddScoped<VideoProcessingStage, FetchVideoUploadProgressStage>();
 			services.AddScoped<VideoProcessingStage, OfflineFetchVideoSourceFromRemoteCacheStage>();
 			services.AddScoped<VideoProcessingStage, SetProgressInProgressStage>();
+			services.AddScoped<VideoProcessingStage, FFMpegCreateQualityTiersStage>();
 			services.AddScoped<VideoProcessingStage, FFMpegCreateThumbnailsStage>();
 			services.AddScoped<VideoProcessingStage, OfflineUploadThumbnailsToCdnStage>();
 			services.AddScoped<VideoProcessingStage, OfflineUploadVideoToCdnStage>();

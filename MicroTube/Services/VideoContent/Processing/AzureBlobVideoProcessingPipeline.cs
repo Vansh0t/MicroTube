@@ -74,7 +74,7 @@ namespace MicroTube.Services.VideoContent.Processing
 						UploaderId = uploadProgress.UploaderId,
 						Title = uploadProgress.Title,
 						Description = uploadProgress.Description,
-						Url = cdnVideoUrl.ToString(),
+						Urls = cdnVideoUrl.ToString(),
 						ThumbnailUrls = thumbnailUrls,
 						SnapshotUrls = snapshotUrls,
 						UploadTime = DateTime.UtcNow,

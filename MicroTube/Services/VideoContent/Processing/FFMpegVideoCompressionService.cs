@@ -5,7 +5,7 @@ namespace MicroTube.Services.VideoContent.Processing
 {
 	public class FFMpegVideoCompressionService : IVideoCompressionService
 	{
-		private const string FFMPEG_COMPRESSION_ARGS = "-vf \"\"scale=-2:{0}\" -threads 1";
+		private const string FFMPEG_COMPRESSION_ARGS = "-vf \"scale=-2:{0}\" -threads 1";
 		private readonly IConfiguration _config;
 		private readonly IVideoAnalyzer _analyzer;
 
@@ -51,9 +51,14 @@ namespace MicroTube.Services.VideoContent.Processing
 				var inputFile = new InputFile(sourcePath);
 
 				string outputFileName = BuildOutputFileName(tier, sourcePath);
+				outputPath = Path.Join(outputPath, outputFileName);
 				var outputFile = new OutputFile(outputPath);
 				var ffmpeg = new Engine(_config.GetRequiredValue("FFmpegLocation"));
 				var result = await ffmpeg.ConvertAsync(inputFile, outputFile, options, cancellationToken);
+				if(result == null)
+				{
+					return ServiceResult<string>.Fail(500, $"Failed to convert to quality tier. Source: {sourcePath}, Tier: {tier}, OutputPath: {outputPath}");
+				}
 				return ServiceResult<string>.Success(outputPath);
 			}
 			catch (Exception e)

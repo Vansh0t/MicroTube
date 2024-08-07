@@ -26,6 +26,7 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 		public required string WorkingLocation { get; set; }
 		public required string ThumbnailsLocation { get; set; }
 		public required string QualityTiersLocation { get; set; }
+		public IDictionary<int, string>? QualityTierPaths { get; set; }
 	}
 	public class Cdn
 	{

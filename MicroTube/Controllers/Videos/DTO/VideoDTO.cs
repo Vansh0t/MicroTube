@@ -5,7 +5,7 @@ namespace MicroTube.Controllers.Videos.DTO
 	public class VideoDTO
 	{
 		public required string Id { get; set; }
-		public required string Url { get; set; }
+		public required string Urls { get; set; }
 		public required string Title { get; set; }
 		public required DateTime UploadTime { get; set; }
 		public string? Description { get; set; }
@@ -19,7 +19,7 @@ namespace MicroTube.Controllers.Videos.DTO
 			{
 				Id = video.Id.ToString(),
 				Title = video.Title,
-				Url = video.Url,
+				Urls = video.Urls,
 				Description = video.Description,
 				UploadTime = video.UploadTime,
 				ThumbnailUrls = video.ThumbnailUrls,

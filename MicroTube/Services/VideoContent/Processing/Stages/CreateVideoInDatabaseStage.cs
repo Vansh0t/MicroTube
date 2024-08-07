@@ -26,6 +26,10 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 			{
 				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(CreateVideoInDatabaseStage)}");
 			}
+			if (context.UploadProgress == null)
+			{
+				throw new ArgumentNullException($"{nameof(context.UploadProgress)} must not be null for stage {nameof(CreateVideoInDatabaseStage)}");
+			}
 			if (context.Cdn == null || context.Cdn.VideoEndpoints == null || context.Cdn.ThumbnailEndpoints == null)
 			{
 				throw new ArgumentNullException($"Context cdn and endpoints must be set for stage {nameof(CreateVideoInDatabaseStage)}");
@@ -36,7 +40,7 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
                     UploaderId = context.UploadProgress.UploaderId,
                     Title = context.UploadProgress.Title,
                     Description = context.UploadProgress.Description,
-                    Url = string.Join(';', context.Cdn.VideoEndpoints.Select(_ => _.ToString())),
+                    Urls = string.Join(';', context.Cdn.VideoEndpoints.Select(_ => _.ToString())),
                     ThumbnailUrls = string.Join(';', context.Cdn.ThumbnailEndpoints.Select(_ => _.ToString())),
                     SnapshotUrls = "",
                     UploadTime = DateTime.UtcNow,

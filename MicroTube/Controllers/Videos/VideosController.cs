@@ -24,7 +24,7 @@ namespace MicroTube.Controllers.Videos
 				new VideoDTO
 				{
 					Id = _.Id.ToString(),
-					Url = _.Url,
+					Urls = _.Urls,
 					Title = _.Title,
 					Description = _.Description,
 					SnapshotUrls = _.SnapshotUrls,
@@ -44,7 +44,7 @@ namespace MicroTube.Controllers.Videos
 			var result = new VideoDTO
 			{
 				Id = video.Id.ToString(),
-				Url = video.Url,
+				Urls = video.Urls,
 				Title = video.Title,
 				Description = video.Description,
 				SnapshotUrls = video.SnapshotUrls,
