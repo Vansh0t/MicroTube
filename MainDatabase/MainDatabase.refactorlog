@@ -56,4 +56,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="SnapshotUrls" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="c60ce320-2036-4746-baaf-e75f2941cd74" ChangeDateTime="08/04/2024 16:11:30">
+    <Property Name="ElementName" Value="[dbo].[Video].[Url]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Video]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Urls" />
+  </Operation>
 </Operations>

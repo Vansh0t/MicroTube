@@ -5,7 +5,6 @@ import { MatCardModule } from "@angular/material/card";
 import { RouterModule } from "@angular/router";
 import { VideoListingMainComponent } from "./video-listing-main/video-listing-main.component";
 import { VideoWatchComponent } from "./video-watch/video-watch.component";
-import { VideoJsPlayerComponent } from "./video-js-player/video-js-player.component";
 import { VideoUploadComponent } from "./video-upload/video-upload.component";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { ReactiveFormsModule } from "@angular/forms";
@@ -21,13 +20,14 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatOptionModule } from "@angular/material/core";
 import { MatSelectModule } from "@angular/material/select";
+import { NgxPlayerComponent } from "./ngx-player/ngx-player.component";
+
 
 @NgModule({
   declarations: [
     VideoCardComponent,
     VideoListingMainComponent,
     VideoWatchComponent,
-    VideoJsPlayerComponent,
     VideoUploadComponent,
     UploadProgressListComponent
   ],
@@ -47,7 +47,8 @@ import { MatSelectModule } from "@angular/material/select";
     MatSortModule,
     MatMenuModule,
     MatOptionModule,
-    MatSelectModule
+    MatSelectModule,
+    NgxPlayerComponent
   ],
   exports: [
     VideoCardComponent,

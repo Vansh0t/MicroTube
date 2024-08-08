@@ -1,7 +1,10 @@
-﻿namespace MicroTube.Services.VideoContent.Processing
+﻿using MicroTube.Services.Base;
+using MicroTube.Services.VideoContent.Processing.Stages;
+
+namespace MicroTube.Services.VideoContent.Processing
 {
-	public interface IVideoProcessingPipeline
+	public interface IVideoProcessingPipeline: IPipeline<DefaultVideoProcessingContext>
 	{
-		Task Process(string videoFileName, string videoFileLocation, CancellationToken cancellationToken = default);
+		
 	}
 }

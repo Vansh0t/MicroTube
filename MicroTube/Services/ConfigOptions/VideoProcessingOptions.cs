@@ -11,9 +11,12 @@
 		public int SnapshotsIntervalSeconds { get; set; }
 		public int SnapshotsWidth{ get; set; }
 		public int SnapshotsHeight { get; set; }
+		public int SnapshotsQualityTier { get; set; }
 		public int ThumbnailsAmount { get; set; }
 		public int ThumbnailsWidth { get; set; }
 		public int ThumbnailsHeight { get; set; }
+		public int ThumbnailsQualityTier { get; set; }
+		public List<int> QualityTiers { get; set; } = new List<int>();
 		public HashSet<string> AllowedContentTypes { get; set; } = new HashSet<string>();
 		public HashSet<string> AllowedFileExtensions { get; set; } = new HashSet<string>();
 		public VideoProcessingOptions(
@@ -27,7 +30,9 @@
 			int snapshotsHeight,
 			int thumbnailsAmount,
 			int thumbnailsWidth,
-			int thumbnailsHeight)
+			int thumbnailsHeight,
+			int thumbnailsQualityTier,
+			int snapshotsQualityTier)
 		{
 			RemoteStorageCacheLocation = remoteStorageCacheLocation;
 			RemoteStorageCacheUploadBufferSizeBytes = remoteStorageCacheUploadBufferSizeBytes;
@@ -40,6 +45,8 @@
 			ThumbnailsAmount = thumbnailsAmount;
 			ThumbnailsWidth = thumbnailsWidth;
 			ThumbnailsHeight = thumbnailsHeight;
+			ThumbnailsQualityTier = thumbnailsQualityTier;
+			SnapshotsQualityTier = snapshotsQualityTier;
 		}
 	}
 }

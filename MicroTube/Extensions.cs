@@ -9,10 +9,13 @@ using MicroTube.Services;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
+using MicroTube.Services.VideoContent.Processing;
+using MicroTube.Services.VideoContent.Processing.Stages;
+using MicroTube.Services.VideoContent.Processing.Stages.Offline;
 
 namespace MicroTube
 {
-	//TODO: Needs refactoring.
+    //TODO: Needs refactoring.
     public static class Extensions
     {
         private const string DEFAULT_CONNECTION_STRING_NAME = "ConnectionStrings:Default";
@@ -86,6 +89,19 @@ namespace MicroTube
 			services.AddSingleton(blobServiceClient);
 			return services;
 		}
+		public static IServiceResult ExceptionToErrorResult(this Exception exception, string prependInfo = "", int code = 500)
+		{
+			var result = ServiceResult.Fail(code, $"{prependInfo}. {exception}");
+			return result;
+		}
+		public static IServiceResult<T> ExceptionToErrorResult<T>(
+			this Exception exception,
+			string prependInfo = "",
+			int code = 500)
+		{
+			var result = ServiceResult<T>.Fail(code, $"{prependInfo}. {exception}");
+			return result;
+		}
 		public static IServiceCollection AddElasticSearchClient(this IServiceCollection services, IConfiguration config)
 		{
 			var options = config.GetRequiredByKey<ElasticSearchOptions>(ElasticSearchOptions.KEY);
@@ -96,6 +112,20 @@ namespace MicroTube
 			var elasticSearchClient = new ElasticsearchClient(clientSettings);
 			EnsureElasticsearchIndices(elasticSearchClient, config);
 			services.AddSingleton(elasticSearchClient);
+			return services;
+		}
+		public static IServiceCollection AddOfflineVideoProcessing(this IServiceCollection services)
+		{
+			services.AddScoped<VideoProcessingStage, FetchVideoUploadProgressStage>();
+			services.AddScoped<VideoProcessingStage, OfflineFetchVideoSourceFromRemoteCacheStage>();
+			services.AddScoped<VideoProcessingStage, SetProgressInProgressStage>();
+			services.AddScoped<VideoProcessingStage, FFMpegCreateQualityTiersStage>();
+			services.AddScoped<VideoProcessingStage, FFMpegCreateThumbnailsStage>();
+			services.AddScoped<VideoProcessingStage, OfflineUploadThumbnailsToCdnStage>();
+			services.AddScoped<VideoProcessingStage, OfflineUploadVideoToCdnStage>();
+			services.AddScoped<VideoProcessingStage, CreateVideoInDatabaseStage>();
+			services.AddScoped<VideoProcessingStage, SetProgressFinishedStage>();
+			services.AddScoped<IVideoProcessingPipeline, OfflineVideoProcessingPipeline>();
 			return services;
 		}
 		private static void EnsureElasticsearchIndices(ElasticsearchClient client, IConfiguration config)

@@ -38,19 +38,24 @@ namespace MicroTube.Services.MediaContentStorage
             //}
             return ServiceResult<FileMeta>.Success(null/*new FileMeta { Name = videoFileName, Path = options.AbsoluteLocalStoragePath }*/);
         }
-        public bool TryDelete(string fullFilePath)
+        public bool TryDelete(string path)
         {
             try
             {
-                if (File.Exists(fullFilePath))
+                if (File.Exists(path))
                 {
-                    File.Delete(fullFilePath);
-                    return !File.Exists(fullFilePath);
+                    File.Delete(path);
+                    return !File.Exists(path);
                 }
+				if(Directory.Exists(path))
+				{
+					Directory.Delete(path, true);
+					return !Directory.Exists(path);
+				}
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Failed to delete a video file from local storage at path " + fullFilePath);
+                _logger.LogWarning(e, "Failed to delete from local storage at path " + path);
             }
             return false;
         }

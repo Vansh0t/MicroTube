@@ -64,7 +64,8 @@ namespace MicroTube.Services.VideoContent.Processing
 				await _videoDataAccess.UpdateUploadProgress(progress);
 				return ServiceResult<VideoUploadProgress>.FailInternal();
 			}
-			_backgroundJobClient.Enqueue<IVideoProcessingPipeline>(processing => processing.Process(generatedFileName, processingOptions.RemoteStorageCacheLocation, default));
+			// TO DO: uncomment
+			//_backgroundJobClient.Enqueue<IVideoProcessingPipeline>(processing => processing.Process(generatedFileName, processingOptions.RemoteStorageCacheLocation, default));
 			return ServiceResult<VideoUploadProgress>.Success(progress);
 			
 		}

@@ -1,8 +1,10 @@
 ﻿using Azure.Storage.Blobs.Models;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
+using MicroTube.Services.Base;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.VideoContent.Processing.Stages;
 using System.Diagnostics;
 
 namespace MicroTube.Services.VideoContent.Processing
@@ -17,6 +19,8 @@ namespace MicroTube.Services.VideoContent.Processing
 		private readonly ICdnMediaContentAccess _mediaCdnAccess;
 		private readonly IVideoThumbnailsService _thumbnailService;
 		private readonly IVideoAnalyzer _videoAnalyzer;
+
+		public PipelineState State => throw new NotImplementedException();
 
 		public AzureBlobVideoProcessingPipeline(
 			IConfiguration config,
@@ -70,7 +74,7 @@ namespace MicroTube.Services.VideoContent.Processing
 						UploaderId = uploadProgress.UploaderId,
 						Title = uploadProgress.Title,
 						Description = uploadProgress.Description,
-						Url = cdnVideoUrl.ToString(),
+						Urls = cdnVideoUrl.ToString(),
 						ThumbnailUrls = thumbnailUrls,
 						SnapshotUrls = snapshotUrls,
 						UploadTime = DateTime.UtcNow,
@@ -124,7 +128,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			var remoteCacheDownloadResult = await _remoteStorage.Download(saveToPath, remoteAccessOptions, cancellationToken);
 			if(remoteCacheDownloadResult.IsError)
 			{
-				throw new BackgroundJobException($"Failed to download from remote cache for processing. File: {fileName}, Location: {fileLocation}, SaveTo: {saveToPath}.");
+				throw new BackgroundJobException($"Failed to download from remote cache for processing. File: {fileName}, Location: {fileLocation}, SaveTo: {saveToPath}. {remoteCacheDownloadResult.Error}");
 			}
 			return remoteCacheDownloadResult.GetRequiredObject();
 		}
@@ -137,11 +141,11 @@ namespace MicroTube.Services.VideoContent.Processing
 			var thumbnailsResult = makeThumbnailsTask.Result;
 			if (snapshotsResult.IsError)
 			{
-				throw new BackgroundJobException($"Failed to create snapshots. File: {videoFilePath}, SaveTo: {saveToPath}.");
+				throw new BackgroundJobException($"Failed to create snapshots. File: {videoFilePath}, SaveTo: {saveToPath}. {snapshotsResult.Error}");
 			}
 			if (thumbnailsResult.IsError)
 			{
-				throw new BackgroundJobException($"Failed to create thumbnails. File: {videoFilePath}, SaveTo: {saveToPath}.");
+				throw new BackgroundJobException($"Failed to create thumbnails. File: {videoFilePath}, SaveTo: {saveToPath}. {thumbnailsResult.Error}");
 			}
 			return (thumbnailsResult.GetRequiredObject(), snapshotsResult.GetRequiredObject());
 		}
@@ -151,7 +155,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			var videoUploadResult = await _mediaCdnAccess.UploadVideo(fileStream, videoFileName, cancellationToken);
 			if (videoUploadResult.IsError)
 			{
-				throw new BackgroundJobException($"Failed to upload video file to CDN. Path: {videoFilePath}.");
+				throw new BackgroundJobException($"Failed to upload video file to CDN. Path: {videoFilePath}. {videoUploadResult.Error}");
 			}
 			return videoUploadResult.GetRequiredObject();
 		}
@@ -160,7 +164,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			var subcontentUploadResult = await _mediaCdnAccess.UploadVideoSubcontent(subcontentDirectory, videoFileName, cancellationToken);
 			if (subcontentUploadResult.IsError)
 			{
-				throw new BackgroundJobException($"Failed to upload video subcontent to CDN. File: {videoFileName}, SubcontentLocation: {subcontentDirectory}.");
+				throw new BackgroundJobException($"Failed to upload video subcontent to CDN. File: {videoFileName}, SubcontentLocation: {subcontentDirectory}. {subcontentUploadResult.Error}");
 			}
 			return subcontentUploadResult.GetRequiredObject();
 		}
@@ -207,6 +211,31 @@ namespace MicroTube.Services.VideoContent.Processing
 				uploadProgress.Message = "Failed to read video duration";
 				throw new BackgroundJobException("Failed to read video duration for upload progress " + uploadProgress.Id);
 			}
+		}
+
+		public void AddStage(IPipelineStage<DefaultVideoProcessingContext> stage)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void InsertStage(IPipelineStage<DefaultVideoProcessingContext> stage, int index)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void RemoveStage(IPipelineStage<DefaultVideoProcessingContext> stage)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void RemoveStageAt(int index)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<DefaultVideoProcessingContext> Execute(DefaultVideoProcessingContext? context, CancellationToken cancellationToken = default)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

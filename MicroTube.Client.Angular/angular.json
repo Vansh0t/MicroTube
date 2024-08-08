@@ -34,7 +34,9 @@
               "src/styles.scss",
               "src/custom-theme.scss",
               "src/breakpoints.scss",
-              "video.js/dist/video-js.css"
+              "src/ngx-player-override.scss",
+              "video.js/dist/video-js.css",
+              "node_modules/@videogular/ngx-videogular/fonts/videogular.css"
             ],
             "scripts": []
           },

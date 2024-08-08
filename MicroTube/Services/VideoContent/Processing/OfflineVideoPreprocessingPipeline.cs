@@ -6,6 +6,8 @@ using MicroTube.Data.Models;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
 using MicroTube.Services.Validation;
+using MicroTube.Services.VideoContent.Processing.Stages;
+
 namespace MicroTube.Services.VideoContent.Processing
 {
 	public class OfflineVideoPreprocessingPipeline : IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>
@@ -43,9 +45,9 @@ namespace MicroTube.Services.VideoContent.Processing
 				return ServiceResult<VideoUploadProgress>.Fail(validationResult.Code, validationResult.Error!);
 			using var stream = data.VideoFile.OpenReadStream();
 			string generatedFileName = _videoNameGenerator.GenerateVideoName() + Path.GetExtension(data.VideoFile.FileName);
-			VideoProcessingOptions processingOptions = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
+			VideoProcessingOptions options = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
 			var uploadProgressCreationOptions = new VideoUploadProgressCreationOptions(data.UserId,
-																			  processingOptions.RemoteStorageCacheLocation,
+																			  options.RemoteStorageCacheLocation,
 																			  generatedFileName,
 																			  data.VideoTitle,
 																			  DateTime.UtcNow,
@@ -55,7 +57,7 @@ namespace MicroTube.Services.VideoContent.Processing
 				return ServiceResult<VideoUploadProgress>.Fail(progressCreationResult.Code, progressCreationResult.Error!);
 			var progress = progressCreationResult.GetRequiredObject();
 			//TO DO: add actual file validation
-			var remoteCacheUploadResult = await UploadToRemoteCache(stream,generatedFileName, processingOptions.RemoteStorageCacheLocation);
+			var remoteCacheUploadResult = await UploadToRemoteCache(stream,generatedFileName, options.RemoteStorageCacheLocation);
 			if(remoteCacheUploadResult.IsError)
 			{
 				_logger.LogError("Setting upload progress {uploadProgressId} to fail due to remote cache upload fail. {error}", progress.Id, remoteCacheUploadResult.Error);
@@ -64,13 +66,22 @@ namespace MicroTube.Services.VideoContent.Processing
 				await _videoDataAccess.UpdateUploadProgress(progress);
 				return ServiceResult<VideoUploadProgress>.FailInternal();
 			}
-			_backgroundJobClient.Enqueue<IVideoProcessingPipeline>(processing => processing.Process(generatedFileName, processingOptions.RemoteStorageCacheLocation, default));
+			_backgroundJobClient.Enqueue<IVideoProcessingPipeline>("video_processing",
+				processing => processing.Execute(
+					new DefaultVideoProcessingContext() 
+					{ 
+						SourceVideoNameWithoutExtension = Path.GetFileNameWithoutExtension(generatedFileName), 
+						RemoteCache = new VideoProcessingRemoteCache 
+						{ 
+							VideoFileName = generatedFileName, 
+							VideoFileLocation = options.RemoteStorageCacheLocation
+						}
+				}, default));
 			return ServiceResult<VideoUploadProgress>.Success(progress);
 			
 		}
 		public IServiceResult ValidateUploadData(VideoPreprocessingOptions data)
 		{
-			_logger.LogInformation(data.VideoTitle);
 			IServiceResult fileValidationResult = _preUploadValidator.ValidateFile(data.VideoFile);
 			IServiceResult titleValidationResult = _preUploadValidator.ValidateTitle(data.VideoTitle);
 			IServiceResult descriptionValidationResult = _preUploadValidator.ValidateDescription(data.VideoDescription);
