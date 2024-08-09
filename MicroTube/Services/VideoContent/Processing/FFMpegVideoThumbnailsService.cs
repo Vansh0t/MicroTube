@@ -5,8 +5,8 @@ namespace MicroTube.Services.VideoContent.Processing
 {
 	public class FFMpegVideoThumbnailsService : IVideoThumbnailsService
 	{
-		private const string FFMPEG_SNAPSHOTS_ARGS = "-vf \"select=bitor(gte(t-prev_selected_t\\,{0})\\,isnan(prev_selected_t)),scale={1}:{2}:force_original_aspect_ratio=decrease\" -vsync 0 -threads 1";
-		private const string FFMPEG_THUMBNAILS_ARGS = "-vf \"thumbnail=n={0}/{1},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync 0 -threads 1";
+		private const string FFMPEG_SNAPSHOTS_ARGS = "-vf \"select=bitor(gte(t-prev_selected_t\\,{0})\\,isnan(prev_selected_t)),scale={1}:{2}:force_original_aspect_ratio=decrease\" -vsync 0 -threads 3";
+		private const string FFMPEG_THUMBNAILS_ARGS = "-vf \"thumbnail=n={0}/{1},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync 0 -threads 3";
 
 		private readonly ILogger<FFMpegVideoThumbnailsService> _logger;
 		private readonly IConfiguration _config;

@@ -4,6 +4,8 @@ using Elastic.Clients.Elasticsearch.Analysis;
 using Elastic.Clients.Elasticsearch.IndexManagement;
 using Elastic.Clients.Elasticsearch.Mapping;
 using Elastic.Transport;
+using MicroTube.Data.Access.Elasticsearch;
+using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services;
 using MicroTube.Services.Authentication;
@@ -12,6 +14,7 @@ using MicroTube.Services.Cryptography;
 using MicroTube.Services.VideoContent.Processing;
 using MicroTube.Services.VideoContent.Processing.Stages;
 using MicroTube.Services.VideoContent.Processing.Stages.Offline;
+using MicroTube.Services.Search;
 
 namespace MicroTube
 {
@@ -102,7 +105,7 @@ namespace MicroTube
 			var result = ServiceResult<T>.Fail(code, $"{prependInfo}. {exception}");
 			return result;
 		}
-		public static IServiceCollection AddElasticSearchClient(this IServiceCollection services, IConfiguration config)
+		public static IServiceCollection AddElasticsearchClient(this IServiceCollection services, IConfiguration config)
 		{
 			var options = config.GetRequiredByKey<ElasticSearchOptions>(ElasticSearchOptions.KEY);
 			var nodesPool = new SingleNodePool(new Uri(options.Url));
@@ -112,6 +115,13 @@ namespace MicroTube
 			var elasticSearchClient = new ElasticsearchClient(clientSettings);
 			EnsureElasticsearchIndices(elasticSearchClient, config);
 			services.AddSingleton(elasticSearchClient);
+			return services;
+		}
+		public static IServiceCollection AddElasticsearchSearch(this IServiceCollection services)
+		{
+			services.AddSingleton<IVideoSearchDataAccess, ElasticsearchVideoIndicesAccess>();
+			services.AddScoped<ISearchMetaProvider<SearchResponse<VideoSearchIndex>, ElasticsearchMeta>, ElasticsearchSearchMetaProvider>();
+			services.AddScoped<IVideoSearchService, ElasticVideoSearchService>();
 			return services;
 		}
 		public static IServiceCollection AddOfflineVideoProcessing(this IServiceCollection services)

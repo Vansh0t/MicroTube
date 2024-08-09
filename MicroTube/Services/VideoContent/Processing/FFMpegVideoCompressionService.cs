@@ -5,7 +5,7 @@ namespace MicroTube.Services.VideoContent.Processing
 {
 	public class FFMpegVideoCompressionService : IVideoCompressionService
 	{
-		private const string FFMPEG_COMPRESSION_ARGS = "-vf \"scale=-2:{0}\" -threads 1";
+		private const string FFMPEG_COMPRESSION_ARGS = "-vf \"scale=-2:{0}\" -threads 3";
 		private readonly IConfiguration _config;
 		private readonly IVideoAnalyzer _analyzer;
 

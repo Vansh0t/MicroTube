@@ -32,22 +32,24 @@ namespace MicroTube.Controllers.Videos
 								_);
 			}));
 		}
-		[HttpGet("videos")]
-		public async Task<IActionResult> GetVideos([FromQuery] VideoSearchParametersDTO searchParameters)
+		[HttpPost("videos")]
+		public async Task<IActionResult> GetVideos([FromQuery] VideoSearchParametersDTO searchParameters, [FromBody] VideoRequestMetaDTO? meta)
 		{
-			_logger.LogInformation($"{searchParameters.Text} {searchParameters.Sort} {searchParameters.TimeFilter} {searchParameters.LengthFilter}");
-			var indicesResult = await _searchService.GetVideos(
-				searchParameters.Text,
-				searchParameters.Sort,
-				searchParameters.TimeFilter,
-				searchParameters.LengthFilter);
-			if (indicesResult.IsError)
-				return StatusCode(indicesResult.Code);
-			var indicesData = indicesResult.GetRequiredObject();
-			var videosResult = await _videoDataAccess.GetVideosByIds(indicesData.Select(_=>_.Id));
-			IEnumerable<Video> videosResultSorted = indicesData.Join(
+			var searchResult = await _searchService.GetVideos(new VideoSearchParameters()
+			{
+				Text = searchParameters.Text,
+				SortType = searchParameters.Sort,
+				TimeFilter = searchParameters.TimeFilter,
+				LengthFilter = searchParameters.LengthFilter
+			}, meta != null ? meta.Meta : null);
+			if (searchResult.IsError)
+				return StatusCode(searchResult.Code);
+			var searchData = searchResult.GetRequiredObject();
+			var videosResult = await _videoDataAccess.GetVideosByIds(searchData.Indices.Select(_=>_.Id));
+			IEnumerable<Video> videosResultSorted = searchData.Indices.Join(
 				videosResult, outer => outer.Id, inner => inner.Id.ToString(), (index, result)=> result);
-			return Ok(videosResultSorted.Select(VideoDTO.FromModel));
+			var sortedVideos = videosResultSorted.Select(VideoDTO.FromModel).ToArray();
+			return Ok(new VideoSearchResultDTO(sortedVideos) { Meta = searchData.Meta });
 		}
 		[HttpGet("controls")]
 		public IActionResult GetControls()

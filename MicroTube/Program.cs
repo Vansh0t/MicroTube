@@ -31,7 +31,8 @@ builder.Services.AddSingleton<IVideoAnalyzer, FFMpegVideoAnalyzer>();
 //builder.Services.AddSingleton<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>, AzureBlobVideoContentRemoteStorage>();
 builder.Services.AddSingleton<IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions>, OfflineVideoContentRemoteStorage>();
 //builder.Services.AddSingleton<ICdnMediaContentAccess, AzureCdnMediaContentAccess>();
-builder.Services.AddElasticSearchClient(config);
+builder.Services.AddElasticsearchClient(config);
+builder.Services.AddElasticsearchSearch();
 builder.Services.AddSingleton<ICdnMediaContentAccess, OfflineCdnMediaContentAccess>();
 builder.Services.AddSingleton<IEmailValidator, EmailValidator>();
 builder.Services.AddSingleton<IUsernameValidator, UsernameValidator>();
@@ -42,7 +43,7 @@ builder.Services.AddSingleton<IVideoDataAccess, VideoDataAccess>();
 builder.Services.AddSingleton<IEmailManager, DefaultEmailManager>();
 builder.Services.AddSingleton<IEmailTemplatesProvider, DefaultEmailTemplatesProvider>();
 builder.Services.AddSingleton<IUserSessionDataAccess, AppUserSessionDataAccess>();
-builder.Services.AddSingleton<IVideoSearchDataAccess, ElasticsearchVideoIndicesAccess>();
+
 builder.Services.AddSingleton<IUserSessionService, DefaultUserSessionService>();
 builder.Services.AddSingleton<IVideoPreUploadValidator, DefaultVideoPreUploadValidator>();
 builder.Services.AddSingleton<IVideoNameGenerator, GuidVideoNameGenerator>();
@@ -50,6 +51,7 @@ builder.Services.AddSingleton<IVideoNameGenerator, GuidVideoNameGenerator>();
 builder.Services.AddScoped<IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>, OfflineVideoPreprocessingPipeline>();
 //builder.Services.AddScoped<IVideoProcessingPipeline, AzureBlobVideoProcessingPipeline>();
 builder.Services.AddOfflineVideoProcessing();
+
 builder.Services.AddScoped<IVideoThumbnailsService, FFMpegVideoThumbnailsService>();
 builder.Services.AddScoped<IVideoCompressionService, FFMpegVideoCompressionService>();
 builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEmailManager>();
@@ -58,7 +60,7 @@ builder.Services.AddScoped<IEmailPasswordAuthenticationDataAccess, EmailPassword
 builder.Services.AddScoped<EmailPasswordAuthenticationProvider>();
 builder.Services.AddScoped<IVideoContentLocalStorage, DefaultVideoContentLocalStorage>();
 builder.Services.AddScoped<IVideoIndexingService, DefaultVideoIndexingService>();
-builder.Services.AddScoped<IVideoSearchService, ElasticVideoSearchService>();
+
 builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtPasswordResetTokenProvider, DefaultJwtPasswordResetTokenProvider>();
 builder.Services.AddTransient<IJwtClaims, JwtClaims>();

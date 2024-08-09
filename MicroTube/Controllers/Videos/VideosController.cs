@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MicroTube.Controllers.Videos.DTO;
 using MicroTube.Data.Access;
+using MicroTube.Data.Models;
+using MicroTube.Services.Search;
 
 namespace MicroTube.Controllers.Videos
 {
@@ -9,30 +11,31 @@ namespace MicroTube.Controllers.Videos
 	public class VideosController : ControllerBase
 	{
 		private readonly IVideoDataAccess _videoDataAccess;
+		private readonly IVideoSearchService _searchService;
 		public VideosController(
-			IVideoDataAccess videoDataAccess)
+			IVideoDataAccess videoDataAccess, IVideoSearchService searchService)
 		{
 			_videoDataAccess = videoDataAccess;
+			_searchService = searchService;
 		}
 
-		[HttpGet]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VideoDTO>))]
-		public async Task<IActionResult> GetAll()
+		[HttpPost]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoSearchResultDTO))]
+		public async Task<IActionResult> GetAll(VideoRequestMetaDTO? meta)
 		{
-			var videos = await _videoDataAccess.GetVideos();
-			var result = videos.Select(_ =>
-				new VideoDTO
-				{
-					Id = _.Id.ToString(),
-					Urls = _.Urls,
-					Title = _.Title,
-					Description = _.Description,
-					SnapshotUrls = _.SnapshotUrls,
-					ThumbnailUrls = _.ThumbnailUrls,
-					UploadTime = _.UploadTime,
-					LengthSeconds = _.LengthSeconds
-				});
-			return Accepted(result);
+			var searchResult = await _searchService.GetVideos(new VideoSearchParameters()
+			{
+				Text = null,
+				SortType = VideoSortType.Time
+			}, meta != null ? meta.Meta : null);
+			if (searchResult.IsError)
+				return StatusCode(searchResult.Code);
+			var searchData = searchResult.GetRequiredObject();
+			var videosResult = await _videoDataAccess.GetVideosByIds(searchData.Indices.Select(_ => _.Id));
+			IEnumerable<Video> videosResultSorted = searchData.Indices.Join(
+				videosResult, outer => outer.Id, inner => inner.Id.ToString(), (index, result) => result);
+			var sortedVideos = videosResultSorted.Select(VideoDTO.FromModel);
+			return Ok(new VideoSearchResultDTO(sortedVideos) { Meta = searchData.Meta});
 		}
 		[HttpGet("{id}")]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VideoDTO>))]
