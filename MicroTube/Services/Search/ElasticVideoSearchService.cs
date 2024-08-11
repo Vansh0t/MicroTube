@@ -64,12 +64,11 @@ namespace MicroTube.Services.Search
 		}
 		public async Task<IServiceResult<VideoSearchResult>> GetVideos(VideoSearchParameters parameters, string? meta)
 		{
-			_logger.LogInformation("Meta: " + meta);
 			ElasticsearchMeta? parsedMeta = DeserializeMeta(meta);
 			VideoSearchOptions options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
 			ElasticSearchOptions elasticOptions = _config.GetRequiredByKey<ElasticSearchOptions>(ElasticSearchOptions.KEY);
 			Query? textSearchQuery = BuildTextSearchQuery(parameters);
-			var sort = BuildVideoSearchSort(parameters.SortType);
+			var sort = BuildVideoSearchSort(parameters);
 			var apiSearchResult = await _client.SearchAsync<VideoSearchIndex>(search =>
 			{
 				search.Index(options.VideosIndexName)
@@ -143,8 +142,13 @@ namespace MicroTube.Services.Search
 				.Select(_ => _.Source!.TitleSuggestion).ToImmutableArray();
 			return ServiceResult<IEnumerable<string>>.Success(finalResult);
 		}
-		private SortOptionsDescriptor<VideoSearchIndex>? BuildVideoSearchSort(VideoSortType sortType)
+		private SortOptionsDescriptor<VideoSearchIndex>? BuildVideoSearchSort(VideoSearchParameters parameters)
 		{
+			var sortType = parameters.SortType;
+			if(sortType == VideoSortType.Relevance && parameters.Text == null)
+			{
+				sortType = VideoSortType.Time; //TO DO: relevance is not available for textless search until some suggestion algorithm is implemented
+			}
 			if (sortType == VideoSortType.Relevance)
 				return null;
 			var sort = new SortOptionsDescriptor<VideoSearchIndex>();

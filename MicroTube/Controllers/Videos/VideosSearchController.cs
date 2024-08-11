@@ -40,7 +40,8 @@ namespace MicroTube.Controllers.Videos
 				Text = searchParameters.Text,
 				SortType = searchParameters.Sort,
 				TimeFilter = searchParameters.TimeFilter,
-				LengthFilter = searchParameters.LengthFilter
+				LengthFilter = searchParameters.LengthFilter,
+				BatchSize = searchParameters.BatchSize
 			}, meta != null ? meta.Meta : null);
 			if (searchResult.IsError)
 				return StatusCode(searchResult.Code);
