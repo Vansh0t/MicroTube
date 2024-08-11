@@ -10,12 +10,14 @@
 		public int ShortVideoSeconds { get; set; }
 		public int MediumVideoSeconds { get; set; }
 		public int LongVideoSeconds { get; set; }
+		public int PaginationMaxBatchSize { get; set; }
 		public VideoSearchOptions(int maxSuggestions,
 							string videosIndexName,
 							string suggestionsIndexName,
 							int shortVideoSeconds,
 							int mediumVideoSeconds,
-							int longVideoSeconds)
+							int longVideoSeconds,
+							int paginationMaxBatchSize)
 		{
 			MaxSuggestions = maxSuggestions;
 			VideosIndexName = videosIndexName;
@@ -23,6 +25,7 @@
 			ShortVideoSeconds = shortVideoSeconds;
 			MediumVideoSeconds = mediumVideoSeconds;
 			LongVideoSeconds = longVideoSeconds;
+			PaginationMaxBatchSize = paginationMaxBatchSize;
 		}
 	}
 }

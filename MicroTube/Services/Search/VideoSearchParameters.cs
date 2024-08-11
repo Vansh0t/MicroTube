@@ -1,11 +1,10 @@
-﻿using MicroTube.Services.Search;
-
-namespace MicroTube.Controllers.Videos.DTO
+﻿namespace MicroTube.Services.Search
 {
-	public class VideoSearchParametersDTO
+	public class VideoSearchParameters
 	{
+
 		public string? Text { get; set; }
-		public VideoSortType Sort { get; set; } = VideoSortType.Relevance;
+		public VideoSortType SortType { get; set; }
 		public VideoTimeFilterType TimeFilter { get; set; } = VideoTimeFilterType.None;
 		public VideoLengthFilterType LengthFilter { get; set; } = VideoLengthFilterType.None;
 		public int BatchSize { get; set; }

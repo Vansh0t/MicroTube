@@ -7,6 +7,8 @@ using MicroTube.Data.Models;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
 using System.Collections.Immutable;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MicroTube.Services.Search
 {
@@ -18,19 +20,21 @@ namespace MicroTube.Services.Search
 		private readonly ElasticsearchClient _client;
 		private readonly ILogger<ElasticVideoSearchService> _logger;
 		private readonly IMD5HashProvider _md5Hash;
-
+		private readonly ISearchMetaProvider<SearchResponse<VideoSearchIndex>, ElasticsearchMeta> _searchMetaProvider;
 		public ElasticVideoSearchService(
 			IConfiguration config,
 			ElasticsearchClient client,
 			ILogger<ElasticVideoSearchService> logger,
 			IVideoSearchDataAccess searchDataAccess,
-			IMD5HashProvider md5Hash)
+			IMD5HashProvider md5Hash,
+			ISearchMetaProvider<SearchResponse<VideoSearchIndex>, ElasticsearchMeta> searchMetaProvider)
 		{
 			_config = config;
 			_client = client;
 			_logger = logger;
 			_searchDataAccess = searchDataAccess;
 			_md5Hash = md5Hash;
+			_searchMetaProvider = searchMetaProvider;
 		}
 
 		public async Task<IServiceResult<Video>> IndexVideo(Video video)
@@ -58,41 +62,53 @@ namespace MicroTube.Services.Search
 			
 			return ServiceResult<Video>.Success(video);
 		}
-		public async Task<IServiceResult<IReadOnlyCollection<VideoSearchIndex>>> GetVideos(
-			string text,
-			VideoSortType sortType = VideoSortType.Relevance,
-			VideoTimeFilterType timeFilter = VideoTimeFilterType.None,
-			VideoLengthFilterType lengthFilter = VideoLengthFilterType.None)
+		public async Task<IServiceResult<VideoSearchResult>> GetVideos(VideoSearchParameters parameters, string? meta)
 		{
+			ElasticsearchMeta? parsedMeta = DeserializeMeta(meta);
 			VideoSearchOptions options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
-			var matchQueryTitle = new MatchQuery(new Field("title")) { Query = text };
-			var matchQueryDescription = new MatchQuery(new Field("description")) { Query = text };
-			var filters = BuildFilters(timeFilter, lengthFilter);
-			var shouldQuery = new BoolQuery
-			{
-				MinimumShouldMatch = 1,
-				Should = new Query[2] { matchQueryTitle, matchQueryDescription },
-				Filter = filters
-			};
-			var sort = BuildVideoSearchSort(sortType);
-			var result = await _client.SearchAsync<VideoSearchIndex>(search =>
+			ElasticSearchOptions elasticOptions = _config.GetRequiredByKey<ElasticSearchOptions>(ElasticSearchOptions.KEY);
+			Query? textSearchQuery = BuildTextSearchQuery(parameters);
+			var sort = BuildVideoSearchSort(parameters);
+			var apiSearchResult = await _client.SearchAsync<VideoSearchIndex>(search =>
 			{
 				search.Index(options.VideosIndexName)
-				.From(0)
-				.Query(shouldQuery);
+				.Size(Math.Min(parameters.BatchSize, options.PaginationMaxBatchSize));
+				if(textSearchQuery != null)
+				{
+					search.Query(textSearchQuery);
+				}
 				if (sort != null)
 				{
 					search.Sort(sort);
 				}
+				if(parsedMeta != null && parsedMeta.LastSort != null)
+				{
+					search.SearchAfter(parsedMeta.LastSort.ToArray());
+				}
 			});
-			if (!result.IsValidResponse)
+			if (!apiSearchResult.IsValidResponse)
 			{
-				_logger.LogError("Failed to get suggestions attempt from ElasticSearch. " + result.ToString());
-				return ServiceResult<IReadOnlyCollection<VideoSearchIndex>>.FailInternal();
+				_logger.LogError("Failed to get suggestions attempt from ElasticSearch. " + apiSearchResult.ToString());
+				return ServiceResult<VideoSearchResult>.FailInternal();
 			}
-			return ServiceResult<IReadOnlyCollection<VideoSearchIndex>>.Success(result.Documents);
+			var searchMeta = _searchMetaProvider.BuildMeta(apiSearchResult);
+			string? serializedSearchMeta = null;
+			if(searchMeta != null)
+			{
+				serializedSearchMeta = _searchMetaProvider.SerializeMeta(searchMeta);
+			}
+			var result = new VideoSearchResult(apiSearchResult.Documents);
+			if(apiSearchResult.Documents.Count == 0)
+			{
+				result.Meta = meta; //end of data reached, don't update meta to avoid loop
+			}
+			else
+			{
+				result.Meta = serializedSearchMeta;
+			}
+			return ServiceResult<VideoSearchResult>.Success(result);
 		}
-		public async Task<IServiceResult<IReadOnlyCollection<string>>> GetSuggestions(string text)
+		public async Task<IServiceResult<IEnumerable<string>>> GetSuggestions(string text)
 		{
 			VideoSearchOptions options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
 			MultiMatchQuery query = new MultiMatchQuery()
@@ -116,18 +132,23 @@ namespace MicroTube.Services.Search
 			if (!response.IsValidResponse)
 			{
 				_logger.LogError("Failed to get suggestions attempt from ElasticSearch. " + response.ToString());
-				return ServiceResult<IReadOnlyCollection<string>>.FailInternal();
+				return ServiceResult<IEnumerable<string>>.FailInternal();
 			}
 			return ReadSuggestionsResponse(response);
 		}
-		private ServiceResult<IReadOnlyCollection<string>> ReadSuggestionsResponse(SearchResponse<VideoSearchIndex> response/*, string suggestName*/)
+		private ServiceResult<IEnumerable<string>> ReadSuggestionsResponse(SearchResponse<VideoSearchIndex> response/*, string suggestName*/)
 		{
 			var finalResult = response.Hits
 				.Select(_ => _.Source!.TitleSuggestion).ToImmutableArray();
-			return ServiceResult<IReadOnlyCollection<string>>.Success(finalResult);
+			return ServiceResult<IEnumerable<string>>.Success(finalResult);
 		}
-		private SortOptionsDescriptor<VideoSearchIndex>? BuildVideoSearchSort(VideoSortType sortType)
+		private SortOptionsDescriptor<VideoSearchIndex>? BuildVideoSearchSort(VideoSearchParameters parameters)
 		{
+			var sortType = parameters.SortType;
+			if(sortType == VideoSortType.Relevance && parameters.Text == null)
+			{
+				sortType = VideoSortType.Time; //TO DO: relevance is not available for textless search until some suggestion algorithm is implemented
+			}
 			if (sortType == VideoSortType.Relevance)
 				return null;
 			var sort = new SortOptionsDescriptor<VideoSearchIndex>();
@@ -209,6 +230,33 @@ namespace MicroTube.Services.Search
 					break;
 			}
 			return lengthQuery;
+		}
+		private Query? BuildTextSearchQuery(VideoSearchParameters parameters)
+		{
+			if (parameters.Text == null)
+				return null;
+			var matchQueryTitle = new MatchQuery(new Field("title")) { Query = parameters.Text, Boost = 2 };
+			var matchQueryDescription = new MatchQuery(new Field("description")) { Query = parameters.Text };
+			var filters = BuildFilters(parameters.TimeFilter, parameters.LengthFilter);
+			var shouldQuery = new BoolQuery
+			{
+				MinimumShouldMatch = 1,
+				Should = new Query[2] { matchQueryTitle, matchQueryDescription },
+				Filter = filters
+			};
+			return shouldQuery;
+		}
+		private ElasticsearchMeta? DeserializeMeta(string? meta)
+		{
+			try
+			{
+				return _searchMetaProvider.DeserializeMeta(meta);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Failed to deserialize meta due to exception");
+				return null;
+			}
 		}
 	}
 }
