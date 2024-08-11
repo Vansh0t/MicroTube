@@ -73,7 +73,7 @@ export class AppComponent implements OnInit
       this.videoSearchSuggestionsSource.length = 0;
       return;
     }
-    this.videoSearchSuggestionsSubscription = this.videoService.getSearchSuggestions(text)
+    this.videoSearchSuggestionsSubscription = this.searchService.getSearchSuggestions(text)
       .pipe(
         map(res => res.map(_ => _.text)))
       .subscribe(suggestions =>

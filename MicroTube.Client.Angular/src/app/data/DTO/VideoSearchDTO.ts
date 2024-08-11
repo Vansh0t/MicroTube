@@ -1,9 +1,10 @@
 export interface VideoSearchParametersDTO
 {
-    text: string;
-    sort: string | null;
-    timeFilter: string | null;
-    lengthFilter: string | null;
+  text: string | null;
+  sort: string | null;
+  timeFilter: string | null;
+  lengthFilter: string | null;
+  batchSize: number;
 }
 export interface SearchControlsDTO
 {

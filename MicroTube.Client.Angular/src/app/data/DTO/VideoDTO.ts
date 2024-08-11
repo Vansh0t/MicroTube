@@ -1,14 +1,5 @@
 import { DateTime, Duration } from "luxon";
 import { FileInput } from "ngx-custom-material-file-input";
-
-
-/*public required string Id { get; set; }
-		public required string Url { get; set; }
-		public required string Title { get; set; }
-		public required DateTime UploadTime { get; set; }
-		public string ? Description { get; set; }
-		public string ? ThumbnailUrls { get; set; }
-		public string ? SnapshotUrls { get; set; }*/
 export class VideoDTO
 {
   id: string;
@@ -20,6 +11,7 @@ export class VideoDTO
   snapshotUrls: string[] | undefined;
   length: Duration;
   lengthHuman: string | null;
+  searchMeta: string | null;
   constructor(
     raw: VideoRawDTO
   )
@@ -33,6 +25,7 @@ export class VideoDTO
     this.snapshotUrls = raw.snapshotUrls?.split(";");
     this.length = Duration.fromDurationLike({ seconds: raw.lengthSeconds });
     this.lengthHuman = this.length.toISOTime({ suppressMilliseconds: true });
+    this.searchMeta = raw.searchMeta;
   }
 }
 
@@ -46,6 +39,7 @@ export interface VideoRawDTO
   thumbnailUrls: string | undefined;
   snapshotUrls: string | undefined;
   lengthSeconds: number;
+  searchMeta: string | null;
 }
 
 export interface VideoUploadDTO

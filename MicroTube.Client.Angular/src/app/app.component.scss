@@ -8,16 +8,15 @@
 mat-toolbar {
   background-color: transparent;
 }
+/*@media (max-width: 599px) {
+  .outlet-container {
+    max-height: calc( 100vh - var(--mat-toolbar-mobile-height));
+  }
+}
 .outlet-container {
-  /*overflow-y:scroll;*/
-  
-  overflow-y: auto;
-  max-height: 92vh;
-}
-.global-horizontal-padding {
-  padding-inline: 1%;
-  
-}
+  max-height: calc( 100vh - var(--mat-toolbar-standard-height));
+}*/
+
 .logo-header {
   
 }
@@ -29,11 +28,8 @@ mat-toolbar {
   max-width: 3.125rem;
   display: block;
 }
-@include sm {
-  .global-horizontal-padding {
-    padding-inline: 1%;
-  }
 
+@include sm {
   .logo-full {
     display: block;
   }
@@ -42,16 +38,3 @@ mat-toolbar {
     display: none;
   }
 }
-@include md {
-  .global-horizontal-padding {
-    padding-inline: 2.5%;
-  }
-}
-@include lg {
-  .global-horizontal-padding {
-    padding-inline: 4%;
-  }
-  
-}
-
-
