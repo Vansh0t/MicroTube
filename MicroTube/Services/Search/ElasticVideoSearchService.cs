@@ -73,7 +73,7 @@ namespace MicroTube.Services.Search
 			var apiSearchResult = await _client.SearchAsync<VideoSearchIndex>(search =>
 			{
 				search.Index(options.VideosIndexName)
-				.Size(options.PaginationBatchSize);
+				.Size(Math.Min(parameters.BatchSize, options.PaginationMaxBatchSize));
 				if(textSearchQuery != null)
 				{
 					search.Query(textSearchQuery);
