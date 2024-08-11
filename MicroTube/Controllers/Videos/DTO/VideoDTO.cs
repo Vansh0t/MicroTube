@@ -12,6 +12,7 @@ namespace MicroTube.Controllers.Videos.DTO
 		public string? ThumbnailUrls { get; set; }
 		public string? SnapshotUrls { get; set; }
 		public required int LengthSeconds { get; set; }
+		public int Likes { get; set; }
 		public static VideoDTO FromModel(Video video)
 		{
 			VideoDTO dto = new VideoDTO
@@ -24,6 +25,7 @@ namespace MicroTube.Controllers.Videos.DTO
 				ThumbnailUrls = video.ThumbnailUrls,
 				SnapshotUrls = video.SnapshotUrls,
 				LengthSeconds = video.LengthSeconds,
+				Likes = video.Likes
 			};
 			return dto;
 			

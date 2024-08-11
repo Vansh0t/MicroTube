@@ -59,5 +59,16 @@ namespace MicroTube.Data.Access.Elasticsearch
 			}
 			return indexResult.Id;
 		}
+		public async Task<VideoSearchIndex?> GetVideoIndex(string id)
+		{
+			var options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
+			GetRequest request = new GetRequest((IndexName)options.VideosIndexName, id);
+			GetResponse<VideoSearchIndex> response = await _client.GetAsync<VideoSearchIndex>(request);
+			if (!response.IsValidResponse)
+			{
+				throw new DataAccessException("Failed to index suggestion with Elasticsearch: " + response.ToString());
+			}
+			return response.Source;
+		}
 	}
 }

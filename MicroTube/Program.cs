@@ -17,6 +17,7 @@ using MicroTube.Services.MediaContentStorage;
 using MicroTube.Services.Search;
 using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent;
+using MicroTube.Services.VideoContent.Likes;
 using MicroTube.Services.VideoContent.Processing;
 using NSwag.Generation.Processors.Security;
 using System.IdentityModel.Tokens.Jwt;
@@ -49,6 +50,7 @@ builder.Services.AddSingleton<IVideoPreUploadValidator, DefaultVideoPreUploadVal
 builder.Services.AddSingleton<IVideoNameGenerator, GuidVideoNameGenerator>();
 //builder.Services.AddScoped<IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>, AzureBlobVideoPreprocessingPipeline>();
 builder.Services.AddScoped<IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>, OfflineVideoPreprocessingPipeline>();
+builder.Services.AddScoped<IVideoLikesService, DefaultVideoLikesService>();
 //builder.Services.AddScoped<IVideoProcessingPipeline, AzureBlobVideoProcessingPipeline>();
 builder.Services.AddOfflineVideoProcessing();
 
