@@ -49,6 +49,17 @@ namespace MicroTube.Services.VideoContent.Likes
 				transaction.Commit();
 				return ServiceResult<VideoLike>.Success(like);
 			}
+			catch (SqlException e)
+			{
+				//unique key constraint violation
+				transaction.Rollback();
+				if (e.Number == 2627)
+				{
+					return ServiceResult<VideoLike>.Fail(400, "Already liked.");
+				}
+				_logger.LogError(e, $"Failed add video like from user {userId} to video {videoId}");
+				return ServiceResult<VideoLike>.FailInternal();
+			}
 			catch (Exception e)
 			{
 				transaction.Rollback();
