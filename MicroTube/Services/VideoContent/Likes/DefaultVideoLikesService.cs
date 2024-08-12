@@ -3,8 +3,6 @@ using System.Data;
 using Dapper;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
-using Elastic.Clients.Elasticsearch;
-
 namespace MicroTube.Services.VideoContent.Likes
 {
 	public class DefaultVideoLikesService : IVideoLikesService
@@ -67,6 +65,35 @@ namespace MicroTube.Services.VideoContent.Likes
 				return ServiceResult<VideoLike>.FailInternal();
 			}
 		}
+		public async Task<IServiceResult> UnlikeVideo(string userId, string videoId)
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			connection.Open();
+			using IDbTransaction transaction = connection.BeginTransaction();
+			try
+			{
+				var like = await GetVideoLike(connection, transaction, videoId, userId);
+				if(like != null)
+				{
+					await DecrementVideoLikes(connection, transaction, videoId);
+					await DeleteLike(connection, transaction, like.Id.ToString());
+					var videoIndex = await _searchDataAccess.GetVideoIndex(videoId);
+					if (videoIndex != null)
+					{
+						videoIndex.Likes--;
+						await _searchDataAccess.IndexVideo(videoIndex);
+					}
+				}
+				transaction.Commit();
+				return new ServiceResult(like != null?200:404);
+			}
+			catch (Exception e)
+			{
+				transaction.Rollback();
+				_logger.LogError(e, $"Failed add video like from user {userId} to video {videoId}");
+				return ServiceResult.FailInternal();
+			}
+		}
 		public async Task<IServiceResult<VideoLike>> GetLike(string userId, string videoId)
 		{
 			var like = await _videoDataAccess.GetLike(userId, videoId);
@@ -83,8 +110,17 @@ namespace MicroTube.Services.VideoContent.Likes
 				Time = DateTime.UtcNow
 			};
 			string sql = "INSERT INTO dbo.VideoLike(UserId, VideoId, Time) VALUES(@UserId, @VideoId, @Time);";
-			var result = await connection.ExecuteAsync(sql, parameters, transaction);
-			_logger.LogInformation("Created Like " + result);
+			await connection.ExecuteAsync(sql, parameters, transaction);
+		}
+		private async Task DeleteLike(IDbConnection connection, IDbTransaction transaction, string likeId)
+		{
+			var parameters = new
+			{
+				Id = likeId,
+				Time = DateTime.UtcNow
+			};
+			string sql = "DELETE FROM dbo.VideoLike WHERE Id = @Id;";
+			await connection.ExecuteAsync(sql, parameters, transaction);
 		}
 		private async Task IncrementVideoLikes(IDbConnection connection, IDbTransaction transaction, string videoId)
 		{
@@ -93,8 +129,7 @@ namespace MicroTube.Services.VideoContent.Likes
 				Id = videoId
 			};
 			string sql = "UPDATE dbo.Video SET Likes = Likes + 1 WHERE Id = @Id;";
-			var result = await connection.ExecuteAsync(sql, parameters, transaction);
-			_logger.LogInformation("Incremented Like " + result);
+			await connection.ExecuteAsync(sql, parameters, transaction);
 		}
 		private async Task<VideoLike?> GetVideoLike(IDbConnection connection, IDbTransaction transaction, string videoId, string userId)
 		{
@@ -115,6 +150,15 @@ namespace MicroTube.Services.VideoContent.Likes
 				return like;
 			}, parameters, transaction);
 			return result.FirstOrDefault();
+		}
+		private async Task DecrementVideoLikes(IDbConnection connection, IDbTransaction transaction, string videoId)
+		{
+			var parameters = new
+			{
+				Id = videoId
+			};
+			string sql = "UPDATE dbo.Video SET Likes = Likes - 1 WHERE Id = @Id;";
+			await connection.ExecuteAsync(sql, parameters, transaction);
 		}
 	}
 }

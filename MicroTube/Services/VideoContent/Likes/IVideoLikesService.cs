@@ -6,5 +6,6 @@ namespace MicroTube.Services.VideoContent.Likes
 	{
 		Task<IServiceResult<VideoLike>> LikeVideo(string userId, string videoId);
 		Task<IServiceResult<VideoLike>> GetLike(string userId, string videoId);
+		Task<IServiceResult> UnlikeVideo(string userId, string videoId);
 	}
 }

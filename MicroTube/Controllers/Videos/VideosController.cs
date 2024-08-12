@@ -82,5 +82,17 @@ namespace MicroTube.Controllers.Videos
 				return StatusCode(likeResult.Code, likeResult.Code);
 			return Ok(VideoLikeDTO.FromModel(likeResult.GetRequiredObject()));
 		}
+		[HttpDelete("{id}/like")]
+		[Authorize]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoLikeDTO))]
+		public async Task<IActionResult> DeleteLike(string id)
+		{
+			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
+			if (!isEmailConfirmed)
+				return StatusCode(403, "Email confirmation is required for this action");
+			string userId = _jwtClaims.GetUserId(User);
+			var likeResult = await _likesService.UnlikeVideo(userId, id);
+			return StatusCode(likeResult.Code, likeResult.Error);
+		}
 	}
 }
