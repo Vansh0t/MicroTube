@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { DefaultAuthValidators } from "../../services/validation/DefaultAuthValidators";
 import { AuthManager } from "../../services/auth/AuthManager";
@@ -15,6 +15,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 })
 export class SignUpFormComponent {
 
+  @Input() redirectOnSignedIn: boolean = true;
   readonly formGroup: FormGroup;
   readonly usernameControl: FormControl;
   readonly emailControl: FormControl;
@@ -144,6 +145,8 @@ export class SignUpFormComponent {
   }
   private onUserSignedIn()
   {
+    if (!this.redirectOnSignedIn)
+      return;
     if (this.authManager.isSignedIn())
       this.router.navigate(["/"]);
   }
