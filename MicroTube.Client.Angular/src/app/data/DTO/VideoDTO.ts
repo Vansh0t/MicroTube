@@ -12,6 +12,8 @@ export class VideoDTO
   length: Duration;
   lengthHuman: string | null;
   searchMeta: string | null;
+  likes: number;
+  dislikes: number;
   constructor(
     raw: VideoRawDTO
   )
@@ -26,6 +28,8 @@ export class VideoDTO
     this.length = Duration.fromDurationLike({ seconds: raw.lengthSeconds });
     this.lengthHuman = this.length.toISOTime({ suppressMilliseconds: true });
     this.searchMeta = raw.searchMeta;
+    this.likes = raw.likes;
+    this.dislikes = raw.dislikes;
   }
 }
 
@@ -40,6 +44,8 @@ export interface VideoRawDTO
   snapshotUrls: string | undefined;
   lengthSeconds: number;
   searchMeta: string | null;
+  likes: number;
+  dislikes: number;
 }
 
 export interface VideoUploadDTO

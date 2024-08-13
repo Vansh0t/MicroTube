@@ -1,0 +1,21 @@
+.like {
+  opacity: 0.5;
+}
+
+.like-active {
+  opacity: 1;
+}
+
+.container {
+  display: flex;
+  flex-direction:row;
+gap:1rem;
+}
+.like-container {
+  display: flex;
+  flex-direction:row;
+  align-items: center;
+}
+.like-container h4 {
+  margin: 0;
+}

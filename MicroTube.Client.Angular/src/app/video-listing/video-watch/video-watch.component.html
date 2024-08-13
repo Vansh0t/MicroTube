@@ -4,8 +4,12 @@
 		<ngx-player class="video-player"
 					[options]="getVideoPlayerOptions(video.urls)"></ngx-player>
 	</div>
-	<h2>{{video.title}}</h2>
-	<h3>{{video.description}}</h3>
+	<div class="video-info-container">
+		<h2>{{video.title}}</h2>
+		<h3>{{video.description}}</h3>
+		<like-component [video]="video" />
+	</div>
+	
 	}
 	@else {
 	<h2>Loading...</h2>

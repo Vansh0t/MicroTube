@@ -8,3 +8,13 @@
   left:0;
   width: 100%;
 }
+.video-info-container {
+  display:flex;
+  flex-direction: row;
+margin-top: 2rem;
+  width: 100%;
+  padding-inline: 4%;
+}
+like-component {
+  margin-left: 12rem;
+}
