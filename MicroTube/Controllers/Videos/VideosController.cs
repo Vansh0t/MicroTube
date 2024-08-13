@@ -65,6 +65,9 @@ namespace MicroTube.Controllers.Videos
 			if (!isEmailConfirmed)
 				return StatusCode(403, "Email confirmation is required for this action");
 			string userId = _jwtClaims.GetUserId(User);
+			var undislikeResult = await _dislikesService.UndislikeVideo(userId, id);
+			if (undislikeResult.IsError && undislikeResult.Code != 404)
+				return StatusCode(undislikeResult.Code, undislikeResult.Error);
 			var likeResult = await _likesService.LikeVideo(userId, id);
 			if (likeResult.IsError)
 				return StatusCode(likeResult.Code, likeResult.Code);
@@ -105,6 +108,9 @@ namespace MicroTube.Controllers.Videos
 			if (!isEmailConfirmed)
 				return StatusCode(403, "Email confirmation is required for this action");
 			string userId = _jwtClaims.GetUserId(User);
+			var unlikeResult = await _likesService.UnlikeVideo(userId, id);
+			if (unlikeResult.IsError && unlikeResult.Code != 404)
+				return StatusCode(unlikeResult.Code, unlikeResult.Error);
 			var result = await _dislikesService.DislikeVideo(userId, id);
 			if (result.IsError)
 				return StatusCode(result.Code, result.Code);

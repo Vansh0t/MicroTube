@@ -11,19 +11,16 @@ namespace MicroTube.Services.VideoContent.Likes
 		private readonly ILogger<DefaultVideoLikesService> _logger;
 		private readonly IVideoSearchDataAccess _searchDataAccess;
 		private readonly IVideoDataAccess _videoDataAccess;
-		private readonly IVideoDislikesService _dislikesService;
 		public DefaultVideoLikesService(
 			IConfiguration config,
 			ILogger<DefaultVideoLikesService> logger,
 			IVideoSearchDataAccess searchDataAccess,
-			IVideoDataAccess videoDataAccess,
-			IVideoDislikesService dislikesService)
+			IVideoDataAccess videoDataAccess)
 		{
 			_config = config;
 			_logger = logger;
 			_searchDataAccess = searchDataAccess;
 			_videoDataAccess = videoDataAccess;
-			_dislikesService = dislikesService;
 		}
 
 		public async Task<IServiceResult<VideoLike>> LikeVideo(string userId, string videoId)
@@ -33,9 +30,6 @@ namespace MicroTube.Services.VideoContent.Likes
 			using IDbTransaction transaction = connection.BeginTransaction();
 			try
 			{
-				var undislikeResult = await _dislikesService.UndislikeVideo(userId, videoId);
-				if(undislikeResult.IsError && undislikeResult.Code != 404)
-					return ServiceResult<VideoLike>.Fail(undislikeResult.Code, undislikeResult.Error!);
 				//TO DO: make sure video existance check not needed here
 				await CreateLike(connection, transaction, userId, videoId);
 				await IncrementVideoLikes(connection, transaction, videoId);
