@@ -11,5 +11,6 @@
     [LengthSeconds] INT NOT NULL DEFAULT 1, 
     [SearchIndexId] NVARCHAR(50) NULL, 
     [Views] INT NOT NULL DEFAULT 0, 
-    [Likes] INT NOT NULL DEFAULT 0 
+    [Likes] INT NOT NULL DEFAULT 0, 
+    [Dislikes] INT NOT NULL DEFAULT 0 
 )

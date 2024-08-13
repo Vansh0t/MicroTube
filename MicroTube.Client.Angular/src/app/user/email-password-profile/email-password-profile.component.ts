@@ -162,7 +162,6 @@ export class EmailPasswordProfileComponent implements OnInit, OnDestroy
   {
     if (jwtUserValue == null)
     {
-      console.log("redirect");
       this.router.navigate(["/"]);
       return;
     }

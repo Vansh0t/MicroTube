@@ -1,9 +1,11 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { VideoDTO, VideoRawDTO, VideoUploadDTO } from "../../data/DTO/VideoDTO";
 import { Observable, map } from "rxjs";
 import { VideoUploadProgressDTO } from "../../data/DTO/VideoUploadProgressDTO";
 import { DateTime, Duration } from "luxon";
+import { VideoLikeDTO } from "../../data/DTO/VideoLikeDTO";
+import { VideoDislikeDTO } from "../../data/DTO/VideoDislikeDTO";
 
 
 @Injectable({
@@ -16,6 +18,36 @@ export class VideoService
   constructor(client: HttpClient)
   {
     this.client = client;
+  }
+  dislikeVideo(id: string): Observable<VideoDislikeDTO>
+  {
+    const result = this.client.post<VideoDislikeDTO>(`Videos/${id}/dislike`, {});
+    return result;
+  }
+  undislikeVideo(id: string): Observable<HttpResponse<null>>
+  {
+    const result = this.client.delete<HttpResponse<null>>(`Videos/${id}/dislike`);
+    return result;
+  }
+  getVideoDislike(id: string): Observable<VideoDislikeDTO>
+  {
+    const result = this.client.get<VideoDislikeDTO>(`Videos/${id}/dislike`);
+    return result;
+  }
+  likeVideo(id: string): Observable<VideoLikeDTO>
+  {
+    const result = this.client.post<VideoLikeDTO>(`Videos/${id}/like`, {});
+    return result;
+  }
+  unlikeVideo(id: string): Observable<HttpResponse<null>>
+  {
+    const result = this.client.delete<HttpResponse<null>>(`Videos/${id}/like`);
+    return result;
+  }
+  getVideoLike(id: string): Observable<VideoLikeDTO>
+  {
+    const result = this.client.get<VideoLikeDTO>(`Videos/${id}/like`);
+    return result;
   }
   getVideo(id: string): Observable<VideoDTO>
   {

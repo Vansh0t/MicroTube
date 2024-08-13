@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Elastic.Clients.Elasticsearch;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using MicroTube.Data.Models;
@@ -201,6 +202,50 @@ namespace MicroTube.Data.Access.SQLServer
 			string sql = @"SELECT * FROM dbo.Video WHERE Id IN @Ids;";
 			var result = await connection.QueryAsync<Video>(sql, parameters);
 			return result;
+		}
+
+		public async Task<VideoLike?> GetLike(string userId, string videoId)
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			var parameters = new
+			{
+				UserId = userId,
+				VideoId = videoId
+			};
+			string sql = @"SELECT TOP 1 [like].*, [user].*, [video].*
+						   FROM dbo.VideoLike [like]
+						   INNER JOIN dbo.AppUser [user] ON [like].UserId = [user].Id
+						   INNER JOIN dbo.Video video ON [like].VideoId = video.Id
+						   WHERE UserId = @UserId AND VideoId = @VideoId;";
+			var result = await connection.QueryAsync<VideoLike, AppUser, Video, VideoLike>(sql, (like, user, video) =>
+			{
+				like.Video = video;
+				like.User = user;
+				return like;
+			}, parameters);
+			return result.FirstOrDefault();
+		}
+
+		public async Task<VideoDislike?> GetDislike(string userId, string videoId)
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			var parameters = new
+			{
+				UserId = userId,
+				VideoId = videoId
+			};
+			string sql = @"SELECT TOP 1 [dislike].*, [user].*, [video].*
+						   FROM dbo.VideoDislike [dislike]
+						   INNER JOIN dbo.AppUser [user] ON [dislike].UserId = [user].Id
+						   INNER JOIN dbo.Video video ON [dislike].VideoId = video.Id
+						   WHERE UserId = @UserId AND VideoId = @VideoId;";
+			var result = await connection.QueryAsync<VideoDislike, AppUser, Video, VideoDislike>(sql, (dislike, user, video) =>
+			{
+				dislike.Video = video;
+				dislike.User = user;
+				return dislike;
+			}, parameters);
+			return result.FirstOrDefault();
 		}
 	}
 }

@@ -83,7 +83,6 @@ export class NgxPlayerComponent implements OnInit, OnDestroy
   @HostListener("document:keydown", ["$event"])
   handlePlayerHotkeys(event: KeyboardEvent)
   {
-    console.log(event.target);
     if (!(event.target instanceof Element) || !event.target.hasAttribute("allowVideoPlayerControls"))
     {
       return;

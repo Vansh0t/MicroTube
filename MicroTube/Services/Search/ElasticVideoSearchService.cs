@@ -45,6 +45,7 @@ namespace MicroTube.Services.Search
 				video.Title,
 				video.Views,
 				video.Likes,
+				video.Dislikes,
 				video.LengthSeconds,
 				video.UploadTime);
 			try

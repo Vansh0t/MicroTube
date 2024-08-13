@@ -1,7 +1,7 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { VideoService } from "../../services/videos/VideoService";
-import { Observable } from "rxjs";
+import { BehaviorSubject, Subscription } from "rxjs";
 import { VideoDTO } from "../../data/DTO/VideoDTO";
 import mime from "mime";
 import { NgxPlayerOptions, QualityOption } from "../ngx-player/ngx-player.component";
@@ -11,20 +11,29 @@ import { NgxPlayerOptions, QualityOption } from "../ngx-player/ngx-player.compon
   templateUrl: "./video-watch.component.html",
   styleUrls: ["./video-watch.component.css"]
 })
-export class VideoWatchComponent implements OnInit
+export class VideoWatchComponent implements OnInit, OnDestroy
 {
   private readonly route: ActivatedRoute;
   private readonly router: Router;
   private readonly videoService: VideoService;
   private videoPlayerOptions: NgxPlayerOptions | null = null;
   private videoId: string | null = null;
-
-  video$: Observable<VideoDTO> | null = null;
+  private userAuthStateSubscription: Subscription | null = null;
+  private userLikeSubscription: Subscription | null = null;
+ 
+  video$: BehaviorSubject<VideoDTO | null> = new BehaviorSubject<VideoDTO | null>(null);
   constructor(route: ActivatedRoute, router: Router, videoService: VideoService)
   {
     this.route = route;
     this.router = router;
     this.videoService = videoService;
+  }
+  ngOnDestroy(): void
+  {
+    this.userAuthStateSubscription?.unsubscribe();
+    this.userAuthStateSubscription = null;
+    this.userLikeSubscription?.unsubscribe();
+    this.userLikeSubscription = null;
   }
   ngOnInit(): void
   {
@@ -35,9 +44,9 @@ export class VideoWatchComponent implements OnInit
       this.router.navigate(["/"]);
       return;
     }
-    this.video$ = this.videoService.getVideo(this.videoId);
-    
+    this.videoService.getVideo(this.videoId).subscribe(this.video$);
   }
+ 
   getVideoPlayerOptions(videoUrls: string): NgxPlayerOptions
   {
     if (this.videoPlayerOptions)
@@ -68,4 +77,6 @@ export class VideoWatchComponent implements OnInit
     const tierString = filename.split(".")[0].split("_").pop();
     return tierString ? tierString: "";
   }
+  
+
 }

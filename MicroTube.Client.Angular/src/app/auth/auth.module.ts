@@ -16,8 +16,8 @@ import { UtilityComponentsModule } from "../utility-components/utility-component
 import { EmailConfirmationReminderComponent } from "./email-confirmation-reminder/email-confirmation-reminder.component";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { PasswordChangeFormComponent } from "./password-change-form/password-change-form.component";
-
-
+import { AuthPopupComponent } from "./auth-popup/auth-popup.component";
+import { MatTabsModule } from "@angular/material/tabs";
 
 @NgModule({
   declarations: [
@@ -27,7 +27,8 @@ import { PasswordChangeFormComponent } from "./password-change-form/password-cha
     EmailConfirmationCallbackComponent,
     ResetPasswordFormComponent,
     EmailConfirmationReminderComponent,
-    PasswordChangeFormComponent
+    PasswordChangeFormComponent,
+    AuthPopupComponent
   ],
   imports: [
     CommonModule,
@@ -39,14 +40,16 @@ import { PasswordChangeFormComponent } from "./password-change-form/password-cha
     MatIconModule,
     MatMenuModule,
     UtilityComponentsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatTabsModule
   ],
   exports: [
     SignUpFormComponent,
     SignInFormComponent,
     SignOutFormComponent,
     EmailConfirmationCallbackComponent,
-    EmailConfirmationReminderComponent
+    EmailConfirmationReminderComponent,
+    AuthPopupComponent
   ]
 })
 export class AppAuthModule { }
