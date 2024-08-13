@@ -234,7 +234,7 @@ namespace MicroTube.Data.Access.SQLServer
 				UserId = userId,
 				VideoId = videoId
 			};
-			string sql = @"SELECT TOP 1 [dislike].*, [dislike].*, [video].*
+			string sql = @"SELECT TOP 1 [dislike].*, [user].*, [video].*
 						   FROM dbo.VideoDislike [dislike]
 						   INNER JOIN dbo.AppUser [user] ON [dislike].UserId = [user].Id
 						   INNER JOIN dbo.Video video ON [dislike].VideoId = video.Id
