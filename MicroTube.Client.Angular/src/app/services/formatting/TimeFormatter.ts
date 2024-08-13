@@ -10,6 +10,7 @@ export class TimeFormatter
   getUserFriendlyTimeDifference(from: DateTime, to: DateTime): string
   {
     const timeDifference = to.diff(from);
+    
     const timeDifferenceHours = timeDifference.as("hours");
     if (timeDifferenceHours < 1)
     {

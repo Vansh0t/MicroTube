@@ -72,7 +72,8 @@ export class VideoCardComponent implements OnInit
   {
     if (this.video == null)
       return "";
-    const now = DateTime.utc();
-    return this.timeFormatter.getUserFriendlyTimeDifference(this.video.uploadTime, now);
+    const uploadTimeLocal = this.video.uploadTime.toLocal();
+    const nowLocal = DateTime.local();
+    return this.timeFormatter.getUserFriendlyTimeDifference(uploadTimeLocal, nowLocal);
   }
 }

@@ -18,3 +18,8 @@ margin-top: 2rem;
 like-component {
   margin-left: 12rem;
 }
+.video-info-left-container {
+  display: flex;
+flex-direction:column;
+gap: 1rem;
+}

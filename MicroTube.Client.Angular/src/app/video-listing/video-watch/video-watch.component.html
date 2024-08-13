@@ -5,8 +5,11 @@
 					[options]="getVideoPlayerOptions(video.urls)"></ngx-player>
 	</div>
 	<div class="video-info-container">
-		<h2>{{video.title}}</h2>
-		<h3>{{video.description}}</h3>
+		<div class="video-info-left-container">
+			<h2>{{video.title}}</h2>
+			<h4>{{getUploadTimeText()}}</h4>
+			<h3>{{video.description}}</h3> 
+		</div>
 		<like-component [video]="video" />
 	</div>
 	
