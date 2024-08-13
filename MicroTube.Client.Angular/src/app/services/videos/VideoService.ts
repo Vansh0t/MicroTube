@@ -78,7 +78,7 @@ export class VideoService
         {
           response.map(dto =>
           {
-            dto.timestampHuman = DateTime.fromISO(dto.timestamp).toLocal().toLocaleString(DateTime.DATETIME_SHORT);
+            dto.timestampHuman = DateTime.fromISO(dto.timestamp, { zone: "utc" }).toLocal().toLocaleString(DateTime.DATETIME_SHORT);
             if (dto.lengthSeconds != null)
             {
               const length = Duration.fromDurationLike({ seconds: dto.lengthSeconds });

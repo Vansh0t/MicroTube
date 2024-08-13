@@ -34,7 +34,7 @@ export class UploadProgressListComponent implements OnInit, OnDestroy
     {
       if (headerId == "timestamp" && item.timestampHuman != null)
       {
-        return DateTime.fromISO(item.timestamp).toUnixInteger();
+        return DateTime.fromISO(item.timestamp).toLocal().toUnixInteger();
       }
       const value = item[headerId as keyof VideoUploadProgressDTO];
       return value != null ? value: 0;

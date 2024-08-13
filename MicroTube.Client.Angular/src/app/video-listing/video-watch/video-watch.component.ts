@@ -5,6 +5,8 @@ import { BehaviorSubject, Subscription } from "rxjs";
 import { VideoDTO } from "../../data/DTO/VideoDTO";
 import mime from "mime";
 import { NgxPlayerOptions, QualityOption } from "../ngx-player/ngx-player.component";
+import { TimeFormatter } from "../../services/formatting/TimeFormatter";
+import { DateTime } from "luxon";
 
 @Component({
   selector: "video-watch",
@@ -16,17 +18,19 @@ export class VideoWatchComponent implements OnInit, OnDestroy
   private readonly route: ActivatedRoute;
   private readonly router: Router;
   private readonly videoService: VideoService;
+  private readonly timeFormatter: TimeFormatter;
   private videoPlayerOptions: NgxPlayerOptions | null = null;
   private videoId: string | null = null;
   private userAuthStateSubscription: Subscription | null = null;
   private userLikeSubscription: Subscription | null = null;
  
   video$: BehaviorSubject<VideoDTO | null> = new BehaviorSubject<VideoDTO | null>(null);
-  constructor(route: ActivatedRoute, router: Router, videoService: VideoService)
+  constructor(route: ActivatedRoute, router: Router, videoService: VideoService, timeFormatter: TimeFormatter)
   {
     this.route = route;
     this.router = router;
     this.videoService = videoService;
+    this.timeFormatter = timeFormatter;
   }
   ngOnDestroy(): void
   {
@@ -77,6 +81,13 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     const tierString = filename.split(".")[0].split("_").pop();
     return tierString ? tierString: "";
   }
-  
-
+  getUploadTimeText()
+  {
+    const video = this.video$.value;
+    if (!video)
+      return "";
+    const uploadTimeLocal = video.uploadTime.toLocal();
+    const nowLocal = DateTime.local();
+    return this.timeFormatter.getUserFriendlyTimeDifference(uploadTimeLocal, nowLocal);
+  }
 }

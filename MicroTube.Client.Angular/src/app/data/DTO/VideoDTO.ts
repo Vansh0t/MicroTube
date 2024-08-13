@@ -21,7 +21,7 @@ export class VideoDTO
     this.id = raw.id;
     this.urls = raw.urls;
     this.title = raw.title;
-    this.uploadTime = DateTime.fromISO(raw.uploadTime);
+    this.uploadTime = DateTime.fromISO(raw.uploadTime, { zone: "utc" });
     this.description = raw.description;
     this.thumbnailUrls = raw.thumbnailUrls?.split(";"); 
     this.snapshotUrls = raw.snapshotUrls?.split(";");
