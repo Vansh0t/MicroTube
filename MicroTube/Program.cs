@@ -51,6 +51,7 @@ builder.Services.AddSingleton<IVideoNameGenerator, GuidVideoNameGenerator>();
 //builder.Services.AddScoped<IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>, AzureBlobVideoPreprocessingPipeline>();
 builder.Services.AddScoped<IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>, OfflineVideoPreprocessingPipeline>();
 builder.Services.AddScoped<IVideoLikesService, DefaultVideoLikesService>();
+builder.Services.AddScoped<IVideoDislikesService, DefaultVideoDislikesService>();
 //builder.Services.AddScoped<IVideoProcessingPipeline, AzureBlobVideoProcessingPipeline>();
 builder.Services.AddOfflineVideoProcessing();
 

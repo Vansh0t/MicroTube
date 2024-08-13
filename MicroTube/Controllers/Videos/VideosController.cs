@@ -17,13 +17,15 @@ namespace MicroTube.Controllers.Videos
 		private readonly IVideoSearchService _searchService;
 		private readonly IJwtClaims _jwtClaims;
 		private readonly IVideoLikesService _likesService;
+		private readonly IVideoDislikesService _dislikesService;
 		public VideosController(
-			IVideoDataAccess videoDataAccess, IVideoSearchService searchService, IJwtClaims jwtClaims, IVideoLikesService likesService)
+			IVideoDataAccess videoDataAccess, IVideoSearchService searchService, IJwtClaims jwtClaims, IVideoLikesService likesService, IVideoDislikesService dislikesService)
 		{
 			_videoDataAccess = videoDataAccess;
 			_searchService = searchService;
 			_jwtClaims = jwtClaims;
 			_likesService = likesService;
+			_dislikesService = dislikesService;
 		}
 
 		[HttpPost]
@@ -93,6 +95,46 @@ namespace MicroTube.Controllers.Videos
 			string userId = _jwtClaims.GetUserId(User);
 			var likeResult = await _likesService.UnlikeVideo(userId, id);
 			return StatusCode(likeResult.Code, likeResult.Error);
+		}
+		[HttpPost("{id}/dislike")]
+		[Authorize]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoDislikeDTO))]
+		public async Task<IActionResult> Dislike(string id)
+		{
+			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
+			if (!isEmailConfirmed)
+				return StatusCode(403, "Email confirmation is required for this action");
+			string userId = _jwtClaims.GetUserId(User);
+			var result = await _dislikesService.DislikeVideo(userId, id);
+			if (result.IsError)
+				return StatusCode(result.Code, result.Code);
+			return Ok(VideoDislikeDTO.FromModel(result.GetRequiredObject()));
+		}
+		[HttpGet("{id}/dislike")]
+		[Authorize]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoDislikeDTO))]
+		public async Task<IActionResult> GetDislike(string id)
+		{
+			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
+			if (!isEmailConfirmed)
+				return StatusCode(403, "Email confirmation is required for this action");
+			string userId = _jwtClaims.GetUserId(User);
+			var result = await _dislikesService.GetDislike(userId, id);
+			if (result.IsError)
+				return StatusCode(result.Code, result.Code);
+			return Ok(VideoDislikeDTO.FromModel(result.GetRequiredObject()));
+		}
+		[HttpDelete("{id}/dislike")]
+		[Authorize]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoDislikeDTO))]
+		public async Task<IActionResult> DeleteDislike(string id)
+		{
+			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
+			if (!isEmailConfirmed)
+				return StatusCode(403, "Email confirmation is required for this action");
+			string userId = _jwtClaims.GetUserId(User);
+			var result = await _dislikesService.UndislikeVideo(userId, id);
+			return StatusCode(result.Code, result.Error);
 		}
 	}
 }

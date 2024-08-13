@@ -14,6 +14,7 @@
 		public required int LengthSeconds { get; set; }
 		public int Views { get; set; }
 		public int Likes { get; set; }
+		public int Dislikes { get; set; }
 		public string? SearchIndexId { get; set; }
 	}
 }

@@ -10,6 +10,7 @@ namespace MicroTube.Data.Models
 		public DateTime UploadedAt { get; set; }
 		public int Views { get; set; }
 		public int Likes { get; set; }
+		public int Dislikes { get; set; }
 		public int LengthSeconds { get; set; }
 		public string TitleSuggestion { get; set; }
         public int SearchHits { get; set; }
@@ -19,6 +20,7 @@ namespace MicroTube.Data.Models
 			string titleSuggestion,
 			int views,
 			int likes,
+			int dislikes,
 			int lengthSeconds,
 			DateTime uploadedAt)
 		{
@@ -30,6 +32,7 @@ namespace MicroTube.Data.Models
 			Likes = likes;
 			LengthSeconds = lengthSeconds;
 			UploadedAt = uploadedAt;
+			Dislikes = dislikes;
 		}
 	}
 }

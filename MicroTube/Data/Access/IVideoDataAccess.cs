@@ -16,5 +16,6 @@ namespace MicroTube.Data.Access
 		Task<Video?> GetVideo(string id);
 		Task UpdateVideo(Video video);
 		Task<VideoLike?> GetLike(string userId, string videoId);
+		Task<VideoDislike?> GetDislike (string userId, string videoId);
 	}
 }

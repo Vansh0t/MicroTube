@@ -207,11 +207,6 @@ namespace MicroTube.Data.Access.SQLServer
 		public async Task<VideoLike?> GetLike(string userId, string videoId)
 		{
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
-			/*SELECT usedToken.*, userSession.*
-			  FROM dbo.UsedRefreshToken usedToken
-			  RIGHT JOIN dbo.AppUserSession userSession
-			  ON usedToken.SessionId = userSession.Id
-			  WHERE userSession.Id = @Id*/
 			var parameters = new
 			{
 				UserId = userId,
@@ -227,6 +222,28 @@ namespace MicroTube.Data.Access.SQLServer
 				like.Video = video;
 				like.User = user;
 				return like;
+			}, parameters);
+			return result.FirstOrDefault();
+		}
+
+		public async Task<VideoDislike?> GetDislike(string userId, string videoId)
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			var parameters = new
+			{
+				UserId = userId,
+				VideoId = videoId
+			};
+			string sql = @"SELECT TOP 1 [dislike].*, [dislike].*, [video].*
+						   FROM dbo.VideoDislike [dislike]
+						   INNER JOIN dbo.AppUser [user] ON [dislike].UserId = [user].Id
+						   INNER JOIN dbo.Video video ON [dislike].VideoId = video.Id
+						   WHERE UserId = @UserId AND VideoId = @VideoId;";
+			var result = await connection.QueryAsync<VideoDislike, AppUser, Video, VideoDislike>(sql, (dislike, user, video) =>
+			{
+				dislike.Video = video;
+				dislike.User = user;
+				return dislike;
 			}, parameters);
 			return result.FirstOrDefault();
 		}
