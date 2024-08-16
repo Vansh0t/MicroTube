@@ -1,6 +1,6 @@
 
 	@if (options != null) {
-<vg-player (onPlayerReady)="onPlayerReady($event)">
+<vg-player (onPlayerReady)="init($event)">
 	<vg-overlay-play></vg-overlay-play>
 	<!-- 	<vg-buffering></vg-buffering> -->
 	@if(isBuffering ) {

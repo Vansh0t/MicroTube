@@ -19,6 +19,11 @@ export class VideoService
   {
     this.client = client;
   }
+  reportView(id: string): Observable<HttpResponse<null>>
+  {
+    const result = this.client.post<HttpResponse<null>>(`Videos/${id}/view`, {});
+    return result;
+  }
   dislikeVideo(id: string): Observable<VideoDislikeDTO>
   {
     const result = this.client.post<VideoDislikeDTO>(`Videos/${id}/dislike`, {});

@@ -1,12 +1,14 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { VideoService } from "../../services/videos/VideoService";
 import { BehaviorSubject, Subscription } from "rxjs";
 import { VideoDTO } from "../../data/DTO/VideoDTO";
 import mime from "mime";
-import { NgxPlayerOptions, QualityOption } from "../ngx-player/ngx-player.component";
+import { NgxPlayerComponent, NgxPlayerOptions, QualityOption } from "../ngx-player/ngx-player.component";
 import { TimeFormatter } from "../../services/formatting/TimeFormatter";
 import { DateTime } from "luxon";
+import { VgPlayerPlaytimeTracker } from "../../services/videos/VgPlayerPlaytimeTracker";
+import { VgApiService } from "@videogular/ngx-videogular/core";
 
 @Component({
   selector: "video-watch",
@@ -15,22 +17,24 @@ import { DateTime } from "luxon";
 })
 export class VideoWatchComponent implements OnInit, OnDestroy
 {
+  private readonly REPORT_VIEW_TIMEOUT_SECONDS = 30;
   private readonly route: ActivatedRoute;
   private readonly router: Router;
   private readonly videoService: VideoService;
   private readonly timeFormatter: TimeFormatter;
+  private playtimeTracker: VgPlayerPlaytimeTracker | null = null;
   private videoPlayerOptions: NgxPlayerOptions | null = null;
   private videoId: string | null = null;
   private userAuthStateSubscription: Subscription | null = null;
   private userLikeSubscription: Subscription | null = null;
- 
+  @ViewChild("player") player!: NgxPlayerComponent;
   video$: BehaviorSubject<VideoDTO | null> = new BehaviorSubject<VideoDTO | null>(null);
   constructor(route: ActivatedRoute, router: Router, videoService: VideoService, timeFormatter: TimeFormatter)
   {
     this.route = route;
     this.router = router;
     this.videoService = videoService;
-    this.timeFormatter = timeFormatter;
+    this.timeFormatter = timeFormatter;    
   }
   ngOnDestroy(): void
   {
@@ -38,10 +42,10 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     this.userAuthStateSubscription = null;
     this.userLikeSubscription?.unsubscribe();
     this.userLikeSubscription = null;
+    this.playtimeTracker?.dispose();
   }
   ngOnInit(): void
   {
-    
     this.videoId = this.route.snapshot.paramMap.get("id");
     if (this.videoId == null)
     {
@@ -50,7 +54,15 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     }
     this.videoService.getVideo(this.videoId).subscribe(this.video$);
   }
- 
+  onApi(api: VgApiService)
+  {
+    this.playtimeTracker = new VgPlayerPlaytimeTracker(api);
+    this.playtimeTracker.onPlaytime(this.REPORT_VIEW_TIMEOUT_SECONDS, () =>
+    {
+      this.videoService.reportView(this.videoId!);
+    }
+    );
+  }
   getVideoPlayerOptions(videoUrls: string): NgxPlayerOptions
   {
     if (this.videoPlayerOptions)

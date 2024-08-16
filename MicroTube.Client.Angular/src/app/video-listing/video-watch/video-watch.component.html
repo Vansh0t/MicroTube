@@ -1,7 +1,7 @@
 <div class="root-container">
 	@if(video$ | async; as video) {
 	<div class="video-player-container">
-		<ngx-player class="video-player"
+		<ngx-player #player class="video-player" (onApi)="onApi($event)"
 					[options]="getVideoPlayerOptions(video.urls)"></ngx-player>
 	</div>
 	<div class="video-info-container">
