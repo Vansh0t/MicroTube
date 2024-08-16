@@ -1,5 +1,5 @@
-import { Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import {IMediaSubscriptions, VgApiService, VgCoreModule } from "@videogular/ngx-videogular/core";
+import { Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import {VgApiService, VgCoreModule } from "@videogular/ngx-videogular/core";
 import { VgControlsModule } from "@videogular/ngx-videogular/controls";
 import { VgOverlayPlayModule } from "@videogular/ngx-videogular/overlay-play";
 import { VgBufferingModule } from "@videogular/ngx-videogular/buffering";
@@ -30,6 +30,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 })
 export class NgxPlayerComponent implements OnInit, OnDestroy
 {
+  @Output() onApi: EventEmitter<VgApiService> = new EventEmitter<VgApiService>();
   @Input() options!: NgxPlayerOptions;
   quality: QualityOption | null = null;
   api: VgApiService | null = null;
@@ -60,7 +61,7 @@ export class NgxPlayerComponent implements OnInit, OnDestroy
     this.onVolumeChangedSubscription?.unsubscribe();
     this.onVolumeChangedSubscription = null;
   }
-  onPlayerReady(api: VgApiService)
+  init(api: VgApiService)
   {
     this.onNewMetadataLoadedSubscription = api.getDefaultMedia().subscriptions.loadedMetadata
       .subscribe(this.restorePlay.bind(this));
@@ -70,6 +71,7 @@ export class NgxPlayerComponent implements OnInit, OnDestroy
     this.onVolumeChangedSubscription = api.getDefaultMedia().subscriptions.volumeChange
       .subscribe(this.handleVolumeChange.bind(this));
     this.api = api;
+    this.onApi.emit(api);
   }
   updateSource(quality: QualityOption)
   {

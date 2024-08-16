@@ -14,6 +14,7 @@ export class VideoDTO
   searchMeta: string | null;
   likes: number;
   dislikes: number;
+  views: number;
   constructor(
     raw: VideoRawDTO
   )
@@ -30,6 +31,7 @@ export class VideoDTO
     this.searchMeta = raw.searchMeta;
     this.likes = raw.likes;
     this.dislikes = raw.dislikes;
+    this.views = raw.views;
   }
 }
 
@@ -46,6 +48,7 @@ export interface VideoRawDTO
   searchMeta: string | null;
   likes: number;
   dislikes: number;
+  views: number;
 }
 
 export interface VideoUploadDTO

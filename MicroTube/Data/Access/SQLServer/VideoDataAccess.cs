@@ -144,19 +144,6 @@ namespace MicroTube.Data.Access.SQLServer
 		}
 		public async Task UpdateVideo(Video video)
 		{
-			var parameters = new
-			{
-				video.Id,
-				video.UploaderId,
-				video.Title,
-				video.Description,
-				video.Urls,
-				video.SnapshotUrls,
-				video.ThumbnailUrls,
-				video.UploadTime,
-				video.LengthSeconds,
-				video.SearchIndexId
-			};
 			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
 			string sql = @"UPDATE dbo.Video 
 						   SET 
@@ -168,9 +155,12 @@ namespace MicroTube.Data.Access.SQLServer
 						   ThumbnailUrls = @ThumbnailUrls,
 						   UploadTime = @UploadTime,
 						   LengthSeconds = @LengthSeconds,
-						   SearchIndexId = @SearchIndexId
+						   SearchIndexId = @SearchIndexId,
+						   Likes = @Likes,
+						   Dislikes = @Dislikes,
+						   Views = @Views
 						   WHERE Id = @Id;";
-			await connection.ExecuteAsync(sql, parameters);
+			await connection.ExecuteAsync(sql, video);
 		}
 		//TODO: add filtering, sorting, etc
 		public async Task<IEnumerable<Video>> GetVideos()
@@ -246,6 +236,40 @@ namespace MicroTube.Data.Access.SQLServer
 				return dislike;
 			}, parameters);
 			return result.FirstOrDefault();
+		}
+		public async Task AddVideoView(string videoId, string ip)
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			var parameters = new
+			{
+				VideoId = videoId,
+				Ip = ip
+			};
+			string sql = @"INSERT INTO dbo.VideoView(VideoId, Ip) VALUES(@VideoId, @Ip);";
+			await connection.ExecuteAsync(sql, parameters);
+		}
+		public async Task<IEnumerable<VideoView>> GetVideoViews()
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			string sql = @"SELECT [view].*, [video].* 
+						   FROM dbo.VideoView [view]
+						   INNER JOIN dbo.Video [video] ON [view].VideoId = [video].Id;";
+			var result = await connection.QueryAsync<VideoView, Video, VideoView>(sql, (view, video) =>
+			{
+				view.Video = video;
+				return view;
+			});
+			return result;
+		}
+		public async Task DeleteVideoViews(IEnumerable<string> viewIds)
+		{
+			using IDbConnection connection = new SqlConnection(_config.GetDefaultConnectionString());
+			var parameters = new
+			{
+				Ids = viewIds
+			};
+			string sql = @"DELETE FROM dbo.VideoView WHERE Id IN @Ids;";
+			var result = await connection.ExecuteAsync(sql, parameters);
 		}
 	}
 }

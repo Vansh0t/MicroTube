@@ -1,15 +1,22 @@
 <div class="root-container">
 	@if(video$ | async; as video) {
 	<div class="video-player-container">
-		<ngx-player class="video-player"
+		<ngx-player #player class="video-player" (onApi)="onApi($event)"
 					[options]="getVideoPlayerOptions(video.urls)"></ngx-player>
 	</div>
 	<div class="video-info-container">
 		<div class="video-info-left-container">
 			<h2>{{video.title}}</h2>
+			<div class="views-container">
+				<mat-icon>visibility</mat-icon>
+				<h4>{{video.views}}</h4>
+			</div>
 			<h4>{{getUploadTimeText()}}</h4>
-			<h3>{{video.description}}</h3> 
+			<h3>{{video.description}}</h3>
+
 		</div>
+		
+
 		<like-component [video]="video" />
 	</div>
 	
