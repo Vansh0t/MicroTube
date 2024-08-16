@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
+using MicroTube.Services.Search;
 
 namespace MicroTube.Services.VideoContent.Views
 {
@@ -9,15 +10,18 @@ namespace MicroTube.Services.VideoContent.Views
 		private readonly ILogger<DefaultVideoViewsAggregatorService> _logger;
 		private readonly IConfiguration _config;
 		private readonly IVideoDataAccess _videoDataAccess;
+		private readonly IVideoSearchService _videoSearch;
 
 		public DefaultVideoViewsAggregatorService(
 			ILogger<DefaultVideoViewsAggregatorService> logger,
 			IConfiguration config,
-			IVideoDataAccess videoDataAccess)
+			IVideoDataAccess videoDataAccess,
+			IVideoSearchService videoSearch)
 		{
 			_logger = logger;
 			_config = config;
 			_videoDataAccess = videoDataAccess;
+			_videoSearch = videoSearch;
 		}
 		public async Task Aggregate()
 		{
@@ -44,6 +48,7 @@ namespace MicroTube.Services.VideoContent.Views
 				successfulTasks++;
 			}
 			_logger.LogInformation($"Video views aggregation finished. Success: {successfulTasks}, fail: {failedTasks}");
+			await Task.WhenAll(uniqueVideos.Select(_videoSearch.IndexVideo));//move this into video indexing
 		}
 		public async Task<IServiceResult> CreateViewForAggregation(string videoId, string ip)
 		{
