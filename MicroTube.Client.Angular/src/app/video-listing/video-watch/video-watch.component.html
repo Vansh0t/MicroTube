@@ -7,9 +7,16 @@
 	<div class="video-info-container">
 		<div class="video-info-left-container">
 			<h2>{{video.title}}</h2>
+			<div class="views-container">
+				<mat-icon>visibility</mat-icon>
+				<h4>{{video.views}}</h4>
+			</div>
 			<h4>{{getUploadTimeText()}}</h4>
-			<h3>{{video.description}}</h3> 
+			<h3>{{video.description}}</h3>
+
 		</div>
+		
+
 		<like-component [video]="video" />
 	</div>
 	
