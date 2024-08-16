@@ -6,6 +6,7 @@ using MicroTube.Data.Models;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.Search;
 using MicroTube.Services.VideoContent.Likes;
+using MicroTube.Services.VideoContent.Views;
 
 namespace MicroTube.Controllers.Videos
 {
@@ -18,14 +19,21 @@ namespace MicroTube.Controllers.Videos
 		private readonly IJwtClaims _jwtClaims;
 		private readonly IVideoLikesService _likesService;
 		private readonly IVideoDislikesService _dislikesService;
+		private readonly IVideoViewsAggregatorService _viewsService;
 		public VideosController(
-			IVideoDataAccess videoDataAccess, IVideoSearchService searchService, IJwtClaims jwtClaims, IVideoLikesService likesService, IVideoDislikesService dislikesService)
+			IVideoDataAccess videoDataAccess,
+			IVideoSearchService searchService,
+			IJwtClaims jwtClaims,
+			IVideoLikesService likesService,
+			IVideoDislikesService dislikesService,
+			IVideoViewsAggregatorService viewsService)
 		{
 			_videoDataAccess = videoDataAccess;
 			_searchService = searchService;
 			_jwtClaims = jwtClaims;
 			_likesService = likesService;
 			_dislikesService = dislikesService;
+			_viewsService = viewsService;
 		}
 
 		[HttpPost]
@@ -140,6 +148,18 @@ namespace MicroTube.Controllers.Videos
 				return StatusCode(403, "Email confirmation is required for this action");
 			string userId = _jwtClaims.GetUserId(User);
 			var result = await _dislikesService.UndislikeVideo(userId, id);
+			return StatusCode(result.Code, result.Error);
+		}
+		[HttpPost("{id}/view")]
+		[ProducesResponseType(StatusCodes.Status202Accepted)]
+		public async Task<IActionResult> ReportView(string id)
+		{
+			string? ip = HttpContext.GetIp();
+			if(ip == null)
+			{
+				return Forbid("Unable to read connection IP. The protocol might be invalid.");
+			}
+			var result = await _viewsService.CreateViewForAggregation(id, ip);
 			return StatusCode(result.Code, result.Error);
 		}
 	}

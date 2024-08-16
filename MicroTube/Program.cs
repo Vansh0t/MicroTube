@@ -19,6 +19,7 @@ using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent;
 using MicroTube.Services.VideoContent.Likes;
 using MicroTube.Services.VideoContent.Processing;
+using MicroTube.Services.VideoContent.Views;
 using NSwag.Generation.Processors.Security;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -63,6 +64,7 @@ builder.Services.AddScoped<IEmailPasswordAuthenticationDataAccess, EmailPassword
 builder.Services.AddScoped<EmailPasswordAuthenticationProvider>();
 builder.Services.AddScoped<IVideoContentLocalStorage, DefaultVideoContentLocalStorage>();
 builder.Services.AddScoped<IVideoIndexingService, DefaultVideoIndexingService>();
+builder.Services.AddScoped<IVideoViewsAggregatorService, DefaultVideoViewsAggregatorService>();
 
 builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtPasswordResetTokenProvider, DefaultJwtPasswordResetTokenProvider>();
@@ -129,9 +131,9 @@ builder.Services.AddHangfireServer(options =>
 });
 builder.Services.AddHangfireServer(options =>
 {
-	options.ServerName = "VideoIndexing_1";
+	options.ServerName = "VideoMetaProcessing_1";
 	options.WorkerCount = 1;
-	options.Queues = new[] { "video_indexing" };
+	options.Queues = new[] { "video_indexing", "video_views_aggregation" };
 });
 //GlobalFFOptions.Configure(options => options.BinaryFolder = config.GetRequiredValue("FFmpegLocation"));
 var app = builder.Build();
@@ -164,5 +166,6 @@ else
     app.UseSwaggerUi3();
 }
 RecurringJob.AddOrUpdate<IVideoIndexingService>("VideoSearchIndexing", "video_indexing", service => service.EnsureVideoIndices(), Cron.Minutely);
+RecurringJob.AddOrUpdate<IVideoViewsAggregatorService>("VideoViewsAggregation", "video_views_aggregation", service => service.Aggregate(), Cron.Minutely);
 app.Run();
 public partial class Program { }

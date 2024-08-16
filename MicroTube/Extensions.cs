@@ -138,6 +138,14 @@ namespace MicroTube
 			services.AddScoped<IVideoProcessingPipeline, OfflineVideoProcessingPipeline>();
 			return services;
 		}
+		public static string? GetIp(this HttpContext context, bool bypassProxy = true)
+		{
+			if (bypassProxy && context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedIp))
+			{
+				return forwardedIp.ToString();
+			}
+			return context.Connection.RemoteIpAddress?.ToString();
+		}
 		private static void EnsureElasticsearchIndices(ElasticsearchClient client, IConfiguration config)
 		{
 			var options = config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
