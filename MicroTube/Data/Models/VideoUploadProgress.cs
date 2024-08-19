@@ -3,8 +3,8 @@
 	public class VideoUploadProgress
 	{
 		public Guid Id { get; set; }
-		public VideoUploadStatus Status { get; set; }
-		public Guid UploaderId { get; set; }
+		public required VideoUploadStatus Status { get; set; }
+		public required Guid UploaderId { get; set; }
 		public required string Title { get; set; }
 		public string? Description { get; set; }
 		public required string RemoteCacheLocation { get; set; }

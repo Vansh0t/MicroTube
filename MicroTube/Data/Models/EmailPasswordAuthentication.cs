@@ -1,8 +1,9 @@
 ﻿namespace MicroTube.Data.Models
 {
-    public class EmailPasswordAuthentication
+    public class EmailPasswordAuthentication: IAuthenticationData
     {
-		public Guid UserId { get; set; }
+		public required Guid UserId { get; set; }
+		public AppUser? User { get; set; }
 		public required string PasswordHash { get; set; }
         public string? EmailConfirmationString { get; set; }
         public DateTime? EmailConfirmationStringExpiration { get; set; }

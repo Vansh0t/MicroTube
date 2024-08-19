@@ -2,12 +2,12 @@
 {
 	public class AppUserSession
 	{
-		public Guid Id { get; set; }
-		public Guid UserId { get; set; }
+		public required Guid Id { get; set; }
+		public required Guid UserId { get; set; }
 		public required string Token { get; set; }
-		public DateTime IssuedDateTime { get; set; }
-		public DateTime ExpirationDateTime { get; set; }
-		public bool IsInvalidated { get; set; }
-		public List<UsedRefreshToken> UsedTokens { get; set; } = new List<UsedRefreshToken>();
+		public required DateTime IssuedDateTime { get; set; }
+		public required DateTime ExpirationDateTime { get; set; }
+		public required bool IsInvalidated { get; set; }
+		public IEnumerable<UsedRefreshToken> UsedTokens { get; set; } = new List<UsedRefreshToken>();
 	}
 }
