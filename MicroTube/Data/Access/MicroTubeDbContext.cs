@@ -7,11 +7,22 @@ namespace MicroTube.Data.Access
 	{
 		public DbSet<AppUser> Users { get; set; }
 		public DbSet<AppUserSession> UserSessions { get; set; }
-		public DbSet<EmailPasswordAuthentication> EmailPasswordAuthentications { get; set; }
+		public DbSet<UserVideoReaction> UserVideoReactions { get; set; }
+		public DbSet<BasicFlowAuthenticationData> BasicFlowAuthenticationData { get; set; }
 		public DbSet<UsedRefreshToken> UsedRefreshTokens { get; set; }
 		public DbSet<Video> Videos { get; set; }
-		public DbSet<VideoReactions> VideoReactions { get; set; }
-		public DbSet<VideoViews> VideoViews { get; set; }
+		public DbSet<VideoSearchIndexing> VideoSearchIndexing { get; set; }
+		public DbSet<VideoReactionsAggregation> VideoReactions { get; set; }
+		public DbSet<VideoViewsAggregation> VideoAggregatedViews { get; set; }
+		public DbSet<VideoView> VideoViews { get; set; }
 		public DbSet<VideoUploadProgress> VideoUploadProgresses { get; set; }
+		public MicroTubeDbContext()
+		{
+
+		}
+		public MicroTubeDbContext(DbContextOptions<MicroTubeDbContext> options):base(options)
+		{
+
+		}
 	}
 }

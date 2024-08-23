@@ -31,7 +31,7 @@ namespace MicroTube.Controllers.Authentication
 				return StatusCode(refreshResult.Code, refreshResult.Error);
 			var newSession = refreshResult.GetRequiredObject();
 
-			HttpContext.AddRefreshTokenCookie(_config, newSession.RefreshTokenRaw, newSession.Session.ExpirationDateTime);
+			HttpContext.AddRefreshTokenCookie(_config, newSession.RefreshTokenRaw, newSession.Session.Expiration);
 			return Ok(new AuthenticationResponseDTO(newSession.AccessToken));
 		}
     }

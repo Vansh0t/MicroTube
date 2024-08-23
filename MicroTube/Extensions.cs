@@ -15,6 +15,9 @@ using MicroTube.Services.VideoContent.Processing;
 using MicroTube.Services.VideoContent.Processing.Stages;
 using MicroTube.Services.VideoContent.Processing.Stages.Offline;
 using MicroTube.Services.Search;
+using MicroTube.Services.Authentication.BasicFlow;
+using MicroTube.Services.VideoContent.Reactions;
+using MicroTube.Services.VideoContent.Likes;
 
 namespace MicroTube
 {
@@ -77,6 +80,7 @@ namespace MicroTube
 			};
 			context.Response.Cookies.Append(Constants.AuthorizationConstants.REFRESH_TOKEN_COOKIE_KEY, refreshToken, options);
 		}
+
 		public static T GetRequired<T>(this IConfigurationSection section) where T : class
 		{
 			T? result = section.Get<T>();
@@ -85,6 +89,19 @@ namespace MicroTube
 				throw new ConfigurationException($"Unable to find and map a required configuration section of type {typeof(T)}");
 			}
 			return result;
+		}
+		public static IServiceCollection AddDefaultBasicAuthenticationFlow(this IServiceCollection services)
+		{
+			services.AddScoped<IBasicFlowAuthenticationProvider, DefaultBasicFlowAuthenticationProvider>();
+			services.AddScoped<IBasicFlowEmailHandler, DefaultBasicFlowEmailHandler>();
+			services.AddScoped<IBasicFlowPasswordHandler, DefaultBasicFlowPasswordHandler>();
+			return services;
+		}
+		public static IServiceCollection AddVideoReactions(this IServiceCollection services)
+		{
+			services.AddScoped<IVideoReactionsAggregator, DefaultVideoReactionsAggregator>();
+			services.AddScoped<IVideoReactionsService, DefaultVideoReactionsService>();
+			return services;
 		}
 		public static IServiceCollection AddAzureBlobStorage(this IServiceCollection services, string connectionString)
 		{

@@ -17,16 +17,16 @@ namespace MicroTube.Services.VideoContent.Processing
 		private IConfiguration _config;
 		private ILogger<OfflineVideoProcessingPipeline> _logger;
 		private ICdnMediaContentAccess _mediaCdnAccess;
-		private IVideoDataAccess _videoDataAccess;
 		private IVideoContentLocalStorage _localStorage;
+		private MicroTubeDbContext _db;
 
 		public OfflineVideoProcessingPipeline(
 			IConfiguration config,
 			ILogger<OfflineVideoProcessingPipeline> logger,
 			IEnumerable<VideoProcessingStage> stages,
 			ICdnMediaContentAccess mediaCdnAccess,
-			IVideoDataAccess videoDataAccess,
-			IVideoContentLocalStorage localStorage)
+			IVideoContentLocalStorage localStorage,
+			MicroTubeDbContext db)
 		{
 			_config = config;
 			_logger = logger;
@@ -35,8 +35,8 @@ namespace MicroTube.Services.VideoContent.Processing
 				AddStage(stage);
 			}
 			_mediaCdnAccess = mediaCdnAccess;
-			_videoDataAccess = videoDataAccess;
 			_localStorage = localStorage;
+			_db = db;
 		}
 
 		public void AddStage(IPipelineStage<DefaultVideoProcessingContext> stage)
@@ -88,10 +88,11 @@ namespace MicroTube.Services.VideoContent.Processing
 						await RevertProcessingOperation(context.RemoteCache.VideoFileName);
 					if (context.UploadProgress != null)
 					{
+						_db.Update(context.UploadProgress);
 						context.UploadProgress.Status = VideoUploadStatus.Fail;
 						if (context.UploadProgress.Message == null)
 							context.UploadProgress.Message = "Unknown error";
-						await _videoDataAccess.UpdateUploadProgress(context.UploadProgress);
+						await _db.SaveChangesAsync();
 					}
 				}
 				catch { }

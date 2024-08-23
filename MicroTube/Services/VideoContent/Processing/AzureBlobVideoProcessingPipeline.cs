@@ -13,114 +13,115 @@ namespace MicroTube.Services.VideoContent.Processing
 	{
 		private readonly IConfiguration _config;
 		private readonly ILogger<AzureBlobVideoProcessingPipeline> _logger;
-		private readonly IVideoDataAccess _videoDataAccess;
 		private readonly IVideoContentLocalStorage _videoLocalStorage;
 		private readonly IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _remoteStorage;
 		private readonly ICdnMediaContentAccess _mediaCdnAccess;
 		private readonly IVideoThumbnailsService _thumbnailService;
 		private readonly IVideoAnalyzer _videoAnalyzer;
+		private readonly MicroTubeDbContext _db;
 
 		public PipelineState State => throw new NotImplementedException();
 
 		public AzureBlobVideoProcessingPipeline(
 			IConfiguration config,
 			ILogger<AzureBlobVideoProcessingPipeline> logger,
-			IVideoDataAccess videoDataAccess,
 			IVideoContentLocalStorage videoLocalStorage,
 			ICdnMediaContentAccess mediaCdnAccess,
 			IVideoThumbnailsService thumbnailService,
 			IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage,
-			IVideoAnalyzer videoAnalyzer)
+			IVideoAnalyzer videoAnalyzer,
+			MicroTubeDbContext db)
 		{
 			_config = config;
 			_logger = logger;
-			_videoDataAccess = videoDataAccess;
 			_videoLocalStorage = videoLocalStorage;
 			_mediaCdnAccess = mediaCdnAccess;
 			_thumbnailService = thumbnailService;
 			_remoteStorage = remoteStorage;
 			_videoAnalyzer = videoAnalyzer;
+			_db = db;
 		}
 		public async Task Process(string videoFileName, string videoFileLocation, CancellationToken cancellationToken = default)
 		{
-			VideoProcessingOptions processingOptions = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
-			VideoUploadProgress? uploadProgress = null;
-			string? videoPath = null;
-			Stopwatch stopwatch = Stopwatch.StartNew();
-			try
-			{
-				uploadProgress = await GetVideoUploadProgressForFilePath(videoFileName);
-				cancellationToken.ThrowIfCancellationRequested();
-				videoPath = await DownloadFromRemoteProcessingCache(videoFileName, videoFileLocation, processingOptions.AbsoluteLocalStoragePath, cancellationToken);
-				cancellationToken.ThrowIfCancellationRequested();
-				uploadProgress = await UpdateProgressFromAnalyzeResult(videoPath, uploadProgress, cancellationToken);
-				uploadProgress.Status = VideoUploadStatus.InProgress;
-				EnsureUploadProgressLengthIsSet(uploadProgress);
-				await _videoDataAccess.UpdateUploadProgress(uploadProgress);
-				cancellationToken.ThrowIfCancellationRequested();
-				(IEnumerable<string> thumbnailPaths,
-				IEnumerable<string> snapshotPaths) = await MakeImagesSubcontent(videoPath, processingOptions.AbsoluteLocalStoragePath, cancellationToken);
-				cancellationToken.ThrowIfCancellationRequested();
-				var cdnVideoUrl = await UploadVideoToCdn(videoPath, videoFileName, cancellationToken);
-				cancellationToken.ThrowIfCancellationRequested();
-				string subcontentDirectory = Path.Join(processingOptions.AbsoluteLocalStoragePath, Path.GetFileNameWithoutExtension(videoFileName));
-				IEnumerable<Uri> subcontentUrls = await UploadVideoSubcontentToCdn(subcontentDirectory, videoFileName, cancellationToken);
-				cancellationToken.ThrowIfCancellationRequested();
-				(string snapshotUrls, string thumbnailUrls) = FormatUrls(snapshotPaths, thumbnailPaths, subcontentUrls);
-				EnsureUploadProgressLengthIsSet(uploadProgress);
-				var createdVideo = await _videoDataAccess.CreateVideo(
-					new Video
-					{
-						UploaderId = uploadProgress.UploaderId,
-						Title = uploadProgress.Title,
-						Description = uploadProgress.Description,
-						Urls = cdnVideoUrl.ToString(),
-						ThumbnailUrls = thumbnailUrls,
-						SnapshotUrls = snapshotUrls,
-						UploadTime = DateTime.UtcNow,
-						LengthSeconds = uploadProgress.LengthSeconds!.Value
-					}
-					);
-				var processingTime = stopwatch.Elapsed;
-				uploadProgress.Status = VideoUploadStatus.Success;
-				if (uploadProgress.Message == null)
-					uploadProgress.Message = $"Upload successfully completed. Time: {processingTime}.";
-				await _videoDataAccess.UpdateUploadProgress(uploadProgress);
-			}
-			catch(Exception e)
-			{
-				try
-				{
-					//TODO: set to InQueue if retries are available
-					await RevertProcessingOperation(videoFileName);
-					if (uploadProgress != null)
-					{
-						uploadProgress.Status = VideoUploadStatus.Fail;
-						if (uploadProgress.Message == null)
-							uploadProgress.Message = "Unknown error";
-						await _videoDataAccess.UpdateUploadProgress(uploadProgress);
-					}
-				}
-				catch { }
-				throw;
-			}
-			finally
-			{
-				try
-				{
-					CleanupProcessingOperation(videoFileName, videoPath, processingOptions);
-				}
-				catch { }
-			}
+			//VideoProcessingOptions processingOptions = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
+			//VideoUploadProgress? uploadProgress = null;
+			//string? videoPath = null;
+			//Stopwatch stopwatch = Stopwatch.StartNew();
+			//try
+			//{
+			//	uploadProgress = await GetVideoUploadProgressForFilePath(videoFileName);
+			//	cancellationToken.ThrowIfCancellationRequested();
+			//	videoPath = await DownloadFromRemoteProcessingCache(videoFileName, videoFileLocation, processingOptions.AbsoluteLocalStoragePath, cancellationToken);
+			//	cancellationToken.ThrowIfCancellationRequested();
+			//	uploadProgress = await UpdateProgressFromAnalyzeResult(videoPath, uploadProgress, cancellationToken);
+			//	uploadProgress.Status = VideoUploadStatus.InProgress;
+			//	EnsureUploadProgressLengthIsSet(uploadProgress);
+			//	await _videoDataAccess.UpdateUploadProgress(uploadProgress);
+			//	cancellationToken.ThrowIfCancellationRequested();
+			//	(IEnumerable<string> thumbnailPaths,
+			//	IEnumerable<string> snapshotPaths) = await MakeImagesSubcontent(videoPath, processingOptions.AbsoluteLocalStoragePath, cancellationToken);
+			//	cancellationToken.ThrowIfCancellationRequested();
+			//	var cdnVideoUrl = await UploadVideoToCdn(videoPath, videoFileName, cancellationToken);
+			//	cancellationToken.ThrowIfCancellationRequested();
+			//	string subcontentDirectory = Path.Join(processingOptions.AbsoluteLocalStoragePath, Path.GetFileNameWithoutExtension(videoFileName));
+			//	IEnumerable<Uri> subcontentUrls = await UploadVideoSubcontentToCdn(subcontentDirectory, videoFileName, cancellationToken);
+			//	cancellationToken.ThrowIfCancellationRequested();
+			//	(string snapshotUrls, string thumbnailUrls) = FormatUrls(snapshotPaths, thumbnailPaths, subcontentUrls);
+			//	EnsureUploadProgressLengthIsSet(uploadProgress);
+			//	var createdVideo = await _videoDataAccess.CreateVideo(
+			//		new Video
+			//		{
+			//			UploaderId = uploadProgress.UploaderId,
+			//			Title = uploadProgress.Title,
+			//			Description = uploadProgress.Description,
+			//			Urls = cdnVideoUrl.ToString(),
+			//			ThumbnailUrls = thumbnailUrls,
+			//			SnapshotUrls = snapshotUrls,
+			//			UploadTime = DateTime.UtcNow,
+			//			LengthSeconds = uploadProgress.LengthSeconds!.Value
+			//		}
+			//		);
+			//	var processingTime = stopwatch.Elapsed;
+			//	uploadProgress.Status = VideoUploadStatus.Success;
+			//	if (uploadProgress.Message == null)
+			//		uploadProgress.Message = $"Upload successfully completed. Time: {processingTime}.";
+			//	await _videoDataAccess.UpdateUploadProgress(uploadProgress);
+			//}
+			//catch(Exception e)
+			//{
+			//	try
+			//	{
+			//		//TODO: set to InQueue if retries are available
+			//		await RevertProcessingOperation(videoFileName);
+			//		if (uploadProgress != null)
+			//		{
+			//			uploadProgress.Status = VideoUploadStatus.Fail;
+			//			if (uploadProgress.Message == null)
+			//				uploadProgress.Message = "Unknown error";
+			//			await _videoDataAccess.UpdateUploadProgress(uploadProgress);
+			//		}
+			//	}
+			//	catch { }
+			//	throw;
+			//}
+			//finally
+			//{
+			//	try
+			//	{
+			//		CleanupProcessingOperation(videoFileName, videoPath, processingOptions);
+			//	}
+			//	catch { }
+			//}
 		}
 		private async Task<VideoUploadProgress> GetVideoUploadProgressForFilePath(string fileName)
 		{
-			var uploadProgress = await _videoDataAccess.GetUploadProgressByFileName(fileName);
-			if (uploadProgress == null)
-			{
-				throw new BackgroundJobException($"Failed to get upload progress from db for video processing job. File: {fileName}.");
-			}
-			return uploadProgress;
+			//var uploadProgress = await _videoDataAccess.GetUploadProgressByFileName(fileName);
+			//if (uploadProgress == null)
+			//{
+			//	throw new BackgroundJobException($"Failed to get upload progress from db for video processing job. File: {fileName}.");
+			//}
+			//return uploadProgress;
+			return null;
 		}
 		private async Task<string> DownloadFromRemoteProcessingCache(string fileName, string fileLocation, string saveToPath, CancellationToken cancellationToken)
 		{

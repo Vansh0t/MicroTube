@@ -6,6 +6,6 @@ namespace MicroTube.Services.Authentication
 	{
 		Task<IServiceResult<NewSessionResult>> CreateNewSession(string userId);
 		Task<IServiceResult<NewSessionResult>> RefreshSession(string refreshToken);
-		Task InvalidateSession(AppUserSession session, string reason);
+		Task<IServiceResult> InvalidateSession(string sessionId, string reason);
 	}
 }

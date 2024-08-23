@@ -6,15 +6,15 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
     public class SetProgressInProgressStage : VideoProcessingStage
     {
         private readonly IVideoAnalyzer _analyzer;
-        private readonly IVideoDataAccess _dataAccess;
+		private readonly MicroTubeDbContext _db;
 
-        public SetProgressInProgressStage(IVideoAnalyzer analyzer, IVideoDataAccess dataAccess)
-        {
-            _analyzer = analyzer;
-            _dataAccess = dataAccess;
-        }
+		public SetProgressInProgressStage(IVideoAnalyzer analyzer, MicroTubeDbContext db)
+		{
+			_analyzer = analyzer;
+			_db = db;
+		}
 
-        protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
+		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
         {
 			if (context == null)
 			{
@@ -28,11 +28,12 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 			{
 				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(SetProgressInProgressStage)}");
 			}
+			_db.Update(context.UploadProgress);
 			string localCacheSourcePath = context.LocalCache.SourcePath;
             context.UploadProgress = await UpdateProgressFromAnalyzeResult(localCacheSourcePath, context.UploadProgress, cancellationToken);
             context.UploadProgress.Status = VideoUploadStatus.InProgress;
             EnsureUploadProgressLengthIsSet(context.UploadProgress);
-            await _dataAccess.UpdateUploadProgress(context.UploadProgress);
+			await _db.SaveChangesAsync();
             return context;
         }
         private async Task<VideoUploadProgress> UpdateProgressFromAnalyzeResult(string localCacheVideoSourcePath, VideoUploadProgress uploadProgress, CancellationToken cancellationToken)

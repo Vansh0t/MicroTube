@@ -39,19 +39,26 @@ namespace MicroTube.Services.Search
 
 		public async Task<IServiceResult<Video>> IndexVideo(Video video)
 		{
+			if(video.VideoViews == null || video.VideoReactions == null || video.VideoIndexing == null)
+			{
+				throw new RequiredObjectNotFoundException(
+					$"Video does not have {nameof(video.VideoViews)} or {nameof(video.VideoReactions)} or {nameof(video.VideoIndexing)}. Indexing failed.");
+			}
 			var videoIndexData = new VideoSearchIndex(video.Id.ToString(),
 				video.Title,
 				video.Description,
 				video.Title,
-				video.Views,
-				video.Likes,
-				video.Dislikes,
+				video.VideoViews.Views,
+				video.VideoReactions.Likes,
+				video.VideoReactions.Dislikes,
 				video.LengthSeconds,
 				video.UploadTime);
 			try
 			{
 				string indexId = await _searchDataAccess.IndexVideo(videoIndexData);
-				video.SearchIndexId = indexId;
+				video.VideoIndexing.SearchIndexId = indexId;
+				video.VideoIndexing.ReindexingRequired = false;
+				video.VideoIndexing.LastIndexingTime = DateTime.UtcNow;
 				_logger.LogInformation("ElasticSearch indexing done: " + indexId);	
 			}
 			catch (Exception e)
