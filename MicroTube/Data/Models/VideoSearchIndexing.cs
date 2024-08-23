@@ -1,20 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using Elastic.Clients.Elasticsearch;
-using Microsoft.EntityFrameworkCore;
 
 namespace MicroTube.Data.Models
 {
-	[Index(nameof(Ip), IsUnique = true)]
-	public class VideoView
+	public class VideoSearchIndexing
 	{
-		public Guid Id { get; set; }
+		[Key]
 		[Required]
 		[ForeignKey(nameof(Video))]
 		public Guid VideoId { get; set; }
 		public Video? Video { get; set; }
 		[Column(TypeName = "VARCHAR"), StringLength(50)]
-		public required string Ip { get; set; }
-
+		public string? SearchIndexId { get; set; }
+		public bool ReindexingRequired { get; set; }
+		public DateTime? LastIndexingTime { get; set; }
 	}
 }
