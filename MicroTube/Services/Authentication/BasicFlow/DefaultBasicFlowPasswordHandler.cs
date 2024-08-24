@@ -63,7 +63,9 @@ namespace MicroTube.Services.Authentication.BasicFlow
 				return ServiceResult<string>.Fail(403, "Forbidden");
 
 			var resetStringHash = _secureTokensProvider.HashSecureToken(passwordResetString);
-			var authData = await _db.BasicFlowAuthenticationData.FirstOrDefaultAsync(_ => _.PasswordResetString == resetStringHash);
+			var authData = await _db.AuthenticationData
+				.OfType<BasicFlowAuthenticationData>()
+				.FirstOrDefaultAsync(_ => _.PasswordResetString == resetStringHash);
 			if (authData == null || authData.User == null || !authData.User.IsEmailConfirmed)
 				return ServiceResult<string>.Fail(403, "Forbidden");
 			if (authData.PasswordResetString == null || authData.PasswordResetStringExpiration == null

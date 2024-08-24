@@ -74,8 +74,9 @@ namespace MicroTube.Services.Authentication.BasicFlow
 			{
 				return ServiceResult<AppUser>.Fail(403, "Forbidden");
 			}
-			var authData = await _db.BasicFlowAuthenticationData
+			var authData = await _db.AuthenticationData
 				.Include(_ => _.User)
+				.OfType<BasicFlowAuthenticationData>()
 				.FirstOrDefaultAsync(_ => _.EmailConfirmationString == stringHash);
 			if (authData == null || authData.User == null)
 			{
@@ -113,8 +114,9 @@ namespace MicroTube.Services.Authentication.BasicFlow
 				return ServiceResult<AppUser>.Fail(403, "Forbidden");
 
 			var stringHash = _secureTokensProvider.HashSecureToken(stringRaw);
-			var authData = await _db.BasicFlowAuthenticationData
+			var authData = await _db.AuthenticationData
 				.Include(_ => _.User)
+				.OfType<BasicFlowAuthenticationData>()
 				.FirstOrDefaultAsync(_ => _.EmailConfirmationString == stringHash);
 			if (authData == null || authData.User == null || authData.PendingEmail == null || authData.EmailConfirmationString == null
 				|| DateTime.UtcNow > authData.EmailConfirmationStringExpiration

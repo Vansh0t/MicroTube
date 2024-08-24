@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using EntityFramework.Exceptions.Common;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
@@ -85,12 +86,15 @@ namespace MicroTube.Services.Authentication.BasicFlow
 				await _db.SaveChangesAsync();
 				await _emailManager.SendEmailConfirmation(newUser.Email, confirmationString);
 			}
-			catch (SqlException e)
+			catch (UniqueConstraintException uniqueConstraintException)
 			{
-				//unique key constraint violation
-				if (e.Number == 2627)
+				if (uniqueConstraintException.ConstraintProperties == null //Always null for SQLite
+					|| uniqueConstraintException.ConstraintProperties.Contains(nameof(AppUser.Username)) 
+					|| uniqueConstraintException.ConstraintProperties.Contains(nameof(AppUser.Email)))
+				{
 					return ServiceResult<AppUser>.Fail(400, "Username or Email are already in use.");
-				_logger.LogError(e, "Failed to insert new user into database with unhandled SQL exception.");
+				}
+				_logger.LogError(uniqueConstraintException, "Failed to insert new user into database with unhandled SQL exception.");
 				return ServiceResult<AppUser>.FailInternal();
 			}
 			catch (Exception e)

@@ -1,3 +1,4 @@
+using EntityFramework.Exceptions.SqlServer;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -47,7 +48,9 @@ builder.Services.AddScoped<IVideoPreprocessingPipeline<VideoPreprocessingOptions
 builder.Services.AddVideoReactions();
 //builder.Services.AddScoped<IVideoProcessingPipeline, AzureBlobVideoProcessingPipeline>();
 builder.Services.AddOfflineVideoProcessing();
-builder.Services.AddDbContext<MicroTubeDbContext>(options => options.UseSqlServer(config.GetDefaultConnectionString()));
+builder.Services.AddDbContext<MicroTubeDbContext>(
+	options => options.UseSqlServer(config.GetDefaultConnectionString())
+					  .UseExceptionProcessor());
 builder.Services.AddDefaultBasicAuthenticationFlow();
 builder.Services.AddScoped<IVideoThumbnailsService, FFMpegVideoThumbnailsService>();
 builder.Services.AddScoped<IVideoCompressionService, FFMpegVideoCompressionService>();
