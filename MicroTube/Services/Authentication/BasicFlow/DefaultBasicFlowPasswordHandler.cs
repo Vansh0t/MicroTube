@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
+using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
 using MicroTube.Services.Email;
 using MicroTube.Services.Validation;
@@ -45,11 +46,11 @@ namespace MicroTube.Services.Authentication.BasicFlow
 		{
 			var emailValidationResult = _emailValidator.Validate(email);
 			if (emailValidationResult.IsError)
-				return ServiceResult.Fail(403, "Forbidden");
+				return emailValidationResult;
 
 			var user = await _db.Users.Include(_ => _.Authentication).FirstOrDefaultAsync(_ => _.Email == email);
 			if (user == null || !user.IsEmailConfirmed || !(user.Authentication is BasicFlowAuthenticationData basicAuth))
-				return ServiceResult.Success();
+				return ServiceResult.Success(); //return success and do not disclose the error as part of the security standards
 
 			var authData = user.Authentication;
 			authData = ApplyPasswordReset(basicAuth, out string passwordResetStringRaw);
@@ -61,12 +62,19 @@ namespace MicroTube.Services.Authentication.BasicFlow
 		{
 			if (string.IsNullOrWhiteSpace(passwordResetString))
 				return ServiceResult<string>.Fail(403, "Forbidden");
-
-			var resetStringHash = _secureTokensProvider.HashSecureToken(passwordResetString);
+			string resetStringHash;
+			try
+			{
+				resetStringHash = _secureTokensProvider.HashSecureToken(passwordResetString);
+			}
+			catch(FormatException)
+			{
+				return ServiceResult<string>.Fail(403, "Forbidden");
+			}
 			var authData = await _db.AuthenticationData
 				.OfType<BasicFlowAuthenticationData>()
 				.FirstOrDefaultAsync(_ => _.PasswordResetString == resetStringHash);
-			if (authData == null || authData.User == null || !authData.User.IsEmailConfirmed)
+			if (authData == null || authData.User == null /*|| !authData.User.IsEmailConfirmed*/)
 				return ServiceResult<string>.Fail(403, "Forbidden");
 			if (authData.PasswordResetString == null || authData.PasswordResetStringExpiration == null
 				|| DateTime.UtcNow > authData.PasswordResetStringExpiration)
@@ -78,16 +86,21 @@ namespace MicroTube.Services.Authentication.BasicFlow
 		}
 		public async Task<IServiceResult> ChangePassword(string userId, string newPassword)
 		{
+			if(string.IsNullOrWhiteSpace(userId) || !Guid.TryParse(userId, out var guidUserId))
+				return ServiceResult.Fail(403, "User does not exist.");
 			var validationResult = _passwordValidator.Validate(newPassword);
 			if (validationResult.IsError)
-				return ServiceResult.Fail(validationResult.Code, validationResult.Error!);
-			var user = await _db.Users.FirstOrDefaultAsync(_ => _.Id == new Guid(userId));
+				return validationResult;
+			var user = await _db.Users.FirstOrDefaultAsync(_ => _.Id == guidUserId);
 			if (user == null)
-				return ServiceResult.Fail(403, "Passwords don't match");
+			{
+				_logger.LogError("User tried to change email, but wasn't found.");
+				return ServiceResult.Fail(403, "User does not exist.");
+			}
 			var authData = user.Authentication;
 			if (!(authData is BasicFlowAuthenticationData basicAuth))
 			{
-				return ServiceResult.Fail(400, "Wrong authentication type for this action.");
+				return ServiceResult.Fail(403, "Wrong authentication type for this action.");
 			}
 			basicAuth.PasswordResetString = null;
 			basicAuth.PasswordResetStringExpiration = null;
@@ -102,8 +115,8 @@ namespace MicroTube.Services.Authentication.BasicFlow
 			string resetStringRaw = _secureTokensProvider.GenerateSecureToken();
 			string resetStringHash = _secureTokensProvider.HashSecureToken(resetStringRaw);
 			authData.PasswordResetString = resetStringHash;
-			long resetExpirationTicks = _config.GetValue<long>("PasswordResetString:ExpirationTicks");
-			authData.PasswordResetStringExpiration = DateTime.UtcNow + new TimeSpan(resetExpirationTicks);
+			var options = _config.GetRequiredByKey<PasswordConfirmationOptions>(PasswordConfirmationOptions.KEY);
+			authData.PasswordResetStringExpiration = DateTime.UtcNow + TimeSpan.FromSeconds(options.ExpirationSeconds);
 			resetString = resetStringRaw;
 			return authData;
 		}
