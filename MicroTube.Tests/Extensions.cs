@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.Data;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 
 namespace MicroTube.Tests
@@ -19,11 +20,13 @@ namespace MicroTube.Tests
 		}
 		public static IConfigurationBuilder AddConfigObject<T>(this IConfigurationBuilder configBuilder, string key, T objectToAdd)
 		{
-			Dictionary<string, string?> serializedObject = new Dictionary<string, string?>()
+			Dictionary<string, object?> data = new Dictionary<string, object?>()
 			{
-				{key, JsonSerializer.Serialize(objectToAdd)}
+				{key, objectToAdd}
 			};
-			configBuilder.AddInMemoryCollection(serializedObject);
+			string serializedData = JsonSerializer.Serialize(data);
+			MemoryStream jsonStream = new MemoryStream(Encoding.ASCII.GetBytes(serializedData));
+			configBuilder.AddJsonStream(jsonStream);
 			return configBuilder;
 		}
 		/// <summary>
