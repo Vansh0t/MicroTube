@@ -37,7 +37,7 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			authData.User = user;
 			db.Add(user);
 			db.SaveChanges();
-			IBasicFlowPasswordHandler passwordHandler = CreateSuccessHandler(
+			IBasicFlowPasswordHandler passwordHandler = CreatePasswordHandler(
 				db,
 				user.Id.ToString(),
 				password,
@@ -79,7 +79,7 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			authData.User = user;
 			db.Add(user);
 			db.SaveChanges();
-			IBasicFlowPasswordHandler passwordHandler = CreateSuccessHandler(
+			IBasicFlowPasswordHandler passwordHandler = CreatePasswordHandler(
 				db,
 				user.Id.ToString(),
 				password,
@@ -108,7 +108,7 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			string passwordResetStringHash = "password_reset_string_hash";
 			string jwtPasswordResetToken = "jwt_pwd_reset_token";
 			string email = "email@email.com";
-			IBasicFlowPasswordHandler passwordHandler = CreateSuccessHandler(
+			IBasicFlowPasswordHandler passwordHandler = CreatePasswordHandler(
 				db,
 				Guid.NewGuid().ToString(),
 				password,
@@ -142,7 +142,7 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			authData.User = user;
 			db.Add(user);
 			db.SaveChanges();
-			IBasicFlowPasswordHandler passwordHandler = CreateSuccessHandler(
+			IBasicFlowPasswordHandler passwordHandler = CreatePasswordHandler(
 				db,
 				user.Id.ToString(),
 				password,
@@ -179,7 +179,7 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			authData.User = user;
 			db.Add(user);
 			db.SaveChanges();
-			IBasicFlowPasswordHandler passwordHandler = CreateSuccessHandler(
+			IBasicFlowPasswordHandler passwordHandler = CreatePasswordHandler(
 				db,
 				user.Id.ToString(),
 				password,
@@ -219,7 +219,7 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			authData.User = user;
 			db.Add(user);
 			db.SaveChanges();
-			IBasicFlowPasswordHandler passwordHandler = CreateSuccessHandler(
+			IBasicFlowPasswordHandler passwordHandler = CreatePasswordHandler(
 				db,
 				user.Id.ToString(),
 				password,
@@ -265,7 +265,7 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			authData.User = user;
 			db.Add(user);
 			db.SaveChanges();
-			IBasicFlowPasswordHandler passwordHandler = CreateSuccessHandler(
+			IBasicFlowPasswordHandler passwordHandler = CreatePasswordHandler(
 				db,
 				user.Id.ToString(),
 				password,
@@ -308,7 +308,7 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			authData.User = user;
 			db.Add(user);
 			db.SaveChanges();
-			IBasicFlowPasswordHandler passwordHandler = CreateSuccessHandler(
+			IBasicFlowPasswordHandler passwordHandler = CreatePasswordHandler(
 				db,
 				user.Id.ToString(),
 				password,
@@ -361,7 +361,7 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			authData.User = user;
 			db.Add(user);
 			db.SaveChanges();
-			IBasicFlowPasswordHandler passwordHandler = CreateSuccessHandler(
+			IBasicFlowPasswordHandler passwordHandler = CreatePasswordHandler(
 				db,
 				user.Id.ToString(),
 				password,
@@ -399,7 +399,7 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			authData.User = user;
 			db.Add(user);
 			db.SaveChanges();
-			IBasicFlowPasswordHandler passwordHandler = CreateSuccessHandler(
+			IBasicFlowPasswordHandler passwordHandler = CreatePasswordHandler(
 				db,
 				user.Id.ToString(),
 				password,
@@ -416,7 +416,7 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			var updatedAuthData = db.AuthenticationData.OfType<BasicFlowAuthenticationData>().FirstOrDefault(_ => authData.Id == _.Id);
 			Assert.Null(updatedAuthData);
 		}
-		private IBasicFlowPasswordHandler CreateSuccessHandler(
+		private IBasicFlowPasswordHandler CreatePasswordHandler(
 			MicroTubeDbContext db,
 			string validUserId,
 			string validPassword,
