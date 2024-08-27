@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
+using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
 
 namespace MicroTube.Services.Authentication
@@ -31,60 +32,56 @@ namespace MicroTube.Services.Authentication
 
 		public async Task<IServiceResult<NewSessionResult>> CreateNewSession(string userId)
 		{
-			string refreshTokenRaw;
-			string refreshToken = GetHashedRefreshToken(out refreshTokenRaw);
-			var user = await _db.Users.FirstOrDefaultAsync(_ => _.Id == new Guid(userId));
+			if(!Guid.TryParse(userId, out var guidUserId))
+			{
+				return ServiceResult<NewSessionResult>.Fail(403, "Forbidden");
+			}
+			var user = await _db.Users.FirstOrDefaultAsync(_ => _.Id == guidUserId);
 			if (user == null)
 			{
 				_logger.LogError($"User {userId} tried to create a new session, but wasn't found in database");
-				return ServiceResult<NewSessionResult>.FailInternal();
+				return ServiceResult<NewSessionResult>.Fail(403, "Forbidden");
 			}
-
+			string refreshToken = GetHashedRefreshToken(out var refreshTokenRaw);
 			DateTime issued = DateTime.UtcNow;
 			DateTime expires = GetTokenTime(issued);
 			AppUserSession session = new() { UserId = new Guid(userId), Expiration = expires, IssuedAt = issued, IsInvalidated = false, Token = refreshToken };
-			_db.Add(session);
-			await _db.SaveChangesAsync();
 			var accessTokenResult = _accessTokenProvider.BuildJWTAccessToken(_claims, user);
 			if(accessTokenResult.IsError)
 			{
 				_logger.LogError($"Failed to create a new access token for user {userId}, Error: {accessTokenResult.Error}");
 				return ServiceResult<NewSessionResult>.FailInternal();
 			}
+			_db.Add(session);
+			await _db.SaveChangesAsync();
 			return ServiceResult<NewSessionResult>.Success(new NewSessionResult(session, refreshTokenRaw, accessTokenResult.GetRequiredObject()));
 		}
 		public async Task<IServiceResult<NewSessionResult>> RefreshSession(string refreshToken)
 		{
 			if (string.IsNullOrWhiteSpace(refreshToken))
-				return ServiceResult<NewSessionResult>.Fail(400, "Invalid token");
+				return ServiceResult<NewSessionResult>.Fail(403, "Token is expired or invalid");
 			string tokenHash;
 			try
 			{
 				tokenHash = _tokensProvider.HashSecureToken(refreshToken);
 			}
-			catch (Exception e)
+			catch (FormatException)
 			{
-				_logger.LogWarning(e, "Failed to hash a user provided refresh token.");
 				return ServiceResult<NewSessionResult>.Fail(403, "Token is expired or invalid");
 			}
 			var session = await _db.UserSessions
-				.Include(_=>_.UsedTokens.Where(_=>_.Token == tokenHash))
+				//.Include(_=>_.UsedTokens.Where(_=>_.Token == tokenHash))
 				.Include(_=>_.User)
 				.FirstOrDefaultAsync(_ => _.Token == tokenHash);
 			if(session == null)
 			{
+				await HandlePotentialReusedToken(tokenHash);
 				return ServiceResult<NewSessionResult>.Fail(403, "Token is expired or invalid");
 			}
-			if (session.UsedTokens.Count() > 0)
+			if (session.IsInvalidated || DateTime.UtcNow > session.Expiration)
 			{
-				_logger.LogWarning($"Got used refresh token. Invalidating session {session.Id}");
-				
-				await InvalidateSession(session, $"User session {session.UserId} was invalidated due to the same refresh token used twice.");
 				return ServiceResult<NewSessionResult>.Fail(403, "Token is expired or invalid");
-				//TO DO: Add user email notification, suggest credentials changing, etc.
 			}
-			if (session == null || session.IsInvalidated || DateTime.UtcNow > session.Expiration)
-				return ServiceResult<NewSessionResult>.Fail(403, "Token is expired or invalid");
 			session = ApplySessionRefresh(session, out var newRefreshTokenRaw);
 			if (session.User == null)
 			{
@@ -102,12 +99,17 @@ namespace MicroTube.Services.Authentication
 		}
 		public async Task<IServiceResult> InvalidateSession(string sessionId, string reason)
 		{
-			var session = await _db.UserSessions.FirstOrDefaultAsync(_ => _.Id == new Guid(sessionId));
+			if (!Guid.TryParse(sessionId, out var guidSessionId))
+			{
+				return ServiceResult<NewSessionResult>.Fail(400, "Invalid session id");
+			}
+			var session = await _db.UserSessions.FirstOrDefaultAsync(_ => _.Id == guidSessionId);
 			if (session == null)
 				return ServiceResult.Fail(404, "Session does not exist");
 			_logger.LogWarning(reason);
 			session.IsInvalidated = true;
 			await _db.SaveChangesAsync();
+			_logger.LogWarning($"Session {sessionId} is invalidated. Reason: {reason}.");
 			return ServiceResult.Success();
 		}
 		private AppUserSession ApplySessionRefresh(AppUserSession session, out string newRefreshTokenRaw)
@@ -118,12 +120,6 @@ namespace MicroTube.Services.Authentication
 			session.Expiration = GetTokenTime(session.IssuedAt);
 			return session;
 		}
-		private async Task InvalidateSession(AppUserSession session, string reason)
-		{
-			_logger.LogWarning(reason);
-			session.IsInvalidated = true;
-			await _db.SaveChangesAsync();
-		}
 		private string GetHashedRefreshToken(out string refreshTokenRaw)
 		{
 			refreshTokenRaw = _tokensProvider.GenerateSecureToken();
@@ -132,9 +128,18 @@ namespace MicroTube.Services.Authentication
 		}
 		private DateTime GetTokenTime(DateTime issued)
 		{
-			int expirationMinutes = _config.GetRequiredByKey<int>("UserSession:TokenLifetimeMinutes");
-			return issued + TimeSpan.FromMinutes(expirationMinutes);
+			var options = _config.GetRequiredByKey<UserSessionOptions>(UserSessionOptions.KEY);
+			return issued + TimeSpan.FromMinutes(options.TokenLifetimeMinutes);
 		}
-
+		private async Task HandlePotentialReusedToken(string tokenHash)
+		{
+			UsedRefreshToken? usedToken = await _db.UsedRefreshTokens.FirstOrDefaultAsync(_ => _.Token == tokenHash);
+			if(usedToken != null)
+			{
+				var result = await InvalidateSession(usedToken.SessionId.ToString(), $"Got used token {usedToken.Id}");
+				if (result.IsError)
+					_logger.LogError($"Failed to invalidate session {usedToken.SessionId} due to an error: {result.Error}");
+			}
+		}
 	}
 }

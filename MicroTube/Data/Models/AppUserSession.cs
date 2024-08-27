@@ -18,6 +18,6 @@ namespace MicroTube.Data.Models
 		public required DateTime IssuedAt { get; set; }
 		public required DateTime Expiration { get; set; }
 		public required bool IsInvalidated { get; set; }
-		public IEnumerable<UsedRefreshToken> UsedTokens { get; set; } = new List<UsedRefreshToken>();
+		public IList<UsedRefreshToken> UsedTokens { get; set; } = new List<UsedRefreshToken>();
 	}
 }
