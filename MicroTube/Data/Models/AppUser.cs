@@ -20,9 +20,6 @@ namespace MicroTube.Data.Models
 		[Column(TypeName = "NVARCHAR")]
 		public required string PublicUsername { get; set; }
 		public required bool IsEmailConfirmed { get; set; }
-		[Required]
-		[ForeignKey(nameof(Authentication))]
-		public Guid AuthenticationId { get; set; }
 		public AuthenticationData? Authentication { get; set; }
     }
 }

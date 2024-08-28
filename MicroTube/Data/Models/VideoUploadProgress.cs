@@ -5,6 +5,7 @@ namespace MicroTube.Data.Models
 {
 	public class VideoUploadProgress
 	{
+		[Key]
 		public Guid Id { get; set; }
 		public required VideoUploadStatus Status { get; set; }
 		[Required]

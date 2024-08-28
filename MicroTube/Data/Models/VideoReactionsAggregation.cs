@@ -6,6 +6,7 @@ namespace MicroTube.Data.Models
 	public class VideoReactionsAggregation
 	{
 		[Key]
+		public Guid Id { get; set; }
 		[Required]
 		[ForeignKey(nameof(Video))]
 		public Guid VideoId { get; set; }

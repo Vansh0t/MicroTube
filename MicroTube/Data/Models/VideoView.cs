@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using Elastic.Clients.Elasticsearch;
 using Microsoft.EntityFrameworkCore;
 
 namespace MicroTube.Data.Models
@@ -8,6 +7,7 @@ namespace MicroTube.Data.Models
 	[Index(nameof(Ip), IsUnique = true)]
 	public class VideoView
 	{
+		[Key]
 		public Guid Id { get; set; }
 		[Required]
 		[ForeignKey(nameof(Video))]

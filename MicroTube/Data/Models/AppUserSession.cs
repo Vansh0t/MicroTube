@@ -7,6 +7,7 @@ namespace MicroTube.Data.Models
 	[Index(nameof(Token), IsUnique = true)]
 	public class AppUserSession
 	{
+		[Key]
 		public Guid Id { get; set; }
 		[Required]
 		[ForeignKey(nameof(User))]

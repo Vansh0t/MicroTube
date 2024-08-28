@@ -9,6 +9,7 @@ namespace MicroTube.Data.Models
 	[Index(nameof(UserId), nameof(VideoId), IsUnique =true)]
 	public class UserVideoReaction
 	{
+		[Key]
 		public Guid Id { get; set; }
 		[Required]
 		[ForeignKey(nameof(User))]
