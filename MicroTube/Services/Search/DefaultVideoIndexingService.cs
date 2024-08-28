@@ -7,13 +7,11 @@ namespace MicroTube.Services.Search
 {
 	public class DefaultVideoIndexingService : IVideoIndexingService
 	{
-		private readonly IConfiguration _config;
 		private readonly ILogger<DefaultVideoIndexingService> _logger;
 		private readonly IVideoSearchService _videoSearch;
 		private readonly MicroTubeDbContext _db;
-		public DefaultVideoIndexingService(IConfiguration config, ILogger<DefaultVideoIndexingService> logger, IVideoSearchService videoSearch, MicroTubeDbContext db)
+		public DefaultVideoIndexingService(ILogger<DefaultVideoIndexingService> logger, IVideoSearchService videoSearch, MicroTubeDbContext db)
 		{
-			_config = config;
 			_logger = logger;
 			_videoSearch = videoSearch;
 			_db = db;
