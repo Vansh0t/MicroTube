@@ -18,6 +18,8 @@ using MicroTube.Services.Search;
 using MicroTube.Services.Authentication.BasicFlow;
 using MicroTube.Services.VideoContent.Reactions;
 using MicroTube.Services.VideoContent.Likes;
+using Elastic.Transport.Products.Elasticsearch;
+using MicroTube.Services.Validation;
 
 namespace MicroTube
 {
@@ -137,6 +139,9 @@ namespace MicroTube
 		public static IServiceCollection AddElasticsearchSearch(this IServiceCollection services)
 		{
 			services.AddSingleton<IVideoSearchDataAccess, ElasticsearchVideoIndicesAccess>();
+			services.AddSingleton<IVideoSearchRequestBuilder<SearchRequest<VideoSearchIndex>>, ElasticsearchVideoSearchRequestBuilder>();
+			services.AddSingleton<IVideoSearchResultBuilder<SearchResponse<VideoSearchIndex>>, ElasticsearchVideoSearchResultBuilder>();
+			services.AddSingleton<ISearchResponseValidator<ElasticsearchResponse>, ElasticsearchResponseValidator>();
 			services.AddScoped<ISearchMetaProvider<SearchResponse<VideoSearchIndex>, ElasticsearchMeta>, ElasticsearchSearchMetaProvider>();
 			services.AddScoped<IVideoSearchService, ElasticVideoSearchService>();
 			return services;
