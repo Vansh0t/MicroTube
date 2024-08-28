@@ -14,6 +14,7 @@ namespace MicroTube.Tests.Utils
 			conn.Open();
 			var options = new DbContextOptionsBuilder<MicroTubeDbContext>()
 			.UseSqlite(conn)
+			.EnableSensitiveDataLogging()
 			.UseExceptionProcessor()
 			.Options;
 			var context = new MicroTubeDbContext(options);
@@ -26,6 +27,7 @@ namespace MicroTube.Tests.Utils
 			conn.Open();
 			var options = new DbContextOptionsBuilder<MicroTubeDbContext>()
 			.UseSqlite(conn)
+			.EnableSensitiveDataLogging()
 			.UseExceptionProcessor()
 			.Options;
 			var context = new MockDbContext(options);
