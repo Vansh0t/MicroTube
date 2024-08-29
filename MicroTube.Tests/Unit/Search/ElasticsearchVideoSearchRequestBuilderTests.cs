@@ -32,8 +32,8 @@ namespace MicroTube.Tests.Unit.Search
 			var config = new ConfigurationBuilder()
 				.AddConfigObject(VideoSearchOptions.KEY, new VideoSearchOptions(6, "videos", "video_suggestions", 30, 40, 60, 40))
 				.Build();
-			var metaProvider = Substitute.For<ISearchMetaProvider<SearchResponse<VideoSearchIndex>, ElasticsearchMeta>>();
 			var deserializedMeta = new ElasticsearchMeta { LastSort = new List<FieldValue> { 1250, 2515 } };
+			var metaProvider = Substitute.For<ISearchMetaProvider<SearchResponse<VideoSearchIndex>, ElasticsearchMeta>>();
 			metaProvider.DeserializeMeta("meta").Returns(deserializedMeta);
 			metaProvider.DeserializeMeta(Arg.Is<string?>(_=>_==null)).Returns(_=> null);
 			var requestBuilder = new ElasticsearchVideoSearchRequestBuilder(
