@@ -25,17 +25,21 @@ namespace MicroTube.Services.VideoContent.Likes
 
 		public async Task<IServiceResult<UserVideoReaction>> SetReaction(string userId, string videoId, ReactionType reactionType)
 		{
+			if(!Guid.TryParse(userId, out var guidUserId) || !Guid.TryParse(videoId, out var guidVideoId))
+			{
+				return ServiceResult<UserVideoReaction>.Fail(400, "Invalid user or video id.");
+			} 
 			IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
 			try
 			{
-				var reaction = await _db.UserVideoReactions.FirstOrDefaultAsync(_ => _.UserId == new Guid(userId) && _.VideoId == new Guid(videoId));
-				var videoReactions = await _db.VideoReactions.FirstOrDefaultAsync(_ => _.VideoId == new Guid(videoId));
+				var reaction = await _db.UserVideoReactions.FirstOrDefaultAsync(_ => _.UserId == guidUserId && _.VideoId == guidVideoId);
+				var videoReactions = await _db.VideoAggregatedReactions.FirstOrDefaultAsync(_ => _.VideoId == guidVideoId);
 				if (videoReactions == null)
 					throw new RequiredObjectNotFoundException($"Reactions for video with id {videoId} not found");
 				ReactionType prevReaction;
 				if (reaction == null)
 				{
-					reaction = new UserVideoReaction { UserId = new Guid(userId), VideoId = new Guid(videoId), ReactionType = reactionType, Time = DateTime.UtcNow };
+					reaction = new UserVideoReaction { UserId = guidUserId, VideoId = guidVideoId, ReactionType = reactionType, Time = DateTime.UtcNow };
 					_db.Add(reaction);
 					prevReaction = ReactionType.None;
 				}
@@ -48,17 +52,6 @@ namespace MicroTube.Services.VideoContent.Likes
 				await _db.SaveChangesAsync();
 				transaction.Commit();
 				return ServiceResult<UserVideoReaction>.Success(reaction);
-			}
-			catch (SqlException e)
-			{
-				//unique key constraint violation
-				transaction.Rollback();
-				if (e.Number == 2627)
-				{
-					return ServiceResult<UserVideoReaction>.Fail(400, "Already liked.");
-				}
-				_logger.LogError(e, $"Failed add video like from user {userId} to video {videoId}");
-				return ServiceResult<UserVideoReaction>.FailInternal();
 			}
 			catch (RequiredObjectNotFoundException e)
 			{
@@ -75,7 +68,11 @@ namespace MicroTube.Services.VideoContent.Likes
 		}
 		public async Task<IServiceResult<UserVideoReaction>> GetReaction(string userId, string videoId)
 		{
-			var reaction = await _db.UserVideoReactions.FirstOrDefaultAsync(_ => _.UserId == new Guid(userId) && _.VideoId == new Guid(videoId));
+			if (!Guid.TryParse(userId, out var guidUserId) || !Guid.TryParse(videoId, out var guidVideoId))
+			{
+				return ServiceResult<UserVideoReaction>.Fail(400, "Invalid user or video id.");
+			}
+			var reaction = await _db.UserVideoReactions.FirstOrDefaultAsync(_ => _.UserId == guidUserId && _.VideoId == guidVideoId);
 			if (reaction == null)
 				return ServiceResult<UserVideoReaction>.Fail(404, "Not found");
 			return ServiceResult<UserVideoReaction>.Success(reaction);
