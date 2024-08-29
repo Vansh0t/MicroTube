@@ -7,14 +7,14 @@
 		public string Audience { get; set; }
 		public int ExpirationMinutes { get; set; }
 		public string Key { get; set; }
-		public PasswordResetJwtAccessTokensOptions PasswordReset { get; set; }
-		public JwtAccessTokensOptions(string issuer, string audience, int expirationMinutes, string key, PasswordResetJwtAccessTokensOptions passwordReset)
+		public int PasswordResetExpirationMinutes { get; set; }
+		public JwtAccessTokensOptions(string issuer, string audience, int expirationMinutes, string key, int passwordResetExpirationMinutes)
 		{
 			Issuer = issuer;
 			Audience = audience;
 			ExpirationMinutes = expirationMinutes;
 			Key = key;
-			PasswordReset = passwordReset;
+			PasswordResetExpirationMinutes = passwordResetExpirationMinutes;
 		}
 	}
 }

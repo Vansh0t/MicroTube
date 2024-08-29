@@ -81,8 +81,18 @@ namespace MicroTube.Services.Authentication.BasicFlow
 				return ServiceResult<string>.Fail(403, "Forbidden");
 			authData.PasswordResetString = null;
 			authData.PasswordResetStringExpiration = null;
+			string token;
+			try
+			{
+				token = _jwtPasswordResetTokenProvider.GetToken(authData.User.Id.ToString());
+			}
+			catch(Exception e)
+			{
+				_logger.LogCritical($"Failed to generate a password reset access token for user {authData.User.Id}");
+				return ServiceResult<string>.FailInternal();
+			}
 			await _db.SaveChangesAsync();
-			return _jwtPasswordResetTokenProvider.GetToken(authData.User.Id.ToString());
+			return ServiceResult<string>.Success( token);
 		}
 		public async Task<IServiceResult> ChangePassword(string userId, string newPassword)
 		{
