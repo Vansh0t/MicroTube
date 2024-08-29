@@ -12,7 +12,7 @@ namespace MicroTube.Data.Access
 		public DbSet<UsedRefreshToken> UsedRefreshTokens { get; set; }
 		public DbSet<Video> Videos { get; set; }
 		public DbSet<VideoSearchIndexing> VideoSearchIndexing { get; set; }
-		public DbSet<VideoReactionsAggregation> VideoReactions { get; set; }
+		public DbSet<VideoReactionsAggregation> VideoAggregatedReactions { get; set; }
 		public DbSet<VideoViewsAggregation> VideoAggregatedViews { get; set; }
 		public DbSet<VideoView> VideoViews { get; set; }
 		public DbSet<VideoUploadProgress> VideoUploadProgresses { get; set; }
