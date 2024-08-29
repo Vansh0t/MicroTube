@@ -124,7 +124,7 @@ namespace MicroTube.Services.Search
 		}
 		private Query? BuildTextSearchQuery(VideoSearchParameters parameters)
 		{
-			if (parameters.Text == null)
+			if (string.IsNullOrWhiteSpace(parameters.Text))
 				return null;
 			var matchQueryTitle = new MatchQuery(new Field("title")) { Query = parameters.Text, Boost = 2 };
 			var matchQueryDescription = new MatchQuery(new Field("description")) { Query = parameters.Text };
