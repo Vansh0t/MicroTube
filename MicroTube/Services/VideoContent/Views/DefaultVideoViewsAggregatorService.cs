@@ -4,22 +4,20 @@ using Microsoft.EntityFrameworkCore;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services.Search;
+using System.Net;
 
 namespace MicroTube.Services.VideoContent.Views
 {
 	public class DefaultVideoViewsAggregatorService : IVideoViewsAggregatorService
 	{
 		private readonly ILogger<DefaultVideoViewsAggregatorService> _logger;
-		private readonly IConfiguration _config;
 		private readonly MicroTubeDbContext _db;
 
 		public DefaultVideoViewsAggregatorService(
 			ILogger<DefaultVideoViewsAggregatorService> logger,
-			IConfiguration config,
 			MicroTubeDbContext db)
 		{
 			_logger = logger;
-			_config = config;
 			_db = db;
 		}
 		public async Task Aggregate()
@@ -55,12 +53,24 @@ namespace MicroTube.Services.VideoContent.Views
 		}
 		public async Task<IServiceResult> CreateViewForAggregation(string videoId, string ip)
 		{
+			if (!IPAddress.TryParse(ip, out var ipAddress))
+			{
+				return ServiceResult.Fail(400, "Invalid source address");
+			}
+			if (!Guid.TryParse(videoId, out var guidVideoId))
+			{
+				return ServiceResult.Fail(400, "Invalid video id");
+			}
 			try
 			{
-				VideoView view = new VideoView { VideoId = new Guid(videoId), Ip = ip };
+				VideoView view = new VideoView { VideoId = guidVideoId, Ip = ip };
 				_db.Add(view);
 				await _db.SaveChangesAsync();
 				return new ServiceResult(202);
+			}
+			catch (ReferenceConstraintException)
+			{
+				return ServiceResult.Fail(404, "Video was not found");
 			}
 			catch (UniqueConstraintException)
 			{
