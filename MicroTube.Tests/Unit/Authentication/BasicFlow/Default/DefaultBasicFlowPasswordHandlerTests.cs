@@ -442,8 +442,8 @@ namespace MicroTube.Tests.Unit.Authentication.BasicFlow.Default
 			secureTokensProvider.Validate(validPasswordResetStringHash, validPasswordResetString).Returns(true);
 			secureTokensProvider.Validate(Arg.Is<string>(_ => _ != validPasswordResetStringHash), Arg.Is<string>(_ => _ != validPasswordResetString)).Returns(false);
 			IJwtPasswordResetTokenProvider jwtPasswordResetTokenProvider = Substitute.For<IJwtPasswordResetTokenProvider>();
-			jwtPasswordResetTokenProvider.GetToken(validUserId).Returns(ServiceResult<string>.Success(jwtPasswordResetToken));
-			jwtPasswordResetTokenProvider.GetToken(Arg.Is<string>(_ => _ != validUserId)).Returns(ServiceResult<string>.FailInternal());
+			jwtPasswordResetTokenProvider.GetToken(validUserId).Returns(jwtPasswordResetToken);
+			jwtPasswordResetTokenProvider.GetToken(Arg.Is<string>(_ => _ != validUserId)).Throws(new Exception("Token generation failed"));
 			IPasswordValidator passwordValidator = Substitute.For<IPasswordValidator>();
 			passwordValidator.Validate(validPassword).Returns(ServiceResult.Success());
 			passwordValidator.Validate(validNewPassword).Returns(ServiceResult.Success());
