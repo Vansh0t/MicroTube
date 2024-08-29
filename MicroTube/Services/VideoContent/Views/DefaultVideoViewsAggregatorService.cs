@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using EntityFramework.Exceptions.Common;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
@@ -61,15 +62,9 @@ namespace MicroTube.Services.VideoContent.Views
 				await _db.SaveChangesAsync();
 				return new ServiceResult(202);
 			}
-			catch (SqlException e)
+			catch (UniqueConstraintException)
 			{
-				//unique key constraint violation
-				if (e.Number == 2627)
-				{
-					return new ServiceResult(202); //there is already a like from the same ip, so success anyway
-				}
-				_logger.LogError(e, $"Failed to add view for aggregation to video {videoId}");
-				return ServiceResult.FailInternal();
+				return new ServiceResult(202); //there is already a like from the same ip, so success anyway
 			}
 			catch (Exception e)
 			{
