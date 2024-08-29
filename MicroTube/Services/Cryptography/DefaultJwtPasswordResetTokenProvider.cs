@@ -20,7 +20,7 @@ namespace MicroTube.Services.Cryptography
         public string GetToken(string subject)
         {
 			var options = _config.GetRequiredByKey<JwtAccessTokensOptions>(JwtAccessTokensOptions.KEY);
-            DateTime expirationTime = DateTime.UtcNow.AddMinutes(options.ExpirationMinutes);
+            DateTime expirationTime = DateTime.UtcNow.AddMinutes(options.PasswordResetExpirationMinutes);
             DateTime notBeforeTime = DateTime.UtcNow;
             var claims = new List<Claim>()
             {
