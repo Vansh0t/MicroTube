@@ -19,6 +19,7 @@ using MicroTube.Services.VideoContent.Processing;
 using MicroTube.Services.VideoContent.Views;
 using NSwag.Generation.Processors.Security;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO.Abstractions;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,6 +60,7 @@ builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IVideoContentLocalStorage, DefaultVideoContentLocalStorage>();
 builder.Services.AddScoped<IVideoIndexingService, DefaultVideoIndexingService>();
 builder.Services.AddScoped<IVideoViewsAggregatorService, DefaultVideoViewsAggregatorService>();
+builder.Services.AddScoped<IFileSystem, FileSystem>();
 
 builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtPasswordResetTokenProvider, DefaultJwtPasswordResetTokenProvider>();
