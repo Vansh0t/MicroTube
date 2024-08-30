@@ -57,7 +57,6 @@ builder.Services.AddScoped<IVideoThumbnailsService, FFMpegVideoThumbnailsService
 builder.Services.AddScoped<IVideoCompressionService, FFMpegVideoCompressionService>();
 builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEmailManager>();
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
-builder.Services.AddScoped<IVideoContentLocalStorage, DefaultVideoContentLocalStorage>();
 builder.Services.AddScoped<IVideoIndexingService, DefaultVideoIndexingService>();
 builder.Services.AddScoped<IVideoViewsAggregatorService, DefaultVideoViewsAggregatorService>();
 builder.Services.AddScoped<IFileSystem, FileSystem>();

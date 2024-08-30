@@ -20,6 +20,8 @@ using MicroTube.Services.VideoContent.Reactions;
 using MicroTube.Services.VideoContent.Likes;
 using Elastic.Transport.Products.Elasticsearch;
 using MicroTube.Services.Validation;
+using System.IO;
+using System.IO.Abstractions;
 
 namespace MicroTube
 {
@@ -167,6 +169,27 @@ namespace MicroTube
 				return forwardedIp.ToString();
 			}
 			return context.Connection.RemoteIpAddress?.ToString();
+		}
+		public static bool TryDeleteFileOrDirectory(this IFileSystem fileSystem, string path)
+		{
+			try
+			{
+				if (fileSystem.File.Exists(path))
+				{
+					fileSystem.File.Delete(path);
+					return !File.Exists(path);
+				}
+				if (fileSystem.Directory.Exists(path))
+				{
+					fileSystem.Directory.Delete(path, true);
+					return !fileSystem.Directory.Exists(path);
+				}
+			}
+			catch (Exception e)
+			{
+				return false;
+			}
+			return false;
 		}
 		private static void EnsureElasticsearchIndices(ElasticsearchClient client, IConfiguration config)
 		{

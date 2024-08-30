@@ -5,6 +5,7 @@ using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
 using MicroTube.Services.VideoContent.Processing.Stages;
 using System.Diagnostics;
+using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Processing
 {
@@ -13,20 +14,20 @@ namespace MicroTube.Services.VideoContent.Processing
 		public PipelineState State => _state;
 
 		private PipelineState _state;
-		private List<IPipelineStage<DefaultVideoProcessingContext>> _stages = new();
-		private IConfiguration _config;
-		private ILogger<OfflineVideoProcessingPipeline> _logger;
-		private ICdnMediaContentAccess _mediaCdnAccess;
-		private IVideoContentLocalStorage _localStorage;
-		private MicroTubeDbContext _db;
+		private readonly List<IPipelineStage<DefaultVideoProcessingContext>> _stages = new();
+		private readonly IConfiguration _config;
+		private readonly ILogger<OfflineVideoProcessingPipeline> _logger;
+		private readonly ICdnMediaContentAccess _mediaCdnAccess;
+		private readonly MicroTubeDbContext _db;
+		private readonly IFileSystem _fileSystem;
 
 		public OfflineVideoProcessingPipeline(
 			IConfiguration config,
 			ILogger<OfflineVideoProcessingPipeline> logger,
 			IEnumerable<VideoProcessingStage> stages,
 			ICdnMediaContentAccess mediaCdnAccess,
-			IVideoContentLocalStorage localStorage,
-			MicroTubeDbContext db)
+			MicroTubeDbContext db,
+			IFileSystem fileSystem)
 		{
 			_config = config;
 			_logger = logger;
@@ -35,8 +36,8 @@ namespace MicroTube.Services.VideoContent.Processing
 				AddStage(stage);
 			}
 			_mediaCdnAccess = mediaCdnAccess;
-			_localStorage = localStorage;
 			_db = db;
+			_fileSystem = fileSystem;
 		}
 
 		public void AddStage(IPipelineStage<DefaultVideoProcessingContext> stage)
@@ -120,7 +121,7 @@ namespace MicroTube.Services.VideoContent.Processing
 		}
 		private void ClearLocalCache(string workingLocation)
 		{
-		    _localStorage.TryDelete(workingLocation);
+			_fileSystem.TryDeleteFileOrDirectory(workingLocation);
 		}
 		
 	}
