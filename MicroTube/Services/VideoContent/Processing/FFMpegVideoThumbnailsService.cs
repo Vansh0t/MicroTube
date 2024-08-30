@@ -12,18 +12,24 @@ namespace MicroTube.Services.VideoContent.Processing
 		private readonly ILogger<FFMpegVideoThumbnailsService> _logger;
 		private readonly IConfiguration _config;
 		private readonly IFileSystem _fileSystem;
+		private readonly IVideoAnalyzer _videoAnalyzer;
 
-		public FFMpegVideoThumbnailsService(ILogger<FFMpegVideoThumbnailsService> logger, IConfiguration config, IFileSystem fileSystem)
+		public FFMpegVideoThumbnailsService(ILogger<FFMpegVideoThumbnailsService> logger, IConfiguration config, IFileSystem fileSystem, IVideoAnalyzer videoAnalyzer)
 		{
 			_logger = logger;
 			_config = config;
 			_fileSystem = fileSystem;
+			_videoAnalyzer = videoAnalyzer;
 		}
 
 		public async Task<IServiceResult<IEnumerable<string>>> MakeSnapshots(string filePath, string saveToPath, CancellationToken cancellationToken = default)
 		{
 			try
 			{
+				if (!_fileSystem.File.Exists(filePath))
+					throw new RequiredObjectNotFoundException($"Source file at {filePath} does not exist. Aborting thumbnail generation.");
+				if (!_fileSystem.Directory.Exists(saveToPath))
+					throw new RequiredObjectNotFoundException($"Output location at {saveToPath} does not exist. Aborting thumbnail generation.");
 				VideoProcessingOptions processingOptions = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
 				string ffmpegCustomArgs = string.Format(FFMPEG_SNAPSHOTS_ARGS,
 					processingOptions.SnapshotsIntervalSeconds, processingOptions.SnapshotsWidth, processingOptions.SnapshotsHeight);
@@ -50,11 +56,14 @@ namespace MicroTube.Services.VideoContent.Processing
 		{
 			try
 			{
+				if (!_fileSystem.File.Exists(filePath))
+					throw new RequiredObjectNotFoundException($"Source file at {filePath} does not exist. Aborting thumbnail generation.");
+				if (!_fileSystem.Directory.Exists(saveToPath))
+					throw new RequiredObjectNotFoundException($"Output location at {saveToPath} does not exist. Aborting thumbnail generation.");
 				VideoProcessingOptions processingOptions = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
+				var videoAnalysis = await _videoAnalyzer.Analyze(filePath);
+				double framesCount = videoAnalysis.FrameCount;
 				var inputFile = new InputFile(filePath);
-				var ffprobe = new Engine(_config.GetRequiredValue("FFmpegLocation"));
-				var videoAnylisis = await ffprobe.GetMetaDataAsync(inputFile, cancellationToken);
-				double framesCount = Math.Floor(videoAnylisis.Duration.TotalSeconds * videoAnylisis.VideoData.Fps);
 				string ffmpegCustomArgs = string.Format(FFMPEG_THUMBNAILS_ARGS,
 					framesCount, processingOptions.ThumbnailsAmount, processingOptions.ThumbnailsWidth, processingOptions.ThumbnailsHeight);
 				var options = new ConversionOptions
