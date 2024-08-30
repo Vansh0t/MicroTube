@@ -1,7 +1,5 @@
-﻿using Azure.Storage.Blobs.Models;
-using Hangfire;
+﻿using Hangfire;
 using MicroTube.Data.Access;
-using MicroTube.Data.Access.SQLServer;
 using MicroTube.Data.Models;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
@@ -17,8 +15,8 @@ namespace MicroTube.Services.VideoContent.Processing
 		private readonly IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions> _remoteStorage;
 		private readonly IVideoPreUploadValidator _preUploadValidator;
 		private readonly IVideoNameGenerator _videoNameGenerator;
-		private readonly IVideoDataAccess _videoDataAccess;
 		private readonly IBackgroundJobClient _backgroundJobClient;
+		private readonly MicroTubeDbContext _db;
 
 		public OfflineVideoPreprocessingPipeline(
 			ILogger<OfflineVideoPreprocessingPipeline> logger,
@@ -26,16 +24,16 @@ namespace MicroTube.Services.VideoContent.Processing
 			IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions> remoteStorage,
 			IVideoPreUploadValidator preUploadValidator,
 			IVideoNameGenerator videoNameGenerator,
-			IVideoDataAccess videoDataAccess,
-			IBackgroundJobClient backgroundJobClient)
+			IBackgroundJobClient backgroundJobClient,
+			MicroTubeDbContext db)
 		{
 			_logger = logger;
 			_config = config;
 			_remoteStorage = remoteStorage;
 			_preUploadValidator = preUploadValidator;
 			_videoNameGenerator = videoNameGenerator;
-			_videoDataAccess = videoDataAccess;
 			_backgroundJobClient = backgroundJobClient;
+			_db = db;
 		}
 
 		public async Task<IServiceResult<VideoUploadProgress>> PreprocessVideo(VideoPreprocessingOptions data)
@@ -46,13 +44,17 @@ namespace MicroTube.Services.VideoContent.Processing
 			using var stream = data.VideoFile.OpenReadStream();
 			string generatedFileName = _videoNameGenerator.GenerateVideoName() + Path.GetExtension(data.VideoFile.FileName);
 			VideoProcessingOptions options = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
-			var uploadProgressCreationOptions = new VideoUploadProgressCreationOptions(data.UserId,
-																			  options.RemoteStorageCacheLocation,
-																			  generatedFileName,
-																			  data.VideoTitle,
-																			  DateTime.UtcNow,
-																			  data.VideoDescription);
-			var progressCreationResult = await CreateVideoUploadProgress(uploadProgressCreationOptions);
+			var uploadProgress = new VideoUploadProgress
+			{
+				UploaderId = new Guid(data.UserId),
+				RemoteCacheLocation = options.RemoteStorageCacheLocation,
+				RemoteCacheFileName = generatedFileName,
+				Title = data.VideoTitle,
+				Timestamp = DateTime.UtcNow,
+				Description = data.VideoDescription,
+				Status = VideoUploadStatus.InQueue
+			};
+			var progressCreationResult = await CreateVideoUploadProgress(uploadProgress);
 			if(progressCreationResult.IsError)
 				return ServiceResult<VideoUploadProgress>.Fail(progressCreationResult.Code, progressCreationResult.Error!);
 			var progress = progressCreationResult.GetRequiredObject();
@@ -61,9 +63,9 @@ namespace MicroTube.Services.VideoContent.Processing
 			if(remoteCacheUploadResult.IsError)
 			{
 				_logger.LogError("Setting upload progress {uploadProgressId} to fail due to remote cache upload fail. {error}", progress.Id, remoteCacheUploadResult.Error);
-				progress.Message = "Internal Error. Please, try again later.";
-				progress.Status = VideoUploadStatus.Fail;
-				await _videoDataAccess.UpdateUploadProgress(progress);
+				uploadProgress.Message = "Internal Error. Please, try again later.";
+				uploadProgress.Status = VideoUploadStatus.Fail;
+				await _db.SaveChangesAsync();
 				return ServiceResult<VideoUploadProgress>.FailInternal();
 			}
 			_backgroundJobClient.Enqueue<IVideoProcessingPipeline>("video_processing",
@@ -96,16 +98,13 @@ namespace MicroTube.Services.VideoContent.Processing
 				return ServiceResult.Fail(400, joinedError);
 			return ServiceResult.Success();
 		}
-		private async Task<IServiceResult<VideoUploadProgress>> CreateVideoUploadProgress(VideoUploadProgressCreationOptions options)
+		private async Task<IServiceResult<VideoUploadProgress>> CreateVideoUploadProgress(VideoUploadProgress options)
 		{
 			try
 			{
-				var uploadProgressEntry = await _videoDataAccess.CreateUploadProgress(options);
-				if (uploadProgressEntry == null)
-				{
-					throw new DataAccessException("Upload progress creation returned null result.");
-				}
-				return ServiceResult<VideoUploadProgress>.Success(uploadProgressEntry);
+				_db.Add(options);
+				await _db.SaveChangesAsync();
+				return ServiceResult<VideoUploadProgress>.Success(options);
 			}
 			catch (Exception e)
 			{

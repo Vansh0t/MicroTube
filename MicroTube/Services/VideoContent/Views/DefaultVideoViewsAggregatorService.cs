@@ -1,88 +1,85 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using EntityFramework.Exceptions.Common;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services.Search;
+using System.Net;
 
 namespace MicroTube.Services.VideoContent.Views
 {
 	public class DefaultVideoViewsAggregatorService : IVideoViewsAggregatorService
 	{
 		private readonly ILogger<DefaultVideoViewsAggregatorService> _logger;
-		private readonly IConfiguration _config;
-		private readonly IVideoDataAccess _videoDataAccess;
-		private readonly IVideoSearchService _videoSearch;
+		private readonly MicroTubeDbContext _db;
 
 		public DefaultVideoViewsAggregatorService(
 			ILogger<DefaultVideoViewsAggregatorService> logger,
-			IConfiguration config,
-			IVideoDataAccess videoDataAccess,
-			IVideoSearchService videoSearch)
+			MicroTubeDbContext db)
 		{
 			_logger = logger;
-			_config = config;
-			_videoDataAccess = videoDataAccess;
-			_videoSearch = videoSearch;
+			_db = db;
 		}
 		public async Task Aggregate()
 		{
-			IEnumerable<VideoView> views = await _videoDataAccess.GetVideoViews();
-			Video[] uniqueVideos = views.Select(_ => _.Video).DistinctBy(_ => _.Id).ToArray();
-			_logger.LogInformation($"Aggregating video views. Views to aggregate: {views.Count()}, videos: {uniqueVideos.Length}");
-			await _videoDataAccess.DeleteVideoViews(views.Select(_ => _.Id.ToString()));
-			foreach (var video in uniqueVideos)
+			using var transaction = await _db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead);
+			try
 			{
-				int newViews = views.Count(_ => _.VideoId == video.Id);
-				video.Views += newViews;
-			}
-			var results = await Task.WhenAll(uniqueVideos.Select(UpdateVideoNonThrowing));
-			int successfulTasks = 0;
-			int failedTasks = 0;
-			foreach (var result in results)
-			{
-				if (result.IsError)
+				VideoView[] views = await _db.VideoViews.Include(_ => _.Video).ToArrayAsync();
+				IEnumerable<Guid> uniqueVideoIds = views.DistinctBy(_ => _.VideoId).Select(_ => _.VideoId);
+				VideoViewsAggregation[] viewsAggregations = await _db.VideoAggregatedViews.Where(_=>uniqueVideoIds.Contains(_.VideoId)).ToArrayAsync();
+				_logger.LogInformation($"Aggregating video views. Views to aggregate: {views.Count()}, videos: {viewsAggregations.Length}");
+				foreach (var viewsAggregation in viewsAggregations)
 				{
-					_logger.LogError("A video views update failed, " + result.Error);
-					failedTasks++;
-					continue;
+					int newViews = views.Count(_ => _.VideoId == viewsAggregation.VideoId);
+					viewsAggregation.Views += newViews;
 				}
-				successfulTasks++;
+				_db.RemoveRange(views);
+				VideoSearchIndexing[] videoIndexing = await _db.VideoSearchIndexing.Where(_ => uniqueVideoIds.Contains(_.VideoId)).ToArrayAsync();
+                foreach (var indexing in videoIndexing)
+                {
+					indexing.ReindexingRequired = true;
+                }
+                await _db.SaveChangesAsync();
+				await transaction.CommitAsync();
+				_logger.LogInformation($"Video views aggregation finished.");
 			}
-			_logger.LogInformation($"Video views aggregation finished. Success: {successfulTasks}, fail: {failedTasks}");
-			await Task.WhenAll(uniqueVideos.Select(_videoSearch.IndexVideo));//move this into video indexing
+			catch(Exception e)
+			{
+				await transaction.RollbackAsync();
+				_logger.LogError(e, "Failed to aggregate video views");
+			}
+			
 		}
 		public async Task<IServiceResult> CreateViewForAggregation(string videoId, string ip)
 		{
+			if (!IPAddress.TryParse(ip, out var ipAddress))
+			{
+				return ServiceResult.Fail(400, "Invalid source address");
+			}
+			if (!Guid.TryParse(videoId, out var guidVideoId))
+			{
+				return ServiceResult.Fail(400, "Invalid video id");
+			}
 			try
 			{
-				await _videoDataAccess.AddVideoView(videoId, ip);
+				VideoView view = new VideoView { VideoId = guidVideoId, Ip = ip };
+				_db.Add(view);
+				await _db.SaveChangesAsync();
 				return new ServiceResult(202);
 			}
-			catch (SqlException e)
+			catch (ReferenceConstraintException)
 			{
-				//unique key constraint violation
-				if (e.Number == 2627)
-				{
-					return new ServiceResult(202); //there is already a like from the same ip, so success anyway
-				}
-				_logger.LogError(e, $"Failed to add view for aggregation to video {videoId}");
-				return ServiceResult<VideoLike>.FailInternal();
+				return ServiceResult.Fail(404, "Video was not found");
+			}
+			catch (UniqueConstraintException)
+			{
+				return new ServiceResult(202); //there is already a like from the same ip, so success anyway
 			}
 			catch (Exception e)
 			{
 				_logger.LogError(e, $"Failed to add view for aggregation to video {videoId}");
-				return ServiceResult<VideoLike>.FailInternal();
-			}
-		}
-		private async Task<IServiceResult> UpdateVideoNonThrowing(Video video)
-		{
-			try
-			{
-				await _videoDataAccess.UpdateVideo(video);
-				return ServiceResult.Success();
-			}
-			catch (Exception e)
-			{
-				return ServiceResult.Fail(500, $"Failed to update video {video.Id} due to unhandled exception: " + e.ToString());
+				return ServiceResult.FailInternal();
 			}
 		}
 	}

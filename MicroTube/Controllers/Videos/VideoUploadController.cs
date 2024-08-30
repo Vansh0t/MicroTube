@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MicroTube.Controllers.Videos.DTO;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
@@ -13,16 +14,16 @@ namespace MicroTube.Controllers.Videos
 	public class VideoUploadController : ControllerBase
 	{
 		private readonly IJwtClaims _jwtClaims;
-		private readonly IVideoDataAccess _videoDataAccess;
+		private readonly MicroTubeDbContext _db;
 		private readonly IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress> _preprocessingPipeline;
 		public VideoUploadController(
 			IJwtClaims jwtClaims,
-			IVideoDataAccess videoDataAccess,
-			IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress> preprocessingPipeline)
+			IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress> preprocessingPipeline,
+			MicroTubeDbContext db)
 		{
 			_jwtClaims = jwtClaims;
-			_videoDataAccess = videoDataAccess;
 			_preprocessingPipeline = preprocessingPipeline;
+			_db = db;
 		}
 
 		[HttpPost]
@@ -59,7 +60,7 @@ namespace MicroTube.Controllers.Videos
 		public async Task<IActionResult> GetProgressList()
 		{
 			string userId = _jwtClaims.GetUserId(User);
-			var result = await _videoDataAccess.GetVideoUploadProgressListForUser(userId);
+			var result = await _db.VideoUploadProgresses.Where(_ => _.UploaderId == new Guid(userId)).ToArrayAsync();
 			return Ok(result.Select(_ => 
 			new VideoUploadProgressDTO(
 				_.Id.ToString(), 

@@ -10,7 +10,6 @@ namespace MicroTube.Controllers.Videos.DTO
 		public required DateTime UploadTime { get; set; }
 		public string? Description { get; set; }
 		public string? ThumbnailUrls { get; set; }
-		public string? SnapshotUrls { get; set; }
 		public required int LengthSeconds { get; set; }
 		public int Likes { get; set; }
 		public int Dislikes { get; set; }
@@ -25,11 +24,10 @@ namespace MicroTube.Controllers.Videos.DTO
 				Description = video.Description,
 				UploadTime = video.UploadTime,
 				ThumbnailUrls = video.ThumbnailUrls,
-				SnapshotUrls = video.SnapshotUrls,
 				LengthSeconds = video.LengthSeconds,
-				Likes = video.Likes,
-				Dislikes = video.Dislikes,
-				Views = video.Views
+				Likes = video.VideoReactions != null? video.VideoReactions.Likes:0,
+				Dislikes = video.VideoReactions != null ? video.VideoReactions.Dislikes : 0,
+				Views = video.VideoViews != null ? video.VideoViews.Views : 0
 			};
 			return dto;
 			

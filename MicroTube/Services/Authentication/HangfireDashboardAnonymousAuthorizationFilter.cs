@@ -5,7 +5,7 @@ namespace MicroTube.Services.Authentication
 {
 	public class HangfireDashboardAnonymousAuthorizationFilter : IDashboardAuthorizationFilter
 	{
-		//TODO: remove in production
+		//TO DO: remove in production
 		public bool Authorize([NotNull] DashboardContext context)
 		{
 			return true;

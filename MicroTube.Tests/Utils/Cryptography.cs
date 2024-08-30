@@ -10,19 +10,9 @@ namespace MicroTube.Tests.Utils
 {
     public static class Cryptography
     {
-        public static Dictionary<string,string> ValidateAndGetClaimsFromJWTToken(string jwtToken)
+        public static Dictionary<string,string> ValidateAndGetClaimsFromJWTToken(string jwtToken, TokenValidationParameters validationParameters)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var config = ConfigurationProvider.GetConfiguration();
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateLifetime = true,
-                ValidateAudience = true,
-                ValidateIssuer = true,
-                ValidIssuer = config["JWT:Issuer"],
-                ValidAudience = config["JWT:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["JWT:Key"]))
-            };
             tokenHandler.ValidateToken(jwtToken, validationParameters, out var validToken);
             var validJwtToken = (JwtSecurityToken)validToken;
             var claims = new Dictionary<string, string>();

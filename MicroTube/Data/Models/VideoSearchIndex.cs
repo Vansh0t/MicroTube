@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace MicroTube.Data.Models
+﻿namespace MicroTube.Data.Models
 {
     public class VideoSearchIndex
     {

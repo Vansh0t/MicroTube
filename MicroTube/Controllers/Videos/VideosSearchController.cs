@@ -1,5 +1,6 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MicroTube.Controllers.Videos.DTO;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
@@ -12,13 +13,13 @@ namespace MicroTube.Controllers.Videos
 	public class VideosSearchController : ControllerBase
 	{
 		private readonly IVideoSearchService _searchService;
-		private readonly IVideoDataAccess _videoDataAccess;
 		private readonly ILogger<VideosSearchController> _logger;
-		public VideosSearchController(IVideoSearchService searchService, IVideoDataAccess videoDataAccess, ILogger<VideosSearchController> logger)
+		private readonly MicroTubeDbContext _db;
+		public VideosSearchController(IVideoSearchService searchService, ILogger<VideosSearchController> logger, MicroTubeDbContext db)
 		{
 			_searchService = searchService;
-			_videoDataAccess = videoDataAccess;
 			_logger = logger;
+			_db = db;
 		}
 
 		[HttpGet("suggestions/{text}")]
@@ -46,7 +47,8 @@ namespace MicroTube.Controllers.Videos
 			if (searchResult.IsError)
 				return StatusCode(searchResult.Code);
 			var searchData = searchResult.GetRequiredObject();
-			var videosResult = await _videoDataAccess.GetVideosByIds(searchData.Indices.Select(_=>_.Id));
+			var ids = searchData.Indices.Select(_ => _.Id);
+			var videosResult = await _db.Videos.Where(_ => ids.Contains(_.Id.ToString())).ToArrayAsync();
 			IEnumerable<Video> videosResultSorted = searchData.Indices.Join(
 				videosResult, outer => outer.Id, inner => inner.Id.ToString(), (index, result)=> result);
 			var sortedVideos = videosResultSorted.Select(VideoDTO.FromModel).ToArray();

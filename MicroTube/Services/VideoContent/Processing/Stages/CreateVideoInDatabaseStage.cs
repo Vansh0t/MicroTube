@@ -5,14 +5,14 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 {
     public class CreateVideoInDatabaseStage : VideoProcessingStage
     {
-        private readonly IVideoDataAccess _dataAccess;
+		private MicroTubeDbContext _db;
 
-        public CreateVideoInDatabaseStage(IVideoDataAccess dataAccess)
-        {
-            _dataAccess = dataAccess;
-        }
+		public CreateVideoInDatabaseStage(MicroTubeDbContext db)
+		{
+			_db = db;
+		}
 
-        protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
+		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
         {
 			if (context == null)
 			{
@@ -34,20 +34,22 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 			{
 				throw new ArgumentNullException($"Context cdn and endpoints must be set for stage {nameof(CreateVideoInDatabaseStage)}");
 			}
-			var createdVideo = await _dataAccess.CreateVideo(
-                new Video
-                {
-                    UploaderId = context.UploadProgress.UploaderId,
-                    Title = context.UploadProgress.Title,
-                    Description = context.UploadProgress.Description,
-                    Urls = string.Join(';', context.Cdn.VideoEndpoints.Select(_ => _.ToString())),
-                    ThumbnailUrls = string.Join(';', context.Cdn.ThumbnailEndpoints.Select(_ => _.ToString())),
-                    SnapshotUrls = "",
-                    UploadTime = DateTime.UtcNow,
-                    LengthSeconds = context.UploadProgress.LengthSeconds.Value
-                }
-                );
-            context.CreatedVideo = createdVideo;
+			var video = new Video
+			{
+				UploaderId = context.UploadProgress.UploaderId,
+				Title = context.UploadProgress.Title,
+				Description = context.UploadProgress.Description,
+				Urls = string.Join(';', context.Cdn.VideoEndpoints.Select(_ => _.ToString())),
+				ThumbnailUrls = string.Join(';', context.Cdn.ThumbnailEndpoints.Select(_ => _.ToString())),
+				UploadTime = DateTime.UtcNow,
+				LengthSeconds = context.UploadProgress.LengthSeconds.Value,
+				VideoIndexing = new VideoSearchIndexing { LastIndexingTime = null, ReindexingRequired = true, SearchIndexId = null },
+				VideoReactions = new VideoReactionsAggregation { Dislikes= 0, Likes =0},
+				VideoViews = new VideoViewsAggregation { Views = 0}
+			};
+			_db.Add(video);
+			await _db.SaveChangesAsync();
+            context.CreatedVideo = video;
             return context;
         }
 

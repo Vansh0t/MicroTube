@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MicroTube.Controllers.User.DTO;
 using MicroTube.Data.Access;
 using MicroTube.Services.Authentication;
@@ -12,14 +13,14 @@ namespace MicroTube.Controllers.User
     {
         private readonly ILogger<Profile> _logger;
         private readonly IJwtClaims _claims;
-		private readonly IAppUserDataAccess _dataAccess;
+		private readonly MicroTubeDbContext _db;
 
-        public Profile(ILogger<Profile> logger, IJwtClaims claims, IAppUserDataAccess dataAccess)
-        {
-            _logger = logger;
-            _dataAccess = dataAccess;
-            _claims = claims;
-        }
+		public Profile(ILogger<Profile> logger, IJwtClaims claims, MicroTubeDbContext db)
+		{
+			_logger = logger;
+			_claims = claims;
+			_db = db;
+		}
 		[HttpGet]
 		[Authorize]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO))]
@@ -27,7 +28,7 @@ namespace MicroTube.Controllers.User
 		public async Task<IActionResult> GetUser()
 		{
 			var userId = _claims.GetUserId(User);
-			var user = await _dataAccess.Get(userId);
+			var user = await _db.Users.FirstOrDefaultAsync(_ => _.Id == new Guid(userId));
 			if (user == null)
 				return NotFound("User does not exists");
 			return Ok(new UserDTO(user.Id.ToString(), user.Username, user.Email, user.PublicUsername, user.IsEmailConfirmed ));

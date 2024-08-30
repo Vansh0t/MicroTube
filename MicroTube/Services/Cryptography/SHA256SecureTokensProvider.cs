@@ -15,11 +15,11 @@ namespace MicroTube.Services.Cryptography
 
         public string HashSecureToken(string secureToken)
         {
-            if (secureToken == null)
-                throw new ArgumentNullException(nameof(secureToken));
-            byte[] secureTokenBytes = Convert.FromHexString(secureToken);
+			if(string.IsNullOrWhiteSpace(secureToken))
+				throw new FormatException($"Secure token must not be null or empty string.");
+			byte[] secureTokenBytes = Convert.FromHexString(secureToken);
             if (secureTokenBytes.Length < SECURE_TOKEN_SIZE_BYTES)
-                throw new ArgumentException($"Secure token length must be >= {SECURE_TOKEN_SIZE_BYTES}. Got: {secureTokenBytes.Length}");
+                throw new FormatException($"Secure token length must be >= {SECURE_TOKEN_SIZE_BYTES}. Got: {secureTokenBytes.Length}");
 
             SHA256 hashingProvider = SHA256.Create();
             byte[] resultBytes = hashingProvider.ComputeHash(secureTokenBytes);
