@@ -1,5 +1,6 @@
 ﻿using FFmpeg.NET;
 using MicroTube.Services.ConfigOptions;
+using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Processing
 {
@@ -8,11 +9,13 @@ namespace MicroTube.Services.VideoContent.Processing
 		private const string FFMPEG_COMPRESSION_ARGS = "-vf \"scale=-2:{0}\" -threads 3";
 		private readonly IConfiguration _config;
 		private readonly IVideoAnalyzer _analyzer;
+		private readonly IFileSystem _fileSystem;
 
-		public FFMpegVideoCompressionService(IConfiguration config, IVideoAnalyzer analyzer)
+		public FFMpegVideoCompressionService(IConfiguration config, IVideoAnalyzer analyzer, IFileSystem fileSystem)
 		{
 			_config = config;
 			_analyzer = analyzer;
+			_fileSystem = fileSystem;
 		}
 
 		public async Task<IServiceResult<IDictionary<int, string>>> CompressToQualityTiers(IEnumerable<int> tiers, string sourcePath, string saveToPath, CancellationToken cancellationToken = default)
@@ -51,7 +54,7 @@ namespace MicroTube.Services.VideoContent.Processing
 				var inputFile = new InputFile(sourcePath);
 
 				string outputFileName = BuildOutputFileName(tier, sourcePath);
-				outputPath = Path.Join(outputPath, outputFileName);
+				outputPath = _fileSystem.Path.Join(outputPath, outputFileName);
 				var outputFile = new OutputFile(outputPath);
 				var ffmpeg = new Engine(_config.GetRequiredValue("FFmpegLocation"));
 				var result = await ffmpeg.ConvertAsync(inputFile, outputFile, options, cancellationToken);
@@ -69,8 +72,8 @@ namespace MicroTube.Services.VideoContent.Processing
 		}
 		private string BuildOutputFileName(int tier, string sourceFilePath)
 		{
-			string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(sourceFilePath);
-			string fileExtension = Path.GetExtension(sourceFilePath);
+			string fileNameWithoutExtension = _fileSystem.Path.GetFileNameWithoutExtension(sourceFilePath);
+			string fileExtension = _fileSystem.Path.GetExtension(sourceFilePath);
 			string tierFileName = $"{fileNameWithoutExtension}_{tier}{fileExtension}";
 			return tierFileName;
 		}

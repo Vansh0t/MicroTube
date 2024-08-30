@@ -5,6 +5,7 @@ using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
 using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent.Processing.Stages;
+using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Processing
 {
@@ -17,6 +18,7 @@ namespace MicroTube.Services.VideoContent.Processing
 		private readonly IVideoNameGenerator _videoNameGenerator;
 		private readonly IBackgroundJobClient _backgroundJobClient;
 		private readonly MicroTubeDbContext _db;
+		private readonly IFileSystem _fileSystem;
 
 		public OfflineVideoPreprocessingPipeline(
 			ILogger<OfflineVideoPreprocessingPipeline> logger,
@@ -25,7 +27,8 @@ namespace MicroTube.Services.VideoContent.Processing
 			IVideoPreUploadValidator preUploadValidator,
 			IVideoNameGenerator videoNameGenerator,
 			IBackgroundJobClient backgroundJobClient,
-			MicroTubeDbContext db)
+			MicroTubeDbContext db,
+			IFileSystem fileSystem)
 		{
 			_logger = logger;
 			_config = config;
@@ -34,6 +37,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			_videoNameGenerator = videoNameGenerator;
 			_backgroundJobClient = backgroundJobClient;
 			_db = db;
+			_fileSystem = fileSystem;
 		}
 
 		public async Task<IServiceResult<VideoUploadProgress>> PreprocessVideo(VideoPreprocessingOptions data)
@@ -42,7 +46,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			if (validationResult.IsError)
 				return ServiceResult<VideoUploadProgress>.Fail(validationResult.Code, validationResult.Error!);
 			using var stream = data.VideoFile.OpenReadStream();
-			string generatedFileName = _videoNameGenerator.GenerateVideoName() + Path.GetExtension(data.VideoFile.FileName);
+			string generatedFileName = _videoNameGenerator.GenerateVideoName() + _fileSystem.Path.GetExtension(data.VideoFile.FileName);
 			VideoProcessingOptions options = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
 			var uploadProgress = new VideoUploadProgress
 			{
@@ -72,7 +76,7 @@ namespace MicroTube.Services.VideoContent.Processing
 				processing => processing.Execute(
 					new DefaultVideoProcessingContext() 
 					{ 
-						SourceVideoNameWithoutExtension = Path.GetFileNameWithoutExtension(generatedFileName), 
+						SourceVideoNameWithoutExtension = _fileSystem.Path.GetFileNameWithoutExtension(generatedFileName), 
 						RemoteCache = new VideoProcessingRemoteCache 
 						{ 
 							VideoFileName = generatedFileName, 
@@ -114,8 +118,8 @@ namespace MicroTube.Services.VideoContent.Processing
 		}
 		private async Task<IServiceResult> UploadToRemoteCache(Stream stream, string fileName, string cacheLocation)
 		{
-			var uploadOptions = new OfflineRemoteStorageOptions(Path.Join(cacheLocation, fileName));
-			var accessOptions = new OfflineRemoteStorageOptions(Path.Join(cacheLocation, fileName));
+			var uploadOptions = new OfflineRemoteStorageOptions(_fileSystem.Path.Join(cacheLocation, fileName));
+			var accessOptions = new OfflineRemoteStorageOptions(_fileSystem.Path.Join(cacheLocation, fileName));
 			var remoteSaveResult = await _remoteStorage.Upload(stream, accessOptions, uploadOptions);
 			if (remoteSaveResult.IsError)
 				return ServiceResult.Fail(remoteSaveResult.Code, remoteSaveResult.Error!);

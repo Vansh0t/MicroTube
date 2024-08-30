@@ -2,6 +2,7 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using System.IO.Abstractions;
 
 namespace MicroTube.Services.MediaContentStorage
 {
@@ -10,12 +11,18 @@ namespace MicroTube.Services.MediaContentStorage
 		private readonly IConfiguration _config;
 		private readonly BlobServiceClient _azureBlobServiceClient;
 		private readonly ILogger<AzureBlobVideoContentRemoteStorage> _logger;
+		private readonly IFileSystem _fileSystem;
 
-		public AzureBlobVideoContentRemoteStorage(IConfiguration config, BlobServiceClient azureBlobServiceClient, ILogger<AzureBlobVideoContentRemoteStorage> logger)
+		public AzureBlobVideoContentRemoteStorage(
+			IConfiguration config,
+			BlobServiceClient azureBlobServiceClient,
+			ILogger<AzureBlobVideoContentRemoteStorage> logger,
+			IFileSystem fileSystem)
 		{
 			_config = config;
 			_azureBlobServiceClient = azureBlobServiceClient;
 			_logger = logger;
+			_fileSystem = fileSystem;
 		}
 		public async Task<IServiceResult<string>> Upload(Stream stream, AzureBlobAccessOptions accessOptions, BlobUploadOptions uploadOptions, CancellationToken cancellationToken = default)
 		{
@@ -35,7 +42,7 @@ namespace MicroTube.Services.MediaContentStorage
 		public async Task<IServiceResult<IEnumerable<string>>> Upload(string path, AzureBlobAccessOptions accessOptions, BlobUploadOptions uploadOptions, CancellationToken cancellationToken)
 		{
 			var blobContainerClient = _azureBlobServiceClient.GetBlobContainerClient(accessOptions.ContainerName);
-			FileAttributes fileAttributes = File.GetAttributes(path);
+			FileAttributes fileAttributes = _fileSystem.File.GetAttributes(path);
 			if(fileAttributes == FileAttributes.Directory)
 			{
 				var uploadedFileNames = await UploadAllFilesFromDirectory(path, blobContainerClient, uploadOptions, cancellationToken);
@@ -67,7 +74,7 @@ namespace MicroTube.Services.MediaContentStorage
 		}
 		public async Task<IServiceResult<string>> Download(string saveToPath, AzureBlobAccessOptions options, CancellationToken cancellationToken = default)
 		{
-			Directory.CreateDirectory(saveToPath);
+			_fileSystem.Directory.CreateDirectory(saveToPath);
 			var blobContainerClient = _azureBlobServiceClient.GetBlobContainerClient(options.ContainerName);
 			var blobClient = blobContainerClient.GetBlobClient(options.FileName);
 			var response = await blobClient.DownloadToAsync(Path.Join(saveToPath, options.FileName), cancellationToken);
@@ -95,19 +102,19 @@ namespace MicroTube.Services.MediaContentStorage
 		}
 		private async Task<IEnumerable<string>> UploadAllFilesFromDirectory(string directory, BlobContainerClient containerClient, BlobUploadOptions uploadOptions, CancellationToken cancellationToken)
 		{
-			string[] directoryFiles = Directory.GetFiles(directory);
+			string[] directoryFiles = _fileSystem.Directory.GetFiles(directory);
 			if (directoryFiles.Length == 0)
 			{
 				_logger.LogWarning("Tried to upload directory that does not contain files {directory}", directory);
-				return directoryFiles.Select(_ => Path.GetFileName(_));
+				return directoryFiles.Select(_ => _fileSystem.Path.GetFileName(_));
 			}
 			List<UploadTaskContainer> uploadingTasks = new List<UploadTaskContainer>();
 			foreach(var file in directoryFiles)
 			{
-				string fileName = Path.GetFileName(file);
+				string fileName = _fileSystem.Path.GetFileName(file);
 				var blobClient = containerClient.GetBlobClient(fileName);
 				uploadOptions = EnsureCorrectContentType(fileName, uploadOptions, true);
-				Task<Azure.Response<BlobContentInfo>> task = blobClient.UploadAsync(file, uploadOptions, cancellationToken);
+				Task<Response<BlobContentInfo>> task = blobClient.UploadAsync(file, uploadOptions, cancellationToken);
 				var taskContainer = new UploadTaskContainer(task, fileName);
 				uploadingTasks.Add(taskContainer);
 			}

@@ -5,6 +5,7 @@ using MicroTube.Data.Models;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
 using MicroTube.Services.Validation;
+using System.IO.Abstractions;
 namespace MicroTube.Services.VideoContent.Processing
 {
 	public class AzureBlobVideoPreprocessingPipeline : IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>
@@ -15,6 +16,7 @@ namespace MicroTube.Services.VideoContent.Processing
 		private readonly IVideoPreUploadValidator _preUploadValidator;
 		private readonly IVideoNameGenerator _videoNameGenerator;
 		private readonly MicroTubeDbContext _db;
+		private readonly IFileSystem _fileSystem;
 
 		public AzureBlobVideoPreprocessingPipeline(
 			ILogger<AzureBlobVideoPreprocessingPipeline> logger,
@@ -23,7 +25,8 @@ namespace MicroTube.Services.VideoContent.Processing
 			IVideoPreUploadValidator preUploadValidator,
 			IVideoNameGenerator videoNameGenerator,
 			IBackgroundJobClient backgroundJobClient,
-			MicroTubeDbContext db)
+			MicroTubeDbContext db,
+			IFileSystem fileSystem)
 		{
 			_logger = logger;
 			_config = config;
@@ -31,6 +34,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			_preUploadValidator = preUploadValidator;
 			_videoNameGenerator = videoNameGenerator;
 			_db = db;
+			_fileSystem = fileSystem;
 		}
 
 		public async Task<IServiceResult<VideoUploadProgress>> PreprocessVideo(VideoPreprocessingOptions data)
@@ -39,7 +43,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			if (validationResult.IsError)
 				return ServiceResult<VideoUploadProgress>.Fail(validationResult.Code, validationResult.Error!);
 			using var stream = data.VideoFile.OpenReadStream();
-			string generatedFileName = _videoNameGenerator.GenerateVideoName() + Path.GetExtension(data.VideoFile.FileName);
+			string generatedFileName = _videoNameGenerator.GenerateVideoName() + _fileSystem.Path.GetExtension(data.VideoFile.FileName);
 			VideoProcessingOptions processingOptions = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
 			var uploadProgress = new VideoUploadProgress
 			{

@@ -1,6 +1,6 @@
 ﻿using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
-using System.Reflection.Metadata.Ecma335;
+using System.IO.Abstractions;
 using System.Security;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
@@ -11,11 +11,13 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 		private const string QUALITY_TIERS_SUBLOCATION = "tiers";
         private readonly IConfiguration _config;
         private readonly IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions> _remoteStorage;
+		private readonly IFileSystem _fileSystem;
 		public OfflineFetchVideoSourceFromRemoteCacheStage(
-			IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions> remoteStorage, IConfiguration config)
+			IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions> remoteStorage, IConfiguration config, IFileSystem fileSystem)
 		{
 			_remoteStorage = remoteStorage;
 			_config = config;
+			_fileSystem = fileSystem;
 		}
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
         {
@@ -34,8 +36,8 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 				context.RemoteCache.VideoFileLocation,
 				workingLocation,
 				cancellationToken);
-            string localCacheFileName = Path.GetFileName(downloadedPath);
-            string? localCacheFileLocation = Path.GetDirectoryName(downloadedPath);
+            string localCacheFileName = _fileSystem.Path.GetFileName(downloadedPath);
+            string? localCacheFileLocation = _fileSystem.Path.GetDirectoryName(downloadedPath);
 			if (string.IsNullOrWhiteSpace(localCacheFileLocation))
 			{
 				throw new SecurityException($"A video source file was downloaded in invalid location {downloadedPath}");
@@ -52,7 +54,7 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
         }
         private async Task<string> DownloadSourceFromRemoteCache(string sourceFileName, string sourceLocation, string saveToPath, CancellationToken cancellationToken)
         {
-            var remoteAccessOptions = new OfflineRemoteStorageOptions(Path.Join(sourceLocation, sourceFileName));
+            var remoteAccessOptions = new OfflineRemoteStorageOptions(_fileSystem.Path.Join(sourceLocation, sourceFileName));
             var remoteCacheDownloadResult = await _remoteStorage.Download(saveToPath, remoteAccessOptions, cancellationToken);
             if (remoteCacheDownloadResult.IsError)
             {
@@ -62,20 +64,20 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
         }
 		private string CreateWorkingLocation(string path, string normalizedFileName)
 		{
-			string newLocation = Path.Join(path, normalizedFileName);
-			Directory.CreateDirectory(newLocation);
+			string newLocation = _fileSystem.Path.Join(path, normalizedFileName);
+			_fileSystem.Directory.CreateDirectory(newLocation);
 			return newLocation;
 		}
 		private string CreateThumbnailsLocation(string workingLocation)
 		{
-			string thumbnailsLocation = Path.Join(workingLocation, THUMBNAILS_SUBLOCATION);
-			Directory.CreateDirectory(thumbnailsLocation);
+			string thumbnailsLocation = _fileSystem.Path.Join(workingLocation, THUMBNAILS_SUBLOCATION);
+			_fileSystem.Directory.CreateDirectory(thumbnailsLocation);
 			return thumbnailsLocation;
 		}
 		private string CreateQualityTiersLocation(string workingLocation)
 		{
-			string thumbnailsLocation = Path.Join(workingLocation, QUALITY_TIERS_SUBLOCATION);
-			Directory.CreateDirectory(thumbnailsLocation);
+			string thumbnailsLocation = _fileSystem.Path.Join(workingLocation, QUALITY_TIERS_SUBLOCATION);
+			_fileSystem.Directory.CreateDirectory(thumbnailsLocation);
 			return thumbnailsLocation;
 		}
 	}
