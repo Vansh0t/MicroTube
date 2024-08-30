@@ -2,6 +2,6 @@
 {
 	public interface IVideoAnalyzer
 	{
-		Task<VideoFileMetaData> Analyze(string filePath, CancellationToken cancellationToken);
+		Task<VideoFileMetaData> Analyze(string filePath, CancellationToken cancellationToken = default);
 	}
 }

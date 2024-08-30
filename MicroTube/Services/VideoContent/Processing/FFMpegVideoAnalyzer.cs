@@ -11,7 +11,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			_config = config;
 		}
 
-		public async Task<VideoFileMetaData> Analyze(string filePath, CancellationToken cancellationToken)
+		public async Task<VideoFileMetaData> Analyze(string filePath, CancellationToken cancellationToken = default)
 		{
 			var inputFile = new InputFile(filePath);
 			var ffprobe = new Engine(_config.GetRequiredValue("FFmpegLocation"));
@@ -23,7 +23,7 @@ namespace MicroTube.Services.VideoContent.Processing
 				Format = videoAnylisis.FileInfo.Extension,
 				FrameCount = frameCount,
 				LengthSeconds = lengthSeconds,
-				Fps = (int)videoAnylisis.VideoData.Fps,
+				Fps = (float)Math.Round(videoAnylisis.VideoData.Fps),
 				FrameSize = videoAnylisis.VideoData.FrameSize
 			};
 		}
