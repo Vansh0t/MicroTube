@@ -1,5 +1,4 @@
 ﻿using FFmpeg.NET;
-using MicroTube.Services.ConfigOptions;
 using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Processing
@@ -21,12 +20,12 @@ namespace MicroTube.Services.VideoContent.Processing
 		public async Task<IServiceResult<IDictionary<int, string>>> CompressToQualityTiers(IEnumerable<int> tiers, string sourcePath, string saveToPath, CancellationToken cancellationToken = default)
 		{
 			var analyzeResult = await _analyzer.Analyze(sourcePath, cancellationToken);
-			if (int.TryParse(analyzeResult.FrameSize.Split('x').LastOrDefault(), out int parsedHeight))
+			if (analyzeResult.FrameHeight > 0)
 			{
 				Dictionary<int, string> outputPaths = new Dictionary<int, string>();
 				foreach (var tier in tiers)
 				{
-					if (tier > parsedHeight)
+					if (tier > analyzeResult.FrameHeight)
 						continue;
 					var tierResult = await CompressToTier(tier, sourcePath, saveToPath, cancellationToken);
 					if (tierResult.IsError)
@@ -39,30 +38,37 @@ namespace MicroTube.Services.VideoContent.Processing
 			}
 			else
 			{
-				return ServiceResult<IDictionary<int, string>>.Fail(500, $"Failed to parse source video height. Frame size: {analyzeResult.FrameSize}");
+				return ServiceResult<IDictionary<int, string>>.Fail(500, $"Invalid video source height. Frame size: {analyzeResult.FrameSize}");
 			}
 		}
-		public async Task<IServiceResult<string>> CompressToTier(int tier, string sourcePath, string outputPath, CancellationToken cancellationToken = default)
+		public async Task<IServiceResult<string>> CompressToTier(int tier, string sourcePath, string outputLocation, CancellationToken cancellationToken = default)
 		{
 			try
 			{
+				var inputFile = new InputFile(sourcePath);
+				if (!inputFile.FileInfo.Exists)
+					throw new RequiredObjectNotFoundException($"Source file at {sourcePath} does not exist. Aborting compression.");
+				if(!_fileSystem.Directory.Exists(outputLocation))
+					throw new RequiredObjectNotFoundException($"Output location at {outputLocation} does not exist. Aborting compression.");
+				var analyzeResult = await _analyzer.Analyze(sourcePath, cancellationToken);
+				if (tier > analyzeResult.FrameHeight)
+					throw new ArgumentException("Tier cannot be larger than source height. Aborting compression.");
 				string ffmpegCustomArgs = string.Format(FFMPEG_COMPRESSION_ARGS, tier);
 				var options = new ConversionOptions
 				{
 					ExtraArguments = ffmpegCustomArgs
 				};
-				var inputFile = new InputFile(sourcePath);
-
+				
 				string outputFileName = BuildOutputFileName(tier, sourcePath);
-				outputPath = _fileSystem.Path.Join(outputPath, outputFileName);
-				var outputFile = new OutputFile(outputPath);
+				outputLocation = _fileSystem.Path.Join(outputLocation, outputFileName);
+				var outputFile = new OutputFile(outputLocation);
 				var ffmpeg = new Engine(_config.GetRequiredValue("FFmpegLocation"));
-				var result = await ffmpeg.ConvertAsync(inputFile, outputFile, options, cancellationToken);
-				if(result == null)
+				MediaFile result = await ffmpeg.ConvertAsync(inputFile, outputFile, options, cancellationToken);
+				if(result == null || !result.FileInfo.Exists)
 				{
-					return ServiceResult<string>.Fail(500, $"Failed to convert to quality tier. Source: {sourcePath}, Tier: {tier}, OutputPath: {outputPath}");
+					 throw new ExternalServiceException($"Failed to convert to quality tier. Source: {sourcePath}, Tier: {tier}, OutputPath: {outputLocation}");
 				}
-				return ServiceResult<string>.Success(outputPath);
+				return ServiceResult<string>.Success(outputLocation);
 			}
 			catch (Exception e)
 			{
