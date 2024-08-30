@@ -6,6 +6,7 @@ using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
 using MicroTube.Services.VideoContent.Processing.Stages;
 using System.Diagnostics;
+using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Processing
 {
@@ -13,33 +14,33 @@ namespace MicroTube.Services.VideoContent.Processing
 	{
 		private readonly IConfiguration _config;
 		private readonly ILogger<AzureBlobVideoProcessingPipeline> _logger;
-		private readonly IVideoContentLocalStorage _videoLocalStorage;
 		private readonly IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _remoteStorage;
 		private readonly ICdnMediaContentAccess _mediaCdnAccess;
 		private readonly IVideoThumbnailsService _thumbnailService;
 		private readonly IVideoAnalyzer _videoAnalyzer;
 		private readonly MicroTubeDbContext _db;
+		private readonly IFileSystem _fileSystem;
 
 		public PipelineState State => throw new NotImplementedException();
 
 		public AzureBlobVideoProcessingPipeline(
 			IConfiguration config,
 			ILogger<AzureBlobVideoProcessingPipeline> logger,
-			IVideoContentLocalStorage videoLocalStorage,
 			ICdnMediaContentAccess mediaCdnAccess,
 			IVideoThumbnailsService thumbnailService,
 			IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage,
 			IVideoAnalyzer videoAnalyzer,
-			MicroTubeDbContext db)
+			MicroTubeDbContext db,
+			IFileSystem fileSystem)
 		{
 			_config = config;
 			_logger = logger;
-			_videoLocalStorage = videoLocalStorage;
 			_mediaCdnAccess = mediaCdnAccess;
 			_thumbnailService = thumbnailService;
 			_remoteStorage = remoteStorage;
 			_videoAnalyzer = videoAnalyzer;
 			_db = db;
+			_fileSystem = fileSystem;
 		}
 		public async Task Process(string videoFileName, string videoFileLocation, CancellationToken cancellationToken = default)
 		{
@@ -175,8 +176,8 @@ namespace MicroTube.Services.VideoContent.Processing
 			IEnumerable<string> thumbnailPaths,
 			IEnumerable<Uri> subcontentUrls)
 		{
-			var snapshotFileNames = snapshotPaths.Select(_ => Path.GetFileName(_));
-			var thumbnailFileNames = thumbnailPaths.Select(_ => Path.GetFileName(_));
+			var snapshotFileNames = snapshotPaths.Select(_ => _fileSystem.Path.GetFileName(_));
+			var thumbnailFileNames = thumbnailPaths.Select(_ => _fileSystem.Path.GetFileName(_));
 			var snapshotUris = snapshotFileNames.Select(_ => subcontentUrls.First(__ => __.OriginalString.Contains(_)));
 			var thumbnailUris = thumbnailFileNames.Select(_ => subcontentUrls.First(__ => __.OriginalString.Contains(_)));
 			string mergedSnapshotUrls = string.Join(";", snapshotUris.Select(_ => _.ToString()));
@@ -192,9 +193,9 @@ namespace MicroTube.Services.VideoContent.Processing
 			string? videoPath,
 			VideoProcessingOptions processingOptions)
 		{
-			if (videoPath != null)
-				_videoLocalStorage.TryDelete(videoPath);
-			_videoLocalStorage.TryDelete(Path.Join(processingOptions.AbsoluteLocalStoragePath, Path.GetFileNameWithoutExtension(videoFileName)));
+			//if (videoPath != null)
+			//	_videoLocalStorage.TryDelete(videoPath);
+			//_videoLocalStorage.TryDelete(Path.Join(processingOptions.AbsoluteLocalStoragePath, Path.GetFileNameWithoutExtension(videoFileName)));
 		}
 		private async Task<VideoUploadProgress> UpdateProgressFromAnalyzeResult(string videoPath, VideoUploadProgress uploadProgress, CancellationToken cancellationToken)
 		{

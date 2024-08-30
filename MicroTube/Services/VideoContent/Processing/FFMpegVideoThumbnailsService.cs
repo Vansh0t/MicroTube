@@ -1,5 +1,6 @@
 ﻿using FFmpeg.NET;
 using MicroTube.Services.ConfigOptions;
+using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Processing
 {
@@ -10,11 +11,13 @@ namespace MicroTube.Services.VideoContent.Processing
 
 		private readonly ILogger<FFMpegVideoThumbnailsService> _logger;
 		private readonly IConfiguration _config;
+		private readonly IFileSystem _fileSystem;
 
-		public FFMpegVideoThumbnailsService(ILogger<FFMpegVideoThumbnailsService> logger, IConfiguration config)
+		public FFMpegVideoThumbnailsService(ILogger<FFMpegVideoThumbnailsService> logger, IConfiguration config, IFileSystem fileSystem)
 		{
 			_logger = logger;
 			_config = config;
+			_fileSystem = fileSystem;
 		}
 
 		public async Task<IServiceResult<IEnumerable<string>>> MakeSnapshots(string filePath, string saveToPath, CancellationToken cancellationToken = default)
@@ -29,10 +32,10 @@ namespace MicroTube.Services.VideoContent.Processing
 					ExtraArguments = ffmpegCustomArgs
 				};
 				var inputFile = new InputFile(filePath);
-				var outputFile = new OutputFile(Path.Join(saveToPath, "snapshot%4d.jpg"));
+				var outputFile = new OutputFile(_fileSystem.Path.Join(saveToPath, "snapshot%4d.jpg"));
 				var ffmpeg = new Engine(_config["FFmpegLocation"]);
 				await ffmpeg.ConvertAsync(inputFile, outputFile, options, cancellationToken);
-				var files = Directory.GetFiles(saveToPath);
+				var files = _fileSystem.Directory.GetFiles(saveToPath);
 				var snapshotPaths = files.Where(_ => _.Contains("snapshot")); //TO DO: this could use more robust filtering
 				return ServiceResult<IEnumerable<string>>.Success(snapshotPaths);
 			}
@@ -58,11 +61,11 @@ namespace MicroTube.Services.VideoContent.Processing
 				{
 					ExtraArguments = ffmpegCustomArgs
 				};
-				var outputFile = new OutputFile(Path.Join(saveToPath, "thumbnail%4d.jpg"));
+				var outputFile = new OutputFile(_fileSystem.Path.Join(saveToPath, "thumbnail%4d.jpg"));
 				var ffmpeg = new Engine(_config.GetRequiredValue("FFmpegLocation"));
 				await ffmpeg.ConvertAsync(inputFile, outputFile, options, cancellationToken);
-				var files = Directory.GetFiles(saveToPath);
-				var thumbnailPaths = files.Where(_ => _.Contains("thumbnail"));//TODO: this could use more robust filtering
+				var files = _fileSystem.Directory.GetFiles(saveToPath);
+				var thumbnailPaths = files.Where(_ => _.Contains("thumbnail"));//TO DO: this could use more robust filtering
 				return ServiceResult<IEnumerable<string>>.Success(thumbnailPaths);
 			}
 			catch(Exception e)

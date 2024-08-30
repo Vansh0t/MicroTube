@@ -1,7 +1,16 @@
-﻿namespace MicroTube.Services.MediaContentStorage
+﻿using System.IO.Abstractions;
+
+namespace MicroTube.Services.MediaContentStorage
 {
 	public class OfflineVideoContentRemoteStorage : IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions>
 	{
+		private readonly IFileSystem _fileSystem;
+
+		public OfflineVideoContentRemoteStorage(IFileSystem fileSystem)
+		{
+			_fileSystem = fileSystem;
+		}
+
 		public Task<IServiceResult> Delete(OfflineRemoteStorageOptions options, CancellationToken cancellationToken = default)
 		{
 			return Task.FromResult(DeleteFromLocal(options.FullPath));
@@ -14,8 +23,8 @@
 
 		public Task<IServiceResult<string>> Download(string saveToPath, OfflineRemoteStorageOptions options, CancellationToken cancellationToken = default)
 		{
-			Directory.CreateDirectory(saveToPath);
-			string saveToFileFullPath = Path.Join(saveToPath, Path.GetFileName(options.FullPath));
+			_fileSystem.Directory.CreateDirectory(saveToPath);
+			string saveToFileFullPath = _fileSystem.Path.Join(saveToPath, _fileSystem.Path.GetFileName(options.FullPath));
 			var result = CopyLocally(options.FullPath, saveToFileFullPath);
 			if(result.IsError)
 			{
@@ -26,7 +35,7 @@
 
 		public Task<IServiceResult> EnsureLocation(string locationName, RemoteLocationAccess locationAccess, CancellationToken cancellationToken = default)
 		{
-			Directory.CreateDirectory(locationName);
+			_fileSystem.Directory.CreateDirectory(locationName);
 			return Task.FromResult<IServiceResult>(ServiceResult.Success());
 		}
 
@@ -34,9 +43,9 @@
 		{
 			try
 			{
-				using FileStream fileStream = new FileStream(uploadOptions.FullPath, FileMode.Create);
+				using var fileStream = _fileSystem.FileStream.New(uploadOptions.FullPath, FileMode.Create);
 				await stream.CopyToAsync(fileStream);
-				return ServiceResult<string>.Success(Path.GetFileName(accessOptions.FullPath));
+				return ServiceResult<string>.Success(_fileSystem.Path.GetFileName(accessOptions.FullPath));
 			}
 			catch (Exception e)
 			{
@@ -47,14 +56,14 @@
 
 		public Task<IServiceResult<IEnumerable<string>>> Upload(string path, OfflineRemoteStorageOptions accessOptions, OfflineRemoteStorageOptions uploadOptions, CancellationToken cancellationToken = default)
 		{
-			FileAttributes fileAttributes = File.GetAttributes(path);
+			FileAttributes fileAttributes = _fileSystem.File.GetAttributes(path);
 			List<string> resultPaths = new();
 			if (fileAttributes == FileAttributes.Directory)
 			{
-				foreach(var filePath in Directory.GetFiles(path))
+				foreach(var filePath in _fileSystem.Directory.GetFiles(path))
 				{
-					string fileName = Path.GetFileName(filePath);
-					string uploadFileFullPath = Path.Join(uploadOptions.FullPath, fileName);
+					string fileName = _fileSystem.Path.GetFileName(filePath);
+					string uploadFileFullPath = _fileSystem.Path.Join(uploadOptions.FullPath, fileName);
 					var fileResult = CopyLocally(filePath, uploadFileFullPath);
 					if(!fileResult.IsError)
 					{
@@ -64,8 +73,8 @@
 			}
 			else
 			{
-				string fileName = Path.GetFileName(path);
-				string uploadFileFullPath = Path.Join(uploadOptions.FullPath, fileName);
+				string fileName = _fileSystem.Path.GetFileName(path);
+				string uploadFileFullPath = _fileSystem.Path.Join(uploadOptions.FullPath, fileName);
 				var result = CopyLocally(path, uploadOptions.FullPath);
 				if (result.IsError)
 				{
@@ -82,8 +91,8 @@
 		{
 			try
 			{
-				if (File.Exists(path))
-					File.Delete(path);
+				if (_fileSystem.File.Exists(path))
+					_fileSystem.File.Delete(path);
 				return ServiceResult.Success();
 			}
 			catch (Exception e)
@@ -95,7 +104,7 @@
 		{
 			try
 			{
-				File.Copy(fromLocation, toLocation, true);
+				_fileSystem.File.Copy(fromLocation, toLocation, true);
 				return ServiceResult.Success();
 			}
 			catch (Exception e)

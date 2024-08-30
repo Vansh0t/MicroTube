@@ -1,10 +1,12 @@
 ﻿using MicroTube.Services.MediaContentStorage;
+using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 {
 	public class OfflineUploadVideoToCdnStage : VideoProcessingStage
 	{
 		private readonly ICdnMediaContentAccess _mediaCdnAccess;
+		private readonly IFileSystem _fileSystem;
 
 		public OfflineUploadVideoToCdnStage(ICdnMediaContentAccess mediaCdnAccess)
 		{
@@ -29,7 +31,7 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 			List<Task<Uri>> uploadTasks = new List<Task<Uri>>();
 			foreach(var tierPath in qualityTierPaths)
 			{
-				var task = UploadVideoToCdn(tierPath, Path.GetFileName(tierPath), cancellationToken);
+				var task = UploadVideoToCdn(tierPath, _fileSystem.Path.GetFileName(tierPath), cancellationToken);
 				uploadTasks.Add(task);
 			}
 			await Task.WhenAll(uploadTasks);
@@ -41,7 +43,7 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 		}
 		private async Task<Uri> UploadVideoToCdn(string localCacheSourceVideoPath, string videoName, CancellationToken cancellationToken)
 		{
-			using var fileStream = new FileStream(localCacheSourceVideoPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+			using var fileStream = _fileSystem.FileStream.New(localCacheSourceVideoPath, FileMode.Open, FileAccess.Read, FileShare.Read);
 			var videoUploadResult = await _mediaCdnAccess.UploadVideo(fileStream, videoName, cancellationToken);
 			if (videoUploadResult.IsError)
 			{
@@ -51,7 +53,7 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 		}
 		private IEnumerable<string> GetQualityTierPaths(string containingLocation)
 		{
-			return Directory.GetFiles(containingLocation);
+			return _fileSystem.Directory.GetFiles(containingLocation);
 		}
 	}
 }

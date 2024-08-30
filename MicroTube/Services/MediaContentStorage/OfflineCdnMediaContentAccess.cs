@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs.Models;
 using MicroTube.Services.ConfigOptions;
+using System.IO.Abstractions;
 
 namespace MicroTube.Services.MediaContentStorage
 {
@@ -11,21 +12,23 @@ namespace MicroTube.Services.MediaContentStorage
 		private readonly IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions> _videoRemoteStorage;
 		private readonly IConfiguration _config;
 		private readonly ILogger<OfflineCdnMediaContentAccess> _logger;
-
+		private readonly IFileSystem _fileSystem;
 		public OfflineCdnMediaContentAccess(
 			IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions> videoRemoteStorage,
 			IConfiguration config,
-			ILogger<OfflineCdnMediaContentAccess> logger)
+			ILogger<OfflineCdnMediaContentAccess> logger,
+			IFileSystem fileSystem)
 		{
 			_videoRemoteStorage = videoRemoteStorage;
 			_config = config;
 			_logger = logger;
+			_fileSystem = fileSystem;
 		}
 
 		public async Task<IServiceResult<Uri>> UploadVideo(Stream stream, string fileName, CancellationToken cancellationToken = default)
 		{
 			VideoContentUploadOptions videoUploadOptions = _config.GetRequiredByKey<VideoContentUploadOptions>(VideoContentUploadOptions.KEY);
-			string storageLocation = Path.Join(OFFLINE_CDN_LOCATION, videoUploadOptions.RemoteStorageLocation, fileName);
+			string storageLocation = _fileSystem.Path.Join(OFFLINE_CDN_LOCATION, videoUploadOptions.RemoteStorageLocation, fileName);
 			var accessOptions = new OfflineRemoteStorageOptions(storageLocation);
 			var uploadOptions = new OfflineRemoteStorageOptions(storageLocation);
 			var uploadResult = await _videoRemoteStorage.Upload(stream, accessOptions, uploadOptions, cancellationToken);
@@ -42,7 +45,7 @@ namespace MicroTube.Services.MediaContentStorage
 		{
 			VideoContentUploadOptions videoUploadOptions = _config.GetRequiredByKey<VideoContentUploadOptions>(VideoContentUploadOptions.KEY);
 			string videoFileNameWithoutExtension = videoFileName.Replace(Path.GetExtension(videoFileName), "");
-			string remoteSubcontentPath = Path.Join(OFFLINE_CDN_LOCATION, videoUploadOptions.RemoteStorageLocation, videoFileNameWithoutExtension);
+			string remoteSubcontentPath = _fileSystem.Path.Join(OFFLINE_CDN_LOCATION, videoUploadOptions.RemoteStorageLocation, videoFileNameWithoutExtension);
 			var ensureLocationResult = await _videoRemoteStorage.EnsureLocation(remoteSubcontentPath, RemoteLocationAccess.Public, cancellationToken);
 			if(ensureLocationResult.IsError)
 			{
@@ -65,10 +68,10 @@ namespace MicroTube.Services.MediaContentStorage
 		public async Task<IServiceResult> DeleteAllVideoData(string videoFileName, CancellationToken cancellationToken = default)
 		{
 			VideoContentUploadOptions videoUploadOptions = _config.GetRequiredByKey<VideoContentUploadOptions>(VideoContentUploadOptions.KEY);
-			var accessOptions = new OfflineRemoteStorageOptions(Path.Join(videoUploadOptions.RemoteStorageLocation, videoFileName));
+			var accessOptions = new OfflineRemoteStorageOptions(_fileSystem.Path.Join(videoUploadOptions.RemoteStorageLocation, videoFileName));
 			var deleteVideoTask =  _videoRemoteStorage.Delete(accessOptions, cancellationToken);
-			string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(videoFileName);
-			string subcontentLocation = Path.Join(videoUploadOptions.CdnUrl, videoUploadOptions.RemoteStorageLocation, fileNameWithoutExtension);
+			string fileNameWithoutExtension = _fileSystem.Path.GetFileNameWithoutExtension(videoFileName);
+			string subcontentLocation = _fileSystem.Path.Join(videoUploadOptions.CdnUrl, videoUploadOptions.RemoteStorageLocation, fileNameWithoutExtension);
 			var deleteSubcontentTask = _videoRemoteStorage.DeleteLocation(subcontentLocation);
 			await Task.WhenAll(deleteVideoTask, deleteSubcontentTask);
 			var deleteVideoResult = deleteVideoTask.Result;
