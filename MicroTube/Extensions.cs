@@ -159,7 +159,7 @@ namespace MicroTube
 			services.AddScoped<VideoProcessingStage, OfflineUploadVideoToCdnStage>();
 			services.AddScoped<VideoProcessingStage, CreateVideoInDatabaseStage>();
 			services.AddScoped<VideoProcessingStage, SetProgressFinishedStage>();
-			services.AddScoped<IVideoProcessingPipeline, OfflineVideoProcessingPipeline>();
+			services.AddScoped<IVideoProcessingPipeline, DefaultVideoProcessingPipeline>();
 			return services;
 		}
 		public static string? GetIp(this HttpContext context, bool bypassProxy = true)
