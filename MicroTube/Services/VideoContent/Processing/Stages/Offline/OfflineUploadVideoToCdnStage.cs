@@ -8,9 +8,10 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 		private readonly ICdnMediaContentAccess _mediaCdnAccess;
 		private readonly IFileSystem _fileSystem;
 
-		public OfflineUploadVideoToCdnStage(ICdnMediaContentAccess mediaCdnAccess)
+		public OfflineUploadVideoToCdnStage(ICdnMediaContentAccess mediaCdnAccess, IFileSystem fileSystem)
 		{
 			_mediaCdnAccess = mediaCdnAccess;
+			_fileSystem = fileSystem;
 		}
 
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
