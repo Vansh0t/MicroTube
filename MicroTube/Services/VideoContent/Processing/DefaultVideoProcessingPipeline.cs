@@ -9,21 +9,21 @@ using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Processing
 {
-	public class OfflineVideoProcessingPipeline : IVideoProcessingPipeline
+	public class DefaultVideoProcessingPipeline : IVideoProcessingPipeline
 	{
 		public PipelineState State => _state;
 
 		private PipelineState _state;
 		private readonly List<IPipelineStage<DefaultVideoProcessingContext>> _stages = new();
 		private readonly IConfiguration _config;
-		private readonly ILogger<OfflineVideoProcessingPipeline> _logger;
+		private readonly ILogger<DefaultVideoProcessingPipeline> _logger;
 		private readonly ICdnMediaContentAccess _mediaCdnAccess;
 		private readonly MicroTubeDbContext _db;
 		private readonly IFileSystem _fileSystem;
 
-		public OfflineVideoProcessingPipeline(
+		public DefaultVideoProcessingPipeline(
 			IConfiguration config,
-			ILogger<OfflineVideoProcessingPipeline> logger,
+			ILogger<DefaultVideoProcessingPipeline> logger,
 			IEnumerable<VideoProcessingStage> stages,
 			ICdnMediaContentAccess mediaCdnAccess,
 			MicroTubeDbContext db,
