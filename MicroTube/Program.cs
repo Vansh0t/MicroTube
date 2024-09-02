@@ -29,11 +29,11 @@ builder.Services.AddAzureBlobStorage(config.GetRequiredValue("AzureBlobStorage:C
 builder.Services.AddSingleton<IMD5HashProvider, MD5HashProvider>();
 builder.Services.AddSingleton<IVideoAnalyzer, FFMpegVideoAnalyzer>();
 //builder.Services.AddSingleton<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>, AzureBlobVideoContentRemoteStorage>();
-builder.Services.AddSingleton<IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions>, OfflineVideoContentRemoteStorage>();
+//builder.Services.AddSingleton<IVideoContentRemoteStorage<OfflineRemoteStorageOptions, OfflineRemoteStorageOptions>, OfflineVideoContentRemoteStorage>();
 //builder.Services.AddSingleton<ICdnMediaContentAccess, AzureCdnMediaContentAccess>();
 builder.Services.AddElasticsearchClient(config);
 builder.Services.AddElasticsearchSearch();
-builder.Services.AddSingleton<ICdnMediaContentAccess, OfflineCdnMediaContentAccess>();
+//builder.Services.AddSingleton<ICdnMediaContentAccess, OfflineCdnMediaContentAccess>();
 builder.Services.AddSingleton<IEmailValidator, EmailValidator>();
 builder.Services.AddSingleton<IUsernameValidator, UsernameValidator>();
 builder.Services.AddSingleton<IPasswordValidator, DefaultPasswordValidator>();
@@ -45,10 +45,10 @@ builder.Services.AddSingleton<IUserSessionService, DefaultUserSessionService>();
 builder.Services.AddSingleton<IVideoPreUploadValidator, DefaultVideoPreUploadValidator>();
 builder.Services.AddSingleton<IVideoNameGenerator, GuidVideoNameGenerator>();
 //builder.Services.AddScoped<IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>, AzureBlobVideoPreprocessingPipeline>();
-builder.Services.AddScoped<IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>, OfflineVideoPreprocessingPipeline>();
+//builder.Services.AddScoped<IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress>, OfflineVideoPreprocessingPipeline>();
 builder.Services.AddVideoReactions();
 //builder.Services.AddScoped<IVideoProcessingPipeline, AzureBlobVideoProcessingPipeline>();
-builder.Services.AddOfflineVideoProcessing();
+//builder.Services.AddOfflineVideoProcessing();
 builder.Services.AddDbContext<MicroTubeDbContext>(
 	options => options.UseSqlServer(config.GetDefaultConnectionString())
 					  .UseExceptionProcessor());

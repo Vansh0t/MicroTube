@@ -11,9 +11,6 @@ using MicroTube.Services;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
-using MicroTube.Services.VideoContent.Processing;
-using MicroTube.Services.VideoContent.Processing.Stages;
-using MicroTube.Services.VideoContent.Processing.Stages.Offline;
 using MicroTube.Services.Search;
 using MicroTube.Services.Authentication.BasicFlow;
 using MicroTube.Services.VideoContent.Reactions;
@@ -148,20 +145,20 @@ namespace MicroTube
 			services.AddScoped<IVideoSearchService, ElasticVideoSearchService>();
 			return services;
 		}
-		public static IServiceCollection AddOfflineVideoProcessing(this IServiceCollection services)
-		{
-			services.AddScoped<VideoProcessingStage, FetchVideoUploadProgressStage>();
-			services.AddScoped<VideoProcessingStage, OfflineFetchVideoSourceFromRemoteCacheStage>();
-			services.AddScoped<VideoProcessingStage, SetProgressInProgressStage>();
-			services.AddScoped<VideoProcessingStage, FFMpegCreateQualityTiersStage>();
-			services.AddScoped<VideoProcessingStage, FFMpegCreateThumbnailsStage>();
-			services.AddScoped<VideoProcessingStage, OfflineUploadThumbnailsToCdnStage>();
-			services.AddScoped<VideoProcessingStage, OfflineUploadVideoToCdnStage>();
-			services.AddScoped<VideoProcessingStage, CreateVideoInDatabaseStage>();
-			services.AddScoped<VideoProcessingStage, SetProgressFinishedStage>();
-			services.AddScoped<IVideoProcessingPipeline, DefaultVideoProcessingPipeline>();
-			return services;
-		}
+		//public static IServiceCollection AddOfflineVideoProcessing(this IServiceCollection services)
+		//{
+		//	services.AddScoped<VideoProcessingStage, FetchVideoUploadProgressStage>();
+		//	services.AddScoped<VideoProcessingStage, OfflineFetchVideoSourceFromRemoteCacheStage>();
+		//	services.AddScoped<VideoProcessingStage, SetProgressInProgressStage>();
+		//	services.AddScoped<VideoProcessingStage, FFMpegCreateQualityTiersStage>();
+		//	services.AddScoped<VideoProcessingStage, FFMpegCreateThumbnailsStage>();
+		//	services.AddScoped<VideoProcessingStage, OfflineUploadThumbnailsToCdnStage>();
+		//	services.AddScoped<VideoProcessingStage, OfflineUploadVideoToCdnStage>();
+		//	services.AddScoped<VideoProcessingStage, CreateVideoInDatabaseStage>();
+		//	services.AddScoped<VideoProcessingStage, SetProgressFinishedStage>();
+		//	services.AddScoped<IVideoProcessingPipeline, DefaultVideoProcessingPipeline>();
+		//	return services;
+		//}
 		public static string? GetIp(this HttpContext context, bool bypassProxy = true)
 		{
 			if (bypassProxy && context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedIp))
