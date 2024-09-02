@@ -58,12 +58,15 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Azure
 		private async Task<string> DownloadSourceFromRemoteCache(string sourceFileName, string sourceLocation, string saveToPath, CancellationToken cancellationToken)
 		{
 			var remoteAccessOptions = new AzureBlobAccessOptions(sourceFileName, sourceLocation);
-			var remoteCacheDownloadResult = await _remoteStorage.Download(saveToPath, remoteAccessOptions, cancellationToken);
-			if (remoteCacheDownloadResult.IsError)
+			try
 			{
-				throw new BackgroundJobException($"Failed to download from remote cache for processing. File: {sourceFileName}, Location: {sourceLocation}, SaveTo: {saveToPath}.");
+				string downloadPath = await _remoteStorage.Download(saveToPath, remoteAccessOptions, cancellationToken);
+				return downloadPath;
 			}
-			return remoteCacheDownloadResult.GetRequiredObject();
+			catch (Exception e)
+			{
+				throw new BackgroundJobException($"Failed to download from remote cache for processing. File: {sourceFileName}, Location: {sourceLocation}, SaveTo: {saveToPath}.", e);
+			}
 		}
 		private string CreateWorkingLocation(string path, string normalizedFileName)
 		{

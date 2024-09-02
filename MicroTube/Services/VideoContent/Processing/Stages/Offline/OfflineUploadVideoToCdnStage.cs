@@ -45,7 +45,7 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
 		private async Task<Uri> UploadVideoToCdn(string localCacheSourceVideoPath, string videoName, CancellationToken cancellationToken)
 		{
 			using var fileStream = _fileSystem.FileStream.New(localCacheSourceVideoPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-			var videoUploadResult = await _mediaCdnAccess.UploadVideo(fileStream, videoName, cancellationToken);
+			var videoUploadResult = await _mediaCdnAccess.UploadVideo(fileStream, videoName, "", cancellationToken);
 			if (videoUploadResult.IsError)
 			{
 				throw new BackgroundJobException($"Failed to upload video file to CDN. Path: {localCacheSourceVideoPath}. {videoUploadResult.Error}");

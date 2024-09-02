@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs.Models;
 using MicroTube.Services.ConfigOptions;
+using System.IO.Abstractions;
 
 namespace MicroTube.Services.MediaContentStorage
 {
@@ -10,37 +11,46 @@ namespace MicroTube.Services.MediaContentStorage
 		private readonly IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _videoRemoteStorage;
 		private readonly IConfiguration _config;
 		private readonly ILogger<AzureCdnMediaContentAccess> _logger;
+		private readonly IFileSystem _fileSystem;
 
-		public AzureCdnMediaContentAccess(IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> videoRemoteStorage, IConfiguration config, ILogger<AzureCdnMediaContentAccess> logger)
+		public AzureCdnMediaContentAccess(
+			IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> videoRemoteStorage,
+			IConfiguration config,
+			ILogger<AzureCdnMediaContentAccess> logger,
+			IFileSystem fileSystem)
 		{
 			_videoRemoteStorage = videoRemoteStorage;
 			_config = config;
 			_logger = logger;
+			_fileSystem = fileSystem;
 		}
 
-		public async Task<IServiceResult<Uri>> UploadVideo(Stream stream, string fileName, CancellationToken cancellationToken = default)
+		public async Task<IServiceResult<Uri>> UploadVideo(Stream stream, string fileName, string location, CancellationToken cancellationToken = default)
 		{
 			VideoContentUploadOptions videoUploadOptions = _config.GetRequiredByKey<VideoContentUploadOptions>(VideoContentUploadOptions.KEY);
-			var accessOptions = new AzureBlobAccessOptions(fileName, videoUploadOptions.RemoteStorageLocation);
+			var accessOptions = new AzureBlobAccessOptions(fileName, location);
 			var uploadOptions = new BlobUploadOptions
 			{
 				AccessTier = AccessTier.Hot
 			};
-			var uploadResult = await _videoRemoteStorage.Upload(stream, accessOptions, uploadOptions, cancellationToken);
-			if(uploadResult.IsError)
+			
+			try
 			{
-				_logger.LogError("Failed to upload video {videoFileName}.", fileName);
-				return ServiceResult<Uri>.Fail(uploadResult.Code, uploadResult.Error!);
+				string uploadedFileName = await _videoRemoteStorage.Upload(stream, accessOptions, uploadOptions, cancellationToken);
+				var cdnUrl = new Uri(videoUploadOptions.CdnUrl);
+				var videoUrl = new Uri(cdnUrl, $"{location}/{uploadedFileName}");
+				return ServiceResult<Uri>.Success(videoUrl);
 			}
-			var cdnUri = new Uri(videoUploadOptions.CdnUrl);
-			var videoUri = new Uri(cdnUri, $"{videoUploadOptions.RemoteStorageLocation}/{fileName}");
-			return ServiceResult<Uri>.Success(videoUri);
+			catch (Exception e)
+			{
+				_logger.LogError(e, $"Failed to upload video {fileName}.");
+				return ServiceResult<Uri>.Fail(500, $"Failed to upload video {fileName}. " + e.ToString());
+			}
 		}
-		public async Task<IServiceResult<IEnumerable<Uri>>> UploadVideoSubcontent(string fromPath, string videoFileName, CancellationToken cancellationToken =default)
+		public async Task<IServiceResult<IEnumerable<Uri>>> UploadVideoSubcontent(string fromPath, string location, CancellationToken cancellationToken =default)
 		{
 			VideoContentUploadOptions videoUploadOptions = _config.GetRequiredByKey<VideoContentUploadOptions>(VideoContentUploadOptions.KEY);
-			string videoFileNameWithoutExtension = videoFileName.Replace(Path.GetExtension(videoFileName), "");
-			var accessOptions = new AzureBlobAccessOptions("", videoFileNameWithoutExtension);
+			var accessOptions = new AzureBlobAccessOptions("", location);
 			var uploadOptions = new BlobUploadOptions
 			{
 				AccessTier = AccessTier.Hot,
@@ -49,38 +59,48 @@ namespace MicroTube.Services.MediaContentStorage
 					MaximumConcurrency = MAXIMUM_UPLOAD_CONCURRENCY
 				}
 			};
-			var ensureLocationResult = await _videoRemoteStorage.EnsureLocation(videoFileNameWithoutExtension, RemoteLocationAccess.Public, cancellationToken);
-			if(ensureLocationResult.IsError)
+			try
 			{
-				_logger.LogError("Failed to ensure video subcontent location {fromPath}, {videoFileName}.", fromPath, videoFileName);
-				return ServiceResult<IEnumerable<Uri>>.Fail(ensureLocationResult.Code, ensureLocationResult.Error!);
+				var result = await _videoRemoteStorage.Upload(fromPath, accessOptions, uploadOptions, cancellationToken);
+				var cdnUrl = new Uri(videoUploadOptions.CdnUrl);
+				var uploadedFilesUrls = result.Select(_ => new Uri(cdnUrl, $"{location}/{_}"));
+				return ServiceResult<IEnumerable<Uri>>.Success(uploadedFilesUrls);
 			}
-			var uploadResult = await _videoRemoteStorage.Upload(fromPath, accessOptions, uploadOptions, cancellationToken);
-			if (uploadResult.IsError)
+			catch (Exception e)
 			{
-				_logger.LogError("Failed to upload video subcontent {fromPath}, {videoFileName}.", fromPath, videoFileName);
-				return ServiceResult<IEnumerable<Uri>>.Fail(uploadResult.Code, uploadResult.Error!);
+				_logger.LogError(e, $"Failed to upload video subcontent {fromPath}, {location}.");
+				return ServiceResult<IEnumerable<Uri>>.Fail(500, $"Failed to upload video subcontent {fromPath}, {location}. " + e.ToString());
 			}
-			var uploadedFileNames = uploadResult.GetRequiredObject();
-			var cdnUri = new Uri( videoUploadOptions.CdnUrl);
-			var uploadedFilesUris = uploadedFileNames.Select(_ => new Uri(cdnUri, $"{videoFileNameWithoutExtension}/{_}"));
-			return ServiceResult<IEnumerable<Uri>>.Success(uploadedFilesUris);
+		}
+		public async Task<IServiceResult<string>> CreateVideoLocation(string videoFileName, CancellationToken cancellationToken = default)
+		{
+			string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(videoFileName);
+			try
+			{
+				await _videoRemoteStorage.EnsureLocation(fileNameWithoutExtension, RemoteLocationAccess.Public, cancellationToken);
+				return ServiceResult<string>.Success(fileNameWithoutExtension);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, $"Failed to create video location {videoFileName}.");
+				return ServiceResult<string>.Fail(500, $"Failed to create video location {videoFileName}. " + e.ToString());
+			}
 		}
 		public async Task<IServiceResult> DeleteAllVideoData(string videoFileName, CancellationToken cancellationToken = default)
 		{
 			VideoContentUploadOptions videoUploadOptions = _config.GetRequiredByKey<VideoContentUploadOptions>(VideoContentUploadOptions.KEY);
 			var accessOptions = new AzureBlobAccessOptions(videoFileName, videoUploadOptions.RemoteStorageLocation);
-			var deleteVideoTask =  _videoRemoteStorage.Delete(accessOptions, cancellationToken);
-			var deleteSubcontentTask = _videoRemoteStorage.DeleteLocation(Path.GetFileNameWithoutExtension(videoFileName));
-			await Task.WhenAll(deleteVideoTask, deleteSubcontentTask);
-			var deleteVideoResult = deleteVideoTask.Result;
-			var deleteSubcontentResult = deleteSubcontentTask.Result;
-			string joinedError = "" + deleteVideoResult.Error + deleteSubcontentResult.Error;
-			if (!string.IsNullOrWhiteSpace(joinedError))
+			try
 			{
-				return ServiceResult.Fail(500, joinedError);
+				await _videoRemoteStorage.DeleteLocation(Path.GetFileNameWithoutExtension(videoFileName));
+				return ServiceResult.Success();
 			}
-			return ServiceResult.Success();
+			catch (Exception e)
+			{
+				_logger.LogError(e, $"Failed to delete remote video location for video file {videoFileName}");
+				return ServiceResult.Fail(500, $"Failed to delete remote video location for video file {videoFileName}. " + e);
+			}
+			
 		}
 	}
 }

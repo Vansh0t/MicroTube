@@ -55,12 +55,15 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Offline
         private async Task<string> DownloadSourceFromRemoteCache(string sourceFileName, string sourceLocation, string saveToPath, CancellationToken cancellationToken)
         {
             var remoteAccessOptions = new OfflineRemoteStorageOptions(_fileSystem.Path.Join(sourceLocation, sourceFileName));
-            var remoteCacheDownloadResult = await _remoteStorage.Download(saveToPath, remoteAccessOptions, cancellationToken);
-            if (remoteCacheDownloadResult.IsError)
-            {
-                throw new BackgroundJobException($"Failed to download from remote cache for processing. File: {sourceFileName}, Location: {sourceLocation}, SaveTo: {saveToPath}.");
-            }
-            return remoteCacheDownloadResult.GetRequiredObject();
+			try
+			{
+				string downloadPath = await _remoteStorage.Download(saveToPath, remoteAccessOptions, cancellationToken);
+				return downloadPath;
+			}
+			catch (Exception e)
+			{
+				throw new BackgroundJobException($"Failed to download from remote cache for processing. File: {sourceFileName}, Location: {sourceLocation}, SaveTo: {saveToPath}.", e);
+			}
         }
 		private string CreateWorkingLocation(string path, string normalizedFileName)
 		{

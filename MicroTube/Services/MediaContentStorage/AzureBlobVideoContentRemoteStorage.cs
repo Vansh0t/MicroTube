@@ -8,23 +8,20 @@ namespace MicroTube.Services.MediaContentStorage
 {
 	public class AzureBlobVideoContentRemoteStorage : IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>
 	{
-		private readonly IConfiguration _config;
 		private readonly BlobServiceClient _azureBlobServiceClient;
 		private readonly ILogger<AzureBlobVideoContentRemoteStorage> _logger;
 		private readonly IFileSystem _fileSystem;
 
 		public AzureBlobVideoContentRemoteStorage(
-			IConfiguration config,
 			BlobServiceClient azureBlobServiceClient,
 			ILogger<AzureBlobVideoContentRemoteStorage> logger,
 			IFileSystem fileSystem)
 		{
-			_config = config;
 			_azureBlobServiceClient = azureBlobServiceClient;
 			_logger = logger;
 			_fileSystem = fileSystem;
 		}
-		public async Task<IServiceResult<string>> Upload(Stream stream, AzureBlobAccessOptions accessOptions, BlobUploadOptions uploadOptions, CancellationToken cancellationToken = default)
+		public async Task<string> Upload(Stream stream, AzureBlobAccessOptions accessOptions, BlobUploadOptions uploadOptions, CancellationToken cancellationToken = default)
 		{
 			var blobContainerClient = _azureBlobServiceClient.GetBlobContainerClient(accessOptions.ContainerName);
 			await blobContainerClient.CreateIfNotExistsAsync();
@@ -34,19 +31,18 @@ namespace MicroTube.Services.MediaContentStorage
 			var httpResponse = response.GetRawResponse();
 			if (httpResponse.IsError)
 			{
-				_logger.LogError("Failed to upload media content to Azure blob storage. {statusCode}, {reasonPhrase}", httpResponse.Status, httpResponse.ReasonPhrase);
-				return ServiceResult<string>.FailInternal();
+				throw new ExternalServiceException($"Failed to upload media content to Azure blob storage. {httpResponse.Status}, {httpResponse.ReasonPhrase}");
 			}
-			return ServiceResult<string>.Success(accessOptions.FileName);
+			return accessOptions.FileName;
 		}
-		public async Task<IServiceResult<IEnumerable<string>>> Upload(string path, AzureBlobAccessOptions accessOptions, BlobUploadOptions uploadOptions, CancellationToken cancellationToken)
+		public async Task<IEnumerable<string>> Upload(string path, AzureBlobAccessOptions accessOptions, BlobUploadOptions uploadOptions, CancellationToken cancellationToken)
 		{
 			var blobContainerClient = _azureBlobServiceClient.GetBlobContainerClient(accessOptions.ContainerName);
 			FileAttributes fileAttributes = _fileSystem.File.GetAttributes(path);
 			if(fileAttributes == FileAttributes.Directory)
 			{
 				var uploadedFileNames = await UploadAllFilesFromDirectory(path, blobContainerClient, uploadOptions, cancellationToken);
-				return ServiceResult<IEnumerable<string>>.Success(uploadedFileNames);
+				return uploadedFileNames;
 			}
 			var blobClient = blobContainerClient.GetBlobClient(accessOptions.FileName);
 			uploadOptions = EnsureCorrectContentType(accessOptions.FileName, uploadOptions);
@@ -54,12 +50,11 @@ namespace MicroTube.Services.MediaContentStorage
 			var httpResponse = response.GetRawResponse();
 			if (httpResponse.IsError)
 			{
-				_logger.LogError("Failed to upload media content to Azure blob storage. {statusCode}, {reasonPhrase}", httpResponse.Status, httpResponse.ReasonPhrase);
-				return ServiceResult<IEnumerable<string>>.FailInternal();
+				throw new ExternalServiceException($"Failed to upload media content to Azure blob storage. {httpResponse.Status}, {httpResponse.ReasonPhrase}");
 			}
-			return ServiceResult<IEnumerable<string>>.Success(new string[1] { accessOptions.FileName });
+			return new string[1] { accessOptions.FileName };
 		}
-		public async Task<IServiceResult> Delete(AzureBlobAccessOptions options, CancellationToken cancellationToken = default)
+		public async Task Delete(AzureBlobAccessOptions options, CancellationToken cancellationToken = default)
 		{
 			var blobContainerClient = _azureBlobServiceClient.GetBlobContainerClient(options.ContainerName);
 			var blobClient = blobContainerClient.GetBlockBlobClient(options.FileName);
@@ -67,12 +62,10 @@ namespace MicroTube.Services.MediaContentStorage
 			var httpResponse = response.GetRawResponse(); //httpResponse is null here if container already exists for some reason
 			if (httpResponse != null && httpResponse.IsError)
 			{
-				_logger.LogError("Failed to delete media content from Azure blob storage. {statusCode}, {reasonPhrase}", httpResponse.Status, httpResponse.ReasonPhrase);
-				return ServiceResult.FailInternal();
+				throw new ExternalServiceException($"Failed to delete media content from Azure blob storage. {httpResponse.Status}, {httpResponse.ReasonPhrase}");
 			}
-			return ServiceResult.Success();
 		}
-		public async Task<IServiceResult<string>> Download(string saveToPath, AzureBlobAccessOptions options, CancellationToken cancellationToken = default)
+		public async Task<string> Download(string saveToPath, AzureBlobAccessOptions options, CancellationToken cancellationToken = default)
 		{
 			_fileSystem.Directory.CreateDirectory(saveToPath);
 			var blobContainerClient = _azureBlobServiceClient.GetBlobContainerClient(options.ContainerName);
@@ -80,12 +73,11 @@ namespace MicroTube.Services.MediaContentStorage
 			var response = await blobClient.DownloadToAsync(Path.Join(saveToPath, options.FileName), cancellationToken);
 			if (response.IsError)
 			{
-				_logger.LogError("Failed to download media content from Azure blob storage. {statusCode}, {reasonPhrase}", response.Status, response.ReasonPhrase);
-				return ServiceResult<string>.FailInternal();
+				throw new ExternalServiceException($"Failed to download media content from Azure blob storage. {response.Status}, {response.ReasonPhrase}");
 			}
-			return ServiceResult<string>.Success(Path.Join(saveToPath, options.FileName));
+			return Path.Join(saveToPath, options.FileName);
 		}
-		public async Task<IServiceResult> EnsureLocation(string locationName, RemoteLocationAccess locationAccess, CancellationToken cancellationToken = default)
+		public async Task EnsureLocation(string locationName, RemoteLocationAccess locationAccess, CancellationToken cancellationToken = default)
 		{
 			var blobContainerClient = _azureBlobServiceClient.GetBlobContainerClient(locationName);
 			PublicAccessType blobContainerAccess = PublicAccessType.None;
@@ -95,10 +87,8 @@ namespace MicroTube.Services.MediaContentStorage
 			var httpResponse = response.GetRawResponse(); //httpResponse is null here if container already exists for some reason
 			if (httpResponse != null && httpResponse.IsError)
 			{
-				_logger.LogError("Failed to ensure location. {statusCode}, {reasonPhrase}", httpResponse.Status, httpResponse.ReasonPhrase);
-				return ServiceResult.FailInternal();
+				throw new ExternalServiceException($"Failed to ensure location. {httpResponse.Status}, {httpResponse.ReasonPhrase}");
 			}
-			return ServiceResult.Success();
 		}
 		private async Task<IEnumerable<string>> UploadAllFilesFromDirectory(string directory, BlobContainerClient containerClient, BlobUploadOptions uploadOptions, CancellationToken cancellationToken)
 		{
@@ -127,17 +117,15 @@ namespace MicroTube.Services.MediaContentStorage
 			return uploadingTasks.Where(_ => !_.Task.Result.GetRawResponse().IsError).Select(_ => _.FileName);
 		}
 
-		public async Task<IServiceResult> DeleteLocation(string locationName, CancellationToken cancellationToken)
+		public async Task DeleteLocation(string locationName, CancellationToken cancellationToken)
 		{
 			var blobContainerClient = _azureBlobServiceClient.GetBlobContainerClient(locationName);
 			var response = await blobContainerClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
 			var httpResponse = response.GetRawResponse(); //httpResponse is null here if container already exists for some reason
 			if (httpResponse != null && httpResponse.IsError)
 			{
-				_logger.LogError("Failed to delete location. {statusCode}, {reasonPhrase}", httpResponse.Status, httpResponse.ReasonPhrase);
-				return ServiceResult.FailInternal();
+				throw new ExternalServiceException($"Failed to delete location. {httpResponse.Status}, {httpResponse.ReasonPhrase}");
 			}
-			return ServiceResult.Success();
 		}
 		private BlobUploadOptions EnsureCorrectContentType(string fileName, BlobUploadOptions blobUploadOptions, bool alwaysOverride = false)
 		{
