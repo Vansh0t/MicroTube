@@ -111,10 +111,15 @@ namespace MicroTube.Services.VideoContent.Processing
 				AccessTier = AccessTier.Cold
 			};
 			var remoteUploadAccessOptions = new AzureBlobAccessOptions(fileName, cacheLocation);
-			var remoteSaveResult = await _remoteStorage.Upload(stream, remoteUploadAccessOptions, blobUploadOptions);
-			if (remoteSaveResult.IsError)
-				return ServiceResult.Fail(remoteSaveResult.Code, remoteSaveResult.Error!);
-			return ServiceResult.Success();
+			try
+			{
+				var remoteSaveResult = await _remoteStorage.Upload(stream, remoteUploadAccessOptions, blobUploadOptions);
+				return ServiceResult.Success();
+			}
+			catch(Exception e)
+			{
+				return e.ExceptionToErrorResult();
+			}
 		}
 	}
 }

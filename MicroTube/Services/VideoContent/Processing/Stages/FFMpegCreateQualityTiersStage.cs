@@ -1,5 +1,4 @@
 ﻿using MicroTube.Services.ConfigOptions;
-using MicroTube.Services.VideoContent.Processing.Stages.Offline;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages
 {

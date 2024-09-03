@@ -127,12 +127,7 @@ namespace MicroTube.Services.VideoContent.Processing
 		private async Task<string> DownloadFromRemoteProcessingCache(string fileName, string fileLocation, string saveToPath, CancellationToken cancellationToken)
 		{
 			var remoteAccessOptions = new AzureBlobAccessOptions(fileName, fileLocation);
-			var remoteCacheDownloadResult = await _remoteStorage.Download(saveToPath, remoteAccessOptions, cancellationToken);
-			if(remoteCacheDownloadResult.IsError)
-			{
-				throw new BackgroundJobException($"Failed to download from remote cache for processing. File: {fileName}, Location: {fileLocation}, SaveTo: {saveToPath}. {remoteCacheDownloadResult.Error}");
-			}
-			return remoteCacheDownloadResult.GetRequiredObject();
+			return await _remoteStorage.Download(saveToPath, remoteAccessOptions, cancellationToken);
 		}
 		private async Task<(IEnumerable<string> thumbnails, IEnumerable<string> snapshots)> MakeImagesSubcontent(string videoFilePath, string saveToPath, CancellationToken cancellationToken)
 		{
@@ -154,7 +149,7 @@ namespace MicroTube.Services.VideoContent.Processing
 		private async Task<Uri> UploadVideoToCdn(string videoFilePath, string videoFileName, CancellationToken cancellationToken)
 		{
 			using var fileStream = new FileStream(videoFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-			var videoUploadResult = await _mediaCdnAccess.UploadVideo(fileStream, videoFileName, cancellationToken);
+			var videoUploadResult = await _mediaCdnAccess.UploadVideo(fileStream, videoFileName, "", cancellationToken);
 			if (videoUploadResult.IsError)
 			{
 				throw new BackgroundJobException($"Failed to upload video file to CDN. Path: {videoFilePath}. {videoUploadResult.Error}");

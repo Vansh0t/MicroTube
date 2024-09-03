@@ -1,5 +1,4 @@
 ﻿using MicroTube.Services.MediaContentStorage;
-using MicroTube.Services.VideoContent.Processing.Stages.Offline;
 using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages.Azure

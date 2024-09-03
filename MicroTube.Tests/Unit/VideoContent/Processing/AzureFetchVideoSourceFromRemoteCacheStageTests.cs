@@ -6,6 +6,7 @@ using MicroTube.Services.MediaContentStorage;
 using MicroTube.Services.VideoContent.Processing.Stages;
 using MicroTube.Services.VideoContent.Processing.Stages.Azure;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Security;
@@ -30,7 +31,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 				.Build();
 			var remoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
 			remoteStorage.Download(workLocation, Arg.Any<AzureBlobAccessOptions>())
-				.Returns(ServiceResult<string>.Success(expectedLocalCacheSourcePath));
+				.Returns(expectedLocalCacheSourcePath);
 			var fileSystem = new MockFileSystem();
 			fileSystem.Directory.CreateDirectory(localStoragePath);
 			
@@ -63,7 +64,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 				.Build();
 			var remoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
 			remoteStorage.Download(workLocation, Arg.Any<AzureBlobAccessOptions>())
-				.Returns(ServiceResult<string>.Success(expectedLocalCacheSourcePath));
+				.Returns(expectedLocalCacheSourcePath);
 			var fileSystem = new MockFileSystem();
 			fileSystem.Directory.CreateDirectory(localStoragePath);
 
@@ -86,7 +87,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 				.Build();
 			var remoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
 			remoteStorage.Download(workLocation, Arg.Any<AzureBlobAccessOptions>())
-				.Returns(ServiceResult<string>.FailInternal());
+				.Throws<Exception>();
 			var fileSystem = new MockFileSystem();
 			fileSystem.Directory.CreateDirectory(localStoragePath);
 
@@ -108,7 +109,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 				.Build();
 			var remoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
 			remoteStorage.Download(workLocation, Arg.Any<AzureBlobAccessOptions>())
-				.Returns(ServiceResult<string>.Success(""));
+				.Returns("");
 			var fileSystem = new MockFileSystem();
 			fileSystem.Directory.CreateDirectory(localStoragePath);
 

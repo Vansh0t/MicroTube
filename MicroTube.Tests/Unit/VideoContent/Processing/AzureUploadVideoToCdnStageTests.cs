@@ -32,11 +32,11 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 				new Uri("https://cdn.test/source_480.mp4"),
 				new Uri("https://cdn.test/source_720.mp4")
 			};
-			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_144.mp4").Returns(ServiceResult<Uri>.Success(uploadedUrls[0]));
-			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_240.mp4").Returns(ServiceResult<Uri>.Success(uploadedUrls[1]));
-			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_360.mp4").Returns(ServiceResult<Uri>.Success(uploadedUrls[2]));
-			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_480.mp4").Returns(ServiceResult<Uri>.Success(uploadedUrls[3]));
-			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_720.mp4").Returns(ServiceResult<Uri>.Success(uploadedUrls[4]));
+			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_144.mp4", "").Returns(ServiceResult<Uri>.Success(uploadedUrls[0]));
+			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_240.mp4", "").Returns(ServiceResult<Uri>.Success(uploadedUrls[1]));
+			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_360.mp4", "").Returns(ServiceResult<Uri>.Success(uploadedUrls[2]));
+			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_480.mp4", "").Returns(ServiceResult<Uri>.Success(uploadedUrls[3]));
+			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_720.mp4", "").Returns(ServiceResult<Uri>.Success(uploadedUrls[4]));
 		}
 		[Fact]
 		public async Task ExecuteStage_Success()
@@ -92,7 +92,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 				}
 			};
 			ICdnMediaContentAccess failedCdn = Substitute.For<ICdnMediaContentAccess>();
-			failedCdn.UploadVideo(Arg.Any<Stream>(), Arg.Any<string>()).Returns(ServiceResult<Uri>.FailInternal());
+			failedCdn.UploadVideo(Arg.Any<Stream>(), Arg.Any<string>(), "").Returns(ServiceResult<Uri>.FailInternal());
 			var stage = new AzureUploadVideoToCdnStage(failedCdn, _fileSystemMock);
 			await Assert.ThrowsAnyAsync<BackgroundJobException>(() => stage.Execute(context));
 		}
