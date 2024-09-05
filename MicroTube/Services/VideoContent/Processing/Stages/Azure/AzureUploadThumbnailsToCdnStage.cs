@@ -33,7 +33,7 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Azure
 		}
 		private async Task<IEnumerable<Uri>> UploadThumbnailsToCdn(string localCacheThumbnailsLocation, string normalizedSourceName, CancellationToken cancellationToken)
 		{
-			var subcontentUploadResult = await _mediaCdnAccess.UploadVideoSubcontent(localCacheThumbnailsLocation, normalizedSourceName, cancellationToken);
+			var subcontentUploadResult = await _mediaCdnAccess.UploadVideoThumbnails(localCacheThumbnailsLocation, normalizedSourceName, cancellationToken);
 			if (subcontentUploadResult.IsError)
 			{
 				throw new BackgroundJobException($"Failed to upload video subcontent to CDN. File: {normalizedSourceName}, SubcontentLocation: {localCacheThumbnailsLocation}. {subcontentUploadResult.Error}");

@@ -1,6 +1,8 @@
-﻿using Azure.Storage.Blobs.Models;
+﻿using Ardalis.GuardClauses;
+using Azure.Storage.Blobs.Models;
 using MicroTube.Services.ConfigOptions;
 using System.IO.Abstractions;
+using System.Threading;
 
 namespace MicroTube.Services.MediaContentStorage
 {
@@ -25,60 +27,26 @@ namespace MicroTube.Services.MediaContentStorage
 			_fileSystem = fileSystem;
 		}
 
-		public async Task<IServiceResult<Uri>> UploadVideo(Stream stream, string fileName, string location, CancellationToken cancellationToken = default)
+		public async Task<IServiceResult<IEnumerable<Uri>>> UploadVideoQualityTiers(string tiersDirectory, string remoteLocation, CancellationToken cancellationToken = default)
 		{
-			VideoContentUploadOptions videoUploadOptions = _config.GetRequiredByKey<VideoContentUploadOptions>(VideoContentUploadOptions.KEY);
-			var accessOptions = new AzureBlobAccessOptions(fileName, location);
-			var uploadOptions = new BlobUploadOptions
-			{
-				AccessTier = AccessTier.Hot
-			};
-			
-			try
-			{
-				string uploadedFileName = await _videoRemoteStorage.Upload(stream, accessOptions, uploadOptions, cancellationToken);
-				var cdnUrl = new Uri(videoUploadOptions.CdnUrl);
-				var videoUrl = new Uri(cdnUrl, $"{location}/{uploadedFileName}");
-				return ServiceResult<Uri>.Success(videoUrl);
-			}
-			catch (Exception e)
-			{
-				_logger.LogError(e, $"Failed to upload video {fileName}.");
-				return ServiceResult<Uri>.Fail(500, $"Failed to upload video {fileName}. " + e.ToString());
-			}
+			return await UploadPublicVideoContentFromDirectory(tiersDirectory, remoteLocation);
 		}
-		public async Task<IServiceResult<IEnumerable<Uri>>> UploadVideoSubcontent(string fromPath, string location, CancellationToken cancellationToken =default)
+		public async Task<IServiceResult<IEnumerable<Uri>>> UploadVideoThumbnails(string thumbnailsDirectory, string remoteLocation, CancellationToken cancellationToken =default)
 		{
-			VideoContentUploadOptions videoUploadOptions = _config.GetRequiredByKey<VideoContentUploadOptions>(VideoContentUploadOptions.KEY);
-			var accessOptions = new AzureBlobAccessOptions("", location);
-			var uploadOptions = new BlobUploadOptions
-			{
-				AccessTier = AccessTier.Hot,
-				TransferOptions = new Azure.Storage.StorageTransferOptions
-				{
-					MaximumConcurrency = MAXIMUM_UPLOAD_CONCURRENCY
-				}
-			};
-			try
-			{
-				var result = await _videoRemoteStorage.Upload(fromPath, accessOptions, uploadOptions, cancellationToken);
-				var cdnUrl = new Uri(videoUploadOptions.CdnUrl);
-				var uploadedFilesUrls = result.Select(_ => new Uri(cdnUrl, $"{location}/{_}"));
-				return ServiceResult<IEnumerable<Uri>>.Success(uploadedFilesUrls);
-			}
-			catch (Exception e)
-			{
-				_logger.LogError(e, $"Failed to upload video subcontent {fromPath}, {location}.");
-				return ServiceResult<IEnumerable<Uri>>.Fail(500, $"Failed to upload video subcontent {fromPath}, {location}. " + e.ToString());
-			}
+			return await UploadPublicVideoContentFromDirectory(thumbnailsDirectory, remoteLocation);
 		}
 		public async Task<IServiceResult<string>> CreateVideoLocation(string videoFileName, CancellationToken cancellationToken = default)
 		{
-			string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(videoFileName);
 			try
 			{
+				Guard.Against.NullOrWhiteSpace(videoFileName);
+				string fileNameWithoutExtension = BuildRemoteLocationNameFromVideoFileName(videoFileName);
 				await _videoRemoteStorage.EnsureLocation(fileNameWithoutExtension, RemoteLocationAccess.Public, cancellationToken);
 				return ServiceResult<string>.Success(fileNameWithoutExtension);
+			}
+			catch(ArgumentException e)
+			{
+				return ServiceResult<string>.Fail(400, e.ToString());
 			}
 			catch(Exception e)
 			{
@@ -88,12 +56,15 @@ namespace MicroTube.Services.MediaContentStorage
 		}
 		public async Task<IServiceResult> DeleteAllVideoData(string videoFileName, CancellationToken cancellationToken = default)
 		{
-			VideoContentUploadOptions videoUploadOptions = _config.GetRequiredByKey<VideoContentUploadOptions>(VideoContentUploadOptions.KEY);
-			var accessOptions = new AzureBlobAccessOptions(videoFileName, videoUploadOptions.RemoteStorageLocation);
 			try
 			{
-				await _videoRemoteStorage.DeleteLocation(Path.GetFileNameWithoutExtension(videoFileName));
+				Guard.Against.NullOrWhiteSpace(videoFileName);
+				await _videoRemoteStorage.DeleteLocation(BuildRemoteLocationNameFromVideoFileName(videoFileName));
 				return ServiceResult.Success();
+			}
+			catch (ArgumentException e)
+			{
+				return ServiceResult<string>.Fail(400, e.ToString());
 			}
 			catch (Exception e)
 			{
@@ -101,6 +72,49 @@ namespace MicroTube.Services.MediaContentStorage
 				return ServiceResult.Fail(500, $"Failed to delete remote video location for video file {videoFileName}. " + e);
 			}
 			
+		}
+		private async Task<IServiceResult<IEnumerable<Uri>>> UploadPublicVideoContentFromDirectory(string directory, string remoteLocation, CancellationToken cancellationToken = default)
+		{
+			try
+			{
+				Guard.Against.NullOrWhiteSpace(directory);
+				Guard.Against.NullOrWhiteSpace(remoteLocation);
+				VideoContentUploadOptions videoUploadOptions = _config.GetRequiredByKey<VideoContentUploadOptions>(VideoContentUploadOptions.KEY);
+				var accessOptions = new AzureBlobAccessOptions("", remoteLocation);
+				var uploadOptions = new BlobUploadOptions
+				{
+					AccessTier = AccessTier.Hot,
+					TransferOptions = new Azure.Storage.StorageTransferOptions
+					{
+						MaximumConcurrency = MAXIMUM_UPLOAD_CONCURRENCY
+					}
+				};
+				BulkUploadResult result = await _videoRemoteStorage.UploadDirectory(directory, accessOptions, uploadOptions, cancellationToken);
+				var cdnUrl = new Uri(videoUploadOptions.CdnUrl);
+				var urls = result.SuccessfulUploadsFileNames.Select(_ => new Uri(cdnUrl, $"{remoteLocation}/{_}"));
+				if (result.SuccessfulUploadsFileNames.Count() == 0)
+				{
+					return ServiceResult<IEnumerable<Uri>>.Fail(500, $"No video content were uploaded to cdn from {directory} to {remoteLocation}");
+				}
+				else if (result.FailedUploadsFileNames.Count() > 0)
+				{
+					return new ServiceResult<IEnumerable<Uri>>(207, urls);
+				}
+				return ServiceResult<IEnumerable<Uri>>.Success(urls);
+			}
+			catch (ArgumentException e)
+			{
+				return ServiceResult<IEnumerable<Uri>>.Fail(400, e.ToString());
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, $"Failed to upload video content tiers from path {directory} to remote location {remoteLocation}.");
+				return ServiceResult<IEnumerable<Uri>>.Fail(500, $"Failed to upload video content tiers from path {directory} to remote location {remoteLocation}." + e.ToString());
+			}
+		}
+		private string BuildRemoteLocationNameFromVideoFileName(string fileName)
+		{
+			return _fileSystem.Path.GetFileNameWithoutExtension(fileName);
 		}
 	}
 }

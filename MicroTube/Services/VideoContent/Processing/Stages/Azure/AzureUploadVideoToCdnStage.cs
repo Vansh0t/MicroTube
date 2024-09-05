@@ -1,4 +1,5 @@
-﻿using MicroTube.Services.MediaContentStorage;
+﻿using Ardalis.GuardClauses;
+using MicroTube.Services.MediaContentStorage;
 using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages.Azure
@@ -16,41 +17,23 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Azure
 
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
 		{
-			if (context == null)
-			{
-				throw new ArgumentNullException($"Context must not be null for stage {nameof(AzureUploadVideoToCdnStage)}");
-			}
-			if (context.LocalCache == null)
-			{
-				throw new ArgumentNullException($"{nameof(context.LocalCache)} must not be null for stage {nameof(AzureUploadVideoToCdnStage)}");
-			}
-			IEnumerable<string> qualityTierPaths = GetQualityTierPaths(context.LocalCache.QualityTiersLocation);
-			List<Task<Uri>> uploadTasks = new List<Task<Uri>>();
-			foreach (var tierPath in qualityTierPaths)
-			{
-				var task = UploadVideoToCdn(tierPath, _fileSystem.Path.GetFileName(tierPath), cancellationToken);
-				uploadTasks.Add(task);
-			}
-			await Task.WhenAll(uploadTasks);
-			IEnumerable<Uri> videoUrls = uploadTasks.Where(_ => _.IsCompletedSuccessfully).Select(_ => _.Result);
+			Guard.Against.Null(context);
+			Guard.Against.Null(context.LocalCache);
+			Guard.Against.Null(context.RemoteCache);
+			IEnumerable<Uri> videoUrls = await UploadVideoTiersToCdn(context.LocalCache.QualityTiersLocation, context.RemoteCache.VideoFileLocation, cancellationToken);
 			if (context.Cdn == null)
 				context.Cdn = new Cdn();
 			context.Cdn.VideoEndpoints = videoUrls;
 			return context;
 		}
-		private async Task<Uri> UploadVideoToCdn(string localCacheSourceVideoPath, string videoName, CancellationToken cancellationToken)
+		private async Task<IEnumerable<Uri>> UploadVideoTiersToCdn(string tiersDirectory, string location, CancellationToken cancellationToken)
 		{
-			using var fileStream = _fileSystem.FileStream.New(localCacheSourceVideoPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-			var videoUploadResult = await _mediaCdnAccess.UploadVideo(fileStream, videoName, "", cancellationToken);
-			if (videoUploadResult.IsError)
+			var videoUploadResult = await _mediaCdnAccess.UploadVideoQualityTiers(tiersDirectory, location, cancellationToken);
+			if (videoUploadResult.IsError || videoUploadResult.Code == 207) //207 means some quality tiers were not uploaded, consider it fatal error for now
 			{
-				throw new BackgroundJobException($"Failed to upload video file to CDN. Path: {localCacheSourceVideoPath}. {videoUploadResult.Error}");
+				throw new BackgroundJobException($"Failed to upload video quality tiers to CDN. Path: {tiersDirectory}. {videoUploadResult.Error ?? "Partial success is not not allowed."}");
 			}
 			return videoUploadResult.GetRequiredObject();
-		}
-		private IEnumerable<string> GetQualityTierPaths(string containingLocation)
-		{
-			return _fileSystem.Directory.GetFiles(containingLocation);
 		}
 	}
 }
