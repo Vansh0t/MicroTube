@@ -16,6 +16,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 		public AzureUploadVideoToCdnStageTests()
 		{
 			_cdnMock = Substitute.For<ICdnMediaContentAccess>();
+			string remoteLocationName = "source";
 			_fileSystemMock = new MockFileSystem(new Dictionary<string, MockFileData>
 			{
 				{"valid/path/source/tiers/source_144.mp4", new MockFileData ("data") },
@@ -26,17 +27,13 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			});
 			uploadedUrls = new List<Uri>
 			{
-				new Uri("https://cdn.test/source_144.mp4"),
-				new Uri("https://cdn.test/source_240.mp4"),
-				new Uri("https://cdn.test/source_360.mp4"),
-				new Uri("https://cdn.test/source_480.mp4"),
-				new Uri("https://cdn.test/source_720.mp4")
+				new Uri($"https://cdn.test/{remoteLocationName}/source_144.mp4"),
+				new Uri($"https://cdn.test/{remoteLocationName}/source_240.mp4"),
+				new Uri($"https://cdn.test/{remoteLocationName}/source_360.mp4"),
+				new Uri($"https://cdn.test/{remoteLocationName}/source_480.mp4"),
+				new Uri($"https://cdn.test/{remoteLocationName}/source_720.mp4")
 			};
-			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_144.mp4", "").Returns(ServiceResult<Uri>.Success(uploadedUrls[0]));
-			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_240.mp4", "").Returns(ServiceResult<Uri>.Success(uploadedUrls[1]));
-			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_360.mp4", "").Returns(ServiceResult<Uri>.Success(uploadedUrls[2]));
-			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_480.mp4", "").Returns(ServiceResult<Uri>.Success(uploadedUrls[3]));
-			_cdnMock.UploadVideo(Arg.Any<Stream>(), "source_720.mp4", "").Returns(ServiceResult<Uri>.Success(uploadedUrls[4]));
+			_cdnMock.UploadVideoQualityTiers(Arg.Any<string>(), remoteLocationName).Returns(ServiceResult<IEnumerable<Uri>>.Success(uploadedUrls));
 		}
 		[Fact]
 		public async Task ExecuteStage_Success()
@@ -44,6 +41,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			var context = new DefaultVideoProcessingContext()
 			{
 				SourceVideoNameWithoutExtension = "source",
+				RemoteCache = new VideoProcessingRemoteCache { VideoFileLocation = "source", VideoFileName = "source.mp4"},
 				LocalCache = new VideoProcessingLocalCache
 				{
 					QualityTiersLocation = "valid/path/source/tiers",
@@ -82,6 +80,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			var context = new DefaultVideoProcessingContext()
 			{
 				SourceVideoNameWithoutExtension = "source",
+				RemoteCache = new VideoProcessingRemoteCache { VideoFileName = "source.mp4", VideoFileLocation = "source"},
 				LocalCache = new VideoProcessingLocalCache
 				{
 					QualityTiersLocation = "valid/path/source/tiers",
@@ -92,7 +91,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 				}
 			};
 			ICdnMediaContentAccess failedCdn = Substitute.For<ICdnMediaContentAccess>();
-			failedCdn.UploadVideo(Arg.Any<Stream>(), Arg.Any<string>(), "").Returns(ServiceResult<Uri>.FailInternal());
+			failedCdn.UploadVideoQualityTiers(Arg.Any<string>(), Arg.Any<string>()).Returns(ServiceResult<IEnumerable<Uri>>.FailInternal());
 			var stage = new AzureUploadVideoToCdnStage(failedCdn, _fileSystemMock);
 			await Assert.ThrowsAnyAsync<BackgroundJobException>(() => stage.Execute(context));
 		}
