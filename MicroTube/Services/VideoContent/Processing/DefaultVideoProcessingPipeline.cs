@@ -1,4 +1,5 @@
-﻿using MicroTube.Data.Access;
+﻿using Azure.Storage.Blobs.Models;
+using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services.Base;
 using MicroTube.Services.ConfigOptions;
@@ -15,11 +16,10 @@ namespace MicroTube.Services.VideoContent.Processing
 
 		private PipelineState _state;
 		private readonly List<IPipelineStage<DefaultVideoProcessingContext>> _stages = new();
-		private readonly IConfiguration _config;
 		private readonly ILogger<DefaultVideoProcessingPipeline> _logger;
-		private readonly ICdnMediaContentAccess _mediaCdnAccess;
 		private readonly MicroTubeDbContext _db;
 		private readonly IFileSystem _fileSystem;
+		private readonly IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _remoteStorage;
 
 		public DefaultVideoProcessingPipeline(
 			IConfiguration config,
@@ -27,17 +27,17 @@ namespace MicroTube.Services.VideoContent.Processing
 			IEnumerable<VideoProcessingStage> stages,
 			ICdnMediaContentAccess mediaCdnAccess,
 			MicroTubeDbContext db,
-			IFileSystem fileSystem)
+			IFileSystem fileSystem,
+			IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage)
 		{
-			_config = config;
 			_logger = logger;
 			foreach (var stage in stages)
 			{
 				AddStage(stage);
 			}
-			_mediaCdnAccess = mediaCdnAccess;
 			_db = db;
 			_fileSystem = fileSystem;
+			_remoteStorage = remoteStorage;
 		}
 
 		public void AddStage(IPipelineStage<DefaultVideoProcessingContext> stage)
@@ -75,7 +75,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			{
 				foreach(var stage in _stages)
 				{
-					_logger.LogInformation("Executing video offline processing stage: " + stage.GetType());
+					_logger.LogInformation("Executing video processing stage: " + stage.GetType());
 					await stage.Execute(context, cancellationToken);
 				}
 				context.Stopwatch.Stop();
@@ -85,8 +85,9 @@ namespace MicroTube.Services.VideoContent.Processing
 			{
 				try
 				{
-					if (context.RemoteCache != null && !string.IsNullOrWhiteSpace(context.RemoteCache.VideoFileName))
-						await RevertProcessingOperation(context.RemoteCache.VideoFileName);
+					_state = PipelineState.Error;
+					if (context.RemoteCache != null && !string.IsNullOrWhiteSpace(context.RemoteCache.VideoFileLocation))
+						await DeleteAllRemoteData(context.RemoteCache.VideoFileLocation);
 					if (context.UploadProgress != null)
 					{
 						_db.Update(context.UploadProgress);
@@ -101,13 +102,13 @@ namespace MicroTube.Services.VideoContent.Processing
 			}
 			finally
 			{
+				_state = PipelineState.Finished;
 				if(context.LocalCache != null && context.LocalCache.WorkingLocation != null)
 				{
 					ClearLocalCache(context.LocalCache.WorkingLocation);
 				}
 				if (context.Stopwatch != null)
 					context.Stopwatch.Stop();
-				
 			}
 		}
 		private void ThrowIfExecuting()
@@ -115,9 +116,9 @@ namespace MicroTube.Services.VideoContent.Processing
 			if (_state == PipelineState.Executing)
 				throw new BackgroundJobException("Operation is not allowed while the pipeline is executing");
 		}
-		private async Task RevertProcessingOperation(string videoFileName)
+		private async Task DeleteAllRemoteData(string remoteLocation)
 		{
-			await _mediaCdnAccess.DeleteAllVideoData(videoFileName);
+			await _remoteStorage.DeleteLocation(remoteLocation); //TO DO: make into account retry possibility
 		}
 		private void ClearLocalCache(string workingLocation)
 		{

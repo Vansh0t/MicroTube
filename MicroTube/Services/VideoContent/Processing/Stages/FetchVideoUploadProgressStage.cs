@@ -29,7 +29,7 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
         }
         private async Task<VideoUploadProgress> GetUploadProgressForFileSourceVideo(string sourceName)
         {
-			var uploadProgress = await _db.VideoUploadProgresses.FirstOrDefaultAsync(_ => _.RemoteCacheFileName == sourceName);
+			var uploadProgress = await _db.VideoUploadProgresses.FirstOrDefaultAsync(_ => _.SourceFileRemoteCacheFileName == sourceName);
             if (uploadProgress == null)
             {
                 throw new BackgroundJobException($"Failed to get upload progress from db for video processing job. File: {sourceName}.");

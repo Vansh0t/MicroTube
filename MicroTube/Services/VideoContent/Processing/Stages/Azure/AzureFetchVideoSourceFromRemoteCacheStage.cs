@@ -33,7 +33,7 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Azure
 				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(AzureFetchVideoSourceFromRemoteCacheStage)}");
 			}
 			VideoProcessingOptions options = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
-			string workingLocation = CreateWorkingLocation(options.AbsoluteLocalStoragePath, context.SourceVideoNameWithoutExtension);
+			string workingLocation = CreateWorkingLocation(options.AbsoluteLocalStoragePath, context.RemoteCache.VideoFileLocation);
 			string downloadedPath = await DownloadSourceFromRemoteCache(
 				context.RemoteCache.VideoFileName,
 				context.RemoteCache.VideoFileLocation,

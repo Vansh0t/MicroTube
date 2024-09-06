@@ -35,44 +35,6 @@ namespace MicroTube.Services.MediaContentStorage
 		{
 			return await UploadPublicVideoContentFromDirectory(thumbnailsDirectory, remoteLocation);
 		}
-		public async Task<IServiceResult<string>> CreateVideoLocation(string videoFileName, CancellationToken cancellationToken = default)
-		{
-			try
-			{
-				Guard.Against.NullOrWhiteSpace(videoFileName);
-				string fileNameWithoutExtension = BuildRemoteLocationNameFromVideoFileName(videoFileName);
-				await _videoRemoteStorage.EnsureLocation(fileNameWithoutExtension, RemoteLocationAccess.Public, cancellationToken);
-				return ServiceResult<string>.Success(fileNameWithoutExtension);
-			}
-			catch(ArgumentException e)
-			{
-				return ServiceResult<string>.Fail(400, e.ToString());
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, $"Failed to create video location {videoFileName}.");
-				return ServiceResult<string>.Fail(500, $"Failed to create video location {videoFileName}. " + e.ToString());
-			}
-		}
-		public async Task<IServiceResult> DeleteAllVideoData(string videoFileName, CancellationToken cancellationToken = default)
-		{
-			try
-			{
-				Guard.Against.NullOrWhiteSpace(videoFileName);
-				await _videoRemoteStorage.DeleteLocation(BuildRemoteLocationNameFromVideoFileName(videoFileName));
-				return ServiceResult.Success();
-			}
-			catch (ArgumentException e)
-			{
-				return ServiceResult<string>.Fail(400, e.ToString());
-			}
-			catch (Exception e)
-			{
-				_logger.LogError(e, $"Failed to delete remote video location for video file {videoFileName}");
-				return ServiceResult.Fail(500, $"Failed to delete remote video location for video file {videoFileName}. " + e);
-			}
-			
-		}
 		private async Task<IServiceResult<IEnumerable<Uri>>> UploadPublicVideoContentFromDirectory(string directory, string remoteLocation, CancellationToken cancellationToken = default)
 		{
 			try
@@ -111,10 +73,6 @@ namespace MicroTube.Services.MediaContentStorage
 				_logger.LogError(e, $"Failed to upload video content tiers from path {directory} to remote location {remoteLocation}.");
 				return ServiceResult<IEnumerable<Uri>>.Fail(500, $"Failed to upload video content tiers from path {directory} to remote location {remoteLocation}." + e.ToString());
 			}
-		}
-		private string BuildRemoteLocationNameFromVideoFileName(string fileName)
-		{
-			return _fileSystem.Path.GetFileNameWithoutExtension(fileName);
 		}
 	}
 }
