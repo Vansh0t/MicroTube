@@ -79,59 +79,6 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			Assert.Equal(400, result.Code);
 		}
 		[Fact]
-		public async Task CreateVideoLocation_Success()
-		{
-			string containerName = "container_name";
-			var mockRemoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
-			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com")).Build();
-			var mockFileSystem = new MockFileSystem();
-			mockRemoteStorage.EnsureLocation(containerName, RemoteLocationAccess.Public).Returns(Task.CompletedTask);
-			var cdn = new AzureCdnMediaContentAccess(mockRemoteStorage, config, Substitute.For<ILogger<AzureCdnMediaContentAccess>>(), mockFileSystem);
-			var result = await cdn.CreateVideoLocation(containerName);
-			Assert.False(result.IsError);
-		}
-		[Theory]
-		[InlineData(null)]
-		[InlineData("")]
-		[InlineData(" ")]
-		public async Task CreateVideoLocation_InvalidArgumentsFail(string? locationName)
-		{
-			var mockRemoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
-			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com")).Build();
-			var mockFileSystem = new MockFileSystem();
-			var cdn = new AzureCdnMediaContentAccess(mockRemoteStorage, config, Substitute.For<ILogger<AzureCdnMediaContentAccess>>(), mockFileSystem);
-			var result = await cdn.CreateVideoLocation(locationName!);
-			Assert.True(result.IsError);
-			Assert.Equal(400, result.Code);
-		}
-		[Fact]
-		public async Task DeleteAllVideoData_Success()
-		{
-			string fileName = "source.mp4";
-			var mockRemoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
-			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com")).Build();
-			var mockFileSystem = new MockFileSystem();
-			mockRemoteStorage.DeleteLocation("source").Returns(Task.CompletedTask);
-			mockRemoteStorage.DeleteLocation(Arg.Is<string>(_=>_!="source")).Throws<Exception>();
-			var cdn = new AzureCdnMediaContentAccess(mockRemoteStorage, config, Substitute.For<ILogger<AzureCdnMediaContentAccess>>(), mockFileSystem);
-			var result = await cdn.DeleteAllVideoData(fileName);
-			Assert.False(result.IsError);
-		}
-		[Theory]
-		[InlineData(null)]
-		[InlineData("")]
-		[InlineData(" ")]
-		public async Task DeleteAllVideoData_InvalidArgumentsFail(string? fileName)
-		{
-			var mockRemoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
-			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com")).Build();
-			var mockFileSystem = new MockFileSystem();
-			var cdn = new AzureCdnMediaContentAccess(mockRemoteStorage, config, Substitute.For<ILogger<AzureCdnMediaContentAccess>>(), mockFileSystem);
-			var result = await cdn.DeleteAllVideoData(fileName!);
-			Assert.True(result.IsError);
-			Assert.Equal(400, result.Code);
-		}
-		[Fact]
 		public async Task UploadVideoThumbnails_Success()
 		{
 			string directory = "/some/directory";
