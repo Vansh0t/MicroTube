@@ -40,7 +40,6 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 		{
 			var context = new DefaultVideoProcessingContext()
 			{
-				SourceVideoNameWithoutExtension = "source",
 				RemoteCache = new VideoProcessingRemoteCache { VideoFileLocation = "source", VideoFileName = "source.mp4"},
 				LocalCache = new VideoProcessingLocalCache
 				{
@@ -68,7 +67,6 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 		{
 			var context = new DefaultVideoProcessingContext()
 			{
-				SourceVideoNameWithoutExtension = "source",
 			};
 			var stage = new AzureUploadVideoToCdnStage(_cdnMock, _fileSystemMock);
 			await Assert.ThrowsAnyAsync<ArgumentNullException>(()=> stage.Execute(null));
@@ -79,7 +77,6 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 		{
 			var context = new DefaultVideoProcessingContext()
 			{
-				SourceVideoNameWithoutExtension = "source",
 				RemoteCache = new VideoProcessingRemoteCache { VideoFileName = "source.mp4", VideoFileLocation = "source"},
 				LocalCache = new VideoProcessingLocalCache
 				{

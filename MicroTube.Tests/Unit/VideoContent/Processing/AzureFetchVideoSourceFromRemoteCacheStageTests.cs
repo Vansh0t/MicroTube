@@ -20,11 +20,10 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 		{
 			var context = new DefaultVideoProcessingContext()
 			{
-				SourceVideoNameWithoutExtension = "source",
-				RemoteCache = new VideoProcessingRemoteCache { VideoFileName = "source.mp4", VideoFileLocation = "videos" }
+				RemoteCache = new VideoProcessingRemoteCache { VideoFileName = "source.mp4", VideoFileLocation = "source" }
 			};
 			string localStoragePath = "valid/path";
-			string workLocation = Path.Join(localStoragePath, context.SourceVideoNameWithoutExtension);
+			string workLocation = Path.Join(localStoragePath, Path.GetFileNameWithoutExtension(context.RemoteCache.VideoFileName));
 			string expectedLocalCacheSourcePath = "valid/path/source/source.mp4";
 			var config = new ConfigurationBuilder()
 				.AddConfigObject(VideoProcessingOptions.KEY, new VideoProcessingOptions("", 0, 0, localStoragePath, 0, 0, 0, 0, 0, 0, 0, 0, 0))
@@ -54,10 +53,10 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 		{
 			var context = new DefaultVideoProcessingContext()
 			{
-				SourceVideoNameWithoutExtension = "source",
+				
 			};
 			string localStoragePath = "valid/path";
-			string workLocation = Path.Join(localStoragePath, context.SourceVideoNameWithoutExtension);
+			string workLocation = Path.Join(localStoragePath, "source");
 			string expectedLocalCacheSourcePath = "valid/path/source/source.mp4";
 			var config = new ConfigurationBuilder()
 				.AddConfigObject(VideoProcessingOptions.KEY, new VideoProcessingOptions("", 0, 0, localStoragePath, 0, 0, 0, 0, 0, 0, 0, 0, 0))
@@ -77,11 +76,10 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 		{
 			var context = new DefaultVideoProcessingContext()
 			{
-				SourceVideoNameWithoutExtension = "source",
 				RemoteCache = new VideoProcessingRemoteCache { VideoFileName = "source.mp4", VideoFileLocation = "videos" }
 			};
 			string localStoragePath = "valid/path";
-			string workLocation = Path.Join(localStoragePath, context.SourceVideoNameWithoutExtension);
+			string workLocation = Path.Join(localStoragePath, "source");
 			var config = new ConfigurationBuilder()
 				.AddConfigObject(VideoProcessingOptions.KEY, new VideoProcessingOptions("", 0, 0, localStoragePath, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 				.Build();
@@ -92,18 +90,17 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			fileSystem.Directory.CreateDirectory(localStoragePath);
 
 			var stage = new AzureFetchVideoSourceFromRemoteCacheStage(config, remoteStorage, fileSystem);
-			await Assert.ThrowsAnyAsync<BackgroundJobException>(() => stage.Execute(context));
+			await Assert.ThrowsAnyAsync<SecurityException>(() => stage.Execute(context));
 		}
 		[Fact]
 		public async Task ExecuteStage_InvalidDownloadPathFail()
 		{
 			var context = new DefaultVideoProcessingContext()
 			{
-				RemoteCache = new VideoProcessingRemoteCache { VideoFileName = "source.mp4", VideoFileLocation = "videos" },
-				SourceVideoNameWithoutExtension = "source",
+				RemoteCache = new VideoProcessingRemoteCache { VideoFileName = "source.mp4", VideoFileLocation = "videos" }
 			};
 			string localStoragePath = "valid/path";
-			string workLocation = Path.Join(localStoragePath, context.SourceVideoNameWithoutExtension);
+			string workLocation = Path.Join(localStoragePath, "source");
 			var config = new ConfigurationBuilder()
 				.AddConfigObject(VideoProcessingOptions.KEY, new VideoProcessingOptions("", 0, 0, localStoragePath, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 				.Build();
