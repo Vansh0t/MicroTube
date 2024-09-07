@@ -23,7 +23,7 @@ using System.IO.Abstractions;
 namespace MicroTube
 {
     //TODO: Needs refactoring.
-    public static class Extensions
+    public static class GlobalExtensions
     {
         private const string DEFAULT_CONNECTION_STRING_NAME = "ConnectionStrings:Default";
         public static string GetDefaultConnectionString(this IConfiguration configuration)
@@ -91,25 +91,8 @@ namespace MicroTube
 			}
 			return result;
 		}
-		public static IServiceCollection AddDefaultBasicAuthenticationFlow(this IServiceCollection services)
-		{
-			services.AddScoped<IBasicFlowAuthenticationProvider, DefaultBasicFlowAuthenticationProvider>();
-			services.AddScoped<IBasicFlowEmailHandler, DefaultBasicFlowEmailHandler>();
-			services.AddScoped<IBasicFlowPasswordHandler, DefaultBasicFlowPasswordHandler>();
-			return services;
-		}
-		public static IServiceCollection AddVideoReactions(this IServiceCollection services)
-		{
-			services.AddScoped<IVideoReactionsAggregator, DefaultVideoReactionsAggregator>();
-			services.AddScoped<IVideoReactionsService, DefaultVideoReactionsService>();
-			return services;
-		}
-		public static IServiceCollection AddAzureBlobStorage(this IServiceCollection services, string connectionString)
-		{
-			var blobServiceClient = new BlobServiceClient(connectionString);
-			services.AddSingleton(blobServiceClient);
-			return services;
-		}
+		
+		
 		public static IServiceResult ExceptionToErrorResult(this Exception exception, string prependInfo = "", int code = 500)
 		{
 			var result = ServiceResult.Fail(code, $"{prependInfo}. {exception}");
@@ -123,42 +106,8 @@ namespace MicroTube
 			var result = ServiceResult<T>.Fail(code, $"{prependInfo}. {exception}");
 			return result;
 		}
-		public static IServiceCollection AddElasticsearchClient(this IServiceCollection services, IConfiguration config)
-		{
-			var options = config.GetRequiredByKey<ElasticSearchOptions>(ElasticSearchOptions.KEY);
-			var nodesPool = new SingleNodePool(new Uri(options.Url));
-			var apiKey = new ApiKey(options.ApiKey);
-			var clientSettings = new ElasticsearchClientSettings(nodesPool)
-				.Authentication(apiKey);
-			var elasticSearchClient = new ElasticsearchClient(clientSettings);
-			EnsureElasticsearchIndices(elasticSearchClient, config);
-			services.AddSingleton(elasticSearchClient);
-			return services;
-		}
-		public static IServiceCollection AddElasticsearchSearch(this IServiceCollection services)
-		{
-			services.AddSingleton<IVideoSearchDataAccess, ElasticsearchVideoIndicesAccess>();
-			services.AddSingleton<IVideoSearchRequestBuilder<SearchRequest<VideoSearchIndex>>, ElasticsearchVideoSearchRequestBuilder>();
-			services.AddSingleton<IVideoSearchResultBuilder<SearchResponse<VideoSearchIndex>>, ElasticsearchVideoSearchResultBuilder>();
-			services.AddSingleton<ISearchResponseValidator<ElasticsearchResponse>, ElasticsearchResponseValidator>();
-			services.AddScoped<ISearchMetaProvider<SearchResponse<VideoSearchIndex>, ElasticsearchMeta>, ElasticsearchSearchMetaProvider>();
-			services.AddScoped<IVideoSearchService, ElasticVideoSearchService>();
-			return services;
-		}
-		//public static IServiceCollection AddOfflineVideoProcessing(this IServiceCollection services)
-		//{
-		//	services.AddScoped<VideoProcessingStage, FetchVideoUploadProgressStage>();
-		//	services.AddScoped<VideoProcessingStage, OfflineFetchVideoSourceFromRemoteCacheStage>();
-		//	services.AddScoped<VideoProcessingStage, SetProgressInProgressStage>();
-		//	services.AddScoped<VideoProcessingStage, FFMpegCreateQualityTiersStage>();
-		//	services.AddScoped<VideoProcessingStage, FFMpegCreateThumbnailsStage>();
-		//	services.AddScoped<VideoProcessingStage, OfflineUploadThumbnailsToCdnStage>();
-		//	services.AddScoped<VideoProcessingStage, OfflineUploadVideoToCdnStage>();
-		//	services.AddScoped<VideoProcessingStage, CreateVideoInDatabaseStage>();
-		//	services.AddScoped<VideoProcessingStage, SetProgressFinishedStage>();
-		//	services.AddScoped<IVideoProcessingPipeline, DefaultVideoProcessingPipeline>();
-		//	return services;
-		//}
+		
+		
 		public static string? GetIp(this HttpContext context, bool bypassProxy = true)
 		{
 			if (bypassProxy && context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedIp))
@@ -188,49 +137,6 @@ namespace MicroTube
 			}
 			return false;
 		}
-		private static void EnsureElasticsearchIndices(ElasticsearchClient client, IConfiguration config)
-		{
-			var options = config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
-			var analysisSettings = new IndexSettingsAnalysis();
-			analysisSettings.TokenFilters = new TokenFilters
-			{
-				{"lowercase", new LowercaseTokenFilter() },
-				{"edge_ngram", new EdgeNGramTokenFilter() { MinGram = 2, MaxGram = 5, PreserveOriginal= true} }
-			};
-			var nGramAnalyzer = new CustomAnalyzer()
-			{
-				Tokenizer = "standard",
-				Filter = new string[2] { "lowercase", "edge_ngram" }
-			};
-			analysisSettings.Analyzers = new Analyzers
-			{
-				{ "ngram_analyzer", nGramAnalyzer }
-			};
-			TypeMapping mapping = new TypeMapping()
-			{
-				Properties = new Properties
-				{
-					{"title", new TextProperty() { Analyzer = "ngram_analyzer"} },
-					{"description", new TextProperty() { Analyzer = "standard"} },
-					{"titleSuggestion", new SearchAsYouTypeProperty() }
-				},
-				
-			};
-			var indexSettings = new IndexSettings()
-			{
-				Analysis = analysisSettings,
-			};
-			var createResult = client.Indices.Create((IndexName)options.VideosIndexName, 
-				_ => {
-					_.Settings(indexSettings);
-					_.Mappings(mapping);
-					}) ;
-			//var settingsResult = client.Indices.PutSettings(indexSettings, (IndexName)options.VideosIndexName);
-			Console.WriteLine(createResult.DebugInformation);
-
-
-			//Console.WriteLine(settingsResult.DebugInformation);
-			
-		}
+		
 	}
 }
