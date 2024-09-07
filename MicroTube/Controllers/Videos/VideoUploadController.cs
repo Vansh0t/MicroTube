@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Ardalis.GuardClauses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MicroTube.Controllers.Videos.DTO;
 using MicroTube.Data.Access;
-using MicroTube.Data.Models;
 using MicroTube.Services.Authentication;
-using MicroTube.Services.VideoContent.Processing;
+using MicroTube.Services.VideoContent.Preprocessing;
+using MicroTube.Services.VideoContent.Preprocessing.Stages;
 
 namespace MicroTube.Controllers.Videos
 {
@@ -15,15 +16,15 @@ namespace MicroTube.Controllers.Videos
 	{
 		private readonly IJwtClaims _jwtClaims;
 		private readonly MicroTubeDbContext _db;
-		private readonly IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress> _preprocessingPipeline;
+		private readonly IVideoPreprocessingPipeline _preprocessingPipeline;
 		public VideoUploadController(
 			IJwtClaims jwtClaims,
-			IVideoPreprocessingPipeline<VideoPreprocessingOptions, VideoUploadProgress> preprocessingPipeline,
-			MicroTubeDbContext db)
+			MicroTubeDbContext db,
+			IVideoPreprocessingPipeline preprocessingPipeline)
 		{
 			_jwtClaims = jwtClaims;
-			_preprocessingPipeline = preprocessingPipeline;
 			_db = db;
+			_preprocessingPipeline = preprocessingPipeline;
 		}
 
 		[HttpPost]
@@ -37,11 +38,10 @@ namespace MicroTube.Controllers.Videos
 			if (!isEmailConfirmed)
 				return StatusCode(403, "Email confirmation is required for this action");
 			string userId = _jwtClaims.GetUserId(User);
-			var preprocessingData = new VideoPreprocessingOptions(userId, uploadData.Title, uploadData.Description, uploadData.File);
-			var preprocessingResult = await _preprocessingPipeline.PreprocessVideo(preprocessingData);
-			if (preprocessingResult.IsError)
-				return StatusCode(preprocessingResult.Code, preprocessingResult.Error);
-			var uploadProgress = preprocessingResult.GetRequiredObject();
+			var preprocessingData = new VideoPreprocessingData(userId, uploadData.Title, uploadData.Description, uploadData.File);
+			var preprocessingResult = await _preprocessingPipeline.Execute(new DefaultVideoPreprocessingContext {PreprocessingData = preprocessingData });
+			var uploadProgress = preprocessingResult.UploadProgress;
+			Guard.Against.Null(uploadProgress);
 			var result = new VideoUploadProgressDTO(
 				userId,
 				uploadProgress.Status,
