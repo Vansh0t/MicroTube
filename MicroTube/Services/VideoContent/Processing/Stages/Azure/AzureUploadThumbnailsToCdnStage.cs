@@ -1,4 +1,5 @@
-﻿using MicroTube.Services.MediaContentStorage;
+﻿using Ardalis.GuardClauses;
+using MicroTube.Services.MediaContentStorage;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages.Azure
 {
@@ -13,18 +14,9 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Azure
 
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
 		{
-			if (context == null)
-			{
-				throw new ArgumentNullException($"Context must not be null for stage {nameof(AzureUploadThumbnailsToCdnStage)}");
-			}
-			if (context.LocalCache == null)
-			{
-				throw new ArgumentNullException($"{nameof(context.LocalCache)} must not be null for stage {nameof(AzureUploadThumbnailsToCdnStage)}");
-			}
-			if (context.RemoteCache == null)
-			{
-				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(AzureUploadThumbnailsToCdnStage)}");
-			}
+			Guard.Against.Null(context);
+			Guard.Against.Null(context.LocalCache);
+			Guard.Against.Null(context.RemoteCache);
 			var thumbnailEndpoints = await UploadThumbnailsToCdn(context.LocalCache.ThumbnailsLocation, context.RemoteCache.VideoFileName, cancellationToken);
 			if (context.Cdn == null)
 				context.Cdn = new Cdn();

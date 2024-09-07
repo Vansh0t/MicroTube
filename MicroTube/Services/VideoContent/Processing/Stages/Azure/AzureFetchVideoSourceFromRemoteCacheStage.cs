@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs.Models;
+﻿using Ardalis.GuardClauses;
+using Azure.Storage.Blobs.Models;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.MediaContentStorage;
 using System.IO.Abstractions;
@@ -24,14 +25,8 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Azure
 
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
 		{
-			if (context == null)
-			{
-				throw new ArgumentNullException($"Context must not be null for stage {nameof(AzureFetchVideoSourceFromRemoteCacheStage)}");
-			}
-			if (context.RemoteCache == null)
-			{
-				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(AzureFetchVideoSourceFromRemoteCacheStage)}");
-			}
+			Guard.Against.Null(context);
+			Guard.Against.Null(context.RemoteCache);
 			VideoProcessingOptions options = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
 			string workingLocation = CreateWorkingLocation(options.AbsoluteLocalStoragePath, context.RemoteCache.VideoFileLocation);
 			string downloadedPath = await DownloadSourceFromRemoteCache(
