@@ -73,6 +73,7 @@ namespace MicroTube.Services.Authentication.BasicFlow
 			}
 			var authData = await _db.AuthenticationData
 				.OfType<BasicFlowAuthenticationData>()
+				.Include(_=>_.User)
 				.FirstOrDefaultAsync(_ => _.PasswordResetString == resetStringHash);
 			if (authData == null || authData.User == null /*|| !authData.User.IsEmailConfirmed*/)
 				return ServiceResult<string>.Fail(403, "Forbidden");
@@ -101,7 +102,7 @@ namespace MicroTube.Services.Authentication.BasicFlow
 			var validationResult = _passwordValidator.Validate(newPassword);
 			if (validationResult.IsError)
 				return validationResult;
-			var user = await _db.Users.FirstOrDefaultAsync(_ => _.Id == guidUserId);
+			var user = await _db.Users.Include(_=>_.Authentication).FirstOrDefaultAsync(_ => _.Id == guidUserId);
 			if (user == null)
 			{
 				_logger.LogError("User tried to change email, but wasn't found.");
