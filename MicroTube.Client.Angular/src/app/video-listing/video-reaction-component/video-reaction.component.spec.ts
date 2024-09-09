@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LikeComponentComponent } from './like-component.component';
+import { LikeComponentComponent } from './video-reaction.component';
 
 describe('LikeComponentComponent', () => {
   let component: LikeComponentComponent;

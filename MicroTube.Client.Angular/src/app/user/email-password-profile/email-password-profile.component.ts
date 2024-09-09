@@ -132,7 +132,7 @@ export class EmailPasswordProfileComponent implements OnInit, OnDestroy
   getEmailChangePasswordServerError()
   {
     if (this.emailChangePasswordControl.getError("serverError"))
-      return "Wrong password";
+      return this.emailChangePasswordControl.getError("serverError");
     return null;
   }
 

@@ -4,8 +4,7 @@ import { VideoDTO, VideoRawDTO, VideoUploadDTO } from "../../data/DTO/VideoDTO";
 import { Observable, map } from "rxjs";
 import { VideoUploadProgressDTO } from "../../data/DTO/VideoUploadProgressDTO";
 import { DateTime, Duration } from "luxon";
-import { VideoLikeDTO } from "../../data/DTO/VideoLikeDTO";
-import { VideoDislikeDTO } from "../../data/DTO/VideoDislikeDTO";
+import { UserVideoReactionDTO } from "../../data/DTO/UserVideoReactionDTO";
 
 
 @Injectable({
@@ -19,44 +18,24 @@ export class VideoService
   {
     this.client = client;
   }
-  reportView(id: string): Observable<HttpResponse<null>>
+  reportView(videoId: string): Observable<HttpResponse<null>>
   {
-    const result = this.client.post<HttpResponse<null>>(`Videos/${id}/view`, {});
+    const result = this.client.post<HttpResponse<null>>(`Videos/${videoId}/view`, {});
     return result;
   }
-  dislikeVideo(id: string): Observable<VideoDislikeDTO>
+  react(videoId: string, reaction: VideoReactionType): Observable<UserVideoReactionDTO>
   {
-    const result = this.client.post<VideoDislikeDTO>(`Videos/${id}/dislike`, {});
+    const result = this.client.post<UserVideoReactionDTO>(`Videos/${videoId}/reaction/${reaction.toString()}`, {});
     return result;
   }
-  undislikeVideo(id: string): Observable<HttpResponse<null>>
+  getReaction(videoId: string): Observable<UserVideoReactionDTO>
   {
-    const result = this.client.delete<HttpResponse<null>>(`Videos/${id}/dislike`);
+    const result = this.client.get<UserVideoReactionDTO>(`Videos/${videoId}/reaction`);
     return result;
   }
-  getVideoDislike(id: string): Observable<VideoDislikeDTO>
+  getVideo(videoId: string): Observable<VideoDTO>
   {
-    const result = this.client.get<VideoDislikeDTO>(`Videos/${id}/dislike`);
-    return result;
-  }
-  likeVideo(id: string): Observable<VideoLikeDTO>
-  {
-    const result = this.client.post<VideoLikeDTO>(`Videos/${id}/like`, {});
-    return result;
-  }
-  unlikeVideo(id: string): Observable<HttpResponse<null>>
-  {
-    const result = this.client.delete<HttpResponse<null>>(`Videos/${id}/like`);
-    return result;
-  }
-  getVideoLike(id: string): Observable<VideoLikeDTO>
-  {
-    const result = this.client.get<VideoLikeDTO>(`Videos/${id}/like`);
-    return result;
-  }
-  getVideo(id: string): Observable<VideoDTO>
-  {
-    const result = this.client.get<VideoRawDTO>("Videos/"+id)
+    const result = this.client.get<VideoRawDTO>("Videos/" + videoId)
       .pipe(
         map(response =>
         {
@@ -97,4 +76,8 @@ export class VideoService
         ));
     return result;
   }
+}
+export enum VideoReactionType
+{
+  None = "None", Like = "Like", Dislike = "Dislike"
 }
