@@ -1,4 +1,5 @@
 ﻿using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.Mapping;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using MicroTube.Data.Models;
 using MicroTube.Services.ConfigOptions;
@@ -49,16 +50,16 @@ namespace MicroTube.Services.Search
 				return null;
 			if (sortType == VideoSortType.Time)
 			{
-				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.UploadedAt)!, new FieldSort { Order = SortOrder.Desc }));
+				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.UploadedAt)!, new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Date }));
 			}
 			if (sortType == VideoSortType.Views)
 			{
-				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.Views)!, new FieldSort { Order = SortOrder.Desc }));
+				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.Views)!, new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Integer }));
 			}
 			//TO DO: needs better rating system
 			if (sortType == VideoSortType.Rating)
 			{
-				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.Likes)!, new FieldSort { Order = SortOrder.Desc }));
+				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.Likes)!, new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Integer }));
 			}
 			return sortOptions;
 		}
@@ -85,7 +86,7 @@ namespace MicroTube.Services.Search
 			switch (timeFilter)
 			{
 				case VideoTimeFilterType.LastDay:
-					timeQuery = new DateRangeQuery(new Field("uploadedAt")) { From = now.AddDays(-1), To = now };
+					timeQuery = new DateRangeQuery(new Field("uploadedAt")) { From = now.AddDays(-1), To = now};
 					break;
 				case VideoTimeFilterType.LastWeek:
 					timeQuery = new DateRangeQuery(new Field("uploadedAt")) { From = now.AddDays(-7), To = now };
