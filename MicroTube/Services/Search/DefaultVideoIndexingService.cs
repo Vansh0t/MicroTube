@@ -21,7 +21,13 @@ namespace MicroTube.Services.Search
 		{
 			_logger.LogInformation("Ensuring search indices for videos.");
 			var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
-			var indexRequired = await _db.VideoSearchIndexing.Include(_ => _.Video).Where(_ => _.ReindexingRequired).ToArrayAsync();
+			var indexRequired = await _db.VideoSearchIndexing
+				.Include(_ => _.Video)
+					.ThenInclude(_=>_!.VideoViews)
+				.Include(_=>_.Video)
+					.ThenInclude(_=>_!.VideoReactions)
+				.Where(_ => _.ReindexingRequired)
+				.ToArrayAsync();
 			var indexRequiredVideos = indexRequired.Where(_ => _.Video != null).Select(_ => _.Video);
 			var indexTasks = indexRequiredVideos.Select(IndexVideoNonThrowing!);
 			await Task.WhenAll(indexTasks);
