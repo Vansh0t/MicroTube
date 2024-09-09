@@ -59,7 +59,7 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     this.playtimeTracker = new VgPlayerPlaytimeTracker(api);
     this.playtimeTracker.onPlaytime(this.REPORT_VIEW_TIMEOUT_SECONDS, () =>
     {
-      this.videoService.reportView(this.videoId!);
+      this.videoService.reportView(this.videoId!).subscribe();
     }
     );
   }

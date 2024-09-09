@@ -20,6 +20,7 @@ export class VideoService
   }
   reportView(videoId: string): Observable<HttpResponse<null>>
   {
+    console.log("Reporting view");
     const result = this.client.post<HttpResponse<null>>(`Videos/${videoId}/view`, {});
     return result;
   }
