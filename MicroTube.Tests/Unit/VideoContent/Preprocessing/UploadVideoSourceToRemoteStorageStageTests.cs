@@ -4,7 +4,7 @@ using MicroTube.Services.VideoContent.Preprocessing;
 using NSubstitute;
 using System.IO.Abstractions.TestingHelpers;
 using MicroTube.Services.VideoContent;
-using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.ContentStorage;
 using Azure.Storage.Blobs.Models;
 
 namespace MicroTube.Tests.Unit.VideoContent.Preprocessing
@@ -22,11 +22,11 @@ namespace MicroTube.Tests.Unit.VideoContent.Preprocessing
 				PreprocessingData = new VideoPreprocessingData("id", "video", "description", mockFormFile)
 			};
 			var mockFileSystem = new MockFileSystem();
-			var mockVideoNameGenerator = Substitute.For<IVideoNameGenerator>();
+			var mockVideoNameGenerator = Substitute.For<IVideoFileNameGenerator>();
 			mockVideoNameGenerator.GenerateVideoName().Returns("vid.mp4");
 			var mockLocationNameGenerator = Substitute.For<IRemoteLocationNameGenerator>();
 			mockLocationNameGenerator.GetLocationName("vid.mp4").Returns("vid");
-			var mockRemoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
+			var mockRemoteStorage = Substitute.For<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
 			mockRemoteStorage.Upload(mockFileStream, Arg.Any<AzureBlobAccessOptions>(), Arg.Any<BlobUploadOptions>()).Returns("vid.mp4");
 			var stage = new UploadVideoSourceToRemoteStorageStage(mockVideoNameGenerator, mockFileSystem, mockLocationNameGenerator, mockRemoteStorage);
 
