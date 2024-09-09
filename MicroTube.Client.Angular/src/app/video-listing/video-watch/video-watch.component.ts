@@ -57,11 +57,18 @@ export class VideoWatchComponent implements OnInit, OnDestroy
   onApi(api: VgApiService)
   {
     this.playtimeTracker = new VgPlayerPlaytimeTracker(api);
-    this.playtimeTracker.onPlaytime(this.REPORT_VIEW_TIMEOUT_SECONDS, () =>
+    api.getDefaultMedia().subscriptions.loadedMetadata.subscribe(() =>
     {
-      this.videoService.reportView(this.videoId!).subscribe();
-    }
-    );
+      if (!this.playtimeTracker)
+        return;
+      const viewReportTime = Math.min(this.REPORT_VIEW_TIMEOUT_SECONDS, api.duration - 1);
+      this.playtimeTracker.onPlaytime(viewReportTime, () =>
+      {
+        this.videoService.reportView(this.videoId!).subscribe();
+      }
+      );
+    });
+    
   }
   getVideoPlayerOptions(videoUrls: string): NgxPlayerOptions
   {
