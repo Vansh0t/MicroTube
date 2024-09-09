@@ -79,7 +79,7 @@ namespace MicroTube.Controllers.Videos
 		[HttpGet("{id}/reaction")]
 		[Authorize]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserVideoReactionDTO))]
-		public async Task<IActionResult> GetLike(string id)
+		public async Task<IActionResult> GetReaction(string id)
 		{
 			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
 			if (!isEmailConfirmed)
