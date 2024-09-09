@@ -9,6 +9,7 @@ using MicroTube.Constants;
 using MicroTube.Data.Access;
 using MicroTube.Extensions;
 using MicroTube.Services.Authentication;
+using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
 using MicroTube.Services.Email;
 using MicroTube.Services.Search;
@@ -24,12 +25,13 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 bool isStartupTest = config.GetValue<bool>("StartupTest");
-builder.Services.AddAzureBlobStorage(config.GetRequiredValue("AzureBlobStorage:ConnectionString"));
+builder.Services.AddAzureBlobRemoteStorage(config.GetRequiredValue("AzureBlobStorage:ConnectionString"));
 builder.Services.AddSingleton<IMD5HashProvider, MD5HashProvider>();
 builder.Services.AddSingleton<IVideoAnalyzer, FFMpegVideoAnalyzer>();
 builder.Services.AddSingleton<IFileSystem, FileSystem>();
 builder.Services.AddElasticsearchClient(config);
 builder.Services.AddElasticsearchSearch();
+builder.Services.AddVideoReactions();
 builder.Services.AddSingleton<IEmailValidator, EmailValidator>();
 builder.Services.AddSingleton<IUsernameValidator, UsernameValidator>();
 builder.Services.AddSingleton<IPasswordValidator, DefaultPasswordValidator>();
@@ -37,11 +39,15 @@ builder.Services.AddSingleton<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddSingleton<IEmailManager, DefaultEmailManager>();
 builder.Services.AddSingleton<IEmailTemplatesProvider, DefaultEmailTemplatesProvider>();
 builder.Services.AddSingleton<IVideoPreUploadValidator, DefaultVideoPreUploadValidator>();
-builder.Services.AddSingleton<IVideoNameGenerator, GuidVideoNameGenerator>();
+builder.Services.AddSingleton<IVideoFileNameGenerator, GuidVideoFileNameGenerator>();
 builder.Services.AddDbContext<MicroTubeDbContext>(
 	options => options.UseSqlServer(config.GetDefaultConnectionString())
 					  .UseExceptionProcessor());
+if (!isStartupTest)
+	StartupExtensions.EnsureDatabaseCreated(config.GetDefaultConnectionString());
 builder.Services.AddDefaultBasicAuthenticationFlow();
+builder.Services.AddAzureCdnVideoPreprocessing();
+builder.Services.AddAzureCdnVideoProcessing();
 builder.Services.AddScoped<IUserSessionService, DefaultUserSessionService>();
 builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEmailManager>();
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
@@ -51,6 +57,7 @@ builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtPasswordResetTokenProvider, DefaultJwtPasswordResetTokenProvider>();
 builder.Services.AddTransient<IJwtClaims, JwtClaims>();
 builder.Services.AddTransient<ISecureTokensProvider, SHA256SecureTokensProvider>();
+var configOptions = config.GetRequiredByKey<JwtAccessTokensOptions>(JwtAccessTokensOptions.KEY);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -60,9 +67,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = false,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config.GetRequiredValue("JWT:Key"))),
-            ValidIssuer = config.GetRequiredValue("JWT:Issuer"),
-            ValidAudience = config.GetRequiredValue("JWT:Audience")
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configOptions.Key)),
+            ValidIssuer = configOptions.Issuer,
+            ValidAudience = configOptions.Audience
         };
     });
 builder.Services.AddAuthorization(options =>
@@ -142,6 +149,8 @@ else
     app.UseSwaggerUi3();
 }
 if(!isStartupTest)
+{
 	StartupExtensions.ScheduleBackgroundJobs();
+}
 app.Run();
 public partial class Program { }

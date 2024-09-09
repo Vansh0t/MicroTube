@@ -19,6 +19,7 @@ using Elastic.Transport.Products.Elasticsearch;
 using MicroTube.Services.Validation;
 using System.IO;
 using System.IO.Abstractions;
+using System;
 
 namespace MicroTube
 {
@@ -136,6 +137,12 @@ namespace MicroTube
 				return false;
 			}
 			return false;
+		}
+		public static string JoinUrl(this string part1, string part2)
+		{
+			part1 = part1.TrimEnd('/');
+			part2 = part2.TrimStart('/');
+			return string.Format("{0}/{1}", part1, part2);
 		}
 		
 	}

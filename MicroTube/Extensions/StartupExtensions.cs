@@ -21,6 +21,11 @@ using MicroTube.Services.VideoContent.Preprocessing.Stages;
 using MicroTube.Services.VideoContent.Preprocessing;
 using Hangfire;
 using MicroTube.Services.VideoContent.Views;
+using Microsoft.EntityFrameworkCore;
+using Ardalis.GuardClauses;
+using MicroTube.Services.ContentStorage;
+using Azure.Storage.Blobs.Models;
+using MicroTube.Services.VideoContent;
 
 namespace MicroTube.Extensions
 {
@@ -61,14 +66,17 @@ namespace MicroTube.Extensions
 			services.AddScoped<IVideoSearchService, ElasticVideoSearchService>();
 			return services;
 		}
-		public static IServiceCollection AddAzureBlobStorage(this IServiceCollection services, string connectionString)
+		public static IServiceCollection AddAzureBlobRemoteStorage(this IServiceCollection services, string connectionString)
 		{
 			var blobServiceClient = new BlobServiceClient(connectionString);
 			services.AddSingleton(blobServiceClient);
+			services.AddScoped<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>, AzureBlobContentStorage>();
 			return services;
 		}
 		public static IServiceCollection AddAzureCdnVideoPreprocessing(this IServiceCollection services)
 		{
+			services.AddTransient<IVideoFileNameGenerator, GuidVideoFileNameGenerator>();
+			services.AddTransient<IRemoteLocationNameGenerator, ExtensionlessFileNameRemoteLocationNameGenerator>();
 			services.AddScoped<VideoPreprocessingStage, UploadVideoSourceToRemoteStorageStage>();
 			services.AddScoped<VideoPreprocessingStage, CreateUploadProgressStage>();
 			services.AddScoped<VideoPreprocessingStage, MakeProcessingJobStage>();
@@ -77,6 +85,7 @@ namespace MicroTube.Extensions
 		}
 		public static IServiceCollection AddAzureCdnVideoProcessing(this IServiceCollection services)
 		{
+			services.AddScoped<ICdnMediaContentAccess, AzureCdnMediaContentAccess>();
 			services.AddScoped<IVideoThumbnailsService, FFMpegVideoThumbnailsService>();
 			services.AddScoped<IVideoCompressionService, FFMpegVideoCompressionService>();
 			services.AddScoped<VideoProcessingStage, FetchVideoUploadProgressStage>();
@@ -91,10 +100,19 @@ namespace MicroTube.Extensions
 			services.AddScoped<IVideoProcessingPipeline, DefaultVideoProcessingPipeline>();
 			return services;
 		}
+		
 		public static void ScheduleBackgroundJobs()
 		{
 			RecurringJob.AddOrUpdate<IVideoIndexingService>("VideoSearchIndexing", "video_indexing", service => service.EnsureVideoIndices(), Cron.Minutely);
 			RecurringJob.AddOrUpdate<IVideoViewsAggregatorService>("VideoViewsAggregation", "video_views_aggregation", service => service.Aggregate(), Cron.Minutely);
+		}
+		public static void EnsureDatabaseCreated(string connectionString)
+		{
+			Guard.Against.NullOrWhiteSpace(connectionString);
+			var dbOptionsBuilder = new DbContextOptionsBuilder<MicroTubeDbContext>();
+			dbOptionsBuilder.UseSqlServer(connectionString);
+			using var dbContext = new MicroTubeDbContext(dbOptionsBuilder.Options);
+			dbContext.Database.EnsureCreated();
 		}
 		private static void EnsureElasticsearchIndices(ElasticsearchClient client, IConfiguration config)
 		{
