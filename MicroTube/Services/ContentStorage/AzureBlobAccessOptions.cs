@@ -1,6 +1,6 @@
 ﻿using Azure.Storage.Blobs.Models;
 
-namespace MicroTube.Services.MediaContentStorage
+namespace MicroTube.Services.ContentStorage
 {
 	public class AzureBlobAccessOptions
 	{

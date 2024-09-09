@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using MicroTube.Services;
 using MicroTube.Services.ConfigOptions;
-using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.ContentStorage;
 using MicroTube.Services.VideoContent.Processing.Stages;
 using MicroTube.Services.VideoContent.Processing.Stages.Azure;
 using NSubstitute;
@@ -28,7 +28,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			var config = new ConfigurationBuilder()
 				.AddConfigObject(VideoProcessingOptions.KEY, new VideoProcessingOptions("", 0, 0, localStoragePath, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 				.Build();
-			var remoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
+			var remoteStorage = Substitute.For<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
 			remoteStorage.Download(workLocation, Arg.Any<AzureBlobAccessOptions>())
 				.Returns(expectedLocalCacheSourcePath);
 			var fileSystem = new MockFileSystem();
@@ -61,7 +61,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			var config = new ConfigurationBuilder()
 				.AddConfigObject(VideoProcessingOptions.KEY, new VideoProcessingOptions("", 0, 0, localStoragePath, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 				.Build();
-			var remoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
+			var remoteStorage = Substitute.For<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
 			remoteStorage.Download(workLocation, Arg.Any<AzureBlobAccessOptions>())
 				.Returns(expectedLocalCacheSourcePath);
 			var fileSystem = new MockFileSystem();
@@ -83,7 +83,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			var config = new ConfigurationBuilder()
 				.AddConfigObject(VideoProcessingOptions.KEY, new VideoProcessingOptions("", 0, 0, localStoragePath, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 				.Build();
-			var remoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
+			var remoteStorage = Substitute.For<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
 			remoteStorage.Download(workLocation, Arg.Any<AzureBlobAccessOptions>())
 				.Throws<Exception>();
 			var fileSystem = new MockFileSystem();
@@ -104,7 +104,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			var config = new ConfigurationBuilder()
 				.AddConfigObject(VideoProcessingOptions.KEY, new VideoProcessingOptions("", 0, 0, localStoragePath, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 				.Build();
-			var remoteStorage = Substitute.For<IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
+			var remoteStorage = Substitute.For<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
 			remoteStorage.Download(workLocation, Arg.Any<AzureBlobAccessOptions>())
 				.Returns("");
 			var fileSystem = new MockFileSystem();

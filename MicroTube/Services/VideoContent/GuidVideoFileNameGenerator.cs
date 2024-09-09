@@ -1,6 +1,6 @@
 ﻿namespace MicroTube.Services.VideoContent
 {
-	public class GuidVideoNameGenerator : IVideoNameGenerator
+	public class GuidVideoFileNameGenerator : IVideoFileNameGenerator
 	{
 		public string GenerateVideoName()
 		{

@@ -2,7 +2,7 @@
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.ContentStorage;
 using NSubstitute;
 using System.Diagnostics;
 using System.IO.Abstractions;
@@ -14,7 +14,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 	{
 		private readonly IConfiguration _config;
 		private readonly BlobServiceClient _client;
-		private readonly ILogger<AzureBlobVideoContentRemoteStorage> _logger;
+		private readonly ILogger<AzureBlobContentStorage> _logger;
 		private readonly IFileSystem _fileSystem;
 		private readonly Process _azuriteProcess;
 		public AzureBlobVideoContentRemoteStorageTests()
@@ -23,7 +23,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 				.AddUserSecrets<AzureBlobVideoContentRemoteStorageTests>()
 				.Build();
 			_client = new BlobServiceClient(_config["AzureTestStorage:ConnectionString"]);
-			_logger = Substitute.For<ILogger<AzureBlobVideoContentRemoteStorage>>();
+			_logger = Substitute.For<ILogger<AzureBlobContentStorage>>();
 			_fileSystem = new FileSystem();
 			_azuriteProcess = Process.Start("azurite", "--inMemoryPersistence");
 		}
@@ -36,7 +36,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 		public async Task DeleteLocation_Success()
 		{
 			string locationName = Guid.NewGuid().ToString();
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, _fileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, _fileSystem);
 			var containerResult = await _client.CreateBlobContainerAsync(locationName);
 			Assert.False(containerResult.GetRawResponse().IsError);
 			await azureAccess.DeleteLocation(locationName);
@@ -47,7 +47,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 		public async Task EnsureLocation_Success()
 		{
 			string locationName = Guid.NewGuid().ToString();
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, _fileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, _fileSystem);
 			await azureAccess.EnsureLocation(locationName, RemoteLocationAccess.Public);
 			var blob = _client.GetBlobContainerClient(locationName);
 			Assert.True(blob.Exists());
@@ -64,7 +64,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 			mockResponse.GetRawResponse().Returns(mockRawResponse);
 			mockRawResponse.IsError.Returns(true);
 			mockBlobContainerClient.CreateIfNotExistsAsync(Arg.Any<PublicAccessType>()).ReturnsForAnyArgs(mockResponse);
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(mockClient, _logger, _fileSystem);
+			var azureAccess = new AzureBlobContentStorage(mockClient, _logger, _fileSystem);
 			await Assert.ThrowsAnyAsync<ExternalServiceException>(()=> azureAccess.EnsureLocation(locationName, RemoteLocationAccess.Public));
 			var blob = _client.GetBlobContainerClient(locationName);
 			Assert.False(blob.Exists());
@@ -75,14 +75,14 @@ namespace MicroTube.Tests.Integration.ContentStorage
 		[InlineData(" ")]
 		public async Task EnsureLocation_InvalidLocationNameFail(string? locationName)
 		{
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, _fileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, _fileSystem);
 			await Assert.ThrowsAnyAsync<Exception>(()=> azureAccess.EnsureLocation(locationName!, RemoteLocationAccess.Public));
 		}
 		[Fact]
 		public async Task UploadFromStream_Success()
 		{
 			string locationName = Guid.NewGuid().ToString();
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, _fileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, _fileSystem);
 			var path = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Constants.TEST_VIDEO_20S_480P_24FPS_LOCATION);
 			string fileName = Path.GetFileName(path);
 			using var stream = new FileStream(path, FileMode.Open);
@@ -98,7 +98,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 		public async Task UploadFromFilePath_Success()
 		{
 			string locationName = Guid.NewGuid().ToString();
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, _fileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, _fileSystem);
 			var path = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Constants.TEST_VIDEO_20S_480P_24FPS_LOCATION);
 			string fileName = Path.GetFileName(path);
 			var accessOptions = new AzureBlobAccessOptions(fileName, locationName);
@@ -113,7 +113,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 		public async Task UploadFromFilePath_NotFileFail()
 		{
 			string locationName = Guid.NewGuid().ToString();
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, _fileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, _fileSystem);
 			var path = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Constants.TEST_VIDEO_20S_480P_24FPS_LOCATION);
 			string fileName = Path.GetFileName(path);
 			var accessOptions = new AzureBlobAccessOptions(fileName, locationName);
@@ -141,7 +141,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 			{
 				{"/valid/path/file.mp4", new MockFileData("some_file") }
 			});
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, mockFileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, mockFileSystem);
 			var accessOptions = new AzureBlobAccessOptions(accessFileName!, accessLocationName!);
 			var uploadOptions = new BlobUploadOptions { AccessTier = AccessTier.Hot };
 			var containerResult = await _client.CreateBlobContainerAsync(locationName);
@@ -157,7 +157,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 			{
 				{"/valid/path/file.mp4", new MockFileData("some_file") }
 			});
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, mockFileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, mockFileSystem);
 			var accessOptions = new AzureBlobAccessOptions("file.mp4", locationName);
 			var uploadOptions = new BlobUploadOptions { AccessTier = AccessTier.Hot };
 			var containerResult = await _client.CreateBlobContainerAsync(locationName);
@@ -176,7 +176,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 				{"/valid/path/file3.mp4", new MockFileData("some_file3") },
 				{"/valid/path/file4.mp4", new MockFileData("some_file4") }
 			});
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, mockFileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, mockFileSystem);
 			var accessOptions = new AzureBlobAccessOptions("", locationName);
 			var uploadOptions = new BlobUploadOptions { AccessTier = AccessTier.Hot };
 			var containerResult = await _client.CreateBlobContainerAsync(locationName);
@@ -194,7 +194,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 			{
 				{"/valid/path/file1.mp4", new MockFileData("some_file1") }
 			});
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, mockFileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, mockFileSystem);
 			var accessOptions = new AzureBlobAccessOptions("", locationName);
 			var uploadOptions = new BlobUploadOptions { AccessTier = AccessTier.Hot };
 			var containerResult = await _client.CreateBlobContainerAsync(locationName);
@@ -208,7 +208,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 			string locationName = Guid.NewGuid().ToString();
 			var mockFileSystem = new MockFileSystem(
 				new Dictionary<string, MockFileData> { { "upload.mp4", new MockFileData("some data") } });
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, mockFileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, mockFileSystem);
 			using var fileStream = mockFileSystem.FileStream.New("upload.mp4", FileMode.Open);
 			await _client.GetBlobContainerClient(locationName).CreateIfNotExistsAsync();
 			var uploadResult = await _client.GetBlobContainerClient(locationName).UploadBlobAsync("download.mp4", fileStream);
@@ -222,7 +222,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 			string locationName = Guid.NewGuid().ToString();
 			var mockFileSystem = new MockFileSystem(
 				new Dictionary<string, MockFileData> { { "upload.mp4", new MockFileData("some data") } });
-			var azureAccess = new AzureBlobVideoContentRemoteStorage(_client, _logger, mockFileSystem);
+			var azureAccess = new AzureBlobContentStorage(_client, _logger, mockFileSystem);
 			using var fileStream = mockFileSystem.FileStream.New("upload.mp4", FileMode.Open);
 			await _client.GetBlobContainerClient(locationName).CreateIfNotExistsAsync();
 			var uploadResult = await _client.GetBlobContainerClient(locationName).UploadBlobAsync("delete.mp4", fileStream);

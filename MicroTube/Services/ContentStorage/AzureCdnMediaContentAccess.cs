@@ -4,19 +4,19 @@ using MicroTube.Services.ConfigOptions;
 using System.IO.Abstractions;
 using System.Threading;
 
-namespace MicroTube.Services.MediaContentStorage
+namespace MicroTube.Services.ContentStorage
 {
 	public class AzureCdnMediaContentAccess : ICdnMediaContentAccess
 	{
 		private const int MAXIMUM_UPLOAD_CONCURRENCY = 8;
 
-		private readonly IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _videoRemoteStorage;
+		private readonly IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _videoRemoteStorage;
 		private readonly IConfiguration _config;
 		private readonly ILogger<AzureCdnMediaContentAccess> _logger;
 		private readonly IFileSystem _fileSystem;
 
 		public AzureCdnMediaContentAccess(
-			IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> videoRemoteStorage,
+			IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> videoRemoteStorage,
 			IConfiguration config,
 			ILogger<AzureCdnMediaContentAccess> logger,
 			IFileSystem fileSystem)
@@ -52,8 +52,7 @@ namespace MicroTube.Services.MediaContentStorage
 					}
 				};
 				BulkUploadResult result = await _videoRemoteStorage.UploadDirectory(directory, accessOptions, uploadOptions, cancellationToken);
-				var cdnUrl = new Uri(videoUploadOptions.CdnUrl);
-				var urls = result.SuccessfulUploadsFileNames.Select(_ => new Uri(cdnUrl, $"{remoteLocation}/{_}"));
+				var urls = result.SuccessfulUploadsFileNames.Select(_ => new Uri(videoUploadOptions.CdnUrl.JoinUrl($"{remoteLocation}/{_}")));
 				if (result.SuccessfulUploadsFileNames.Count() == 0)
 				{
 					return ServiceResult<IEnumerable<Uri>>.Fail(500, $"No video content were uploaded to cdn from {directory} to {remoteLocation}");

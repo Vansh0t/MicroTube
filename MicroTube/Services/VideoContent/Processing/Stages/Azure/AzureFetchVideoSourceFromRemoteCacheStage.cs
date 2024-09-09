@@ -1,7 +1,7 @@
 ﻿using Ardalis.GuardClauses;
 using Azure.Storage.Blobs.Models;
 using MicroTube.Services.ConfigOptions;
-using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.ContentStorage;
 using System.IO.Abstractions;
 using System.Security;
 
@@ -13,10 +13,10 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Azure
 		public const string QUALITY_TIERS_SUBLOCATION = "tiers";
 
 		private readonly IConfiguration _config;
-		private readonly IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _remoteStorage;
+		private readonly IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _remoteStorage;
 		private readonly IFileSystem _fileSystem;
 
-		public AzureFetchVideoSourceFromRemoteCacheStage(IConfiguration config, IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage, IFileSystem fileSystem)
+		public AzureFetchVideoSourceFromRemoteCacheStage(IConfiguration config, IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage, IFileSystem fileSystem)
 		{
 			_config = config;
 			_remoteStorage = remoteStorage;

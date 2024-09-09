@@ -3,21 +3,19 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
-using Microsoft.AspNetCore.Http;
-using System.IO;
 using System.IO.Abstractions;
 
-namespace MicroTube.Services.MediaContentStorage
+namespace MicroTube.Services.ContentStorage
 {
-	public class AzureBlobVideoContentRemoteStorage : IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>
+	public class AzureBlobContentStorage : IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>
 	{
 		private readonly BlobServiceClient _azureBlobServiceClient;
-		private readonly ILogger<AzureBlobVideoContentRemoteStorage> _logger;
+		private readonly ILogger<AzureBlobContentStorage> _logger;
 		private readonly IFileSystem _fileSystem;
 
-		public AzureBlobVideoContentRemoteStorage(
+		public AzureBlobContentStorage(
 			BlobServiceClient azureBlobServiceClient,
-			ILogger<AzureBlobVideoContentRemoteStorage> logger,
+			ILogger<AzureBlobContentStorage> logger,
 			IFileSystem fileSystem)
 		{
 			_azureBlobServiceClient = azureBlobServiceClient;

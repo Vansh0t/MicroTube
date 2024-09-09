@@ -1,21 +1,21 @@
 ﻿using Ardalis.GuardClauses;
 using Azure.Storage.Blobs.Models;
-using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.ContentStorage;
 using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Preprocessing.Stages
 {
 	public class UploadVideoSourceToRemoteStorageStage : VideoPreprocessingStage
 	{
-		private readonly IVideoNameGenerator _videoNameGenerator;
+		private readonly IVideoFileNameGenerator _videoNameGenerator;
 		private readonly IFileSystem _fileSystem;
-		private readonly IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _videoRemoteStorage;
+		private readonly IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _videoRemoteStorage;
 		private readonly IRemoteLocationNameGenerator _remoteLocationNameGenerator;
 		public UploadVideoSourceToRemoteStorageStage(
-			IVideoNameGenerator videoNameGenerator,
+			IVideoFileNameGenerator videoNameGenerator,
 			IFileSystem fileSystem,
 			IRemoteLocationNameGenerator remoteLocationNameGenerator,
-			IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> videoRemoteStorage)
+			IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> videoRemoteStorage)
 		{
 			_videoNameGenerator = videoNameGenerator;
 			_fileSystem = fileSystem;
@@ -34,7 +34,7 @@ namespace MicroTube.Services.VideoContent.Preprocessing.Stages
 			{
 				AccessTier = AccessTier.Cold
 			};
-			await _videoRemoteStorage.EnsureLocation(generatedFileName, RemoteLocationAccess.Public, cancellationToken);
+			await _videoRemoteStorage.EnsureLocation(generatedRemoteLocationName, RemoteLocationAccess.Public, cancellationToken);
 			string uploadedFileName = await _videoRemoteStorage.Upload(stream, 
 				new AzureBlobAccessOptions(generatedFileName, generatedRemoteLocationName), new BlobUploadOptions { AccessTier = AccessTier.Cold });
 			context.RemoteCache = new Processing.Stages.VideoProcessingRemoteCache { VideoFileLocation = generatedRemoteLocationName, VideoFileName = uploadedFileName };

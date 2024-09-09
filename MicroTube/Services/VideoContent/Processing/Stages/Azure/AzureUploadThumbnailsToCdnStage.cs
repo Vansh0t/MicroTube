@@ -1,5 +1,5 @@
 ﻿using Ardalis.GuardClauses;
-using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.ContentStorage;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages.Azure
 {
@@ -17,18 +17,18 @@ namespace MicroTube.Services.VideoContent.Processing.Stages.Azure
 			Guard.Against.Null(context);
 			Guard.Against.Null(context.LocalCache);
 			Guard.Against.Null(context.RemoteCache);
-			var thumbnailEndpoints = await UploadThumbnailsToCdn(context.LocalCache.ThumbnailsLocation, context.RemoteCache.VideoFileName, cancellationToken);
+			var thumbnailEndpoints = await UploadThumbnailsToCdn(context.LocalCache.ThumbnailsLocation, context.RemoteCache.VideoFileLocation, cancellationToken);
 			if (context.Cdn == null)
 				context.Cdn = new Cdn();
 			context.Cdn.ThumbnailEndpoints = thumbnailEndpoints;
 			return context;
 		}
-		private async Task<IEnumerable<Uri>> UploadThumbnailsToCdn(string localCacheThumbnailsLocation, string normalizedSourceName, CancellationToken cancellationToken)
+		private async Task<IEnumerable<Uri>> UploadThumbnailsToCdn(string localCacheThumbnailsLocation, string remoteLocation, CancellationToken cancellationToken)
 		{
-			var subcontentUploadResult = await _mediaCdnAccess.UploadVideoThumbnails(localCacheThumbnailsLocation, normalizedSourceName, cancellationToken);
+			var subcontentUploadResult = await _mediaCdnAccess.UploadVideoThumbnails(localCacheThumbnailsLocation, remoteLocation, cancellationToken);
 			if (subcontentUploadResult.IsError)
 			{
-				throw new BackgroundJobException($"Failed to upload video subcontent to CDN. File: {normalizedSourceName}, SubcontentLocation: {localCacheThumbnailsLocation}. {subcontentUploadResult.Error}");
+				throw new BackgroundJobException($"Failed to upload video subcontent to CDN. File: {remoteLocation}, SubcontentLocation: {localCacheThumbnailsLocation}. {subcontentUploadResult.Error}");
 			}
 			return subcontentUploadResult.GetRequiredObject();
 		}

@@ -1,8 +1,8 @@
 ﻿using Azure.Storage.Blobs.Models;
 
-namespace MicroTube.Services.MediaContentStorage
+namespace MicroTube.Services.ContentStorage
 {
-	public interface IVideoContentRemoteStorage<TAccessOptions, TUploadOptions>
+	public interface IRemoteStorage<TAccessOptions, TUploadOptions>
 	{
 		Task<string> Upload(Stream stream, TAccessOptions accessOptions, TUploadOptions uploadOptions, CancellationToken cancellationToken = default);
 		Task<string> Upload(string path, TAccessOptions accessOptions, TUploadOptions uploadOptions, CancellationToken cancellationToken = default);

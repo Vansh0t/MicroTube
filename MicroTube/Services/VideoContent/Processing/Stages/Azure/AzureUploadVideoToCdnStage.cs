@@ -1,5 +1,5 @@
 ﻿using Ardalis.GuardClauses;
-using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.ContentStorage;
 using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages.Azure

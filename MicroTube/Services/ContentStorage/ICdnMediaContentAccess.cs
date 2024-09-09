@@ -1,4 +1,4 @@
-﻿namespace MicroTube.Services.MediaContentStorage
+﻿namespace MicroTube.Services.ContentStorage
 {
 	public interface ICdnMediaContentAccess
 	{

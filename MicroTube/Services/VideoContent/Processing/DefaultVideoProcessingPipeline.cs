@@ -2,7 +2,7 @@
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services.Base;
-using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.ContentStorage;
 using MicroTube.Services.VideoContent.Processing.Stages;
 using System.Diagnostics;
 using System.IO.Abstractions;
@@ -14,7 +14,7 @@ namespace MicroTube.Services.VideoContent.Processing
 		private readonly ILogger<DefaultVideoProcessingPipeline> _logger;
 		private readonly MicroTubeDbContext _db;
 		private readonly IFileSystem _fileSystem;
-		private readonly IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _remoteStorage;
+		private readonly IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _remoteStorage;
 
 		public DefaultVideoProcessingPipeline(
 			IConfiguration config,
@@ -23,7 +23,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			ICdnMediaContentAccess mediaCdnAccess,
 			MicroTubeDbContext db,
 			IFileSystem fileSystem,
-			IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage)
+			IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage)
 		{
 			_logger = logger;
 			foreach (var stage in stages)

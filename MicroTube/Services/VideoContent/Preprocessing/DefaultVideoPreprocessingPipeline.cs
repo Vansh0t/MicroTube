@@ -2,7 +2,7 @@
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services.Base;
-using MicroTube.Services.MediaContentStorage;
+using MicroTube.Services.ContentStorage;
 using MicroTube.Services.VideoContent.Preprocessing.Stages;
 
 namespace MicroTube.Services.VideoContent.Preprocessing
@@ -11,12 +11,12 @@ namespace MicroTube.Services.VideoContent.Preprocessing
 	{
 		private readonly ILogger<DefaultVideoPreprocessingPipeline> _logger;
 		private readonly MicroTubeDbContext _db;
-		private readonly IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _remoteStorage;
+		private readonly IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _remoteStorage;
 		public DefaultVideoPreprocessingPipeline(
 			IEnumerable<VideoPreprocessingStage> stages,
 			ILogger<DefaultVideoPreprocessingPipeline> logger,
 			MicroTubeDbContext db,
-			IVideoContentRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage)
+			IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> remoteStorage)
 		{
 			foreach (var stage in stages)
 			{

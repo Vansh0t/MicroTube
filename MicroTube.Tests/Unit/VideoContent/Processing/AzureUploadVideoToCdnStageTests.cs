@@ -1,4 +1,4 @@
-﻿using MicroTube.Services.MediaContentStorage;
+﻿using MicroTube.Services.ContentStorage;
 using MicroTube.Services.VideoContent.Processing.Stages.Azure;
 using MicroTube.Services.VideoContent.Processing.Stages;
 using MicroTube.Services;
