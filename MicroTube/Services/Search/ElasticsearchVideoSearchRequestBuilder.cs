@@ -50,16 +50,16 @@ namespace MicroTube.Services.Search
 				return null;
 			if (sortType == VideoSortType.Time)
 			{
-				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.UploadedAt)!, new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Date }));
+				sortOptions.Add(SortOptions.Field(new Field("uploadedAt"), new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Date }));
 			}
 			if (sortType == VideoSortType.Views)
 			{
-				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.Views)!, new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Integer }));
+				sortOptions.Add(SortOptions.Field(new Field("views"), new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Integer }));
 			}
 			//TO DO: needs better rating system
 			if (sortType == VideoSortType.Rating)
 			{
-				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.Likes)!, new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Integer }));
+				sortOptions.Add(SortOptions.Field(new Field("likes"), new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Integer }));
 			}
 			return sortOptions;
 		}
