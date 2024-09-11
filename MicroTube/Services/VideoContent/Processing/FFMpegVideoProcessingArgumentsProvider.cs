@@ -10,7 +10,7 @@ namespace MicroTube.Services.VideoContent.Processing
 			{".mov", "-vf \"scale=-2:{0}\" -threads 3" },
 			{".avi", "-vf \"scale=-2:{0}\" -threads 3" },
 			{".wmv", "-vf \"scale=-2:{0}\" -threads 3" },
-			{".webm", "-vf \"scale=-2:{0}\" -threads 3" },
+			{".webm", "-c:v libx264 -acodec copy -vf \"scale=-2:{0}\" -threads 3" },
 		};
 		private readonly IReadOnlyDictionary<string, string> thumbnailsArguments = new Dictionary<string, string>
 		{
