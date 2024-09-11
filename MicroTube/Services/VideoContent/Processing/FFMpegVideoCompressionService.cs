@@ -5,16 +5,21 @@ namespace MicroTube.Services.VideoContent.Processing
 {
 	public class FFMpegVideoCompressionService : IVideoCompressionService
 	{
-		private const string FFMPEG_COMPRESSION_ARGS = "-vf \"scale=-2:{0}\" -threads 3";
 		private readonly IConfiguration _config;
 		private readonly IVideoAnalyzer _analyzer;
 		private readonly IFileSystem _fileSystem;
+		private readonly IVideoProcessingArgumentsProvider _argumentsProvider;
 
-		public FFMpegVideoCompressionService(IConfiguration config, IVideoAnalyzer analyzer, IFileSystem fileSystem)
+		public FFMpegVideoCompressionService(
+			IConfiguration config,
+			IVideoAnalyzer analyzer,
+			IFileSystem fileSystem,
+			IVideoProcessingArgumentsProvider argumentsProvider)
 		{
 			_config = config;
 			_analyzer = analyzer;
 			_fileSystem = fileSystem;
+			_argumentsProvider = argumentsProvider;
 		}
 
 		public async Task<IServiceResult<IDictionary<int, string>>> CompressToQualityTiers(IEnumerable<int> tiers, string sourcePath, string saveToPath, CancellationToken cancellationToken = default)
@@ -53,7 +58,8 @@ namespace MicroTube.Services.VideoContent.Processing
 				var analyzeResult = await _analyzer.Analyze(sourcePath, cancellationToken);
 				if (tier > analyzeResult.FrameHeight)
 					throw new ArgumentException("Tier cannot be larger than source height. Aborting compression.");
-				string ffmpegCustomArgs = string.Format(FFMPEG_COMPRESSION_ARGS, tier);
+				string processingArguments = _argumentsProvider.ProvideForCompression(Path.GetExtension(sourcePath));
+				string ffmpegCustomArgs = string.Format(processingArguments, tier);
 				var options = new ConversionOptions
 				{
 					ExtraArguments = ffmpegCustomArgs
@@ -80,7 +86,7 @@ namespace MicroTube.Services.VideoContent.Processing
 		{
 			string fileNameWithoutExtension = _fileSystem.Path.GetFileNameWithoutExtension(sourceFilePath);
 			string fileExtension = _fileSystem.Path.GetExtension(sourceFilePath);
-			string tierFileName = $"{fileNameWithoutExtension}_{tier}{fileExtension}";
+			string tierFileName = $"{fileNameWithoutExtension}_{tier}.mp4";
 			return tierFileName;
 		}
 	}

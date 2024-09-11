@@ -88,6 +88,7 @@ namespace MicroTube.Extensions
 			services.AddScoped<ICdnMediaContentAccess, AzureCdnMediaContentAccess>();
 			services.AddScoped<IVideoThumbnailsService, FFMpegVideoThumbnailsService>();
 			services.AddScoped<IVideoCompressionService, FFMpegVideoCompressionService>();
+			services.AddScoped<IVideoProcessingArgumentsProvider, FFMpegVideoProcessingArgumentsProvider>();
 			services.AddScoped<VideoProcessingStage, FetchVideoUploadProgressStage>();
 			services.AddScoped<VideoProcessingStage, AzureFetchVideoSourceFromRemoteCacheStage>();
 			services.AddScoped<VideoProcessingStage, SetProgressInProgressStage>();
