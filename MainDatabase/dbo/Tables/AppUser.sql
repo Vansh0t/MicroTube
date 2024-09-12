@@ -1,8 +1,0 @@
-﻿CREATE TABLE [dbo].[AppUser]
-(
-	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(), 
-    [Username] NVARCHAR(50) NOT NULL UNIQUE,
-	[Email] NVARCHAR(50) NOT NULL UNIQUE, 
-    [PublicUsername] NVARCHAR(50) NOT NULL, 
-    [IsEmailConfirmed] BIT NOT NULL
-)
