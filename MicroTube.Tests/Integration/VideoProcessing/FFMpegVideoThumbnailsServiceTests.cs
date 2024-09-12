@@ -28,11 +28,12 @@ namespace MicroTube.Tests.Integration.VideoProcessing
 		[Fact]
 		public async Task MakeThumbnails_Success()
 		{
+			var argsProvider = new FFMpegVideoProcessingArgumentsProvider();
 			var thumbnailsService = new FFMpegVideoThumbnailsService(
 				Substitute.For<ILogger<FFMpegVideoThumbnailsService>>(),
 				config,
 				new FileSystem(),
-				new FFMpegVideoAnalyzer(config));
+				new FFMpegVideoAnalyzer(config), argsProvider);
 			var sourcePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Constants.TEST_VIDEO_20S_480P_24FPS_LOCATION);
 			var result = await thumbnailsService.MakeThumbnails(sourcePath, videoTestsTempLocation);
 			Assert.False(result.IsError);
@@ -47,11 +48,12 @@ namespace MicroTube.Tests.Integration.VideoProcessing
 		public async Task MakeThumbnails_InvalidPathFail()
 		{
 			var sourcePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Constants.TEST_VIDEO_20S_480P_24FPS_LOCATION);
+			var argsProvider = new FFMpegVideoProcessingArgumentsProvider();
 			var thumbnailsService = new FFMpegVideoThumbnailsService(
 				Substitute.For<ILogger<FFMpegVideoThumbnailsService>>(),
 				config,
 				new FileSystem(),
-				new FFMpegVideoAnalyzer(config));
+				new FFMpegVideoAnalyzer(config), argsProvider);
 			var result = await thumbnailsService.MakeThumbnails(sourcePath, "Invalid/path");
 			Assert.True(result.IsError);
 			Assert.Equal(500, result.Code);
@@ -63,11 +65,12 @@ namespace MicroTube.Tests.Integration.VideoProcessing
 		[Fact]
 		public async Task MakeSnapshots_Success()
 		{
+			var argsProvider = new FFMpegVideoProcessingArgumentsProvider();
 			var thumbnailsService = new FFMpegVideoThumbnailsService(
 				Substitute.For<ILogger<FFMpegVideoThumbnailsService>>(),
 				config,
 				new FileSystem(),
-				new FFMpegVideoAnalyzer(config));
+				new FFMpegVideoAnalyzer(config), argsProvider);
 			var sourcePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Constants.TEST_VIDEO_20S_480P_24FPS_LOCATION);
 			var result = await thumbnailsService.MakeSnapshots(sourcePath, videoTestsTempLocation);
 			Assert.False(result.IsError);
@@ -82,11 +85,12 @@ namespace MicroTube.Tests.Integration.VideoProcessing
 		public async Task MakeSnapshots_InvalidPathFail()
 		{
 			var sourcePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Constants.TEST_VIDEO_20S_480P_24FPS_LOCATION);
+			var argsProvider = new FFMpegVideoProcessingArgumentsProvider();
 			var thumbnailsService = new FFMpegVideoThumbnailsService(
 				Substitute.For<ILogger<FFMpegVideoThumbnailsService>>(),
 				config,
 				new FileSystem(),
-				new FFMpegVideoAnalyzer(config));
+				new FFMpegVideoAnalyzer(config), argsProvider);
 			var result = await thumbnailsService.MakeSnapshots(sourcePath, "Invalid/path");
 			Assert.True(result.IsError);
 			Assert.Equal(500, result.Code);
