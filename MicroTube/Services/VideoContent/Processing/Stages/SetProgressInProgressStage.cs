@@ -1,4 +1,5 @@
-﻿using MicroTube.Data.Access;
+﻿using Ardalis.GuardClauses;
+using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages
@@ -16,18 +17,9 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
         {
-			if (context == null)
-			{
-				throw new ArgumentNullException($"Context must not be null for stage {nameof(SetProgressInProgressStage)}");
-			}
-			if (context.UploadProgress == null)
-			{
-				throw new ArgumentNullException($"{nameof(context.UploadProgress)} must not be null for stage {nameof(SetProgressInProgressStage)}");
-			}
-			if (context.LocalCache == null)
-			{
-				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(SetProgressInProgressStage)}");
-			}
+			Guard.Against.Null(context);
+			Guard.Against.Null(context.UploadProgress);
+			Guard.Against.Null(context.LocalCache);
 			_db.Update(context.UploadProgress);
 			string localCacheSourcePath = context.LocalCache.SourcePath;
             context.UploadProgress = await UpdateProgressFromAnalyzeResult(localCacheSourcePath, context.UploadProgress, cancellationToken);

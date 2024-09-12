@@ -1,5 +1,5 @@
-﻿using MicroTube.Services.ConfigOptions;
-using MicroTube.Services.VideoContent.Processing.Stages.Offline;
+﻿using Ardalis.GuardClauses;
+using MicroTube.Services.ConfigOptions;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages
 {
@@ -16,14 +16,8 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
 		{
-			if(context == null)
-			{
-				throw new ArgumentNullException($"Context must not be null for stage {nameof(FFMpegCreateQualityTiersStage)}");
-			}
-			if(context.LocalCache == null)
-			{
-				throw new ArgumentNullException($"{nameof(context.LocalCache)} must not be null for stage {nameof(FFMpegCreateQualityTiersStage)}");
-			}
+			Guard.Against.Null(context);
+			Guard.Against.Null(context.LocalCache);
 			var options = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
 			var qualityTiersResult = await _compressionService.CompressToQualityTiers(
 				options.QualityTiers,

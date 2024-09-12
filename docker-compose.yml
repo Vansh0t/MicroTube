@@ -6,8 +6,8 @@ services:
     build:
       context: ./MicroTube
     depends_on:
-       main_database:
-         condition: service_completed_successfully
+       mssql:
+         condition: service_started
     environment:
      - ASPNETCORE_ENVIRONMENT=Development
      - ASPNETCORE_URLS=https://+:7146;
@@ -18,8 +18,6 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-      - offline-cdn:/data/videos
-      - offline-cdn:/data/videos/cache
   client-angular:
     image: app/client/angular
     ports: 
@@ -43,27 +41,27 @@ services:
       - "1433:1433"
     env_file:
       - MainDatabase/private.env
-  main_database:
-    image: db/main
-    container_name: MicroTubeMainDb
-    hostname: MicroTubeMainDb
-    depends_on:
-      - mssql
-    env_file:
-      - MainDatabase/private.env
-    build:
-        context: .
-        dockerfile: MainDatabase/Dockerfile
-  offline_cdn:
-    image: caddy:alpine
-    container_name: OfflineCDN
-    hostname: OfflineCDN
-    volumes:
-      - offline-cdn:/data/videos
-      - offline-cdn:/data/videos/cache
+  # main_database:
+  #   image: db/main
+  #   container_name: MicroTubeMainDb
+  #   hostname: MicroTubeMainDb
+  #   depends_on:
+  #     - mssql
+  #   env_file:
+  #     - MainDatabase/private.env
+  #   build:
+  #       context: .
+  #       dockerfile: MainDatabase/Dockerfile
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    mem_limit: 1gb
+    container_name: Azurite
+    hostname: azurite
     ports:
-      - "2015:2015"
-    entrypoint: ["caddy", "file-server", "--listen", "0.0.0.0:2015", "--root", "/data/"]
+      - "10000:10000"
+    entrypoint: ["azurite-blob", "--blobHost", "0.0.0.0", "--blobPort", "10000"]
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
     mem_limit: 3gb
@@ -83,5 +81,3 @@ services:
       - "5601:5601"
     environment:
       - XPACK_SECURITY_ENABLED=false
-volumes:
-  offline-cdn:

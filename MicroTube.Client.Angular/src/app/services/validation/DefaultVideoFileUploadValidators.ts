@@ -6,7 +6,7 @@ import { FileValidator } from "ngx-custom-material-file-input";
 })
 export class DefaultVideoFileUploadValidators
 {
-  private readonly ACCEPT_TYPES = "video/mp4";
+  private readonly ACCEPT_TYPES = "video/mp4,video/webm,video/x-msvideo,tvideo/x-ms-wmv,tvideo/quicktime";
   readonly MAX_FILE_SIZE_BYTES = 3221225472; //3gb
   readonly MIN_TITLE_LENGTH = 2;
   readonly MAX_TITLE_LENGTH = 200;

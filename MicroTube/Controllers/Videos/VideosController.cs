@@ -56,7 +56,10 @@ namespace MicroTube.Controllers.Videos
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VideoDTO>))]
 		public async Task<IActionResult> Get(string id)
 		{
-			var video = await _db.Videos.FirstOrDefaultAsync(_ => _.Id == new Guid(id));
+			var video = await _db.Videos
+				.Include(_=>_.VideoReactions)
+				.Include(_=>_.VideoViews)
+				.FirstOrDefaultAsync(_ => _.Id == new Guid(id));
 			if (video == null)
 				return NotFound("Video not found");
 			var result = VideoDTO.FromModel(video);
@@ -79,7 +82,7 @@ namespace MicroTube.Controllers.Videos
 		[HttpGet("{id}/reaction")]
 		[Authorize]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserVideoReactionDTO))]
-		public async Task<IActionResult> GetLike(string id)
+		public async Task<IActionResult> GetReaction(string id)
 		{
 			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
 			if (!isEmailConfirmed)

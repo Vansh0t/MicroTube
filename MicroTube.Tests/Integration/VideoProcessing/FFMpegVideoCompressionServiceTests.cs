@@ -32,7 +32,8 @@ namespace MicroTube.Tests.Integration.VideoProcessing
 		{
 			var analyzer = new FFMpegVideoAnalyzer(config);
 			var sourcePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Constants.TEST_VIDEO_20S_1080P_24FPS_LOCATION);
-			var compressionService = new FFMpegVideoCompressionService(config, analyzer, new FileSystem());
+			var argsProvider = new FFMpegVideoProcessingArgumentsProvider();
+			var compressionService = new FFMpegVideoCompressionService(config, analyzer, new FileSystem(), argsProvider);
 			var result = await compressionService.CompressToTier(tier, sourcePath, videoTestsTempLocation);
 			Assert.False(result.IsError);
 			Assert.NotEmpty(result.GetRequiredObject());
@@ -48,7 +49,8 @@ namespace MicroTube.Tests.Integration.VideoProcessing
 		{
 			var analyzer = new FFMpegVideoAnalyzer(config);
 			var sourcePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Constants.TEST_VIDEO_20S_1080P_24FPS_LOCATION);
-			var compressionService = new FFMpegVideoCompressionService(config, analyzer, new FileSystem());
+			var argsProvider = new FFMpegVideoProcessingArgumentsProvider();
+			var compressionService = new FFMpegVideoCompressionService(config, analyzer, new FileSystem(), argsProvider);
 			var result = await compressionService.CompressToTier(144, "Invalid/path", videoTestsTempLocation);
 			Assert.True(result.IsError);
 			Assert.Equal(500, result.Code);
@@ -62,7 +64,8 @@ namespace MicroTube.Tests.Integration.VideoProcessing
 		{
 			var analyzer = new FFMpegVideoAnalyzer(config);
 			var sourcePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Constants.TEST_VIDEO_20S_1080P_24FPS_LOCATION);
-			var compressionService = new FFMpegVideoCompressionService(config, analyzer, new FileSystem());
+			var argsProvider = new FFMpegVideoProcessingArgumentsProvider();
+			var compressionService = new FFMpegVideoCompressionService(config, analyzer, new FileSystem(), argsProvider);
 			var result = await compressionService.CompressToTier(1440, sourcePath, videoTestsTempLocation);
 			Assert.True(result.IsError);
 			Assert.Equal(500, result.Code);
@@ -73,7 +76,8 @@ namespace MicroTube.Tests.Integration.VideoProcessing
 			List<int> tiers = new List<int> { 144, 240, 360, 480, 720, 1080, 1440 };
 			var analyzer = new FFMpegVideoAnalyzer(config);
 			var sourcePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, Constants.TEST_VIDEO_20S_1080P_24FPS_LOCATION);
-			var compressionService = new FFMpegVideoCompressionService(config, analyzer, new FileSystem());
+			var argsProvider = new FFMpegVideoProcessingArgumentsProvider();
+			var compressionService = new FFMpegVideoCompressionService(config, analyzer, new FileSystem(), argsProvider);
 			var result = await compressionService.CompressToQualityTiers(tiers, sourcePath, videoTestsTempLocation);
 			Assert.False(result.IsError);
 			Assert.NotEmpty(result.GetRequiredObject());

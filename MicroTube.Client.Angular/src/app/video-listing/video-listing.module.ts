@@ -22,7 +22,7 @@ import { MatOptionModule } from "@angular/material/core";
 import { MatSelectModule } from "@angular/material/select";
 import { NgxPlayerComponent } from "./ngx-player/ngx-player.component";
 import { AppAuthModule } from "../auth/auth.module";
-import { LikeComponent } from "./like-component/like-component.component";
+import { LikeComponent } from "./video-reaction-component/video-reaction.component";
 
 
 @NgModule({

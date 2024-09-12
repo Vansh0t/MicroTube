@@ -22,7 +22,7 @@ namespace MicroTube.Data.Models
 		public required ReactionType ReactionType { get; set; }
 		public required DateTime Time { get; set; }
 	}
-	[JsonConverter(typeof(StringEnumConverter))]
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum ReactionType
 	{
 		None, Like, Dislike

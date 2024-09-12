@@ -1,4 +1,5 @@
-﻿using MicroTube.Services.ConfigOptions;
+﻿using Ardalis.GuardClauses;
+using MicroTube.Services.ConfigOptions;
 
 namespace MicroTube.Services.VideoContent.Processing.Stages
 {
@@ -15,17 +16,11 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 
 		protected override async Task<DefaultVideoProcessingContext> ExecuteInternal(DefaultVideoProcessingContext? context, CancellationToken cancellationToken)
         {
-			if (context == null)
-			{
-				throw new ArgumentNullException($"Context must not be null for stage {nameof(FFMpegCreateThumbnailsStage)}");
-			}
-			if (context.LocalCache == null)
-			{
-				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(FFMpegCreateThumbnailsStage)}");
-			}
-
+			Guard.Against.Null(context);
+			Guard.Against.Null(context.LocalCache);
 			string thumbnailsSource = GetQualityTierSourceForThumbnailCreation(context);
 			var thumbnailPaths = await MakeThumbnails(thumbnailsSource, context.LocalCache.ThumbnailsLocation, cancellationToken);
+			Guard.Against.NullOrEmpty(thumbnailPaths);
             return context;
         }
         private async Task<IEnumerable<string>> MakeThumbnails(string localCacheSourcePath, string saveToPath, CancellationToken cancellationToken)
@@ -39,14 +34,8 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
         }
 		private string GetQualityTierSourceForThumbnailCreation(DefaultVideoProcessingContext context)
 		{
-			if (context.LocalCache == null)
-			{
-				throw new ArgumentNullException($"{nameof(context.RemoteCache)} must not be null for stage {nameof(FFMpegCreateThumbnailsStage)}");
-			}
-			if (context.LocalCache.QualityTierPaths == null || context.LocalCache.QualityTierPaths.Count == 0)
-			{
-				throw new ArgumentNullException($"{context.LocalCache.QualityTierPaths} must not be null or empty for stage {nameof(FFMpegCreateThumbnailsStage)}");
-			}
+			Guard.Against.Null(context.LocalCache);
+			Guard.Against.NullOrEmpty(context.LocalCache.QualityTierPaths);
 			VideoProcessingOptions options = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
 			return context.LocalCache.QualityTierPaths.Last(_ => _.Key <= options.ThumbnailsQualityTier).Value;
 		}
