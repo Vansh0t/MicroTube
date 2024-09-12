@@ -22,7 +22,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 			_config = new ConfigurationBuilder()
 				.AddUserSecrets<AzureBlobVideoContentRemoteStorageTests>()
 				.Build();
-			_client = new BlobServiceClient(_config["AzureTestStorage:ConnectionString"]);
+			_client = new BlobServiceClient("UseDevelopmentStorage=true");
 			_logger = Substitute.For<ILogger<AzureBlobContentStorage>>();
 			_fileSystem = new FileSystem();
 			_azuriteProcess = Process.Start("azurite", "--inMemoryPersistence");
