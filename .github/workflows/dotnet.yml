@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ElasticSearch__ApiKey: "Devkey"
-      ElasticSearch__Url: "http://elastic.temp"
+      ElasticSearch__Url: "https://elastic.com"
       AzureBlobStorage__ConnectionString: "UseDevelopmentStorage=true"
     steps:
     - uses: actions/checkout@v4
