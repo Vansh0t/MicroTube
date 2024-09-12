@@ -25,7 +25,10 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 bool isStartupTest = config.GetValue<bool>("StartupTest");
-builder.Services.AddAzureBlobRemoteStorage(config.GetRequiredValue("AzureBlobStorage:ConnectionString"));
+if(!isStartupTest) 
+	builder.Services.AddAzureBlobRemoteStorage(config.GetRequiredValue("AzureBlobStorage:ConnectionString"));
+else
+	builder.Services.AddAzureBlobRemoteStorage("UseDevelopmentStorage=true");
 builder.Services.AddSingleton<IMD5HashProvider, MD5HashProvider>();
 builder.Services.AddSingleton<IVideoAnalyzer, FFMpegVideoAnalyzer>();
 builder.Services.AddSingleton<IFileSystem, FileSystem>();
