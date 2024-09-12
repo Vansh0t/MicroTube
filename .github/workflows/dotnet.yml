@@ -16,6 +16,7 @@ jobs:
     env:
       ElasticSearch__ApiKey: "Devkey"
       ElasticSearch__Url: "elastic.temp"
+      AzureBlobStorage__ConnectionString: "UseDevelopmentStorage=true"
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
