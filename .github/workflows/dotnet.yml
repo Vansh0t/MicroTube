@@ -10,7 +10,7 @@ on:
     branches: [ "master", "development" ]
 
 jobs:
-  build:
+  test_api:
 
     runs-on: ubuntu-latest
     env:
