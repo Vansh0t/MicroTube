@@ -26,8 +26,8 @@ jobs:
     - name: Setup FFmpeg
       uses: federicocarboni/setup-ffmpeg@v3.1
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./MicroTube/MicroTube.csproj
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build ./MicroTube/MicroTube.csproj --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
