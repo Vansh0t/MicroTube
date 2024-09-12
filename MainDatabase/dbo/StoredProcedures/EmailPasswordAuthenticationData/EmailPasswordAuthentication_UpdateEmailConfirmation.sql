@@ -1,12 +1,14 @@
 ﻿CREATE PROCEDURE [dbo].[EmailPasswordAuthentication_UpdateEmailConfirmation]
-	@UserId int,
+	@UserId uniqueidentifier,
 	@EmailConfirmationString nvarchar(100),
-	@EmailConfirmationStringExpiration datetime
+	@EmailConfirmationStringExpiration datetime,
+	@PendingEmail nvarchar(50)
 AS
 BEGIN
 	UPDATE dbo.EmailPasswordAuthentication
 	SET 
 	EmailConfirmationString = @EmailConfirmationString,
-	EmailConfirmationStringExpiration = @EmailConfirmationStringExpiration
+	EmailConfirmationStringExpiration = @EmailConfirmationStringExpiration,
+	PendingEmail = @PendingEmail
 	WHERE UserId = @UserId;
 END

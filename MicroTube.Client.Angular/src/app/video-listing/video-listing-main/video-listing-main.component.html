@@ -1,0 +1,51 @@
+<div>
+	<div #scrollContainer class="main-container w-100" (scroll)="onScroll($event)">
+		@if(searchControls && searchService.isSearch) {
+		<div class="d-flex flex-row gap-2 dense-minus-3">
+			<mat-form-field>
+				<mat-select [formControl]="sortControl" placeholder="Sort">
+					<mat-option>--</mat-option>
+					@for (sort of searchControls.sortOptions; track sort) {
+					<mat-option [value]="sort">{{formatOption(sort)}}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+			<mat-form-field>
+				<mat-select [formControl]="timeFilterControl" placeholder="Upload Time">
+					<mat-option>--</mat-option>
+					@for (filter of searchControls.timeFilterOptions; track filter) {
+					<mat-option [value]="filter">{{formatOption(filter)}}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+			<mat-form-field>
+				<div class="d-flex flex-row gap-2">
+					<mat-select [formControl]="lengthFilterControl" placeholder="Length">
+						<mat-option>--</mat-option>
+						@for (filter of searchControls.lengthFilterOptions; track filter) {
+						<mat-option [value]="filter">{{formatOption(filter)}}</mat-option>
+						}
+					</mat-select>
+				</div>
+
+			</mat-form-field>
+		</div>
+		}
+		@if(videos) {
+		<div class="video-listing-main grid-container">
+			<div *ngFor="let video of videos">
+				<video-card [video]="video" />
+			</div>
+		</div>
+		}
+		
+		<div class="video-loader-container">
+			@if(isLoadingVideos) {
+			<mat-spinner [diameter]="videos == null? 100 : 28"></mat-spinner>
+			}
+		</div>
+		
+	</div>
+	
+</div>
+

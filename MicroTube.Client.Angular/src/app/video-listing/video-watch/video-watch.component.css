@@ -1,0 +1,30 @@
+.video-player-container {
+  height: 56vw;
+  max-height: 82vh;
+  width: 100%;
+}
+.root-container {
+  position:absolute;
+  left:0;
+  width: 100%;
+}
+.video-info-container {
+  display:flex;
+  flex-direction: row;
+margin-top: 2rem;
+  width: 100%;
+  padding-inline: 4%;
+}
+like-component {
+  margin-left: 12rem;
+}
+.video-info-left-container {
+  display: flex;
+flex-direction:column;
+gap: 0.625rem;
+}
+.views-container {
+  display: flex;
+  flex-direction: row;
+gap: 0.825rem;
+}

@@ -21,4 +21,46 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="UserId" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="26c8acb6-e587-4053-a323-1e4d30cc91ac" ChangeDateTime="11/20/2023 11:11:26">
+    <Property Name="ElementName" Value="[dbo].[AppUserSession].[IssuedDate]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[AppUserSession]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IssuedDateTime" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="1baf8ed3-7d46-4e88-90d3-c5fbad561486" ChangeDateTime="01/31/2024 13:11:08">
+    <Property Name="ElementName" Value="[dbo].[VideoUploadProgress].[Progress]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[VideoUploadProgress]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Status" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="3f666537-b0cf-4f77-baa9-4e1f6a41f663" ChangeDateTime="02/16/2024 13:23:20">
+    <Property Name="ElementName" Value="[dbo].[VideoUploadProgress].[Initia]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[VideoUploadProgress]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="InitialFileName" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="439288eb-f243-4667-911e-bc944e88a1b2" ChangeDateTime="02/18/2024 16:55:55">
+    <Property Name="ElementName" Value="[dbo].[Video].[SubcontentUrls]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Video]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ThumbnailUrls" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="b5d19ab4-ea73-4f19-81ee-e546bbcda4db" ChangeDateTime="02/18/2024 16:56:14">
+    <Property Name="ElementName" Value="[dbo].[Video].[SnapshotsUrls]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Video]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="SnapshotUrls" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="c60ce320-2036-4746-baaf-e75f2941cd74" ChangeDateTime="08/04/2024 16:11:30">
+    <Property Name="ElementName" Value="[dbo].[Video].[Url]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Video]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Urls" />
+  </Operation>
 </Operations>

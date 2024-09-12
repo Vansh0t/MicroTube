@@ -1,0 +1,36 @@
+
+	@if (options != null) {
+<vg-player (onPlayerReady)="init($event)">
+	<vg-overlay-play></vg-overlay-play>
+	<!-- 	<vg-buffering></vg-buffering> -->
+	@if(isBuffering ) {
+	<div class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center">
+		<mat-spinner></mat-spinner>
+	</div>
+	}
+
+	<vg-scrub-bar>
+		<vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+		<vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+	</vg-scrub-bar>
+
+	<vg-controls>
+		<vg-play-pause></vg-play-pause>
+		<vg-playback-button></vg-playback-button>
+
+		<vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+		<div class="ms-auto"></div>
+		<ngx-player-quality-selector [qualityOptions]="options.qualityOptions"
+									 [selectedQualityIndex]="options.selectedQualityIndex"
+									 (onQualityChanged)="updateSource($event)" />
+
+		<vg-mute></vg-mute>
+		<vg-volume></vg-volume>
+
+		<vg-fullscreen></vg-fullscreen>
+	</vg-controls>
+	@if(quality) {
+	<video [vgMedia]="$any(media)" #media id="singleVideo" preload="auto" [src]="quality.sourceUrl"></video>
+	}
+</vg-player>
+	}

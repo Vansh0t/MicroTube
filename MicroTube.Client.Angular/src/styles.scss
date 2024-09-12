@@ -1,0 +1,40 @@
+@use '@angular/material' as mat;
+@import './custom-theme';
+:root {
+  color-scheme: dark;
+  --bg-color: rgb(15, 15, 15);
+  --text-main-color: rgb(241, 241, 241);
+  --text-secondary-color: #BDBDBD;
+  scrollbar-color: var(--text-secondary-color) var(--bg-color);
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif !important;
+  overflow-y: hidden;
+  
+}
+p, h1, h2, h3, h4, h5 {
+  color: var(--text-main-color) !important;
+}
+a {
+  max-width: 100%;
+  height:auto;
+}
+.dense-minus-1 {
+  @include mat.all-component-densities(-1);
+}
+.dense-minus-2 {
+  @include mat.all-component-densities(-2);
+}
+.dense-minus-3 {
+  @include mat.all-component-densities(-3);
+}
+.caption-grey {
+  color: var(--text-secondary-color) !important;
+}
+$xs: screen and (max-width: 599px);
+$sm: screen and (min-width: 600px) and (max-width: 959px);
+$md: screen and (min-width: 960px) and (max-width: 1279px);
+$lg: screen and (min-width: 1280px) and (max-width: 1919px);
+$xl: screen and (min-width: 1920px) and (max-width: 5000px);

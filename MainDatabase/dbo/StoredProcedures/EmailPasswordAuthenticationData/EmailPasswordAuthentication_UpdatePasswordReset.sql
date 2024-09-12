@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].[EmailPasswordAuthentication_UpdatePasswordReset]
-	@UserId int,
+	@UserId uniqueidentifier,
 	@PasswordResetString nvarchar(100),
 	@PasswordResetStringExpiration datetime
 AS

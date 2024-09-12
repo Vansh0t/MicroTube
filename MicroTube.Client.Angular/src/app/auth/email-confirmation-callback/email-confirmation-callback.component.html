@@ -1,0 +1,14 @@
+<div class="d-flex justify-content-center p-3">
+	<div *ngIf="status < RequestStatus.Success; else result">
+		<h5>Confirming your email, please wait...</h5>
+	</div>
+	<ng-template #result>
+		<div *ngIf="status == RequestStatus.Success; else error">
+			<h5>Email confirmed. You will be redirected to the main page in {{REDIRECT_TIME_DELAY_MS/1000}} seconds.</h5>
+		</div>
+		<ng-template #error>
+			<h5>Failed: the link is invalid or expired.</h5>
+		</ng-template>
+	</ng-template>
+</div>
+

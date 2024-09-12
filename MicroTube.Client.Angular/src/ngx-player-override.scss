@@ -1,0 +1,60 @@
+@use '@angular/material' as mat;
+@import './custom-theme';
+@-moz-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-moz-keyframes spinoff {
+  0% {
+    -moz-transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(-360deg);
+  }
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes spinoff {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(-360deg);
+  }
+}
+vg-volume .volumeValue {
+  background-color: mat.get-theme-color($MicroTube-theme, primary, 500) !important;
+}
+vg-controls vg-scrub-bar {
+  background: transparent !important;
+}
+vg-scrub-bar {
+  background: #ffffff43 !important;
+}
+vg-overlay-play .vg-overlay-play {
+  color: mat.get-theme-color($MicroTube-theme, primary, 500) !important;
+}
+vg-scrub-bar-current-time .background {
+  background-color: mat.get-theme-color($MicroTube-theme, primary, 500) !important;
+}
+vg-scrub-bar-buffering-time .background {
+  background-color: mat.get-theme-color($MicroTube-theme, primary, 300) !important;
+  opacity: 0.4;
+}

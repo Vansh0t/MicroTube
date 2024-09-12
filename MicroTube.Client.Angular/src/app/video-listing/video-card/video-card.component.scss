@@ -1,0 +1,68 @@
+@import "../../../breakpoints.scss";
+
+.video-card {
+  width: 100%;
+height:100%;
+display:flex;
+flex-direction:column;
+gap:0.425rem;
+}
+.video-preview-container {
+  width: 100%;
+  height: 240px;
+  background-color: black;
+  border-radius: var(--mdc-elevated-card-container-shape, var(--mdc-shape-medium, 4px));
+  position:relative;
+}
+
+.video-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-bottom-right-radius: var(--mdc-elevated-card-container-shape, var(--mdc-shape-medium, 4px));
+}
+.video-title {
+  margin: 0;
+}
+.video-info {
+  display:flex;
+  flex-direction: column;
+}
+  a {
+    text-decoration: none;
+  }
+.video-length-container {
+  position: absolute;
+  height: 24px;
+  padding: 4px;
+  background-color: black;
+  right: 0;
+  bottom: 0;
+  border-radius: var(--mdc-elevated-card-container-shape, var(--mdc-shape-medium, 4px)) 0;
+  border-bottom-left-radius: 0;
+}
+@include xs {
+  .video-preview-container {
+    height: 53.5vw;
+  }
+}
+@include sm {
+  .video-preview-container {
+    height: 26.42vw;
+  }
+}
+@include md {
+  .video-preview-container {
+    height: 25.7vw;
+  }
+}
+@include lg {
+  .video-preview-container {
+    height: 16.51vw;
+  }
+}
+@include xl {
+  .video-preview-container {
+    height: 12.9vw;
+  }
+}
