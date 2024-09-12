@@ -1,0 +1,37 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET
+
+on:
+  push:
+    branches: [ "master", "development" ]
+  pull_request:
+    branches: [ "master", "development" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 7.0.x
+    - name: Install Azurite
+      id: azuright
+      uses: potatoqualitee/azuright@v1.1
+    - name: Setup FFmpeg
+      uses: federicocarboni/setup-ffmpeg@v3.1
+    - name: Restore MicroTube dependencies
+      run: dotnet restore ./MicroTube/MicroTube.csproj
+    - name: Build MicroTube
+      run: dotnet build ./MicroTube/MicroTube.csproj --no-restore
+    - name: Restore MicroTube.Tests dependencies
+      run: dotnet restore ./MicroTube.Tests/MicroTube.Tests.csproj
+    - name: Build MicroTube.Tests
+      run: dotnet build ./MicroTube.Tests/MicroTube.Tests.csproj --no-restore
+    - name: Test
+      run: dotnet test ./MicroTube.Tests/MicroTube.Tests.csproj --no-build
