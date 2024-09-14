@@ -50,7 +50,6 @@ jobs:
       uses: docker/build-push-action@v6.7.0
       with:
         push: true
-        context: .
         file: MicroTube/Dockerfile
         tags: |
             v4/microtube/api:latest
