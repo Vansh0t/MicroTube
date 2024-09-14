@@ -49,7 +49,7 @@ jobs:
       uses: docker/build-push-action@v6.7.0
       with:
         push: true
-        context: ./MicroTube
+        context: ./MicroTube/
         tags: |
             v4/microtube/api:latest
             v4/microtube/api:${{ github.sha }}
