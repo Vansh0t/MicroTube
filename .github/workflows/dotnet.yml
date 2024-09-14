@@ -53,5 +53,5 @@ jobs:
         file: MicroTube/Dockerfile
         context: MicroTube/
         tags: |
-            v4/microtube/api:latest
-            v4/microtube/api:${{ github.sha }}
+            v4containers/microtube/api:latest
+            v4containers/microtube/api:${{ github.sha }}
