@@ -53,5 +53,5 @@ jobs:
         file: MicroTube/Dockerfile
         context: MicroTube/
         tags: |
-            v4containers/microtube/api:latest
-            v4containers/microtube/api:${{ github.sha }}
+            v4containers.azurecr.io/${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}/microtube/api:latest
+            v4containers.azurecr.io/${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}/microtube/api:${{ github.sha }}
