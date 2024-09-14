@@ -1,7 +1,7 @@
 
 services:
   microtube:
-    image: app
+    image: v4/microtube/api
     mem_limit: 4gb
     build:
       context: ./MicroTube
@@ -19,7 +19,7 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   client-angular:
-    image: app/client/angular
+    image: v4/microtube/client/angular
     ports: 
       - "44466:44466"
     develop:
@@ -39,19 +39,6 @@ services:
     hostname: sql-server
     ports:
       - "1433:1433"
-    env_file:
-      - MainDatabase/private.env
-  # main_database:
-  #   image: db/main
-  #   container_name: MicroTubeMainDb
-  #   hostname: MicroTubeMainDb
-  #   depends_on:
-  #     - mssql
-  #   env_file:
-  #     - MainDatabase/private.env
-  #   build:
-  #       context: .
-  #       dockerfile: MainDatabase/Dockerfile
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite
     mem_limit: 1gb
