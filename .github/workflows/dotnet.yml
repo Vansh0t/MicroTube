@@ -51,6 +51,7 @@ jobs:
       with:
         push: true
         file: MicroTube/Dockerfile
+        context: MicroTube/
         tags: |
             v4/microtube/api:latest
             v4/microtube/api:${{ github.sha }}
