@@ -33,7 +33,7 @@
   }
 
   .main-container {
-    padding-inline: 1%;
+    padding-inline: 1vw;
   }
 }
 @include md {
@@ -42,7 +42,7 @@
   }
 
   .main-container {
-    padding-inline: 2.5%;
+    padding-inline: 2.5vw;
   }
 }
 @include lg {
@@ -51,7 +51,7 @@
   }
 
   .main-container {
-    padding-inline: 4%;
+    padding-inline: 4vw;
   }
 }
 @include xl {
