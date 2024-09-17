@@ -3,12 +3,7 @@
 .video-search-bar {
   width:40vw;
   max-width: 32rem;
-}
-mat-toolbar {
-  background-color: transparent;
-}
-.logo-header {
-  
+  min-width: 16rem;
 }
 .logo-full {
   max-width: 10rem;
@@ -26,5 +21,35 @@ mat-toolbar {
 
   .logo-small {
     display: none;
+  }
+}
+.toolbar {
+  height: var(--mat-toolbar-mobile-height);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: transparent;
+  padding-top: 0.625rem;
+}
+@include xs {
+  .toolbar {
+    padding-inline: 1vw;
+  }
+}
+@include sm {
+  .toolbar {
+    padding-inline: 1vw;
+  }
+}
+@include md {
+  .toolbar {
+    padding-inline: 2.5vw;
+  }
+}
+
+@include lg {
+  .toolbar {
+    padding-inline: 4vw;
+    
   }
 }

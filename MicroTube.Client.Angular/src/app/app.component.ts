@@ -6,6 +6,8 @@ import { map, Subscription } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
 import { VideoSearchService } from "./services/videos/VideoSearchService";
 import { SuggestionSearchBarComponent } from "./utility-components/suggestion-search-bar/suggestion-search-bar.component";
+import { MatDialog } from "@angular/material/dialog";
+import { AuthPopupComponent } from "./auth/auth-popup/auth-popup.component";
 
 @Component({
   selector: "app-root",
@@ -20,6 +22,7 @@ export class AppComponent implements OnInit
   readonly router: Router;
   readonly authManager: AuthManager;
   readonly videoService: VideoService;
+  private readonly dialog: MatDialog;
   searchSubscription: Subscription | null = null;
   @ViewChild(MatMenuTrigger)
   signOutMenuTrigger!: MatMenuTrigger;
@@ -32,13 +35,15 @@ export class AppComponent implements OnInit
     videoService: VideoService,
     router: Router,
     searchService: VideoSearchService,
-    activatedRoute: ActivatedRoute)
+    activatedRoute: ActivatedRoute,
+    dialogue: MatDialog)
   {
     this.searchService = searchService;
     this.router = router;
     this.videoService = videoService;
     this.authManager = authManager;
     this.activatedRoute = activatedRoute;
+    this.dialog = dialogue;
   }
   ngOnInit(): void
   {
@@ -81,5 +86,12 @@ export class AppComponent implements OnInit
         this.videoSearchSuggestionsSource.length = 0;
         suggestions.forEach(_ => this.videoSearchSuggestionsSource.push(_));
       });
+  }
+  openSignIn()
+  {
+    if (!this.authManager.isSignedIn())
+    {
+      this.dialog.open(AuthPopupComponent);
+    }
   }
 }
