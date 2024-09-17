@@ -13,12 +13,6 @@
     <None Remove=".vscode/launch.json" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptConfiguration Remove=".vscode\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove=".vscode\**" />
-  </ItemGroup>
-  <ItemGroup>
     <None Remove=".vscode/launch.json" />
   </ItemGroup>
 </Project>
