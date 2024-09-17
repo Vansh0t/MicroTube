@@ -1,3 +1,4 @@
+using Azure.Identity;
 using EntityFramework.Exceptions.SqlServer;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,6 +25,11 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
+if(builder.Environment.IsProduction())
+{
+	string vaultUrl = config.GetRequiredValue("AzureKeyVault:Url");
+	builder.Configuration.AddAzureKeyVault(new Uri(vaultUrl), new DefaultAzureCredential());
+}
 bool isStartupTest = config.GetValue<bool>("StartupTest");
 builder.Services.AddAzureBlobRemoteStorage(config.GetRequiredValue("AzureBlobStorage:ConnectionString"));
 builder.Services.AddSingleton<IMD5HashProvider, MD5HashProvider>();
@@ -152,5 +158,6 @@ if(!isStartupTest)
 {
 	StartupExtensions.ScheduleBackgroundJobs();
 }
+app.Logger.LogInformation($"Starting {app.Environment} server at {app.Urls}.");
 app.Run();
 public partial class Program { }

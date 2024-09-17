@@ -20,7 +20,6 @@ namespace MicroTube.Tests.Integration.ContentStorage
 		public AzureBlobVideoContentRemoteStorageTests()
 		{
 			_config = new ConfigurationBuilder()
-				.AddUserSecrets<AzureBlobVideoContentRemoteStorageTests>()
 				.Build();
 			_client = new BlobServiceClient("UseDevelopmentStorage=true");
 			_logger = Substitute.For<ILogger<AzureBlobContentStorage>>();
@@ -179,7 +178,7 @@ namespace MicroTube.Tests.Integration.ContentStorage
 			var azureAccess = new AzureBlobContentStorage(_client, _logger, mockFileSystem);
 			var accessOptions = new AzureBlobAccessOptions("", locationName);
 			var uploadOptions = new BlobUploadOptions { AccessTier = AccessTier.Hot };
-			var containerResult = await _client.CreateBlobContainerAsync(locationName);
+			var containerResult = await _client.CreateBlobContainerAsync(locationName, PublicAccessType.BlobContainer);
 			Assert.False(containerResult.GetRawResponse().IsError);
 			var result = await azureAccess.UploadDirectory("/valid/path/", accessOptions, uploadOptions);
 			Assert.Empty(result.FailedUploadsFileNames);
