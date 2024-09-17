@@ -1,8 +1,4 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: .NET
-
+name: Build & Deploy API
 on:
   push:
     branches: [ "master", "development" ]
@@ -10,32 +6,32 @@ on:
     branches: [ "master", "development" ]
 
 jobs:
-  #test:
-    #runs-on: ubuntu-latest
-    #steps:
-    #- uses: actions/checkout@v4
-   # - name: Setup .NET
-    #  uses: actions/setup-dotnet@v4
-   #   with:
- #       dotnet-version: 7.0.x
- #   - name: Install Azurite
- #     id: azuright
-#      uses: potatoqualitee/azuright@v1.1
-  #  - name: Setup FFmpeg
-  #    uses: federicocarboni/setup-ffmpeg@v3.1
-#    - name: Restore MicroTube dependencies
-  #    run: dotnet restore ./MicroTube/MicroTube.csproj
- #   - name: Build MicroTube
- #     run: dotnet build ./MicroTube/MicroTube.csproj --no-restore
-#    - name: Restore MicroTube.Tests dependencies
-#      run: dotnet restore ./MicroTube.Tests/MicroTube.Tests.csproj
-#    - name: Build MicroTube.Tests
-#      run: dotnet build ./MicroTube.Tests/MicroTube.Tests.csproj --no-restore
-  #  - name: Test
- #     run: dotnet test ./MicroTube.Tests/MicroTube.Tests.csproj --no-build
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 7.0.x
+    - name: Install Azurite
+      id: azuright
+      uses: potatoqualitee/azuright@v1.1
+    - name: Setup FFmpeg
+      uses: federicocarboni/setup-ffmpeg@v3.1
+    - name: Restore MicroTube dependencies
+      run: dotnet restore ./MicroTube/MicroTube.csproj
+    - name: Build MicroTube
+      run: dotnet build ./MicroTube/MicroTube.csproj --no-restore
+    - name: Restore MicroTube.Tests dependencies
+      run: dotnet restore ./MicroTube.Tests/MicroTube.Tests.csproj
+    - name: Build MicroTube.Tests
+      run: dotnet build ./MicroTube.Tests/MicroTube.Tests.csproj --no-restore
+    - name: Test
+      run: dotnet test ./MicroTube.Tests/MicroTube.Tests.csproj --no-build
   build-and-push-docker-container:
     runs-on: ubuntu-latest
-    #needs: test
+    needs: test
     steps:
     - uses: actions/checkout@v4
     - name: Docker Setup Buildx
@@ -49,6 +45,8 @@ jobs:
     - name: Build & Push API
       uses: docker/build-push-action@v6.7.0
       with:
+        cache-from: gha
+        cache-to: type=gha, mode=max
         push: true
         file: MicroTube/Dockerfile
         context: MicroTube/
