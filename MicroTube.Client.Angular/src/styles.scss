@@ -14,9 +14,8 @@ html, body {
   overflow-y: hidden;
   color: var(--text-main-color) !important;
 }
-p, h1, h2, h3, h4, h5 {
-  
-margin:0 !important;
+p, h1, h2, h3, h4, h5, input[type=text] {
+  margin: 2px 0 0 0 !important;
 }
 a {
   max-width: 100%;
