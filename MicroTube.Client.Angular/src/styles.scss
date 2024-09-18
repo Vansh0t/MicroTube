@@ -12,15 +12,16 @@ html, body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif !important;
   overflow-y: hidden;
-  
+  color: var(--text-main-color) !important;
 }
 p, h1, h2, h3, h4, h5 {
-  color: var(--text-main-color) !important;
+  
 margin:0 !important;
 }
 a {
   max-width: 100%;
-  height:auto;
+  height: auto;
+  color: var(--text-main-color) !important;
 }
 .dense-minus-1 {
   @include mat.all-component-densities(-1);
@@ -39,3 +40,7 @@ $sm: screen and (min-width: 600px) and (max-width: 959px);
 $md: screen and (min-width: 960px) and (max-width: 1279px);
 $lg: screen and (min-width: 1280px) and (max-width: 1919px);
 $xl: screen and (min-width: 1920px) and (max-width: 5000px);
+.right-menus-container {
+  display:flex;
+flex-direction:row;
+}
