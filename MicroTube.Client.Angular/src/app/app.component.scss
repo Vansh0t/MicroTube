@@ -31,11 +31,18 @@
   background-color: transparent;
   padding-top: 0.625rem;
 }
+
+
 @include xs {
   .toolbar {
     padding-inline: 1vw;
   }
 
+  .video-search-bar {
+    min-width: 14rem;
+  }
+}
+@include xxs {
   .video-search-bar {
     min-width: 10rem;
   }
