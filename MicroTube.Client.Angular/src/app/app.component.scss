@@ -35,6 +35,10 @@
   .toolbar {
     padding-inline: 1vw;
   }
+
+  .video-search-bar {
+    min-width: 10rem;
+  }
 }
 @include sm {
   .toolbar {
