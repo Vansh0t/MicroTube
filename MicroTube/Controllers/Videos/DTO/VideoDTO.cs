@@ -14,6 +14,8 @@ namespace MicroTube.Controllers.Videos.DTO
 		public int Likes { get; set; }
 		public int Dislikes { get; set; }
 		public int Views { get; set; }
+		public string? UploaderPublicUsername { get; set; }
+		public string? UploaderId { get; set; }
 		public static VideoDTO FromModel(Video video)
 		{
 			VideoDTO dto = new VideoDTO
@@ -25,9 +27,11 @@ namespace MicroTube.Controllers.Videos.DTO
 				UploadTime = video.UploadTime,
 				ThumbnailUrls = video.ThumbnailUrls,
 				LengthSeconds = video.LengthSeconds,
-				Likes = video.VideoReactions != null? video.VideoReactions.Likes:0,
+				Likes = video.VideoReactions != null ? video.VideoReactions.Likes : 0,
 				Dislikes = video.VideoReactions != null ? video.VideoReactions.Dislikes : 0,
-				Views = video.VideoViews != null ? video.VideoViews.Views : 0
+				Views = video.VideoViews != null ? video.VideoViews.Views : 0,
+				UploaderPublicUsername = video.Uploader != null ? video.Uploader.PublicUsername : "Unknown",
+				UploaderId = video.UploaderId.ToString()
 			};
 			return dto;
 			

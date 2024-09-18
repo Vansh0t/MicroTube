@@ -15,6 +15,8 @@ export class VideoDTO
   likes: number;
   dislikes: number;
   views: number;
+  uploaderPublicUsername: string | null;
+  uploaderId: string | null;
   constructor(
     raw: VideoRawDTO
   )
@@ -32,6 +34,8 @@ export class VideoDTO
     this.likes = raw.likes;
     this.dislikes = raw.dislikes;
     this.views = raw.views;
+    this.uploaderPublicUsername = raw.uploaderPublicUsername;
+    this.uploaderId = raw.uploaderId;
   }
 }
 
@@ -49,6 +53,8 @@ export interface VideoRawDTO
   likes: number;
   dislikes: number;
   views: number;
+  uploaderPublicUsername: string | null;
+  uploaderId: string | null;
 }
 
 export interface VideoUploadDTO

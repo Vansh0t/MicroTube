@@ -33,37 +33,30 @@ namespace MicroTube.Controllers.Videos
 			_db = db;
 			_videoReactions = videoReactions;
 		}
-
-		//[HttpPost]
-		//[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoSearchResultDTO))]
-		//public async Task<IActionResult> GetAll(VideoRequestMetaDTO? meta)
-		//{
-		//	var searchResult = await _searchService.GetVideos(new VideoSearchParameters()
-		//	{
-		//		Text = null,
-		//		SortType = VideoSortType.Time
-		//	}, meta != null ? meta.Meta : null);
-		//	if (searchResult.IsError)
-		//		return StatusCode(searchResult.Code);
-		//	var searchData = searchResult.GetRequiredObject();
-		//	var videosResult = await _videoDataAccess.GetVideosByIds(searchData.Indices.Select(_ => _.Id));
-		//	IEnumerable<Video> videosResultSorted = searchData.Indices.Join(
-		//		videosResult, outer => outer.Id, inner => inner.Id.ToString(), (index, result) => result);
-		//	var sortedVideos = videosResultSorted.Select(VideoDTO.FromModel);
-		//	return Ok(new VideoSearchResultDTO(sortedVideos) { Meta = searchData.Meta});
-		//}
 		[HttpGet("{id}")]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VideoDTO>))]
 		public async Task<IActionResult> Get(string id)
 		{
 			var video = await _db.Videos
-				.Include(_=>_.VideoReactions)
-				.Include(_=>_.VideoViews)
-				.FirstOrDefaultAsync(_ => _.Id == new Guid(id));
+				.Select(_=> new VideoDTO 
+				{
+					Id = _.Id.ToString(),
+					Title = _.Title,
+					Urls = _.Urls,
+					Description = _.Description,
+					UploadTime = _.UploadTime,
+					ThumbnailUrls = _.ThumbnailUrls,
+					LengthSeconds = _.LengthSeconds,
+					Likes = _.VideoReactions != null ? _.VideoReactions.Likes : 0,
+					Dislikes = _.VideoReactions != null ? _.VideoReactions.Dislikes : 0,
+					Views = _.VideoViews != null ? _.VideoViews.Views : 0,
+					UploaderPublicUsername = _.Uploader != null ? _.Uploader.PublicUsername : "Unknown",
+					UploaderId = _.UploaderId.ToString()
+				})
+				.FirstOrDefaultAsync(_ => _.Id == id);
 			if (video == null)
 				return NotFound("Video not found");
-			var result = VideoDTO.FromModel(video);
-			return Accepted(result);
+			return Accepted(video);
 		}
 		[HttpPost("{id}/reaction/{reactionType}")]
 		[Authorize]
