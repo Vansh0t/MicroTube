@@ -2,7 +2,7 @@
 services:
   microtube:
     image: v4containers/microtube/api
-    mem_limit: 4gb
+    mem_limit: 2gb
     build:
       context: ./MicroTube
     depends_on:
@@ -20,6 +20,7 @@ services:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   client-angular:
     image: v4containers/microtube/client/angular
+    mem_limit: 2gb
     ports: 
       - "44466:44466"
     develop:
@@ -35,7 +36,7 @@ services:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    mem_limit: 3gb
+    mem_limit: 2gb
     container_name: sql-server
     hostname: sql-server
     environment: 
@@ -45,7 +46,7 @@ services:
       - "1433:1433"
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite
-    mem_limit: 1gb
+    mem_limit: 400mb
     container_name: Azurite
     hostname: azurite
     ports:
@@ -66,6 +67,7 @@ services:
       - xpack.security.audit.logfile.events.emit_request_body = true
   kibana:
     image: docker.elastic.co/kibana/kibana:8.13.4
+    mem_limit: 1gb
     container_name: kibana
     hostname: kibana
     ports: 
