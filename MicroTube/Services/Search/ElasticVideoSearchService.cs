@@ -55,7 +55,8 @@ namespace MicroTube.Services.Search
 				video.VideoReactions.Likes,
 				video.VideoReactions.Dislikes,
 				video.LengthSeconds,
-				video.UploadTime);
+				video.UploadTime,
+				video.UploaderId.ToString());
 			try
 			{
 				string indexId = await _searchDataAccess.IndexVideo(videoIndexData);
