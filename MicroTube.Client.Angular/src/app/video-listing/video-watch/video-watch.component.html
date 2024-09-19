@@ -5,19 +5,20 @@
 					[options]="getVideoPlayerOptions(video.urls)"></ngx-player>
 	</div>
 	<div class="video-info-container">
-		<div class="video-info-left-container">
-			<h2>{{video.title}}</h2>
-			<div class="views-container">
-				<mat-icon>visibility</mat-icon>
-				<h4>{{video.views}}</h4>
+		<h2>{{video.title}}</h2>
+		<p>by <a routerLink="/channel/{{video.uploaderId}}">{{video.uploaderPublicUsername}}</a></p>
+		<div class="video-info-second-line-container">
+			<p class="mat-small">{{getUploadTimeText()}}</p>
+			<div class="video-views-container">
+				<mat-icon class="views-icon">visibility</mat-icon>
+				<h4 class="mat-small">{{video.views}}</h4>
 			</div>
-			<h4>{{getUploadTimeText()}}</h4>
-			<h3>{{video.description}}</h3>
-
+			<video-reaction [video]="video" />
 		</div>
-		<video-reaction [video]="video" />
+		<div class="video-info-description-container"><h3>{{video.description}}</h3></div>
 	</div>
 	
+
 	}
 	@else {
 	<h2>Loading...</h2>

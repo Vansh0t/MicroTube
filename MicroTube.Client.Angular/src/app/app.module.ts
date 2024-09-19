@@ -25,6 +25,7 @@ import { VideoWatchComponent } from "./video-listing/video-watch/video-watch.com
 import { VideoUploadComponent } from "./video-listing/video-upload/video-upload.component";
 import { UploadProgressListComponent } from "./video-listing/upload-progress-list/upload-progress-list.component";
 import { UtilityComponentsModule } from "./utility-components/utility-components.module";
+import { MenusModule } from "./menus/menus.module";
 export function getBaseUrl()
 {
   return document.getElementsByTagName("base")[0].href;
@@ -76,7 +77,8 @@ const providers = [
     MatIconModule,
     UserModule,
     VideoListingModule,
-    UtilityComponentsModule
+    UtilityComponentsModule,
+    MenusModule
   ],
   providers: providers,
   bootstrap: [AppComponent]
