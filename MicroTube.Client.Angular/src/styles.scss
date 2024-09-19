@@ -21,6 +21,14 @@ a {
   max-width: 100%;
   height: auto;
   color: var(--text-main-color) !important;
+  text-decoration: none;
+}
+.highlighted-link {
+  color: mat.get-theme-color($MicroTube-theme, primary, 500) !important;
+}
+.highlighted-link:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 .dense-minus-1 {
   @include mat.all-component-densities(-1);
