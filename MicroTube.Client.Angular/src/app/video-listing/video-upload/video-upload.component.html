@@ -26,10 +26,19 @@
 					<mat-icon matSuffix color="accent">movie</mat-icon>
 					<mat-error class="small" *ngIf="getFileError() != null">{{getFileError()}}</mat-error>
 				</mat-form-field>
-				<button mat-raised-button color="accent" class="ms-5" [disabled]="!formGroup.valid">Upload video</button>
 			</div>
+			<div class="policy-container">
+				<mat-checkbox [formControl]="policiesControl" required>
+					I accept
+					<a class="highlighted-link" (click)="infoService.showContentPolicy(); $event.preventDefault()">Content Policy</a>
+					and
+					<a class="highlighted-link" (click)="infoService.showPrivacy(); $event.preventDefault()">Privacy Policy</a>.
+					<span class="mat-mdc-form-field-error d-inline">*</span>
+				</mat-checkbox>
+			</div>
+			<button mat-raised-button color="accent" class="mt-3" [disabled]="!formGroup.valid">Upload</button>
 			<mat-error class="small ms-3" *ngIf="uploadServerError != null">{{uploadServerError}}</mat-error>
-			
+
 		</form>
 	</div>
 	<ng-template #loading>

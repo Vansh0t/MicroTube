@@ -17,5 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\app\menus\" />
+    <Folder Include="src\app\services\info\" />
   </ItemGroup>
 </Project>

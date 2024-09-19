@@ -24,6 +24,7 @@ import { NgxPlayerComponent } from "./ngx-player/ngx-player.component";
 import { AppAuthModule } from "../auth/auth.module";
 import { LikeComponent } from "./video-reaction-component/video-reaction.component";
 import { MatChipsModule } from "@angular/material/chips";
+import { MatCheckboxModule } from "@angular/material/checkbox";
 
 
 @NgModule({
@@ -54,7 +55,8 @@ import { MatChipsModule } from "@angular/material/chips";
     MatSelectModule,
     NgxPlayerComponent,
     AppAuthModule,
-    MatChipsModule
+    MatChipsModule,
+    MatCheckboxModule
   ],
   exports: [
     VideoCardComponent,
