@@ -106,6 +106,11 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
     }
     this.prevScrollPercent = scrollTopPercent;
   }
+  cancelUploadSearch()
+  {
+    this.searchService.resetSearch();
+    this.searchService.navigateWithQueryString();
+  }
   private getVideosBatch()
   {
     this.videosSubscription = this.searchService.getVideos().subscribe(this.onNewVideosBatchReceived.bind(this));
@@ -116,7 +121,6 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
     if (batchSize)
     {
       this.searchService.setBatchSize(batchSize);
-      console.log("set pagination batch size to " + batchSize);
     }
   }
   private onNewVideosBatchReceived(result: VideoSearchResultDTO)

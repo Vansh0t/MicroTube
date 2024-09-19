@@ -2,13 +2,13 @@
 	<mat-icon>more_vert</mat-icon>
 </button>
 <mat-menu #menu="matMenu">
-	<button mat-menu-item (click)="showPrivacy()">
+	<button mat-menu-item (click)="infoService.showPrivacy()">
 		<span>Privacy</span>
 	</button>
-	<button mat-menu-item (click)="showContentPolicy()">
+	<button mat-menu-item (click)="infoService.showContentPolicy()">
 		<span>Content Policy</span>
 	</button>
-	<button mat-menu-item (click)="showAbout()">
+	<button mat-menu-item (click)="infoService.showAbout()">
 		<span>About & Contact</span>
 	</button>
 </mat-menu>

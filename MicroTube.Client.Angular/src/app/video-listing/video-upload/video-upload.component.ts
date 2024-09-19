@@ -9,6 +9,7 @@ import { VideoUploadDTO } from "../../data/DTO/VideoDTO";
 import { Router } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 import { Subscription } from "rxjs";
+import { InfoService } from "../../services/info/InfoService";
 
 @Component({
   selector: "video-upload",
@@ -21,16 +22,19 @@ export class VideoUploadComponent implements OnDestroy
   private readonly router: Router;
   readonly videoUploadValidation: DefaultVideoFileUploadValidators;
 
+  readonly infoService: InfoService;
   readonly titleControl: FormControl;
   readonly descriptionControl: FormControl;
+  readonly policiesControl: FormControl;
   readonly fileControl: FormControl<FileInput | null>;
   readonly formGroup: FormGroup;
   readonly acceptString : string;
   @ViewChild('autosize') autosize!: CdkTextareaAutosize;
   uploadProgressSubscription: Subscription|null = null;
   uploadServerError: string | null = null;
-  constructor(videoUploadValidation: DefaultVideoFileUploadValidators, videoService: VideoService, router: Router)
+  constructor(videoUploadValidation: DefaultVideoFileUploadValidators, videoService: VideoService, router: Router, infoService: InfoService)
   {
+    this.infoService = infoService;
     this.videoService = videoService;
     this.videoUploadValidation = videoUploadValidation;
     this.router = router;
@@ -38,7 +42,8 @@ export class VideoUploadComponent implements OnDestroy
       [Validators.required, Validators.minLength(videoUploadValidation.MIN_TITLE_LENGTH), Validators.maxLength(videoUploadValidation.MAX_TITLE_LENGTH)]);
     this.fileControl = new FormControl<FileInput | null>(null, [Validators.required, videoUploadValidation.getMaxSizeValidator()]);
     this.descriptionControl = new FormControl("", [Validators.maxLength(videoUploadValidation.MAX_DESCRIPTION_LENGTH)]);
-    this.formGroup = new FormGroup([this.titleControl, this.descriptionControl]);
+    this.policiesControl = new FormControl(false, [Validators.requiredTrue]);
+    this.formGroup = new FormGroup([this.titleControl, this.descriptionControl, this.policiesControl]);
     this.formGroup.addControl("fileControl", this.fileControl);
     this.acceptString = videoUploadValidation.getAcceptString(); 
   }
@@ -81,6 +86,14 @@ export class VideoUploadComponent implements OnDestroy
     if (this.descriptionControl.hasError("maxLength"))
     {
       return `Description max length: ${this.videoUploadValidation.MAX_DESCRIPTION_LENGTH}`;
+    }
+    return null;
+  }
+  getPoliciesError(): string | null
+  {
+    if (this.policiesControl.hasError("requiredTrue"))
+    {
+      return "Please, accept the policies to continue.";
     }
     return null;
   }

@@ -1,4 +1,5 @@
-﻿using Elastic.Clients.Elasticsearch;
+﻿using Ardalis.GuardClauses;
+using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Mapping;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using MicroTube.Data.Models;
@@ -63,24 +64,33 @@ namespace MicroTube.Services.Search
 			}
 			return sortOptions;
 		}
-		private ICollection<Query>? BuildFilters(VideoTimeFilterType timeFilter, VideoLengthFilterType lengthFilter)
+		private ICollection<Query>? BuildFilters(VideoTimeFilterType timeFilter, VideoLengthFilterType lengthFilter, string? uploaderId)
 		{
-			if (timeFilter == VideoTimeFilterType.None && lengthFilter == VideoLengthFilterType.None)
-			{
-				return null;
-			}
 
 			List<Query> filters = new List<Query>();
 			Query? timeFilterQuery = BuildTimeFilterQuery(timeFilter);
 			Query? lengthFilterQuery = BuildLengthFilterQuery(lengthFilter);
+			Query? uploaderIdFilterQuery = BuildUploaderIdFilterQuery(uploaderId);
 			if (timeFilterQuery != null)
+			{
 				filters.Add(timeFilterQuery);
+			}
 			if (lengthFilterQuery != null)
+			{
 				filters.Add(lengthFilterQuery);
+			}
+			if (uploaderIdFilterQuery != null)
+			{
+				filters.Add(uploaderIdFilterQuery);
+			}
 			return filters;
 		}
 		private Query? BuildTimeFilterQuery(VideoTimeFilterType timeFilter)
 		{
+			if(timeFilter == VideoTimeFilterType.None)
+			{
+				return null;
+			}
 			Query? timeQuery = null;
 			DateTime now = DateTime.UtcNow;
 			switch (timeFilter)
@@ -105,6 +115,10 @@ namespace MicroTube.Services.Search
 		}
 		private Query? BuildLengthFilterQuery(VideoLengthFilterType lengthFilter)
 		{
+			if (lengthFilter == VideoLengthFilterType.None)
+			{
+				return null;
+			}
 			var options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
 			Query? lengthQuery = null;
 			switch (lengthFilter)
@@ -123,13 +137,23 @@ namespace MicroTube.Services.Search
 			}
 			return lengthQuery;
 		}
+		private Query? BuildUploaderIdFilterQuery(string? uploaderId)
+		{
+			if(string.IsNullOrWhiteSpace(uploaderId))
+			{
+				return null;
+			}
+			var options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
+			Query? query = new TermQuery(new Field("uploaderId")) { CaseInsensitive = true, Value = uploaderId };
+			return query;
+		}
 		private Query? BuildTextSearchQuery(VideoSearchParameters parameters)
 		{
 			if (string.IsNullOrWhiteSpace(parameters.Text))
 				return null;
 			var matchQueryTitle = new MatchQuery(new Field("title")) { Query = parameters.Text, Boost = 2 };
 			var matchQueryDescription = new MatchQuery(new Field("description")) { Query = parameters.Text };
-			var filters = BuildFilters(parameters.TimeFilter, parameters.LengthFilter);
+			var filters = BuildFilters(parameters.TimeFilter, parameters.LengthFilter, parameters.UploaderId);
 			var shouldQuery = new BoolQuery
 			{
 				MinimumShouldMatch = 1,

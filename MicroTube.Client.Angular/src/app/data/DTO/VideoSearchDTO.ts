@@ -4,8 +4,11 @@ export interface VideoSearchParametersDTO
   sort: string | null;
   timeFilter: string | null;
   lengthFilter: string | null;
+  uploaderIdFilter: string | null;
+  uploaderAlias: string | null;
   batchSize: number;
 }
+
 export interface SearchControlsDTO
 {
   lengthFilterOptions: string[];

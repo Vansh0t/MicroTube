@@ -21,6 +21,14 @@ a {
   max-width: 100%;
   height: auto;
   color: var(--text-main-color) !important;
+  text-decoration: none;
+}
+.highlighted-link {
+  color: mat.get-theme-color($MicroTube-theme, primary, 500) !important;
+}
+.highlighted-link:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 .dense-minus-1 {
   @include mat.all-component-densities(-1);
@@ -30,6 +38,9 @@ a {
 }
 .dense-minus-3 {
   @include mat.all-component-densities(-3);
+}
+.dense-minus-4 {
+  @include mat.all-component-densities(-4);
 }
 .caption-grey {
   color: var(--text-secondary-color) !important;
@@ -43,3 +54,6 @@ $xl: screen and (min-width: 1920px) and (max-width: 5000px);
   display:flex;
 flex-direction:row;
 }
+/*.mat-mdc-option {
+  padding-inline: 4% !important;
+}*/

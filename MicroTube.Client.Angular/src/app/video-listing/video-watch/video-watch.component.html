@@ -6,9 +6,11 @@
 	</div>
 	<div class="video-info-container">
 		<h2>{{video.title}}</h2>
-		<p>by <a routerLink="/channel/{{video.uploaderId}}">{{video.uploaderPublicUsername}}</a></p>
+		<button mat-stroked-button class="uploader-button" color="primary" mat-button (click)="searchUploaderVideos()">
+			by <b>{{video.uploaderPublicUsername}}</b>
+		</button>
 		<div class="video-info-second-line-container">
-			<p class="mat-small">{{getUploadTimeText()}}</p>
+			<p class="mat-small upload-time-label">{{getUploadTimeText()}}</p>
 			<div class="video-views-container">
 				<mat-icon class="views-icon">visibility</mat-icon>
 				<h4 class="mat-small">{{video.views}}</h4>

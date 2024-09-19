@@ -9,6 +9,7 @@ import { TimeFormatter } from "../../services/formatting/TimeFormatter";
 import { DateTime } from "luxon";
 import { VgPlayerPlaytimeTracker } from "../../services/videos/VgPlayerPlaytimeTracker";
 import { VgApiService } from "@videogular/ngx-videogular/core";
+import { VideoSearchService } from "../../services/videos/VideoSearchService";
 
 @Component({
   selector: "video-watch",
@@ -21,6 +22,7 @@ export class VideoWatchComponent implements OnInit, OnDestroy
   private readonly route: ActivatedRoute;
   private readonly router: Router;
   private readonly videoService: VideoService;
+  private readonly videoSearchService: VideoSearchService;
   private readonly timeFormatter: TimeFormatter;
   private playtimeTracker: VgPlayerPlaytimeTracker | null = null;
   private videoPlayerOptions: NgxPlayerOptions | null = null;
@@ -29,12 +31,18 @@ export class VideoWatchComponent implements OnInit, OnDestroy
   private userLikeSubscription: Subscription | null = null;
   @ViewChild("player") player!: NgxPlayerComponent;
   video$: BehaviorSubject<VideoDTO | null> = new BehaviorSubject<VideoDTO | null>(null);
-  constructor(route: ActivatedRoute, router: Router, videoService: VideoService, timeFormatter: TimeFormatter)
+  constructor(
+    route: ActivatedRoute,
+    router: Router,
+    videoService: VideoService,
+    timeFormatter: TimeFormatter,
+    videoSearchService: VideoSearchService)
   {
     this.route = route;
     this.router = router;
     this.videoService = videoService;
-    this.timeFormatter = timeFormatter;    
+    this.timeFormatter = timeFormatter;
+    this.videoSearchService = videoSearchService;
   }
   ngOnDestroy(): void
   {
@@ -108,5 +116,20 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     const uploadTimeLocal = video.uploadTime.toLocal();
     const nowLocal = DateTime.local();
     return this.timeFormatter.getUserFriendlyTimeDifference(uploadTimeLocal, nowLocal);
+  }
+  searchUploaderVideos()
+  {
+    const video = this.video$.value;
+    if (!video)
+    {
+      return;
+    }
+    if (!video.uploaderId || !video.uploaderId.trim())
+    {
+      return;
+    }
+    this.videoSearchService.resetSearch();
+    this.videoSearchService.setUploaderIdFilter(video.uploaderId.toLowerCase(), video.uploaderPublicUsername);
+    this.videoSearchService.navigateWithQueryString();
   }
 }
