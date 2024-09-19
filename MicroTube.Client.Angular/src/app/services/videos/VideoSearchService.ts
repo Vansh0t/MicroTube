@@ -21,7 +21,8 @@ export class VideoSearchService
   private readonly DEFAULT_BATCH_SIZE = 20;
   get isSearch()
   {
-    return this.videoSearchParameters != null && this.videoSearchParameters.text != null;
+    return this.videoSearchParameters != null
+      && (this.videoSearchParameters.text != null || this.videoSearchParameters.uploaderIdFilter != null);
   }
   constructor(router: Router, activatedRoute: ActivatedRoute, client: HttpClient)
   {
@@ -30,8 +31,10 @@ export class VideoSearchService
     this.router = router;
     this.router.events.subscribe((event) =>
     {
+      
       if (event instanceof (NavigationEnd))
       {
+        console.log("TT");
         this.syncWithQueryString();
         this.meta.meta = null; 
       }
@@ -44,9 +47,36 @@ export class VideoSearchService
     if (text === this.videoSearchParameters?.text)
       return;
     if (this.videoSearchParameters == null)
-      this.videoSearchParameters = { text: text, sort: null, timeFilter: null, lengthFilter: null, batchSize: this.DEFAULT_BATCH_SIZE };
+      this.videoSearchParameters = {
+        text: text,
+        sort: null,
+        timeFilter: null,
+        lengthFilter: null,
+        batchSize: this.DEFAULT_BATCH_SIZE,
+        uploaderIdFilter: null,
+        uploaderAlias: null
+      };
     else
       this.videoSearchParameters.text = text;
+    this.notifyParametersChanged();
+  }
+  setUploaderIdFilter(uploaderId: string|null, uploaderAlias: string | null)
+  {
+    if (this.videoSearchParameters?.uploaderIdFilter === uploaderId)
+      return;
+    if (this.videoSearchParameters == null)
+      this.videoSearchParameters =
+      {
+        text: null,
+        sort: null,
+        timeFilter: null,
+        lengthFilter: null,
+        batchSize: this.DEFAULT_BATCH_SIZE,
+        uploaderIdFilter: uploaderId,
+        uploaderAlias: uploaderAlias
+      };
+    else
+      this.videoSearchParameters.uploaderIdFilter = uploaderId;
     this.notifyParametersChanged();
   }
   setSort(sort: string)
@@ -54,7 +84,16 @@ export class VideoSearchService
     if (this.videoSearchParameters?.sort === sort)
       return;
     if (this.videoSearchParameters == null)
-      this.videoSearchParameters = { text: null, sort: sort, timeFilter: null, lengthFilter: null, batchSize: this.DEFAULT_BATCH_SIZE };
+      this.videoSearchParameters =
+      {
+        text: null,
+        sort: sort,
+        timeFilter: null,
+        lengthFilter: null,
+        batchSize: this.DEFAULT_BATCH_SIZE,
+        uploaderIdFilter: null,
+        uploaderAlias: null
+      };
     else 
       this.videoSearchParameters.sort = sort;
     this.notifyParametersChanged();
@@ -65,7 +104,16 @@ export class VideoSearchService
     if (this.videoSearchParameters?.batchSize === batchSize)
       return;
     if (this.videoSearchParameters == null)
-      this.videoSearchParameters = { text: null, sort: null, timeFilter: null, lengthFilter: null, batchSize: batchSize };
+      this.videoSearchParameters =
+      {
+        text: null,
+        sort: null,
+        timeFilter: null,
+        lengthFilter: null,
+        batchSize: batchSize,
+        uploaderIdFilter: null,
+        uploaderAlias: null
+      };
     else
       this.videoSearchParameters.batchSize = batchSize;
     this.notifyParametersChanged();
@@ -75,7 +123,16 @@ export class VideoSearchService
     if (this.videoSearchParameters?.timeFilter === filter)
       return;
     if (this.videoSearchParameters == null)
-      this.videoSearchParameters = { text: null, sort: null, timeFilter: filter, lengthFilter: null, batchSize: this.DEFAULT_BATCH_SIZE };
+      this.videoSearchParameters =
+      {
+        text: null,
+        sort: null,
+        timeFilter: filter,
+        lengthFilter: null,
+        batchSize: this.DEFAULT_BATCH_SIZE,
+        uploaderIdFilter: null,
+        uploaderAlias: null
+      };
     else
       this.videoSearchParameters.timeFilter = filter;
     this.notifyParametersChanged();
@@ -85,7 +142,16 @@ export class VideoSearchService
     if (this.videoSearchParameters?.lengthFilter === filter)
       return;
     if (this.videoSearchParameters == null)
-      this.videoSearchParameters = { text: null, sort: null, timeFilter: null, lengthFilter: filter, batchSize: this.DEFAULT_BATCH_SIZE };
+      this.videoSearchParameters =
+      {
+        text: null,
+        sort: null,
+        timeFilter: null,
+        lengthFilter: filter,
+        batchSize: this.DEFAULT_BATCH_SIZE,
+        uploaderIdFilter: null,
+        uploaderAlias: null
+      };
     else
       this.videoSearchParameters.lengthFilter = filter;
     this.notifyParametersChanged();
@@ -128,7 +194,16 @@ export class VideoSearchService
     
     if (!this.videoSearchParameters)
     {
-      this.videoSearchParameters = { text: null, sort: null, timeFilter: null, lengthFilter: null, batchSize: this.DEFAULT_BATCH_SIZE };
+      this.videoSearchParameters =
+      {
+        text: null,
+        sort: null,
+        timeFilter: null,
+        lengthFilter: null,
+        batchSize: this.DEFAULT_BATCH_SIZE,
+        uploaderIdFilter: null,
+        uploaderAlias: null
+      };
     }
     if (this.videoSearchParameters.text)
       urlParams = urlParams.set("text", this.videoSearchParameters.text);
@@ -138,6 +213,8 @@ export class VideoSearchService
       urlParams = urlParams.set("lengthFilter", this.videoSearchParameters.lengthFilter);
     if (this.videoSearchParameters.timeFilter)
       urlParams = urlParams.set("timeFilter", this.videoSearchParameters.timeFilter);
+    if (this.videoSearchParameters.uploaderIdFilter)
+      urlParams = urlParams.set("uploaderIdFilter", this.videoSearchParameters.uploaderIdFilter);
     urlParams = urlParams.set("batchSize", this.videoSearchParameters.batchSize.toString());
     return this.searchVideosByQueryString(urlParams.toString());
   }
@@ -165,18 +242,20 @@ export class VideoSearchService
   private parseQueryString(): VideoSearchParametersDTO | null
   {
     const textParam = <string>this.activatedRoute.snapshot.queryParams["text"]?.trim();
-    if (!textParam)
-      return null;
     const sortParam = <string>this.activatedRoute.snapshot.queryParams["sort"]?.trim();
     const timeFilterParam = <string>this.activatedRoute.snapshot.queryParams["timeFilter"]?.trim();
     const lengthFilterParam = <string>this.activatedRoute.snapshot.queryParams["lengthFilter"]?.trim();
+    const uploaderIdFilterParam = <string>this.activatedRoute.snapshot.queryParams["uploaderIdFilter"]?.trim();
+    const uploaderAliasParam = <string>this.activatedRoute.snapshot.queryParams["uploaderAlias"]?.trim();
     const batchSizeParam = <number>this.activatedRoute.snapshot.queryParams["batchSize"]?.trim();
     const params: VideoSearchParametersDTO = {
       text: textParam,
       sort: sortParam,
       timeFilter: timeFilterParam,
       lengthFilter: lengthFilterParam,
-      batchSize: batchSizeParam ? batchSizeParam: this.DEFAULT_BATCH_SIZE
+      batchSize: batchSizeParam ? batchSizeParam : this.DEFAULT_BATCH_SIZE,
+      uploaderIdFilter: uploaderIdFilterParam,
+      uploaderAlias: uploaderAliasParam
     };
     return params;
   }
