@@ -19,8 +19,8 @@ namespace MicroTube.Tests.Unit.Search
 			var deserializedMeta = new ElasticsearchMeta { LastSort = new List<FieldValue> { 1250, 2515 } };
 			var resultContent = new List<VideoSearchIndex>()
 			{
-				new VideoSearchIndex("id1", "title1", "descr1", "title1", 2, 5, 6, 60, DateTime.UtcNow),
-				new VideoSearchIndex("id2", "title2", "descr2", "title2", 6, 2, 5, 30, DateTime.UtcNow)
+				new VideoSearchIndex("id1", "title1", "descr1", "title1", 2, 5, 6, 60, DateTime.UtcNow, null),
+				new VideoSearchIndex("id2", "title2", "descr2", "title2", 6, 2, 5, 30, DateTime.UtcNow, null)
 			};
 			var searchResponse = new SearchResponse<VideoSearchIndex>()
 			{

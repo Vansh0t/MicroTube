@@ -43,7 +43,7 @@ namespace MicroTube.Tests.Unit.Search
 				videoToIndex.VideoReactions.Likes,
 				videoToIndex.VideoReactions.Dislikes,
 				videoToIndex.LengthSeconds,
-				DateTime.UtcNow);
+				DateTime.UtcNow, null);
 			IVideoSearchService searchService = CreateVideoSearchService(
 				elasticApiKey,
 				elasticApiUrl,
@@ -121,8 +121,8 @@ namespace MicroTube.Tests.Unit.Search
 		{
 			IEnumerable<VideoSearchIndex> suggestions = new List<VideoSearchIndex> 
 			{ 
-				new VideoSearchIndex("id1", "title1", "desc", "title1", 1, 1, 1, 10, DateTime.UtcNow),
-				new VideoSearchIndex("id2", "title2", "desc", "title2", 1, 1, 1, 10, DateTime.UtcNow),
+				new VideoSearchIndex("id1", "title1", "desc", "title1", 1, 1, 1, 10, DateTime.UtcNow, null),
+				new VideoSearchIndex("id2", "title2", "desc", "title2", 1, 1, 1, 10, DateTime.UtcNow, null),
 			};
 			IVideoSearchDataAccess videoSearchAccess = Substitute.For<IVideoSearchDataAccess>();
 			videoSearchAccess.IndexVideo(Arg.Any<VideoSearchIndex>()).Returns(_ => _.Arg<VideoSearchIndex>().Id);
@@ -155,8 +155,8 @@ namespace MicroTube.Tests.Unit.Search
 		{
 			IEnumerable<VideoSearchIndex> suggestions = new List<VideoSearchIndex>
 			{
-				new VideoSearchIndex("id1", "title1", "desc", "title1", 1, 1, 1, 10, DateTime.UtcNow),
-				new VideoSearchIndex("id2", "title2", "desc", "title2", 1, 1, 1, 10, DateTime.UtcNow),
+				new VideoSearchIndex("id1", "title1", "desc", "title1", 1, 1, 1, 10, DateTime.UtcNow, null),
+				new VideoSearchIndex("id2", "title2", "desc", "title2", 1, 1, 1, 10, DateTime.UtcNow, null),
 			};
 			IVideoSearchDataAccess videoSearchAccess = Substitute.For<IVideoSearchDataAccess>();
 			videoSearchAccess.IndexVideo(Arg.Any<VideoSearchIndex>()).Returns(_ => _.Arg<VideoSearchIndex>().Id);
