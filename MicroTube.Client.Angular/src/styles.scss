@@ -31,6 +31,9 @@ a {
 .dense-minus-3 {
   @include mat.all-component-densities(-3);
 }
+.dense-minus-4 {
+  @include mat.all-component-densities(-4);
+}
 .caption-grey {
   color: var(--text-secondary-color) !important;
 }
@@ -43,3 +46,6 @@ $xl: screen and (min-width: 1920px) and (max-width: 5000px);
   display:flex;
 flex-direction:row;
 }
+/*.mat-mdc-option {
+  padding-inline: 4% !important;
+}*/
