@@ -5,26 +5,23 @@ on:
   pull_request:
     branches: [ "master", "development" ]
 jobs:
-  build-and-push-docker-container:
+  build-and-deploy-container-app:
     runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Docker Setup Buildx
-      uses: docker/setup-buildx-action@v3.6.1
-    - name: Docker Login
-      uses: docker/login-action@v3.3.0
-      with:
-          registry: v4containers.azurecr.io
-          username: ${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}
-          password: ${{ secrets.DOCKER_CONTAINER_REGISTRY_PASSWORD }}
-    - name: Build & Push API
-      uses: docker/build-push-action@v6.7.0
-      with:
-        cache-from: gha
-        cache-to: type=gha, mode=max
-        push: true
-        file: MicroTube.Client.Angular/Dockerfile.prod
-        context: MicroTube.Client.Angular/
-        tags: |
-            v4containers.azurecr.io/${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}/microtube/client/angular:latest
-            v4containers.azurecr.io/${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}/microtube/client/angular:${{ github.sha }}
+    steps: 
+      - uses: actions/checkout@v4
+      - name: Azure Login
+      - uses: Azure/login@v2.2.0
+        with:
+          tenant-id: ${{secrets.AZURE_TENANT_ID}}
+          subscription-id: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+      - name: Build and Push to Container App
+      - uses: Azure/container-apps-deploy-action@v2
+        with: 
+          appSourcePath: ./MicroTube.Client.Angular
+          dockerfilePath: ./MicroTube.Client.Angular/Dockerfile.prod
+          registryUrl: v4containers.azurecr.io
+          registryUsername: ${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}    
+          registryPassword: ${{ secrets.DOCKER_CONTAINER_REGISTRY_PASSWORD }}
+          containerAppName: microtube-client-ca
+          resourceGroup: MicroTube
+          imageToBuild: v4containers.azurecr.io/microtube-client-ca:${{ github.sha }}
