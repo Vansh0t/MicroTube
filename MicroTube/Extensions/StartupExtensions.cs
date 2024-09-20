@@ -28,6 +28,8 @@ using Azure.Storage.Blobs.Models;
 using MicroTube.Services.VideoContent;
 using MicroTube.Constants;
 using MicroTube.Services.HangfireFilters;
+using MicroTube.Services.Authentication;
+using Hangfire.Dashboard;
 
 namespace MicroTube.Extensions
 {
@@ -147,6 +149,24 @@ namespace MicroTube.Extensions
 				options.Queues = new[] { HangfireConstants.VIDEO_INDEXING_QUEUE, HangfireConstants.VIDEO_VIEWS_AGGREGATION_QUEUE };
 			});
 			return services;
+		}
+		public static WebApplication UseHangfireDashboard(this WebApplication app)
+		{
+			IDashboardAuthorizationFilter authFilter;
+			if(app.Environment.IsDevelopment())
+			{
+				authFilter = new HangfireDashboardAnonymousAuthorizationFilter();
+			}
+			else
+			{
+				authFilter = new AdminHangfireDashboardAuthorizationFilter();
+			}
+			app.MapHangfireDashboard(
+				new DashboardOptions()
+				{
+					Authorization = new[] { authFilter }
+				});
+			return app;
 		}
 		private static void EnsureElasticsearchIndices(ElasticsearchClient client, IConfiguration config)
 		{

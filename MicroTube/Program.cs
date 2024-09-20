@@ -118,7 +118,7 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapHangfireDashboard(new DashboardOptions() { Authorization = new[] { new HangfireDashboardAnonymousAuthorizationFilter()} });
+app.UseHangfireDashboard();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
@@ -128,13 +128,9 @@ if (!app.Environment.IsDevelopment())
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-    
 }
-else
-{
-    app.UseOpenApi();
-    app.UseSwaggerUi3();
-}
+app.UseOpenApi();
+app.UseSwaggerUi3();
 if(!isStartupTest)
 {
 	StartupExtensions.ScheduleBackgroundJobs();
