@@ -1,5 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Hangfire;
+using MicroTube.Constants;
 using MicroTube.Services.VideoContent.Processing;
 using MicroTube.Services.VideoContent.Processing.Stages;
 
@@ -19,7 +20,7 @@ namespace MicroTube.Services.VideoContent.Preprocessing.Stages
 			Guard.Against.Null(context);
 			Guard.Against.Null(context.RemoteCache);
 			var processingContext = new DefaultVideoProcessingContext() { RemoteCache = context.RemoteCache };
-			_jobClient.Enqueue<IVideoProcessingPipeline>("video_processing", processing => processing.Execute(processingContext, default));
+			_jobClient.Enqueue<IVideoProcessingPipeline>(HangfireConstants.VIDEO_PROCESSING_QUEUE, processing => processing.Execute(processingContext, default));
 			return Task.FromResult(context);
 		}
 	}
