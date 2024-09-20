@@ -13,6 +13,7 @@ using MicroTube.Services.Authentication;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
 using MicroTube.Services.Email;
+using MicroTube.Services.HangfireFilters;
 using MicroTube.Services.Search;
 using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent;
@@ -107,27 +108,28 @@ builder.Services.AddCors(options =>
 		policy.AllowCredentials();
 	});
 });
-builder.Services.AddHangfire(hangfireConfig =>
+builder.Services.AddHangfire((serviceProvider, hangfireConfig) =>
 {
 	hangfireConfig.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
 	.UseSimpleAssemblyNameTypeSerializer()
 	.UseRecommendedSerializerSettings()
 	.UseSqlServerStorage(config.GetDefaultConnectionString())
 	.UseColouredConsoleLogProvider()
-	.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });//TODO: temp for development
+	.UseFilter(new AutomaticRetryAttribute { Attempts = 3 })
+	.UseFilter(new CleanupVideoProcessingJobHangfireFilter(serviceProvider));
 	
 });
-builder.Services.AddHangfireServer(options =>
+builder.Services.AddHangfireServer((provider, options)=>
 {
 	options.ServerName = "VideoProcessing_1";
 	options.WorkerCount = 1;
-	options.Queues = new[] { "video_processing" };
+	options.Queues = new[] { HangfireConstants.VIDEO_PROCESSING_QUEUE };
 });
-builder.Services.AddHangfireServer(options =>
+builder.Services.AddHangfireServer((options) =>
 {
 	options.ServerName = "VideoMetaProcessing_1";
 	options.WorkerCount = 1;
-	options.Queues = new[] { "video_indexing", "video_views_aggregation" };
+	options.Queues = new[] { HangfireConstants.VIDEO_INDEXING_QUEUE, HangfireConstants.VIDEO_VIEWS_AGGREGATION_QUEUE };
 });
 var app = builder.Build();
 app.UseHttpsRedirection();

@@ -26,6 +26,7 @@ using Ardalis.GuardClauses;
 using MicroTube.Services.ContentStorage;
 using Azure.Storage.Blobs.Models;
 using MicroTube.Services.VideoContent;
+using MicroTube.Constants;
 
 namespace MicroTube.Extensions
 {
@@ -104,8 +105,8 @@ namespace MicroTube.Extensions
 		
 		public static void ScheduleBackgroundJobs()
 		{
-			RecurringJob.AddOrUpdate<IVideoIndexingService>("VideoSearchIndexing", "video_indexing", service => service.EnsureVideoIndices(), Cron.Minutely);
-			RecurringJob.AddOrUpdate<IVideoViewsAggregatorService>("VideoViewsAggregation", "video_views_aggregation", service => service.Aggregate(), Cron.Minutely);
+			RecurringJob.AddOrUpdate<IVideoIndexingService>("VideoSearchIndexing", HangfireConstants.VIDEO_INDEXING_QUEUE, service => service.EnsureVideoIndices(), Cron.Minutely);
+			RecurringJob.AddOrUpdate<IVideoViewsAggregatorService>("VideoViewsAggregation", HangfireConstants.VIDEO_VIEWS_AGGREGATION_QUEUE, service => service.Aggregate(), Cron.Minutely);
 		}
 		public static void EnsureDatabaseCreated(string connectionString)
 		{

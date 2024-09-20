@@ -77,14 +77,12 @@ namespace MicroTube.Services.VideoContent.Processing
 		}
 		private async Task HandleError(DefaultVideoProcessingContext context)
 		{
-			if (context.RemoteCache != null && !string.IsNullOrWhiteSpace(context.RemoteCache.VideoFileLocation))
-				await _remoteStorage.DeleteLocation(context.RemoteCache.VideoFileLocation); //TO DO: make into account retry possibility
 			if (context.UploadProgress != null)
 			{
 				_db.Update(context.UploadProgress);
-				context.UploadProgress.Status = VideoUploadStatus.Fail;
+				context.UploadProgress.Status = VideoUploadStatus.InQueue;
 				if (context.UploadProgress.Message == null)
-					context.UploadProgress.Message = "Unknown error";
+					context.UploadProgress.Message = "Previous attempt failed. Retry is scheduled.";
 				await _db.SaveChangesAsync();
 			}
 		}
