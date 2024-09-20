@@ -42,7 +42,7 @@ jobs:
       uses: Azure/container-apps-deploy-action@v2
       with: 
         appSourcePath: ./MicroTube
-        dockerfilePath: ./MicroTube/Dockerfile
+        dockerfilePath: Dockerfile
         registryUrl: v4containers.azurecr.io
         registryUsername: ${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}    
         registryPassword: ${{ secrets.DOCKER_CONTAINER_REGISTRY_PASSWORD }}

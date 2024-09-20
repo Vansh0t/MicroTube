@@ -17,7 +17,7 @@ jobs:
         uses: Azure/container-apps-deploy-action@v2
         with: 
           appSourcePath: ./MicroTube.Client.Angular
-          dockerfilePath: ./MicroTube.Client.Angular/Dockerfile.prod
+          dockerfilePath: Dockerfile.prod
           registryUrl: v4containers.azurecr.io
           registryUsername: ${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}    
           registryPassword: ${{ secrets.DOCKER_CONTAINER_REGISTRY_PASSWORD }}
