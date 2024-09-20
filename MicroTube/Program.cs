@@ -108,29 +108,8 @@ builder.Services.AddCors(options =>
 		policy.AllowCredentials();
 	});
 });
-builder.Services.AddHangfire((serviceProvider, hangfireConfig) =>
-{
-	hangfireConfig.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-	.UseSimpleAssemblyNameTypeSerializer()
-	.UseRecommendedSerializerSettings()
-	.UseSqlServerStorage(config.GetDefaultConnectionString())
-	.UseColouredConsoleLogProvider()
-	.UseFilter(new AutomaticRetryAttribute { Attempts = 3 })
-	.UseFilter(new CleanupVideoProcessingJobHangfireFilter(serviceProvider));
-	
-});
-builder.Services.AddHangfireServer((provider, options)=>
-{
-	options.ServerName = "VideoProcessing_1";
-	options.WorkerCount = 1;
-	options.Queues = new[] { HangfireConstants.VIDEO_PROCESSING_QUEUE };
-});
-builder.Services.AddHangfireServer((options) =>
-{
-	options.ServerName = "VideoMetaProcessing_1";
-	options.WorkerCount = 1;
-	options.Queues = new[] { HangfireConstants.VIDEO_INDEXING_QUEUE, HangfireConstants.VIDEO_VIEWS_AGGREGATION_QUEUE };
-});
+builder.Services.AddHangfireClient(config);
+builder.Services.AddHangfireServers();
 var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseStaticFiles();

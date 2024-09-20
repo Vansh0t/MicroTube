@@ -27,6 +27,7 @@ using MicroTube.Services.ContentStorage;
 using Azure.Storage.Blobs.Models;
 using MicroTube.Services.VideoContent;
 using MicroTube.Constants;
+using MicroTube.Services.HangfireFilters;
 
 namespace MicroTube.Extensions
 {
@@ -115,6 +116,37 @@ namespace MicroTube.Extensions
 			dbOptionsBuilder.UseSqlServer(connectionString);
 			using var dbContext = new MicroTubeDbContext(dbOptionsBuilder.Options);
 			dbContext.Database.EnsureCreated();
+		}
+		public static IServiceCollection AddHangfireClient(this IServiceCollection services, IConfiguration config)
+		{
+			services.AddHangfire((serviceProvider, hangfireConfig) =>
+			{
+				hangfireConfig.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+				.UseSimpleAssemblyNameTypeSerializer()
+				.UseRecommendedSerializerSettings()
+				.UseSqlServerStorage(config.GetDefaultConnectionString())
+				.UseColouredConsoleLogProvider()
+				.UseFilter(new AutomaticRetryAttribute { Attempts = 3 })
+				.UseFilter(new CleanupVideoProcessingJobHangfireFilter(serviceProvider));
+
+			});
+			return services;
+		}
+		public static IServiceCollection AddHangfireServers(this IServiceCollection services)
+		{
+			services.AddHangfireServer((provider, options) =>
+			{
+				options.ServerName = "VideoProcessing_1";
+				options.WorkerCount = 1;
+				options.Queues = new[] { HangfireConstants.VIDEO_PROCESSING_QUEUE };
+			});
+			services.AddHangfireServer((options) =>
+			{
+				options.ServerName = "VideoMetaProcessing_1";
+				options.WorkerCount = 1;
+				options.Queues = new[] { HangfireConstants.VIDEO_INDEXING_QUEUE, HangfireConstants.VIDEO_VIEWS_AGGREGATION_QUEUE };
+			});
+			return services;
 		}
 		private static void EnsureElasticsearchIndices(ElasticsearchClient client, IConfiguration config)
 		{
