@@ -8,6 +8,7 @@ import { VideoSearchService } from "./services/videos/VideoSearchService";
 import { SuggestionSearchBarComponent } from "./utility-components/suggestion-search-bar/suggestion-search-bar.component";
 import { MatDialog } from "@angular/material/dialog";
 import { AuthPopupComponent } from "./auth/auth-popup/auth-popup.component";
+import { SessionManager } from "./services/auth/SessionManager";
 
 @Component({
   selector: "app-root",
@@ -36,7 +37,7 @@ export class AppComponent implements OnInit
     router: Router,
     searchService: VideoSearchService,
     activatedRoute: ActivatedRoute,
-    dialogue: MatDialog)
+    dialogue: MatDialog, private readonly sessionManager: SessionManager)
   {
     this.searchService = searchService;
     this.router = router;
