@@ -18,37 +18,29 @@ export class SessionManager
   private nextRefresh: Subscription | null = null;
   constructor(authManager: AuthManager, client: HttpClient)
   {
-    console.log("Session!");
     this.authManager = authManager;
     this.client = client;
     this.authManager.jwtSignedInUser$.subscribe({
       next: this.onAccessTokenChanged.bind(this)
     });
-    console.log("session manager init");
   }
   private onAccessTokenChanged(jwtUser: JWTUser | null)
   {
     if (jwtUser == null || !this.authManager.rememberUser)
     {
-      console.log(jwtUser);
-      console.log(this.authManager.jwtSignedInUser$.value);
-      console.log(this.authManager.rememberUser);
       this.nextRefresh?.unsubscribe();
-      console.log("not signed in or chose not to be remembered, ignoring session refresh");
       return;
     }
     const timeDiff = jwtUser.expirationTime.diff(DateTime.utc()).toMillis() - this.REFRESH_PREFIRE_MS;
     if (jwtUser.isExpired() || timeDiff <= 0)
     {
       this.refreshSession();
-      console.log("session is expired, refresh now");
       return;
     }
     this.nextRefresh = timer(timeDiff)
       .subscribe({
         next: this.refreshSession.bind(this)
       });
-    console.log("access token changed, next update in " + timeDiff + " ms.");
   }
   refreshSession(): Observable<AuthenticationResponseDTO>
   {
@@ -65,12 +57,11 @@ export class SessionManager
   }
   private onRefreshSuccess(response: AuthenticationResponseDTO)
   {
-    console.log("refreshed access " + response);
     this.authManager.applyAuthResult(response);
   }
   private onRefreshFail(errorResponse: HttpErrorResponse)
   {
-    console.error("Failed to refresh: " + errorResponse);
+    console.error("Failed to refresh user session: " + errorResponse);
     //if we failed to refresh a token, consider session invalidated and sign out immediately
     this.authManager.signOut();
   }
