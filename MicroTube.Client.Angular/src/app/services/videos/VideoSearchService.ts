@@ -185,7 +185,7 @@ export class VideoSearchService
     {
       throw new Error("Empty text string provided.");
     }
-    const result = this.client.get<VideoSearchSuggestion[]>("Videos/VideosSearch/suggestions/" + text);
+    const result = this.client.get<VideoSearchSuggestion[]>("videos/videossearch/suggestions/" + text);
     return result;
   }
   getVideos(): Observable<VideoSearchResultDTO>
@@ -220,7 +220,7 @@ export class VideoSearchService
   }
   getSearchControls(): Observable<SearchControlsDTO>
   {
-    const result = this.client.get<SearchControlsDTO>("Videos/VideosSearch/controls");
+    const result = this.client.get<SearchControlsDTO>("videos/videossearch/controls");
     return result;
   }
   private searchVideosByQueryString(parameters: string): Observable<VideoSearchResultDTO>
@@ -229,7 +229,7 @@ export class VideoSearchService
     {
       throw new Error("Empty parameters string provided.");
     }
-    const result = this.client.post<VideoSearchResultRawDTO>("Videos/VideosSearch/videos?" + parameters, this.meta).pipe(
+    const result = this.client.post<VideoSearchResultRawDTO>("videos/videossearch/videos?" + parameters, this.meta).pipe(
       map(response =>
       {
         this.meta.meta = response.meta;

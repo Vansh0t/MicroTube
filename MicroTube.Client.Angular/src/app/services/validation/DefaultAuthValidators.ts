@@ -60,22 +60,15 @@ export class DefaultAuthValidators
     const maxLength = Validators.maxLength(this.MAX_PASSWORD_LENGTH);
     const digit = this.digitRequiredValidator;
     const letter = this.letterRequiredValidator;
-    //const passwordMatch = this.buildPasswordsMatchValidator(passwordControlKey, passwordConfirmationControlKey);
     return [required, minLength, maxLength, digit, letter];
   }
   buildUsernameValidatorsArray(): Array<(control: AbstractControl) => ValidationErrors | null>
   {
-    //[Validators.required,
-    //  Validators.minLength(this.MIN_USERNAME_LENGTH),
-    //  Validators.maxLength(this.MAX_USERNAME_LENGTH),
-    //  authValidators.letterRequiredValidator,
-    //  authValidators.usernameValidator]
     const required = Validators.required;
     const minLength = Validators.minLength(this.MIN_USERNAME_LENGTH);
     const maxLength = Validators.maxLength(this.MAX_USERNAME_LENGTH);
     const letter = this.letterRequiredValidator;
     const username = this.usernameValidator;
-    //const passwordMatch = this.buildPasswordsMatchValidator(passwordControlKey, passwordConfirmationControlKey);
     return [required, minLength, maxLength, letter, username];
   }
 }

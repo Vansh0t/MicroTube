@@ -3,7 +3,7 @@ import { AuthManager } from "./AuthManager";
 import { JWTUser } from "./JWTUser";
 import { Observable, Subscription, timer } from "rxjs";
 import { AuthenticationResponseDTO } from "../../data/DTO/AuthenticationResponseDTO";
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { DateTime } from "luxon";
 
 @Injectable({
@@ -18,6 +18,7 @@ export class SessionManager
   private nextRefresh: Subscription | null = null;
   constructor(authManager: AuthManager, client: HttpClient)
   {
+    console.log("Session!");
     this.authManager = authManager;
     this.client = client;
     this.authManager.jwtSignedInUser$.subscribe({
@@ -55,7 +56,7 @@ export class SessionManager
     const httpOptions = {
       withCredentials: true,
     };
-    const request = this.client.post<AuthenticationResponseDTO>("Authentication/Session/Refresh", null, httpOptions);
+    const request = this.client.post<AuthenticationResponseDTO>("authentication/session/refresh", null, httpOptions);
     request.subscribe({
       next: this.onRefreshSuccess.bind(this),
       error: this.onRefreshFail.bind(this)
