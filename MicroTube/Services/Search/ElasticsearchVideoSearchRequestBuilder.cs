@@ -42,13 +42,12 @@ namespace MicroTube.Services.Search
 		private ICollection<SortOptions>? BuildVideoSearchSort(VideoSearchParameters parameters)
 		{
 			List<SortOptions> sortOptions = new();
+			sortOptions.Add(SortOptions.Score(new ScoreSort { Order = SortOrder.Desc }));
 			var sortType = parameters.SortType;
-			if (sortType == VideoSortType.Relevance && parameters.Text == null)
-			{
-				sortType = VideoSortType.Time; //TO DO: relevance is not available for textless search until some suggestion algorithm is implemented
-			}
 			if (sortType == VideoSortType.Relevance)
-				return null;
+			{
+				sortType = VideoSortType.Time; //TO DO: relevance is not available for search until some suggestion algorithm is implemented
+			}
 			if (sortType == VideoSortType.Time)
 			{
 				sortOptions.Add(SortOptions.Field(new Field("uploadedAt"), new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Date }));
