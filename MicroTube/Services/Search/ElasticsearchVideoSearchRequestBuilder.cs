@@ -26,7 +26,7 @@ namespace MicroTube.Services.Search
 		{
 			VideoSearchOptions options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
 			ElasticsearchMeta? parsedMeta = DeserializeMeta(meta);
-			Query textSearchQuery = parameters.Text != null ? BuildTextSearchQuery(parameters) : BuildMatchAllQuery(parameters);
+			Query textSearchQuery = string.IsNullOrWhiteSpace(parameters.Text) ? BuildMatchAllQuery(parameters) : BuildTextSearchQuery(parameters);
 			ICollection<SortOptions>? sort = BuildVideoSearchSort(parameters);
 			var searchRequest = new SearchRequest<VideoSearchIndex>(options.VideosIndexName);
 			searchRequest.Size = Math.Min(parameters.BatchSize, options.PaginationMaxBatchSize);
