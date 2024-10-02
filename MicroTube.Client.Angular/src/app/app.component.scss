@@ -32,7 +32,9 @@
   padding-top: 0.625rem;
 }
 
-
+.navbar-username {
+  display: none;
+}
 @include xs {
   .toolbar {
     padding-inline: 1vw;
@@ -55,6 +57,10 @@
 @include md {
   .toolbar {
     padding-inline: 2.5vw;
+  }
+
+  .navbar-username {
+    display: inline-block;
   }
 }
 

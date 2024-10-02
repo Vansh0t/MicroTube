@@ -16,7 +16,7 @@
 				<th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
 				<td mat-cell class="status-cell" [ngClass]="getProgressStatusStyleClass(progress)" *matCellDef="let progress">
 					{{progress.status}}
-					<mat-icon>{{getProgressStatusIcon(progress)}}</mat-icon>
+					<mat-icon class="status-icon">{{getProgressStatusIcon(progress)}}</mat-icon>
 					<button mat-button *ngIf="progress.message != null" [matMenuTriggerFor]="message"><mat-icon>info</mat-icon> info</button>
 					<mat-menu #message>
 						<div class="p-2" (click)="$event.stopPropagation()">

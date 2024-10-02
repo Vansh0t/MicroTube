@@ -1,5 +1,11 @@
 .status-cell {
   min-width: 180px;
+  display: flex;
+  align-items:center;
+  height:56px;
+}
+.status-icon {
+  transform: scale(0.7);
 }
 .status-success {
   color: green;
