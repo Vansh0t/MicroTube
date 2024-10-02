@@ -105,7 +105,7 @@ namespace MicroTube.Services.Search
 			MultiMatchQuery query = new MultiMatchQuery()
 			{
 				Query = text,
-				Type = TextQueryType.PhrasePrefix,
+				Type = TextQueryType.BoolPrefix,
 				Analyzer = "simple",
 				Fields = Fields.FromStrings(new string[3]
 				{
@@ -117,7 +117,9 @@ namespace MicroTube.Services.Search
 			var response = await _client.SearchAsync<VideoSearchIndex>(search =>
 			{
 				search.Index(options.VideosIndexName)
-				.Query(query);
+				.Query(query)
+				.Size(options.MaxSuggestions)
+				.Sort(sort => sort.Score(new ScoreSort() { Order = SortOrder.Desc }));
 			});
 
 			if (!_responseValidator.Validate(response))
