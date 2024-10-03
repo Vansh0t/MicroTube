@@ -11,6 +11,13 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "MicroTube.Client.Angular", "MicroTube.Client.Angular\MicroTube.Client.Angular.esproj", "{D847838F-FD1F-4E60-8CAC-B5F0A790E324}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{35916C5E-BE8E-432D-9A47-5CD121EBB1FB}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\angular.yml = .github\workflows\angular.yml
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
