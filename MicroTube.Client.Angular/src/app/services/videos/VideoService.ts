@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpEvent, HttpRequest, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { VideoDTO, VideoRawDTO, VideoUploadDTO } from "../../data/DTO/VideoDTO";
 import { Observable, map } from "rxjs";
@@ -45,14 +45,18 @@ export class VideoService
       );
     return result;
   }
-  uploadVideo(data: VideoUploadDTO): Observable<VideoUploadProgressDTO>
+  uploadVideo(data: VideoUploadDTO): Observable<HttpEvent<VideoUploadProgressDTO>>
   {
     const formData = new FormData();
     formData.append("title", data.title);
     if (data.description != null)
       formData.append("description", data.description);
     formData.append("file", data.file.files[0]);
-    const result = this.client.post<VideoUploadProgressDTO>("videos/videoupload", formData);
+    const result = this.client.post<VideoUploadProgressDTO>("videos/videoupload", formData,
+      {
+        reportProgress: true,
+        observe: "events"
+      });
     return result;
   }
   getUploadProgressList(): Observable<VideoUploadProgressDTO[]>

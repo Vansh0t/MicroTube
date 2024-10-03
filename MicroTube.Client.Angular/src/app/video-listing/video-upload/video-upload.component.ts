@@ -7,9 +7,11 @@ import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import { VideoService } from "../../services/videos/VideoService";
 import { VideoUploadDTO } from "../../data/DTO/VideoDTO";
 import { Router } from "@angular/router";
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse, HttpEvent, HttpEventType } from "@angular/common/http";
 import { Subscription } from "rxjs";
 import { InfoService } from "../../services/info/InfoService";
+import { VideoUploadProgressDTO } from "../../data/DTO/VideoUploadProgressDTO";
+import { MatProgressSpinner } from "@angular/material/progress-spinner";
 
 @Component({
   selector: "video-upload",
@@ -32,6 +34,9 @@ export class VideoUploadComponent implements OnDestroy
   @ViewChild('autosize') autosize!: CdkTextareaAutosize;
   uploadProgressSubscription: Subscription|null = null;
   uploadServerError: string | null = null;
+  @ViewChild("uploadSpinner") uploadSpinner!: MatProgressSpinner;
+  uploadPercent: number = 0;
+  get uploadPercentRounded() { return Math.round(this.uploadPercent); }
   constructor(videoUploadValidation: DefaultVideoFileUploadValidators, videoService: VideoService, router: Router, infoService: InfoService)
   {
     this.infoService = infoService;
@@ -59,8 +64,9 @@ export class VideoUploadComponent implements OnDestroy
       description: this.descriptionControl.value,
       file: this.fileControl.value
     };
-    this.uploadProgressSubscription = this.videoService.uploadVideo(videoData).subscribe({
-      next: () => this.router.navigate(["upload/list"]),
+    this.uploadProgressSubscription = this.videoService.uploadVideo(videoData)
+      .subscribe({
+        next: this.onUploadEvent.bind(this),
       error: (error: HttpErrorResponse) =>
       {
         this.uploadProgressSubscription?.unsubscribe();
@@ -109,5 +115,17 @@ export class VideoUploadComponent implements OnDestroy
   {
     if (this.uploadProgressSubscription != null)
       this.uploadProgressSubscription.unsubscribe();
+  }
+  private onUploadEvent(event: HttpEvent<VideoUploadProgressDTO>)
+  {
+    if (event.type === HttpEventType.UploadProgress && event.total)
+    {
+      this.uploadPercent = (event.loaded / event.total) * 100;
+      console.log(this.uploadPercent);
+    }
+    if (event.type === HttpEventType.Response)
+    {
+      this.router.navigate(["upload/list"]);
+    }
   }
 }
