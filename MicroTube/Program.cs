@@ -13,6 +13,7 @@ using MicroTube.Services.Authentication;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
 using MicroTube.Services.Email;
+using MicroTube.Services.HangfireFilters;
 using MicroTube.Services.Search;
 using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent;
@@ -71,7 +72,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidateLifetime = false,
+            ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configOptions.Key)),
             ValidIssuer = configOptions.Issuer,
@@ -107,28 +108,8 @@ builder.Services.AddCors(options =>
 		policy.AllowCredentials();
 	});
 });
-builder.Services.AddHangfire(hangfireConfig =>
-{
-	hangfireConfig.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-	.UseSimpleAssemblyNameTypeSerializer()
-	.UseRecommendedSerializerSettings()
-	.UseSqlServerStorage(config.GetDefaultConnectionString())
-	.UseColouredConsoleLogProvider()
-	.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });//TODO: temp for development
-	
-});
-builder.Services.AddHangfireServer(options =>
-{
-	options.ServerName = "VideoProcessing_1";
-	options.WorkerCount = 1;
-	options.Queues = new[] { "video_processing" };
-});
-builder.Services.AddHangfireServer(options =>
-{
-	options.ServerName = "VideoMetaProcessing_1";
-	options.WorkerCount = 1;
-	options.Queues = new[] { "video_indexing", "video_views_aggregation" };
-});
+builder.Services.AddHangfireClient(config);
+builder.Services.AddHangfireServers();
 var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -137,7 +118,7 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapHangfireDashboard(new DashboardOptions() { Authorization = new[] { new HangfireDashboardAnonymousAuthorizationFilter()} });
+app.UseHangfireDashboard();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
@@ -147,17 +128,12 @@ if (!app.Environment.IsDevelopment())
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-    
 }
-else
-{
-    app.UseOpenApi();
-    app.UseSwaggerUi3();
-}
+app.UseOpenApi();
+app.UseSwaggerUi3();
 if(!isStartupTest)
 {
 	StartupExtensions.ScheduleBackgroundJobs();
 }
-app.Logger.LogInformation($"Starting {app.Environment} server at {app.Urls}.");
 app.Run();
 public partial class Program { }

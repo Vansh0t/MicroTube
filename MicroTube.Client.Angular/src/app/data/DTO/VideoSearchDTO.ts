@@ -6,7 +6,7 @@ export interface VideoSearchParametersDTO
   lengthFilter: string | null;
   uploaderIdFilter: string | null;
   uploaderAlias: string | null;
-  batchSize: number;
+  batchSize: number | null;
 }
 
 export interface SearchControlsDTO

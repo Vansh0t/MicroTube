@@ -2,7 +2,7 @@
 {
 	public class ElasticSearchOptions
 	{
-		public const string KEY = "ElasticSearch";
+		public const string KEY = "Elasticsearch";
 
 		public string ApiKey { get; set; }
 		public string Url { get; set; }

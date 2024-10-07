@@ -49,28 +49,17 @@ namespace MicroTube.Tests.Unit.Search
 				Text = searchText
 			};
 			var request = requestBuilder.Build(videoSearchParameters, meta);
-			if (string.IsNullOrWhiteSpace(searchText))
-				Assert.Null(request.Query); // filters are ignored for textless search as of now
-			else
-			{
-				Assert.NotNull(request.Query);
-				bool hasBoolQuery = request.Query.TryGet<BoolQuery>(out var boolQuery);
-				Assert.True(hasBoolQuery);
-				Assert.NotNull(boolQuery);
-				Assert.NotNull(boolQuery.Filter);
-				Assert.True(boolQuery.Filter.Count > 0);
-				Assert.NotNull(boolQuery.Should);
-				Assert.True(boolQuery.Should.Count > 0);
-				Assert.NotNull(boolQuery.MinimumShouldMatch);
-			}
-				
-			if (sortType == VideoSortType.Relevance && searchText != null)
-				Assert.Null(request.Sort);
-			else
-			{
-				Assert.NotNull(request.Sort);
-				Assert.Single(request.Sort);
-			}
+			Assert.NotNull(request.Query);
+			bool hasBoolQuery = request.Query.TryGet<BoolQuery>(out var boolQuery);
+			Assert.True(hasBoolQuery);
+			Assert.NotNull(boolQuery);
+			Assert.NotNull(boolQuery.Filter);
+			Assert.True(boolQuery.Filter.Count > 0);
+			Assert.NotNull(boolQuery.Should);
+			Assert.True(boolQuery.Should.Count > 0);
+			Assert.NotNull(boolQuery.MinimumShouldMatch);
+			Assert.NotNull(request.Sort);
+			Assert.NotEmpty(request.Sort);
 			if (meta != null)
 				Assert.Equal(request.SearchAfter, deserializedMeta.LastSort);
 			else

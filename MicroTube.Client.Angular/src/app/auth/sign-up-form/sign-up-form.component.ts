@@ -46,7 +46,7 @@ export class SignUpFormComponent {
     this.emailControl = new FormControl("", [Validators.required, Validators.email]);
     this.passwordControl = new FormControl("",authValidators.buildPasswordValidatorsArray());
     this.passwordConfirmationControl = new FormControl("");
-    this.rememberMeControl = new FormControl(false);
+    this.rememberMeControl = new FormControl(true);
 
     this.formGroup = new FormGroup({
       usernameControl: this.usernameControl,

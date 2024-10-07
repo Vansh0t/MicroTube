@@ -6,6 +6,9 @@ import { VideoSearchService } from "../../services/videos/VideoSearchService";
 import { VideoSearchResultDTO } from "../../data/DTO/VideoSearchResultDTO";
 import { getScrollTopPercent } from "../../services/utils";
 import { VideoDTO } from "../../data/DTO/VideoDTO";
+import { VideoSearchQueryStringReader } from "../../services/query-string-processing/VideoSearchQueryStringReader";
+import { QueryStringBuilder } from "../../services/query-string-processing/QueryStringBuilder";
+import { NavigationEnd, Router } from "@angular/router";
 
 @Component({
   selector: "video-listing-main",
@@ -35,6 +38,9 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
     
 
   ];
+  private readonly searchQueryReader: VideoSearchQueryStringReader;
+  private readonly queryBuilder: QueryStringBuilder;
+  private readonly router: Router;
   readonly searchService: VideoSearchService;
   private readonly SCROLL_PERCENT_FOR_NEW_BATCH = 0.001;
   private searchSubscription: Subscription | null = null;
@@ -46,36 +52,47 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   sortControl = new FormControl();
   videos: VideoDTO[] | null = null;
   searchControls: SearchControlsDTO | null = null;
+  private routerSubscription: Subscription | null = null;
   get isLoadingVideos()
   {
     return this.videosSubscription != null;
   }
-  constructor(searchService: VideoSearchService)
+  constructor(searchService: VideoSearchService,
+    searchQueryReader: VideoSearchQueryStringReader,
+    queryBuilder: QueryStringBuilder,
+    router: Router)
   {
+    this.router = router;
     this.searchService = searchService;
+    this.searchQueryReader = searchQueryReader;
+    this.queryBuilder = queryBuilder;
   }
   ngOnDestroy()
   {
     this.searchSubscription?.unsubscribe();
     this.searchControlsFetchSubscription?.unsubscribe();
+    this.routerSubscription?.unsubscribe();
   }
   ngOnInit(): void
   {
     this.updatePaginationBatchSizeByScreenWidth(window.innerWidth);
-    this.updateVideos(this.searchService.videoSearchParameters$.value);
-    this.searchSubscription = this.searchService.videoSearchParameters$.subscribe(this.updateVideos.bind(this));
+    this.routerSubscription = this.router.events.subscribe(value =>
+    {
+      if (value instanceof NavigationEnd)
+      {
+        this.updateVideos();
+      }
+    });
+    this.updateVideos();
     this.searchControlsFetchSubscription = this.searchService.getSearchControls().subscribe(this.initControlsUI.bind(this));
   }
-  updateVideos(params: VideoSearchParametersDTO| null)
+  updateVideos()
   {
-    this.videosSubscription?.unsubscribe();
+    const searchParams = this.searchQueryReader.readSearchParameters();
     this.videos = null;
-    this.getVideosBatch();
-    if (!this.searchService.isSearch)
-    {
-      return;
-    }
-    this.updateSearchControls(params);
+    this.searchService.resetMeta();
+    this.getVideosBatch(searchParams);
+    this.updateSearchControls(searchParams);
   }
   formatOption(key: string)
   {
@@ -102,25 +119,38 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
     if (scrollDelta > 0 && scrollTopPercent  > 1 - this.SCROLL_PERCENT_FOR_NEW_BATCH)
     {
       this.updatePaginationBatchSizeByScreenWidth(window.innerWidth);
-      this.getVideosBatch();
+      const searchParams = this.searchQueryReader.readSearchParameters();
+      this.getVideosBatch(searchParams);
     }
     this.prevScrollPercent = scrollTopPercent;
   }
   cancelUploadSearch()
   {
-    this.searchService.resetSearch();
-    this.searchService.navigateWithQueryString();
+    this.resetSearch();
+    this.queryBuilder.navigate("/");
   }
-  private getVideosBatch()
+  getCurrentSearchParameters()
   {
-    this.videosSubscription = this.searchService.getVideos().subscribe(this.onNewVideosBatchReceived.bind(this));
+    const searchParams = this.searchQueryReader.readSearchParameters();
+    return searchParams;
+  }
+  isSearchControlsShown()
+  {
+    const searchParams = this.searchQueryReader.readSearchParameters();
+    return this.searchControls && (searchParams.text || searchParams.uploaderIdFilter);
+  }
+  private getVideosBatch(params: VideoSearchParametersDTO)
+  {
+    this.videosSubscription?.unsubscribe();
+    this.videosSubscription = this.searchService.getVideos(params)
+      .subscribe(this.onNewVideosBatchReceived.bind(this));
   }
   private updatePaginationBatchSizeByScreenWidth(screenWidth: number)
   {
     const batchSize = this.BATCH_SIZES_FOR_SCREEN_WIDTH.findLast(_ => _.width < screenWidth)?.size;
     if (batchSize)
     {
-      this.searchService.setBatchSize(batchSize);
+      this.queryBuilder.setValue("batchSize", batchSize); 
     }
   }
   private onNewVideosBatchReceived(result: VideoSearchResultDTO)
@@ -136,9 +166,9 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
       this.videos = this.videos.concat(result.videos);
     }
   }
-  private updateSearchControls(params: VideoSearchParametersDTO | null)
+  private updateSearchControls(params: VideoSearchParametersDTO)
   {
-    if (this.searchService.isSearch && params)
+    if (params.text || params.uploaderIdFilter)
     {
       if (params.sort)
         this.sortControl.setValue(params.sort, { emitEvent: false });
@@ -153,18 +183,27 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
     this.searchControls = controls;
     this.timeFilterControl.valueChanges.subscribe((val) =>
     {
-      this.searchService.setTimeFilter(val);
-      this.searchService.navigateWithQueryString();
+      this.queryBuilder.setValue("timeFilter", val);
+      this.queryBuilder.navigate("/");
     });
     this.lengthFilterControl.valueChanges.subscribe((val) =>
     {
-      this.searchService.setLengthFilter(val);
-      this.searchService.navigateWithQueryString();
+      this.queryBuilder.setValue("lengthFilter", val);
+      this.queryBuilder.navigate("/");
     });
     this.sortControl.valueChanges.subscribe((val) =>
     {
-      this.searchService.setSort(val);
-      this.searchService.navigateWithQueryString();
+      this.queryBuilder.setValue("sort", val);
+      this.queryBuilder.navigate("/");
     });
+  }
+  private resetSearch() //TO DO: move this to an extension method
+  {
+    this.queryBuilder.setValue("text", null); 
+    this.queryBuilder.setValue("sort", null); 
+    this.queryBuilder.setValue("timeFilter", null); 
+    this.queryBuilder.setValue("lengthFilter", null); 
+    this.queryBuilder.setValue("uploaderIdFilter", null); 
+    this.queryBuilder.setValue("uploaderAlias", null);
   }
 }

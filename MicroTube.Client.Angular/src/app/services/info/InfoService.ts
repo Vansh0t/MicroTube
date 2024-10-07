@@ -20,7 +20,7 @@ export class InfoService
         info: `MicroTube is a non-commercial lightweight video hosting service.
         This website is a preview development version of the service, provided as is, without warranty or liability. <br/>
         Project's source: <a href=https://github.com/Vansh0t/MicroTube>github</a>.<br/>
-        Contact: <a href=mailto:microtube.info@gmail.com>microtube.info@gmail.com`
+        Contact: <a href=mailto:info@microtube.dev>info@microtube.dev`
       }
     });
   }
@@ -54,7 +54,7 @@ export class InfoService
 
                <b>&#x2022; Content Removal:</b> As this is a development version, Microtube.dev reserves the right to remove any content at any time without prior warning or notification.</br></br>
 
-               <b>&#x2022; Video Length:</b> Due to potential slow processing times, it is recommended to upload short video content during this preview phase to ensure a smoother experience.</br></br>
+               <b>&#x2022; File Size:</b> File size is temporarily limited to 100mb in the preview version.</br></br>
 
                By using this service, you agree to follow these content guidelines.`
       }

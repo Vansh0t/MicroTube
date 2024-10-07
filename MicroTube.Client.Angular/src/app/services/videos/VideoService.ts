@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpEvent, HttpRequest, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { VideoDTO, VideoRawDTO, VideoUploadDTO } from "../../data/DTO/VideoDTO";
 import { Observable, map } from "rxjs";
@@ -21,22 +21,22 @@ export class VideoService
   reportView(videoId: string): Observable<HttpResponse<null>>
   {
     console.log("Reporting view");
-    const result = this.client.post<HttpResponse<null>>(`Videos/${videoId}/view`, {});
+    const result = this.client.post<HttpResponse<null>>(`videos/${videoId}/view`, {});
     return result;
   }
   react(videoId: string, reaction: VideoReactionType): Observable<UserVideoReactionDTO>
   {
-    const result = this.client.post<UserVideoReactionDTO>(`Videos/${videoId}/reaction/${reaction.toString()}`, {});
+    const result = this.client.post<UserVideoReactionDTO>(`videos/${videoId}/reaction/${reaction.toString()}`, {});
     return result;
   }
   getReaction(videoId: string): Observable<UserVideoReactionDTO>
   {
-    const result = this.client.get<UserVideoReactionDTO>(`Videos/${videoId}/reaction`);
+    const result = this.client.get<UserVideoReactionDTO>(`videos/${videoId}/reaction`);
     return result;
   }
   getVideo(videoId: string): Observable<VideoDTO>
   {
-    const result = this.client.get<VideoRawDTO>("Videos/" + videoId)
+    const result = this.client.get<VideoRawDTO>("videos/" + videoId)
       .pipe(
         map(response =>
         {
@@ -45,19 +45,23 @@ export class VideoService
       );
     return result;
   }
-  uploadVideo(data: VideoUploadDTO): Observable<VideoUploadProgressDTO>
+  uploadVideo(data: VideoUploadDTO): Observable<HttpEvent<VideoUploadProgressDTO>>
   {
     const formData = new FormData();
     formData.append("title", data.title);
     if (data.description != null)
       formData.append("description", data.description);
     formData.append("file", data.file.files[0]);
-    const result = this.client.post<VideoUploadProgressDTO>("Videos/VideoUpload", formData);
+    const result = this.client.post<VideoUploadProgressDTO>("videos/videoupload", formData,
+      {
+        reportProgress: true,
+        observe: "events"
+      });
     return result;
   }
   getUploadProgressList(): Observable<VideoUploadProgressDTO[]>
   {
-    const result = this.client.get<VideoUploadProgressDTO[]>("Videos/VideoUpload/Progress")
+    const result = this.client.get<VideoUploadProgressDTO[]>("videos/videoupload/Progress")
       .pipe(
         map(response =>
         {

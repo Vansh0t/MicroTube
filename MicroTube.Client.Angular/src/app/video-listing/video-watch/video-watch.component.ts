@@ -10,6 +10,7 @@ import { DateTime } from "luxon";
 import { VgPlayerPlaytimeTracker } from "../../services/videos/VgPlayerPlaytimeTracker";
 import { VgApiService } from "@videogular/ngx-videogular/core";
 import { VideoSearchService } from "../../services/videos/VideoSearchService";
+import { QueryStringBuilder } from "../../services/query-string-processing/QueryStringBuilder";
 
 @Component({
   selector: "video-watch",
@@ -24,6 +25,7 @@ export class VideoWatchComponent implements OnInit, OnDestroy
   private readonly videoService: VideoService;
   private readonly videoSearchService: VideoSearchService;
   private readonly timeFormatter: TimeFormatter;
+  private readonly queryBuilder: QueryStringBuilder;
   private playtimeTracker: VgPlayerPlaytimeTracker | null = null;
   private videoPlayerOptions: NgxPlayerOptions | null = null;
   private videoId: string | null = null;
@@ -36,13 +38,15 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     router: Router,
     videoService: VideoService,
     timeFormatter: TimeFormatter,
-    videoSearchService: VideoSearchService)
+    videoSearchService: VideoSearchService,
+    queryBuilder: QueryStringBuilder)
   {
     this.route = route;
     this.router = router;
     this.videoService = videoService;
     this.timeFormatter = timeFormatter;
     this.videoSearchService = videoSearchService;
+    this.queryBuilder = queryBuilder;
   }
   ngOnDestroy(): void
   {
@@ -128,8 +132,19 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     {
       return;
     }
-    this.videoSearchService.resetSearch();
-    this.videoSearchService.setUploaderIdFilter(video.uploaderId.toLowerCase(), video.uploaderPublicUsername);
-    this.videoSearchService.navigateWithQueryString();
+    this.resetSearch();
+    this.queryBuilder.setValue("uploaderIdFilter", video.uploaderId.toLowerCase());
+    this.queryBuilder.setValue("uploaderAlias", video.uploaderPublicUsername);
+    this.queryBuilder.navigate("/");
+  }
+  private resetSearch() //TO DO: move this to an extension method
+  {
+    this.queryBuilder.setValue("text", null);
+    this.queryBuilder.setValue("sort", null);
+    this.queryBuilder.setValue("timeFilter", null);
+    this.queryBuilder.setValue("lengthFilter", null);
+    this.queryBuilder.setValue("uploaderIdFilter", null);
+    this.queryBuilder.setValue("uploaderAlias", null);
+    
   }
 }

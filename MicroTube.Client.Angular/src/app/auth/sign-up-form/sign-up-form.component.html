@@ -27,9 +27,9 @@
 			<mat-error class="small" *ngIf="getPasswordsMatchError() != null">{{getPasswordsMatchError()}}</mat-error>
 		</mat-form-field>
 		<mat-error class="small" *ngIf="getServerError() != null">{{getServerError()}}</mat-error>
-		<div class="rememberMeContainer">
+		<!-- <div class="rememberMeContainer">
 			<mat-checkbox  [formControl]="rememberMeControl">Remember Me</mat-checkbox>
-		</div>
+		</div> -->
 		<button class="mt-2" color="accent" mat-raised-button [disabled]="!formGroup.valid">Sign Up</button>
 	</form>
 </div>
