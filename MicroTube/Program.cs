@@ -135,6 +135,5 @@ if(!isStartupTest)
 {
 	StartupExtensions.ScheduleBackgroundJobs();
 }
-app.Logger.LogInformation($"Starting {app.Environment} server at {app.Urls}.");
 app.Run();
 public partial class Program { }
