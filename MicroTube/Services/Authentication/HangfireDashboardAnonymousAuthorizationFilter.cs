@@ -3,9 +3,11 @@ using Hangfire.Dashboard;
 
 namespace MicroTube.Services.Authentication
 {
+	/// <summary>
+	/// For development usage only.
+	/// </summary>
 	public class HangfireDashboardAnonymousAuthorizationFilter : IDashboardAuthorizationFilter
 	{
-		//TO DO: remove in production
 		public bool Authorize([NotNull] DashboardContext context)
 		{
 			return true;

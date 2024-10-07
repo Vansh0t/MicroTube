@@ -9,6 +9,8 @@ import { TimeFormatter } from "../../services/formatting/TimeFormatter";
 import { DateTime } from "luxon";
 import { VgPlayerPlaytimeTracker } from "../../services/videos/VgPlayerPlaytimeTracker";
 import { VgApiService } from "@videogular/ngx-videogular/core";
+import { VideoSearchService } from "../../services/videos/VideoSearchService";
+import { QueryStringBuilder } from "../../services/query-string-processing/QueryStringBuilder";
 
 @Component({
   selector: "video-watch",
@@ -21,7 +23,9 @@ export class VideoWatchComponent implements OnInit, OnDestroy
   private readonly route: ActivatedRoute;
   private readonly router: Router;
   private readonly videoService: VideoService;
+  private readonly videoSearchService: VideoSearchService;
   private readonly timeFormatter: TimeFormatter;
+  private readonly queryBuilder: QueryStringBuilder;
   private playtimeTracker: VgPlayerPlaytimeTracker | null = null;
   private videoPlayerOptions: NgxPlayerOptions | null = null;
   private videoId: string | null = null;
@@ -29,12 +33,20 @@ export class VideoWatchComponent implements OnInit, OnDestroy
   private userLikeSubscription: Subscription | null = null;
   @ViewChild("player") player!: NgxPlayerComponent;
   video$: BehaviorSubject<VideoDTO | null> = new BehaviorSubject<VideoDTO | null>(null);
-  constructor(route: ActivatedRoute, router: Router, videoService: VideoService, timeFormatter: TimeFormatter)
+  constructor(
+    route: ActivatedRoute,
+    router: Router,
+    videoService: VideoService,
+    timeFormatter: TimeFormatter,
+    videoSearchService: VideoSearchService,
+    queryBuilder: QueryStringBuilder)
   {
     this.route = route;
     this.router = router;
     this.videoService = videoService;
-    this.timeFormatter = timeFormatter;    
+    this.timeFormatter = timeFormatter;
+    this.videoSearchService = videoSearchService;
+    this.queryBuilder = queryBuilder;
   }
   ngOnDestroy(): void
   {
@@ -57,11 +69,18 @@ export class VideoWatchComponent implements OnInit, OnDestroy
   onApi(api: VgApiService)
   {
     this.playtimeTracker = new VgPlayerPlaytimeTracker(api);
-    this.playtimeTracker.onPlaytime(this.REPORT_VIEW_TIMEOUT_SECONDS, () =>
+    api.getDefaultMedia().subscriptions.loadedMetadata.subscribe(() =>
     {
-      this.videoService.reportView(this.videoId!);
-    }
-    );
+      if (!this.playtimeTracker)
+        return;
+      const viewReportTime = Math.min(this.REPORT_VIEW_TIMEOUT_SECONDS, api.duration - 1);
+      this.playtimeTracker.onPlaytime(viewReportTime, () =>
+      {
+        this.videoService.reportView(this.videoId!).subscribe();
+      }
+      );
+    });
+    
   }
   getVideoPlayerOptions(videoUrls: string): NgxPlayerOptions
   {
@@ -101,5 +120,31 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     const uploadTimeLocal = video.uploadTime.toLocal();
     const nowLocal = DateTime.local();
     return this.timeFormatter.getUserFriendlyTimeDifference(uploadTimeLocal, nowLocal);
+  }
+  searchUploaderVideos()
+  {
+    const video = this.video$.value;
+    if (!video)
+    {
+      return;
+    }
+    if (!video.uploaderId || !video.uploaderId.trim())
+    {
+      return;
+    }
+    this.resetSearch();
+    this.queryBuilder.setValue("uploaderIdFilter", video.uploaderId.toLowerCase());
+    this.queryBuilder.setValue("uploaderAlias", video.uploaderPublicUsername);
+    this.queryBuilder.navigate("/");
+  }
+  private resetSearch() //TO DO: move this to an extension method
+  {
+    this.queryBuilder.setValue("text", null);
+    this.queryBuilder.setValue("sort", null);
+    this.queryBuilder.setValue("timeFilter", null);
+    this.queryBuilder.setValue("lengthFilter", null);
+    this.queryBuilder.setValue("uploaderIdFilter", null);
+    this.queryBuilder.setValue("uploaderAlias", null);
+    
   }
 }

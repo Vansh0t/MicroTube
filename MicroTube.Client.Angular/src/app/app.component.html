@@ -1,31 +1,32 @@
 <div>
-	<mat-toolbar class="global-horizontal-padding d-flex justify-content-between">
-		<button mat-button class="ps-2" routerLink="/">
+	<div class="toolbar">
+		<button mat-button class="h-100" routerLink="/">
 			<img class="logo-header logo-full" src="/assets/img/logo/microtube-logo-full-white.svg" />
 			<img class="logo-header logo-small" src="/assets/img/logo/microtube-icon-white.svg" />
 		</button>
 		<suggestion-search-bar class="video-search-bar" [suggestionsSource]="videoSearchSuggestionsSource" [onSubmit]="searchVideo.bind(this)" [onInputChanged]="updateSearchSuggestions.bind(this)" />
-		<div *ngIf="!(authManager.jwtSignedInUser$ | async) as user; else userProfile">
-			<button mat-button [matMenuTriggerFor]="signInMenu">Sign In</button>
-			<button mat-button routerLink="/signup">Sign Up</button>
-			<mat-menu #signInMenu>
-				<sign-in-form (click)="$event.stopPropagation();" />
-			</mat-menu>
-		</div>
-		<ng-template #userProfile>
+		<div class="right-menus-container">
+			@if(authManager.jwtSignedInUser$ | async) {
 			<div class="d-flex align-items-center">
-				<div *ngIf="isUserEmailConfirmed() === false">
-					<email-confirmation-reminder />
-				</div>
+				@if(!isUserEmailConfirmed()) {
+				<email-confirmation-reminder />
+				}
 				<h4 class="m-0">{{authManager.jwtSignedInUser$.value?.publicUsername}}</h4>
 				<button mat-icon-button [matMenuTriggerFor]="profileMenu"><mat-icon>account_circle</mat-icon></button>
 				<mat-menu #profileMenu>
 					<profile-popup />
 				</mat-menu>
 			</div>
-
-		</ng-template>
-	</mat-toolbar>
+			}
+			@else {
+			<button mat-icon-button class="sign-in-button" (click)="openSignIn()">
+				<mat-icon>login</mat-icon>
+			</button>
+			}
+			<misc-menu />
+		</div>
+		
+	</div>
   <main>
 	  <div class="global-horizontal-padding outlet-container">
 		  <router-outlet/>

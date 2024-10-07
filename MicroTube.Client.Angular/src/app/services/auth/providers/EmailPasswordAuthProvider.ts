@@ -27,7 +27,7 @@ export class EmailPasswordAuthProvider implements IAuthProvider
   {
     if (this.signInData == undefined)
       throw new Error("signInData must be provided before sign in attempt");
-    const result = this.client.post<AuthenticationResponseDTO>("Authentication/EmailPassword/SignIn", this.signInData, { withCredentials: true });
+    const result = this.client.post<AuthenticationResponseDTO>("authentication/emailpassword/signin", this.signInData, { withCredentials: true });
     this.signInData = undefined;
     return result;
   }
@@ -35,7 +35,7 @@ export class EmailPasswordAuthProvider implements IAuthProvider
   {
     if (this.signUpData == undefined)
       throw new Error("signUpData must be provided before sign up attempt");
-    const result = this.client.post<AuthenticationResponseDTO>("Authentication/EmailPassword/SignUp", this.signUpData, { withCredentials: true });
+    const result = this.client.post<AuthenticationResponseDTO>("authentication/emailpassword/signup", this.signUpData, { withCredentials: true });
     this.signUpData = undefined;
     return result;
   }
@@ -43,25 +43,25 @@ export class EmailPasswordAuthProvider implements IAuthProvider
   {
     if (confirmationString == null || confirmationString.trim() == "")
       throw new Error("invalid confirmation string");
-    const result = this.client.post<AuthenticationResponseDTO>("Authentication/EmailPassword/ConfirmEmail", new MessageDTO(confirmationString), { withCredentials: true });
+    const result = this.client.post<AuthenticationResponseDTO>("authentication/emailpassword/confirmemail", new MessageDTO(confirmationString), { withCredentials: true });
     return result;
   }
   requestPasswordReset(email: string): Observable<MessageDTO>
   {
     if (email == null || email.trim() == "")
       throw new Error("invalid email");
-    const result = this.client.post<MessageDTO>("Authentication/EmailPassword/ResetPassword", new ResetPasswordDTO(email));
+    const result = this.client.post<MessageDTO>("authentication/emailpassword/resetpassword", new ResetPasswordDTO(email));
     return result;
   }
   resendEmailConfirmation(): Observable<null> {
-    const result = this.client.post<null>("Authentication/EmailPassword/ConfirmEmailResend", null);
+    const result = this.client.post<null>("authentication/emailpassword/confirmemailresend", null);
     return result;
   }
   getPasswordResetToken(resetString: string): Observable<PasswordResetTokenDTO>
   {
     if (resetString == null || resetString.trim() == "")
       throw new Error("invalid reset string");
-    const result = this.client.post<PasswordResetTokenDTO>("Authentication/EmailPassword/ValidatePasswordReset", new MessageDTO(resetString));
+    const result = this.client.post<PasswordResetTokenDTO>("authentication/emailpassword/validatepasswordreset", new MessageDTO(resetString));
     return result;
   }
   changePassword(passwordResetJWT: string, newPassword: string): Observable<HttpResponse<null>>
@@ -73,7 +73,7 @@ export class EmailPasswordAuthProvider implements IAuthProvider
     const headers = new HttpHeaders({
       Authorization: `Bearer ${passwordResetJWT}`
     });
-    const result = this.client.post<HttpResponse<null>>("Authentication/EmailPassword/ChangePassword", new PasswordChangeDTO(newPassword), { headers: headers });
+    const result = this.client.post<HttpResponse<null>>("authentication/emailpassword/changepassword", new PasswordChangeDTO(newPassword), { headers: headers });
     return result;
   }
   startEmailChange(email: string, password: string): Observable<HttpResponse<null>>
@@ -82,7 +82,7 @@ export class EmailPasswordAuthProvider implements IAuthProvider
       throw new Error("invalid email");
     if (password == null || password.trim() == "")
       throw new Error("invalid password");
-    const result = this.client.post<HttpResponse<null>>("Authentication/EmailPassword/ChangeEmailStart", new EmailChangeDTO(email, password));
+    const result = this.client.post<HttpResponse<null>>("authentication/emailpassword/changeemailstart", new EmailChangeDTO(email, password));
     return result;
   }
 }

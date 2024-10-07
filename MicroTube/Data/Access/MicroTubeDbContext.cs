@@ -1,5 +1,4 @@
-﻿using Elastic.Clients.Elasticsearch.MachineLearning;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MicroTube.Data.Models;
 
 namespace MicroTube.Data.Access
@@ -19,11 +18,9 @@ namespace MicroTube.Data.Access
 		public DbSet<AuthenticationData> AuthenticationData { get; set; }
 		public MicroTubeDbContext()
 		{
-
 		}
 		public MicroTubeDbContext(DbContextOptions<MicroTubeDbContext> options):base(options)
 		{
-
 		}
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

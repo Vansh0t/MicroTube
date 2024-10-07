@@ -16,6 +16,7 @@
 .video-listing-main {
   /*overflow-y:scroll;*/
   width: 100%;
+  margin-top: 1rem;
 }
 
 .grid-container {
@@ -33,7 +34,7 @@
   }
 
   .main-container {
-    padding-inline: 1%;
+    padding-inline: 1vw;
   }
 }
 @include md {
@@ -42,7 +43,7 @@
   }
 
   .main-container {
-    padding-inline: 2.5%;
+    padding-inline: 2.5vw;
   }
 }
 @include lg {
@@ -51,7 +52,7 @@
   }
 
   .main-container {
-    padding-inline: 4%;
+    padding-inline: 4vw;
   }
 }
 @include xl {
@@ -62,6 +63,9 @@
 .video-loader-container {
   display: flex;
   width: 100%;
-  height:32px;
+  height:fit-content;
   justify-content: center;
+}
+.uploader-filter {
+  height: auto;
 }

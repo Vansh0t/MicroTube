@@ -5,7 +5,6 @@ namespace MicroTube.Services.VideoContent.Processing.Stages
 {
 	public class DefaultVideoProcessingContext
 	{
-		public required string SourceVideoNameWithoutExtension { get; set; }
 		public Video? CreatedVideo { get; set; }
 		public VideoUploadProgress? UploadProgress { get; set; }
 		public VideoProcessingRemoteCache? RemoteCache { get; set; }

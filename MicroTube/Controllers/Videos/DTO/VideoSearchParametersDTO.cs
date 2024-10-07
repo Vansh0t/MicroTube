@@ -9,5 +9,6 @@ namespace MicroTube.Controllers.Videos.DTO
 		public VideoTimeFilterType TimeFilter { get; set; } = VideoTimeFilterType.None;
 		public VideoLengthFilterType LengthFilter { get; set; } = VideoLengthFilterType.None;
 		public int BatchSize { get; set; }
+		public string? UploaderIdFilter { get; set; }
 	}
 }

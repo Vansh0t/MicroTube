@@ -1,34 +1,42 @@
 <div>
 	<div #scrollContainer class="main-container w-100" (scroll)="onScroll($event)">
-		@if(searchControls && searchService.isSearch) {
-		<div class="d-flex flex-row gap-2 dense-minus-3">
-			<mat-form-field>
+		@if(isSearchControlsShown()) {
+		<div class="d-flex flex-row gap-2 dense-minus-4">
+			<mat-form-field subscriptSizing="dynamic">
 				<mat-select [formControl]="sortControl" placeholder="Sort">
 					<mat-option>--</mat-option>
-					@for (sort of searchControls.sortOptions; track sort) {
+					@for (sort of searchControls!.sortOptions; track sort) {
 					<mat-option [value]="sort">{{formatOption(sort)}}</mat-option>
 					}
 				</mat-select>
 			</mat-form-field>
-			<mat-form-field>
+			<mat-form-field subscriptSizing="dynamic">
 				<mat-select [formControl]="timeFilterControl" placeholder="Upload Time">
 					<mat-option>--</mat-option>
-					@for (filter of searchControls.timeFilterOptions; track filter) {
+					@for (filter of searchControls!.timeFilterOptions; track filter) {
 					<mat-option [value]="filter">{{formatOption(filter)}}</mat-option>
 					}
 				</mat-select>
 			</mat-form-field>
-			<mat-form-field>
+			<mat-form-field subscriptSizing="dynamic">
 				<div class="d-flex flex-row gap-2">
 					<mat-select [formControl]="lengthFilterControl" placeholder="Length">
 						<mat-option>--</mat-option>
-						@for (filter of searchControls.lengthFilterOptions; track filter) {
+						@for (filter of searchControls!.lengthFilterOptions; track filter) {
 						<mat-option [value]="filter">{{formatOption(filter)}}</mat-option>
 						}
 					</mat-select>
 				</div>
-
 			</mat-form-field>
+			@if(getCurrentSearchParameters().uploaderIdFilter) {
+			<mat-chip-option class="uploader-filter" selected="true" selectable="false" (removed)="cancelUploadSearch()">
+				by {{getCurrentSearchParameters().uploaderAlias ?? "Unknown"}}
+				<button matChipRemove>
+					<mat-icon>cancel</mat-icon>
+				</button>
+			</mat-chip-option>
+			}
+
 		</div>
 		}
 		@if(videos) {
@@ -38,13 +46,13 @@
 			</div>
 		</div>
 		}
-		
+
 		<div class="video-loader-container">
 			@if(isLoadingVideos) {
 			<mat-spinner [diameter]="videos == null? 100 : 28"></mat-spinner>
 			}
 		</div>
-		
+
 	</div>
 	
 </div>

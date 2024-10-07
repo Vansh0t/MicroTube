@@ -1,5 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using MicroTube.Data.Models;
+using MicroTube.Services.ConfigOptions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -8,13 +9,6 @@ namespace MicroTube.Services.Cryptography
 {
     public class DefaultJwtTokenProvider : IJwtTokenProvider
     {
-        
-
-        private const string CONFIG_ISSUER_KEY = "JWT:Issuer";
-        private const string CONFIG_AUDIENCE_KEY = "JWT:Audience";
-        private const string CONFIG_KEY_KEY = "JWT:Key";
-        private const string CONFIG_EXPIRATION_KEY = "JWT:ExpirationMinutes";
-
         private readonly IConfiguration _config;
         private readonly ILogger<DefaultJwtTokenProvider> _logger;
 
@@ -25,30 +19,17 @@ namespace MicroTube.Services.Cryptography
         }
         public IServiceResult<string> GetToken(Dictionary<string, string> claims)
         {
-            string? issuer = _config[CONFIG_ISSUER_KEY];
-            string? audience = _config[CONFIG_AUDIENCE_KEY];
-            string? key = _config[CONFIG_KEY_KEY];
+			var options = _config.GetRequiredByKey<JwtAccessTokensOptions>(JwtAccessTokensOptions.KEY);
             int expirationMinutes;
-
-            if(issuer == null || audience == null || key == null || !int.TryParse(_config[CONFIG_EXPIRATION_KEY], out expirationMinutes))
-            {
-                _logger.LogCritical("JWT misconfigured. Ensure IConfiguration has all necessary JWT values");
-                return ServiceResult<string>.FailInternal();
-            }
             if(claims == null || claims.Count <= 0)
             {
                 _logger.LogCritical("Unable to generate a JWT: claims are empty");
                 return ServiceResult<string>.FailInternal();
             }
-            if(expirationMinutes <=0)
-            {
-                _logger.LogCritical("Unable to generate a JWT: expiration minutes <= 0");
-                return ServiceResult<string>.FailInternal();
-            }
-            DateTime expirationTime = DateTime.UtcNow.AddMinutes(expirationMinutes);
+            DateTime expirationTime = DateTime.UtcNow.AddMinutes(options.ExpirationMinutes);
             DateTime notBeforeTime = DateTime.UtcNow;
-            var jwtSettings = new JwtSecurityToken(issuer, audience, claims.Select(_ => new Claim(_.Key, _.Value)), notBeforeTime, expirationTime,
-                new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)), SecurityAlgorithms.HmacSha256));
+            var jwtSettings = new JwtSecurityToken(options.Issuer, options.Audience, claims.Select(_ => new Claim(_.Key, _.Value)), notBeforeTime, expirationTime,
+                new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(options.Key)), SecurityAlgorithms.HmacSha256));
             try
             {
                 string jwt = new JwtSecurityTokenHandler().WriteToken(jwtSettings);

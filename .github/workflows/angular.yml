@@ -1,0 +1,26 @@
+name: Build & Deploy Angular Client
+on:
+  push:
+    branches: [ "master", "development" ]
+  pull_request:
+    branches: [ "master", "development" ]
+jobs:
+  build-and-deploy-container-app:
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v4
+      - name: Azure Login
+        uses: Azure/login@v2.2.0
+        with:
+          creds: ${{secrets.AZURE_CREDS}}
+      - name: Build and Push to Container App
+        uses: Azure/container-apps-deploy-action@v2
+        with: 
+          appSourcePath: ./MicroTube.Client.Angular
+          dockerfilePath: Dockerfile.prod
+          registryUrl: v4containers.azurecr.io
+          registryUsername: ${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}    
+          registryPassword: ${{ secrets.DOCKER_CONTAINER_REGISTRY_PASSWORD }}
+          containerAppName: microtube-client-ca
+          resourceGroup: MicroTube
+          imageToBuild: v4containers.azurecr.io/microtube-client-ca:${{ github.sha }}

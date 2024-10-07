@@ -148,7 +148,7 @@ namespace MicroTube.Services.Authentication.BasicFlow
 			var userWithSameEmail = await _db.Users.FirstOrDefaultAsync(_ => _.Email == newEmail);
 			if (userWithSameEmail != null)
 				return ServiceResult.Fail(400, "Email already in use, try another one.");
-			var authUser = await _db.Users.FirstOrDefaultAsync(_ => _.Id == guidUserId);
+			var authUser = await _db.Users.Include(_=>_.Authentication).FirstOrDefaultAsync(_ => _.Id == guidUserId);
 			if(authUser == null)
 			{
 				_logger.LogError($"Failed to start email change process: user with id {userId} or their {nameof(authUser.Authentication)} not found.");

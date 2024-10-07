@@ -17,9 +17,9 @@ namespace MicroTube.Data.Models
 		[Column(TypeName = "NVARCHAR"), StringLength(1000)]
 		public string? Description { get; set; }
 		[Column(TypeName = "VARCHAR"), StringLength(50)]
-		public required string RemoteCacheLocation { get; set; }
+		public required string SourceFileRemoteCacheLocation { get; set; }
 		[Column(TypeName = "VARCHAR"), StringLength(50)]
-		public required string RemoteCacheFileName { get; set; }
+		public required string SourceFileRemoteCacheFileName { get; set; }
 		public required DateTime Timestamp { get; set; }
 		[Column(TypeName = "NVARCHAR"), StringLength(200)]
 		public string? Message { get; set; }

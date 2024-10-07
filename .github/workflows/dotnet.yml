@@ -1,8 +1,4 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: .NET
-
+name: Build & Deploy API
 on:
   push:
     branches: [ "master", "development" ]
@@ -10,10 +6,8 @@ on:
     branches: [ "master", "development" ]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
@@ -35,3 +29,23 @@ jobs:
       run: dotnet build ./MicroTube.Tests/MicroTube.Tests.csproj --no-restore
     - name: Test
       run: dotnet test ./MicroTube.Tests/MicroTube.Tests.csproj --no-build
+  build-and-deploy-container-app:
+    needs: test
+    runs-on: ubuntu-latest
+    steps: 
+    - uses: actions/checkout@v4
+    - name: Azure Login
+      uses: Azure/login@v2.2.0
+      with:
+        creds: ${{secrets.AZURE_CREDS}}
+    - name: Build and Push to Container App
+      uses: Azure/container-apps-deploy-action@v2
+      with: 
+        appSourcePath: ./MicroTube
+        dockerfilePath: Dockerfile
+        registryUrl: v4containers.azurecr.io
+        registryUsername: ${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}    
+        registryPassword: ${{ secrets.DOCKER_CONTAINER_REGISTRY_PASSWORD }}
+        containerAppName: microtube-ca
+        resourceGroup: MicroTube
+        imageToBuild: v4containers.azurecr.io/microtube-ca:${{ github.sha }}

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Ardalis.GuardClauses;
+using Microsoft.EntityFrameworkCore;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using System.Data;
@@ -21,9 +22,13 @@ namespace MicroTube.Services.Search
 		{
 			_logger.LogInformation("Ensuring search indices for videos.");
 			var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
-			var indexRequired = await _db.VideoSearchIndexing.Include(_ => _.Video).Where(_ => _.ReindexingRequired).ToArrayAsync();
-			var indexRequiredVideos = indexRequired.Where(_ => _.Video != null).Select(_ => _.Video);
-			var indexTasks = indexRequiredVideos.Select(IndexVideoNonThrowing!);
+			var videoToReindex = await _db.Videos
+				.Include(_ => _.VideoIndexing)
+				.Include(_ => _.VideoViews)
+				.Include(_ => _.VideoReactions)
+				.Where(_ => _.VideoIndexing!.ReindexingRequired)
+				.ToArrayAsync();
+			var indexTasks = videoToReindex.Select(IndexVideoNonThrowing!);
 			await Task.WhenAll(indexTasks);
 			int failedTasks = 0;
 			int successfulTasks = 0;
@@ -39,12 +44,14 @@ namespace MicroTube.Services.Search
 					successfulTasks++;
 			}
 			await _db.SaveChangesAsync();
+			await transaction.CommitAsync();
 			_logger.LogInformation($"Ensuring search indices for videos done. Success: {successfulTasks}, fail: {failedTasks}");
 		}
 		private async Task<IServiceResult<Video>> IndexVideoNonThrowing(Video video)
 		{
 			try
 			{
+				Guard.Against.Null(video.VideoIndexing);
 				var result  = await _videoSearch.IndexVideo(video);
 				return result;
 			}

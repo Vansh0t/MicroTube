@@ -7,19 +7,25 @@ namespace MicroTube.Services.VideoContent.Processing
 	public class FFMpegVideoThumbnailsService : IVideoThumbnailsService
 	{
 		private const string FFMPEG_SNAPSHOTS_ARGS = "-vf \"select=bitor(gte(t-prev_selected_t\\,{0})\\,isnan(prev_selected_t)),scale={1}:{2}:force_original_aspect_ratio=decrease\" -vsync 0 -threads 3";
-		private const string FFMPEG_THUMBNAILS_ARGS = "-vf \"thumbnail=n={0}/{1},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync 0 -threads 3";
 
 		private readonly ILogger<FFMpegVideoThumbnailsService> _logger;
 		private readonly IConfiguration _config;
 		private readonly IFileSystem _fileSystem;
 		private readonly IVideoAnalyzer _videoAnalyzer;
+		private readonly IVideoProcessingArgumentsProvider _argumentsProvider;
 
-		public FFMpegVideoThumbnailsService(ILogger<FFMpegVideoThumbnailsService> logger, IConfiguration config, IFileSystem fileSystem, IVideoAnalyzer videoAnalyzer)
+		public FFMpegVideoThumbnailsService(
+			ILogger<FFMpegVideoThumbnailsService> logger,
+			IConfiguration config,
+			IFileSystem fileSystem,
+			IVideoAnalyzer videoAnalyzer,
+			IVideoProcessingArgumentsProvider argumentsProvider)
 		{
 			_logger = logger;
 			_config = config;
 			_fileSystem = fileSystem;
 			_videoAnalyzer = videoAnalyzer;
+			_argumentsProvider = argumentsProvider;
 		}
 
 		public async Task<IServiceResult<IEnumerable<string>>> MakeSnapshots(string filePath, string saveToPath, CancellationToken cancellationToken = default)
@@ -64,7 +70,8 @@ namespace MicroTube.Services.VideoContent.Processing
 				var videoAnalysis = await _videoAnalyzer.Analyze(filePath);
 				double framesCount = videoAnalysis.FrameCount;
 				var inputFile = new InputFile(filePath);
-				string ffmpegCustomArgs = string.Format(FFMPEG_THUMBNAILS_ARGS,
+				string processingArguments = _argumentsProvider.ProvideForThumbnails(Path.GetExtension(filePath));
+				string ffmpegCustomArgs = string.Format(processingArguments,
 					framesCount, processingOptions.ThumbnailsAmount, processingOptions.ThumbnailsWidth, processingOptions.ThumbnailsHeight);
 				var options = new ConversionOptions
 				{

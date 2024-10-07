@@ -7,8 +7,11 @@ import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import { VideoService } from "../../services/videos/VideoService";
 import { VideoUploadDTO } from "../../data/DTO/VideoDTO";
 import { Router } from "@angular/router";
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse, HttpEvent, HttpEventType } from "@angular/common/http";
 import { Subscription } from "rxjs";
+import { InfoService } from "../../services/info/InfoService";
+import { VideoUploadProgressDTO } from "../../data/DTO/VideoUploadProgressDTO";
+import { MatProgressSpinner } from "@angular/material/progress-spinner";
 
 @Component({
   selector: "video-upload",
@@ -21,16 +24,22 @@ export class VideoUploadComponent implements OnDestroy
   private readonly router: Router;
   readonly videoUploadValidation: DefaultVideoFileUploadValidators;
 
+  readonly infoService: InfoService;
   readonly titleControl: FormControl;
   readonly descriptionControl: FormControl;
+  readonly policiesControl: FormControl;
   readonly fileControl: FormControl<FileInput | null>;
   readonly formGroup: FormGroup;
   readonly acceptString : string;
   @ViewChild('autosize') autosize!: CdkTextareaAutosize;
   uploadProgressSubscription: Subscription|null = null;
   uploadServerError: string | null = null;
-  constructor(videoUploadValidation: DefaultVideoFileUploadValidators, videoService: VideoService, router: Router)
+  @ViewChild("uploadSpinner") uploadSpinner!: MatProgressSpinner;
+  uploadPercent: number = 0;
+  get uploadPercentRounded() { return Math.round(this.uploadPercent); }
+  constructor(videoUploadValidation: DefaultVideoFileUploadValidators, videoService: VideoService, router: Router, infoService: InfoService)
   {
+    this.infoService = infoService;
     this.videoService = videoService;
     this.videoUploadValidation = videoUploadValidation;
     this.router = router;
@@ -38,7 +47,8 @@ export class VideoUploadComponent implements OnDestroy
       [Validators.required, Validators.minLength(videoUploadValidation.MIN_TITLE_LENGTH), Validators.maxLength(videoUploadValidation.MAX_TITLE_LENGTH)]);
     this.fileControl = new FormControl<FileInput | null>(null, [Validators.required, videoUploadValidation.getMaxSizeValidator()]);
     this.descriptionControl = new FormControl("", [Validators.maxLength(videoUploadValidation.MAX_DESCRIPTION_LENGTH)]);
-    this.formGroup = new FormGroup([this.titleControl, this.descriptionControl]);
+    this.policiesControl = new FormControl(false, [Validators.requiredTrue]);
+    this.formGroup = new FormGroup([this.titleControl, this.descriptionControl, this.policiesControl]);
     this.formGroup.addControl("fileControl", this.fileControl);
     this.acceptString = videoUploadValidation.getAcceptString(); 
   }
@@ -54,8 +64,9 @@ export class VideoUploadComponent implements OnDestroy
       description: this.descriptionControl.value,
       file: this.fileControl.value
     };
-    this.uploadProgressSubscription = this.videoService.uploadVideo(videoData).subscribe({
-      next: () => this.router.navigate(["upload/list"]),
+    this.uploadProgressSubscription = this.videoService.uploadVideo(videoData)
+      .subscribe({
+        next: this.onUploadEvent.bind(this),
       error: (error: HttpErrorResponse) =>
       {
         this.uploadProgressSubscription?.unsubscribe();
@@ -84,6 +95,14 @@ export class VideoUploadComponent implements OnDestroy
     }
     return null;
   }
+  getPoliciesError(): string | null
+  {
+    if (this.policiesControl.hasError("requiredTrue"))
+    {
+      return "Please, accept the policies to continue.";
+    }
+    return null;
+  }
   getFileError(): string | null
   {
     if (this.fileControl.hasError("required"))
@@ -96,5 +115,17 @@ export class VideoUploadComponent implements OnDestroy
   {
     if (this.uploadProgressSubscription != null)
       this.uploadProgressSubscription.unsubscribe();
+  }
+  private onUploadEvent(event: HttpEvent<VideoUploadProgressDTO>)
+  {
+    if (event.type === HttpEventType.UploadProgress && event.total)
+    {
+      this.uploadPercent = (event.loaded / event.total) * 100;
+      console.log(this.uploadPercent);
+    }
+    if (event.type === HttpEventType.Response)
+    {
+      this.router.navigate(["upload/list"]);
+    }
   }
 }

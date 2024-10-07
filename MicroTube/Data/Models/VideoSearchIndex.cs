@@ -11,6 +11,7 @@
 		public int Dislikes { get; set; }
 		public int LengthSeconds { get; set; }
 		public string TitleSuggestion { get; set; }
+		public string? UploaderId { get; set; }
         public int SearchHits { get; set; }
 		public VideoSearchIndex(string id,
 			string title,
@@ -20,7 +21,8 @@
 			int likes,
 			int dislikes,
 			int lengthSeconds,
-			DateTime uploadedAt)
+			DateTime uploadedAt,
+			string? uploaderId)
 		{
 			Id = id;
 			Title = title;
@@ -31,6 +33,7 @@
 			LengthSeconds = lengthSeconds;
 			UploadedAt = uploadedAt;
 			Dislikes = dislikes;
+			UploaderId = uploaderId;
 		}
 	}
 }

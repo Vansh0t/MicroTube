@@ -12,6 +12,3 @@ RUN dotnet build "MicroTube.csproj" -c Release -o /app/build
 
 WORKDIR /app/build
 ENTRYPOINT dotnet MicroTube.dll
-
-#FROM build AS publish
-#RUN dotnet publish "MicroTube.csproj" -c Release -o /app/publish /p:UseAppHost=false

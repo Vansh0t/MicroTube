@@ -12,14 +12,23 @@ html, body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif !important;
   overflow-y: hidden;
-  
-}
-p, h1, h2, h3, h4, h5 {
   color: var(--text-main-color) !important;
+}
+p, h1, h2, h3, h4, h5, input[type=text] {
+  margin: 2px 0 0 0 !important;
 }
 a {
   max-width: 100%;
-  height:auto;
+  height: auto;
+  color: var(--text-main-color) !important;
+  text-decoration: none;
+}
+.highlighted-link {
+  color: mat.get-theme-color($MicroTube-theme, primary, 500) !important;
+}
+.highlighted-link:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 .dense-minus-1 {
   @include mat.all-component-densities(-1);
@@ -30,6 +39,9 @@ a {
 .dense-minus-3 {
   @include mat.all-component-densities(-3);
 }
+.dense-minus-4 {
+  @include mat.all-component-densities(-4);
+}
 .caption-grey {
   color: var(--text-secondary-color) !important;
 }
@@ -38,3 +50,10 @@ $sm: screen and (min-width: 600px) and (max-width: 959px);
 $md: screen and (min-width: 960px) and (max-width: 1279px);
 $lg: screen and (min-width: 1280px) and (max-width: 1919px);
 $xl: screen and (min-width: 1920px) and (max-width: 5000px);
+.right-menus-container {
+  display:flex;
+flex-direction:row;
+}
+/*.mat-mdc-option {
+  padding-inline: 4% !important;
+}*/

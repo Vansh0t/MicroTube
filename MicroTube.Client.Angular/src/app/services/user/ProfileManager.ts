@@ -18,7 +18,7 @@ export class ProfileManager
 
   getUser(): Observable<UserDTO>
   {
-    const request = this.client.get<UserDTO>("User/Profile");
+    const request = this.client.get<UserDTO>("user/profile");
     return request;
   }
 }

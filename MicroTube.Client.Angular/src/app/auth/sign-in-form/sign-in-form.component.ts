@@ -15,7 +15,7 @@ export class SignInFormComponent
   readonly MIN_LENGTH = 2;
   readonly credentialControl = new FormControl("", [Validators.required, Validators.minLength(this.MIN_LENGTH)]);
   readonly passwordControl = new FormControl("", [Validators.required]);
-  readonly rememberMeControl = new FormControl(false);
+  readonly rememberMeControl = new FormControl(true);
   readonly formGroup = new FormGroup([this.credentialControl, this.passwordControl, this.rememberMeControl]);
 
   private readonly authProvider: EmailPasswordAuthProvider;

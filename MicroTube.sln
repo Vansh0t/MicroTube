@@ -5,13 +5,18 @@ VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroTube", "MicroTube\MicroTube.csproj", "{30C7E9CB-EF91-4E82-847A-340A00BCBF8B}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "MainDatabase", "MainDatabase\MainDatabase.sqlproj", "{291CEF0F-5722-41FF-AC72-F237F346F29E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroTube.Tests", "MicroTube.Tests\MicroTube.Tests.csproj", "{F2D1D21F-AE00-4143-A243-7C5B7E8ABEFC}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{F2F81E75-DEB4-403C-9F13-9C83FA22C952}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "MicroTube.Client.Angular", "MicroTube.Client.Angular\MicroTube.Client.Angular.esproj", "{D847838F-FD1F-4E60-8CAC-B5F0A790E324}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{35916C5E-BE8E-432D-9A47-5CD121EBB1FB}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\angular.yml = .github\workflows\angular.yml
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +28,6 @@ Global
 		{30C7E9CB-EF91-4E82-847A-340A00BCBF8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30C7E9CB-EF91-4E82-847A-340A00BCBF8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30C7E9CB-EF91-4E82-847A-340A00BCBF8B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{291CEF0F-5722-41FF-AC72-F237F346F29E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{291CEF0F-5722-41FF-AC72-F237F346F29E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{291CEF0F-5722-41FF-AC72-F237F346F29E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{291CEF0F-5722-41FF-AC72-F237F346F29E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{291CEF0F-5722-41FF-AC72-F237F346F29E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{291CEF0F-5722-41FF-AC72-F237F346F29E}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{F2D1D21F-AE00-4143-A243-7C5B7E8ABEFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F2D1D21F-AE00-4143-A243-7C5B7E8ABEFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2D1D21F-AE00-4143-A243-7C5B7E8ABEFC}.Release|Any CPU.ActiveCfg = Release|Any CPU

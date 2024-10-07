@@ -1,25 +1,32 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, OnDestroy, ViewChild } from "@angular/core";
 import { AuthManager } from "./services/auth/AuthManager";
 import { MatMenuTrigger } from "@angular/material/menu";
 import { VideoService } from "./services/videos/VideoService";
 import { map, Subscription } from "rxjs";
-import { ActivatedRoute, Router } from "@angular/router";
+import {NavigationEnd, Router } from "@angular/router";
 import { VideoSearchService } from "./services/videos/VideoSearchService";
 import { SuggestionSearchBarComponent } from "./utility-components/suggestion-search-bar/suggestion-search-bar.component";
+import { MatDialog } from "@angular/material/dialog";
+import { AuthPopupComponent } from "./auth/auth-popup/auth-popup.component";
+import { SessionManager } from "./services/auth/SessionManager";
+import { VideoSearchQueryStringReader } from "./services/query-string-processing/VideoSearchQueryStringReader";
+import { QueryStringBuilder } from "./services/query-string-processing/QueryStringBuilder";
 
 @Component({
   selector: "app-root",
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.scss"]
 })
-export class AppComponent implements OnInit
+export class AppComponent implements AfterViewInit, OnDestroy
 {
   title = "app";
   private readonly searchService: VideoSearchService;
-  private readonly activatedRoute: ActivatedRoute;
+  private readonly searchQueryReader: VideoSearchQueryStringReader;
+  private readonly queryBuilder: QueryStringBuilder;
   readonly router: Router;
   readonly authManager: AuthManager;
   readonly videoService: VideoService;
+  private readonly dialog: MatDialog;
   searchSubscription: Subscription | null = null;
   @ViewChild(MatMenuTrigger)
   signOutMenuTrigger!: MatMenuTrigger;
@@ -27,27 +34,37 @@ export class AppComponent implements OnInit
   suggestionSearchBar!: SuggestionSearchBarComponent;
   videoSearchSuggestionsSubscription: Subscription | null = null;
   videoSearchSuggestionsSource: string[] = [];
+  private routerSubscription: Subscription|null = null;
   constructor(
     authManager: AuthManager,
     videoService: VideoService,
     router: Router,
     searchService: VideoSearchService,
-    activatedRoute: ActivatedRoute)
+    searchQueryReader: VideoSearchQueryStringReader,
+    queryBuilder: QueryStringBuilder,
+    dialogue: MatDialog, private readonly sessionManager: SessionManager)
   {
     this.searchService = searchService;
     this.router = router;
     this.videoService = videoService;
     this.authManager = authManager;
-    this.activatedRoute = activatedRoute;
+    this.searchQueryReader = searchQueryReader;
+    this.dialog = dialogue;
+    this.queryBuilder = queryBuilder;
   }
-  ngOnInit(): void
+  ngOnDestroy(): void
   {
-    this.searchSubscription = this.searchService.videoSearchParameters$.subscribe((params) =>
-    {
-      if (params)
-        this.suggestionSearchBar.inputControl.setValue(params.text, { emitEvent: false });
-    });
-      
+    this.routerSubscription?.unsubscribe();
+  }
+  ngAfterViewInit(): void {
+    this.routerSubscription = this.router.events.subscribe(value =>
+      {
+        if (value instanceof NavigationEnd)
+        {
+          this.syncSearchBarText();
+        }
+      });
+      this.syncSearchBarText();
     }
   isUserEmailConfirmed()
   {
@@ -55,16 +72,9 @@ export class AppComponent implements OnInit
   }
   searchVideo(searchText: string | null)
   {
-    if (!searchText?.trim())
-    {
-      this.searchService.resetSearch();
-      this.searchService.navigateWithQueryString();
-    }
-    else
-    {
-      this.searchService.setText(searchText);
-      this.searchService.navigateWithQueryString();
-    }
+    const trimmedSearchText = searchText?.trim() ?? null;
+    this.queryBuilder.setValue("text", trimmedSearchText);
+    this.queryBuilder.navigate("/");
   }
   updateSearchSuggestions(text: string | null)
   {
@@ -81,5 +91,17 @@ export class AppComponent implements OnInit
         this.videoSearchSuggestionsSource.length = 0;
         suggestions.forEach(_ => this.videoSearchSuggestionsSource.push(_));
       });
+  }
+  openSignIn()
+  {
+    if (!this.authManager.isSignedIn())
+    {
+      this.dialog.open(AuthPopupComponent);
+    }
+  }
+  syncSearchBarText()
+  {
+    const searchParams = this.searchQueryReader.readSearchParameters();
+    this.suggestionSearchBar.inputControl.setValue(searchParams.text, { emitEvent: false });
   }
 }

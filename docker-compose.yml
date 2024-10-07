@@ -1,13 +1,13 @@
 
 services:
   microtube:
-    image: app
-    mem_limit: 4gb
+    image: v4containers/microtube/api
+    mem_limit: 2gb
     build:
       context: ./MicroTube
     depends_on:
-       main_database:
-         condition: service_completed_successfully
+       mssql:
+         condition: service_started
     environment:
      - ASPNETCORE_ENVIRONMENT=Development
      - ASPNETCORE_URLS=https://+:7146;
@@ -18,10 +18,9 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-      - offline-cdn:/data/videos
-      - offline-cdn:/data/videos/cache
   client-angular:
-    image: app/client/angular
+    image: v4containers/microtube/client/angular
+    mem_limit: 2gb
     ports: 
       - "44466:44466"
     develop:
@@ -31,39 +30,30 @@ services:
           target: ./app
     build:
       context: ./MicroTube.Client.Angular
+      dockerfile: ./Dockerfile.dev
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    mem_limit: 3gb
+    mem_limit: 2gb
     container_name: sql-server
     hostname: sql-server
+    environment: 
+     - ACCEPT_EULA=true
+     - MSSQL_SA_PASSWORD=devpassword12345++
     ports:
       - "1433:1433"
-    env_file:
-      - MainDatabase/private.env
-  main_database:
-    image: db/main
-    container_name: MicroTubeMainDb
-    hostname: MicroTubeMainDb
-    depends_on:
-      - mssql
-    env_file:
-      - MainDatabase/private.env
-    build:
-        context: .
-        dockerfile: MainDatabase/Dockerfile
-  offline_cdn:
-    image: caddy:alpine
-    container_name: OfflineCDN
-    hostname: OfflineCDN
-    volumes:
-      - offline-cdn:/data/videos
-      - offline-cdn:/data/videos/cache
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    mem_limit: 400mb
+    container_name: Azurite
+    hostname: azurite
     ports:
-      - "2015:2015"
-    entrypoint: ["caddy", "file-server", "--listen", "0.0.0.0:2015", "--root", "/data/"]
+      - "10000:10000"
+    entrypoint: ["azurite-blob", "--blobHost", "0.0.0.0", "--blobPort", "10000"]
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
     mem_limit: 3gb
@@ -74,14 +64,12 @@ services:
     environment: 
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - xpack.security.audit.logfile.events.emit_request_body = true
   kibana:
     image: docker.elastic.co/kibana/kibana:8.13.4
+    mem_limit: 1gb
     container_name: kibana
     hostname: kibana
     ports: 
       - "5601:5601"
     environment:
       - XPACK_SECURITY_ENABLED=false
-volumes:
-  offline-cdn:

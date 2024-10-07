@@ -1,4 +1,6 @@
-﻿using Elastic.Clients.Elasticsearch;
+﻿using Ardalis.GuardClauses;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.Mapping;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using MicroTube.Data.Models;
 using MicroTube.Services.ConfigOptions;
@@ -24,12 +26,11 @@ namespace MicroTube.Services.Search
 		{
 			VideoSearchOptions options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
 			ElasticsearchMeta? parsedMeta = DeserializeMeta(meta);
-			Query? textSearchQuery = BuildTextSearchQuery(parameters);
+			Query textSearchQuery = string.IsNullOrWhiteSpace(parameters.Text) ? BuildMatchAllQuery(parameters) : BuildTextSearchQuery(parameters);
 			ICollection<SortOptions>? sort = BuildVideoSearchSort(parameters);
 			var searchRequest = new SearchRequest<VideoSearchIndex>(options.VideosIndexName);
 			searchRequest.Size = Math.Min(parameters.BatchSize, options.PaginationMaxBatchSize);
-			if(textSearchQuery != null)
-				searchRequest.Query = textSearchQuery;
+			searchRequest.Query = textSearchQuery;
 			if(sort != null)
 				searchRequest.Sort = sort;
 			if (parsedMeta != null && parsedMeta.LastSort != null)
@@ -40,52 +41,60 @@ namespace MicroTube.Services.Search
 		private ICollection<SortOptions>? BuildVideoSearchSort(VideoSearchParameters parameters)
 		{
 			List<SortOptions> sortOptions = new();
+			sortOptions.Add(SortOptions.Score(new ScoreSort { Order = SortOrder.Desc }));
 			var sortType = parameters.SortType;
-			if (sortType == VideoSortType.Relevance && parameters.Text == null)
-			{
-				sortType = VideoSortType.Time; //TO DO: relevance is not available for textless search until some suggestion algorithm is implemented
-			}
 			if (sortType == VideoSortType.Relevance)
-				return null;
+			{
+				sortType = VideoSortType.Time; //TO DO: relevance is not available for search until some suggestion algorithm is implemented
+			}
 			if (sortType == VideoSortType.Time)
 			{
-				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.UploadedAt)!, new FieldSort { Order = SortOrder.Desc }));
+				sortOptions.Add(SortOptions.Field(new Field("uploadedAt"), new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Date }));
 			}
 			if (sortType == VideoSortType.Views)
 			{
-				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.Views)!, new FieldSort { Order = SortOrder.Desc }));
+				sortOptions.Add(SortOptions.Field(new Field("views"), new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Integer }));
 			}
 			//TO DO: needs better rating system
 			if (sortType == VideoSortType.Rating)
 			{
-				sortOptions.Add(SortOptions.Field(nameof(VideoSearchIndex.Likes)!, new FieldSort { Order = SortOrder.Desc }));
+				sortOptions.Add(SortOptions.Field(new Field("likes"), new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Integer }));
 			}
 			return sortOptions;
 		}
-		private ICollection<Query>? BuildFilters(VideoTimeFilterType timeFilter, VideoLengthFilterType lengthFilter)
+		private ICollection<Query>? BuildFilters(VideoTimeFilterType timeFilter, VideoLengthFilterType lengthFilter, string? uploaderId)
 		{
-			if (timeFilter == VideoTimeFilterType.None && lengthFilter == VideoLengthFilterType.None)
-			{
-				return null;
-			}
 
 			List<Query> filters = new List<Query>();
 			Query? timeFilterQuery = BuildTimeFilterQuery(timeFilter);
 			Query? lengthFilterQuery = BuildLengthFilterQuery(lengthFilter);
+			Query? uploaderIdFilterQuery = BuildUploaderIdFilterQuery(uploaderId);
 			if (timeFilterQuery != null)
+			{
 				filters.Add(timeFilterQuery);
+			}
 			if (lengthFilterQuery != null)
+			{
 				filters.Add(lengthFilterQuery);
+			}
+			if (uploaderIdFilterQuery != null)
+			{
+				filters.Add(uploaderIdFilterQuery);
+			}
 			return filters;
 		}
 		private Query? BuildTimeFilterQuery(VideoTimeFilterType timeFilter)
 		{
+			if(timeFilter == VideoTimeFilterType.None)
+			{
+				return null;
+			}
 			Query? timeQuery = null;
 			DateTime now = DateTime.UtcNow;
 			switch (timeFilter)
 			{
 				case VideoTimeFilterType.LastDay:
-					timeQuery = new DateRangeQuery(new Field("uploadedAt")) { From = now.AddDays(-1), To = now };
+					timeQuery = new DateRangeQuery(new Field("uploadedAt")) { From = now.AddDays(-1), To = now};
 					break;
 				case VideoTimeFilterType.LastWeek:
 					timeQuery = new DateRangeQuery(new Field("uploadedAt")) { From = now.AddDays(-7), To = now };
@@ -104,6 +113,10 @@ namespace MicroTube.Services.Search
 		}
 		private Query? BuildLengthFilterQuery(VideoLengthFilterType lengthFilter)
 		{
+			if (lengthFilter == VideoLengthFilterType.None)
+			{
+				return null;
+			}
 			var options = _config.GetRequiredByKey<VideoSearchOptions>(VideoSearchOptions.KEY);
 			Query? lengthQuery = null;
 			switch (lengthFilter)
@@ -122,17 +135,37 @@ namespace MicroTube.Services.Search
 			}
 			return lengthQuery;
 		}
-		private Query? BuildTextSearchQuery(VideoSearchParameters parameters)
+		private Query? BuildUploaderIdFilterQuery(string? uploaderId)
 		{
-			if (string.IsNullOrWhiteSpace(parameters.Text))
+			if(string.IsNullOrWhiteSpace(uploaderId))
+			{
 				return null;
+			}
+			Query? query = new TermQuery(new Field("uploaderId.keyword")) { CaseInsensitive = true, Value = uploaderId };
+			return query;
+		}
+		private Query BuildTextSearchQuery(VideoSearchParameters parameters)
+		{
+			Guard.Against.NullOrWhiteSpace(parameters.Text);
 			var matchQueryTitle = new MatchQuery(new Field("title")) { Query = parameters.Text, Boost = 2 };
 			var matchQueryDescription = new MatchQuery(new Field("description")) { Query = parameters.Text };
-			var filters = BuildFilters(parameters.TimeFilter, parameters.LengthFilter);
+			var filters = BuildFilters(parameters.TimeFilter, parameters.LengthFilter, parameters.UploaderId);
 			var shouldQuery = new BoolQuery
 			{
 				MinimumShouldMatch = 1,
 				Should = new Query[2] { matchQueryTitle, matchQueryDescription },
+				Filter = filters
+			};
+			return shouldQuery;
+		}
+		private Query BuildMatchAllQuery(VideoSearchParameters parameters)
+		{
+			var matchAll = new MatchAllQuery();
+			var filters = BuildFilters(parameters.TimeFilter, parameters.LengthFilter, parameters.UploaderId);
+			var shouldQuery = new BoolQuery
+			{
+				MinimumShouldMatch = 1,
+				Should = new Query[1] { matchAll },
 				Filter = filters
 			};
 			return shouldQuery;
