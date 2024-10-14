@@ -19,7 +19,7 @@
 		<vg-playback-button></vg-playback-button>
 
 		<vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
-		<div class="ms-auto"></div>
+		<div class="controls-separator"></div>
 		<ngx-player-quality-selector [qualityOptions]="options.qualityOptions"
 									 [selectedQualityIndex]="options.selectedQualityIndex"
 									 (onQualityChanged)="updateSource($event)" />

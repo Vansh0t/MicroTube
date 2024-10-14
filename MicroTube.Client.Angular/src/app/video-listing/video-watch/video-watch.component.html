@@ -5,7 +5,7 @@
 					[options]="getVideoPlayerOptions(video.urls)"></ngx-player>
 	</div>
 	<div class="video-info-container">
-		<h2>{{video.title}}</h2>
+		<h2 class="mat-h2">{{video.title}}</h2>
 		<button mat-stroked-button class="uploader-button" color="primary" mat-button (click)="searchUploaderVideos()">
 			by <b>{{video.uploaderPublicUsername}}</b>
 		</button>
@@ -23,6 +23,6 @@
 
 	}
 	@else {
-	<h2>Loading...</h2>
+	<h2 class="mat-h2">Loading...</h2>
 	}
 </div>

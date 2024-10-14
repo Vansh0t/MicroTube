@@ -1,32 +1,32 @@
-<div >
-	<form class="d-flex flex-column align-items-center py-2" [formGroup]="formGroup" (ngSubmit)="submit()">
+<div class="main-container">
+	<form [formGroup]="formGroup" (ngSubmit)="submit()">
 		<mat-form-field subscriptSizing="dynamic" color="accent" appearance="fill">
 			<mat-label>Username</mat-label>
 			<input matInput [formControl]="usernameControl">
-			<mat-error class="small" *ngIf="getUsernameRequiredError() != null">{{getUsernameRequiredError()}}</mat-error>
-			<mat-error class="small" *ngIf="getUsernameLengthError() != null">{{getUsernameLengthError()}}</mat-error>
-			<mat-error class="small" *ngIf="getUsernameLetterError() != null">{{getUsernameLetterError()}}</mat-error>
-			<mat-error class="small" *ngIf="getUsernameSpecificError() != null">{{getUsernameSpecificError()}}</mat-error>
+			<mat-error *ngIf="getUsernameRequiredError() != null">{{getUsernameRequiredError()}}</mat-error>
+			<mat-error *ngIf="getUsernameLengthError() != null">{{getUsernameLengthError()}}</mat-error>
+			<mat-error *ngIf="getUsernameLetterError() != null">{{getUsernameLetterError()}}</mat-error>
+			<mat-error *ngIf="getUsernameSpecificError() != null">{{getUsernameSpecificError()}}</mat-error>
 		</mat-form-field>
 		<mat-form-field class="mt-2" subscriptSizing="dynamic" color="accent" appearance="fill">
 			<mat-label>Email</mat-label>
 			<input type="email" matInput [formControl]="emailControl">
-			<mat-error class="small" *ngIf="getEmailError() != null">{{getEmailError()}}</mat-error>
+			<mat-error *ngIf="getEmailError() != null">{{getEmailError()}}</mat-error>
 		</mat-form-field>
 		<mat-form-field class="mt-2" subscriptSizing="dynamic" color="accent" appearance="fill">
 			<mat-label>Password</mat-label>
 			<input type="password" matInput [formControl]="passwordControl">
-			<mat-error class="small" *ngIf="getPasswordRequiredError() != null">{{getPasswordRequiredError()}}</mat-error>
-			<mat-error class="small" *ngIf="getPasswordLengthError() != null">{{getPasswordLengthError()}}</mat-error>
-			<mat-error class="small" *ngIf="getPasswordLetterError() != null">{{getPasswordLetterError()}}</mat-error>
-			<mat-error class="small" *ngIf="getPasswordDigitError() != null">{{getPasswordDigitError()}}</mat-error>
+			<mat-error *ngIf="getPasswordRequiredError() != null">{{getPasswordRequiredError()}}</mat-error>
+			<mat-error *ngIf="getPasswordLengthError() != null">{{getPasswordLengthError()}}</mat-error>
+			<mat-error *ngIf="getPasswordLetterError() != null">{{getPasswordLetterError()}}</mat-error>
+			<mat-error *ngIf="getPasswordDigitError() != null">{{getPasswordDigitError()}}</mat-error>
 		</mat-form-field>
 		<mat-form-field class="mt-2" subscriptSizing="dynamic" color="accent" appearance="fill">
 			<mat-label>Password (Again)</mat-label>
 			<input type="password" matInput [formControl]="passwordConfirmationControl">
-			<mat-error class="small" *ngIf="getPasswordsMatchError() != null">{{getPasswordsMatchError()}}</mat-error>
+			<mat-error *ngIf="getPasswordsMatchError() != null">{{getPasswordsMatchError()}}</mat-error>
 		</mat-form-field>
-		<mat-error class="small" *ngIf="getServerError() != null">{{getServerError()}}</mat-error>
+		<mat-error *ngIf="getServerError() != null">{{getServerError()}}</mat-error>
 		<!-- <div class="rememberMeContainer">
 			<mat-checkbox  [formControl]="rememberMeControl">Remember Me</mat-checkbox>
 		</div> -->

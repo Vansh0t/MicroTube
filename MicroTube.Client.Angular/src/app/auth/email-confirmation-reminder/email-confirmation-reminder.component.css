@@ -1,0 +1,7 @@
+.popup-container {
+  padding-inline: 0.5rem;
+display:flex;
+flex-direction: column;
+align-items: flex-end;
+height: 100%;
+}

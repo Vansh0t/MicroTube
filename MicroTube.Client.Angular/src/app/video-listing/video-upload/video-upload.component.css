@@ -1,10 +1,29 @@
 .video-upload-container {
   display: flex;
-flex-direction:column;
+  flex-direction: column;
   align-items: center;
   padding: 1rem;
 }
 .policy-container {
   margin-left: -10px;
-margin-top: 1rem;
+margin-top: 0.5rem;
+}
+.text-input-field {
+  width:100%;
+}
+form {
+  display:flex;
+  flex-direction:column;
+  gap: 0.5rem;
+  width: 34vw;
+  min-width: 272px;
+}
+.video-input-container{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  margin-top: 1rem;
+}
+.policy-required-asterix {
+  display:inline;
 }

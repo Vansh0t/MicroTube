@@ -1,21 +1,21 @@
-<div class="p-2">
-	<form class="d-flex flex-column align-items-center" (ngSubmit)="submit()" [formGroup]="formGroup">
-		<mat-form-field class="w-100" subscriptSizing="dynamic" color="accent" appearance="fill">
-			<mat-label>Email or Username</mat-label>
+<div class="main-container">
+	<form (ngSubmit)="submit()" [formGroup]="formGroup">
+		<mat-form-field subscriptSizing="dynamic" color="accent" appearance="fill">
+			<mat-label >Email or Username</mat-label>
 			<input matInput [formControl]="credentialControl">
 			<mat-error class="small" *ngIf="getCredentialError() != null">{{getCredentialError()}}</mat-error>
 		</mat-form-field>
-		<mat-form-field class="mt-2 w-100" subscriptSizing="dynamic" color="accent" appearance="fill">
+		<mat-form-field subscriptSizing="dynamic" color="accent" appearance="fill">
 			<mat-label>Password</mat-label>
 			<input type="password" matInput [formControl]="passwordControl">
 			<mat-error class="small" *ngIf="getPasswordError() != null">{{getPasswordError()}}</mat-error>
 		</mat-form-field>
-		<mat-error class="small ms-3" *ngIf="getServerError() != null">{{getServerError()}}</mat-error>
-		<a class="ms-1 mt-1 dense-minus-3" mat-button [matMenuTriggerFor]="resetPasswordMenu"><p class="small">Forgot password?<p></a>
+		<mat-error *ngIf="getServerError() != null">{{getServerError()}}</mat-error>
+		<a class="dense-minus-3" mat-button [matMenuTriggerFor]="resetPasswordMenu"><p class="mat-small">Forgot password?<p></a>
 		<mat-menu #resetPasswordMenu>
 			<reset-password-form (click)="$event.stopPropagation()" />
 		</mat-menu>
-		<button class="me-2  mt-2" mat-raised-button color="accent" [disabled]="!formGroup.valid">Sign In</button>
+		<button mat-raised-button color="accent" [disabled]="!formGroup.valid">Sign In</button>
 		<!-- <div class="w-100 d-flex">
 		<mat-checkbox class="me-auto" [formControl]="rememberMeControl">Remember Me</mat-checkbox>
 				  <button class="me-2" mat-button color="accent" [disabled]="!formGroup.valid">Sign In</button>

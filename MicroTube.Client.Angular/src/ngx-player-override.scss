@@ -1,5 +1,5 @@
 @use '@angular/material' as mat;
-@import './custom-theme';
+@import './dark-theme.scss';
 @-moz-keyframes spin {
   0% {
     -moz-transform: rotate(0deg);
@@ -40,7 +40,7 @@
   }
 }
 vg-volume .volumeValue {
-  background-color: mat.get-theme-color($MicroTube-theme, primary, 500) !important;
+  background-color: mat.get-theme-color($MicroTube-dark-theme, primary, 500) !important;
 }
 vg-controls vg-scrub-bar {
   background: transparent !important;
@@ -49,12 +49,12 @@ vg-scrub-bar {
   background: #ffffff43 !important;
 }
 vg-overlay-play .vg-overlay-play {
-  color: mat.get-theme-color($MicroTube-theme, primary, 500) !important;
+  color: mat.get-theme-color($MicroTube-dark-theme, primary, 500) !important;
 }
 vg-scrub-bar-current-time .background {
-  background-color: mat.get-theme-color($MicroTube-theme, primary, 500) !important;
+  background-color: mat.get-theme-color($MicroTube-dark-theme, primary, 500) !important;
 }
 vg-scrub-bar-buffering-time .background {
-  background-color: mat.get-theme-color($MicroTube-theme, primary, 300) !important;
+  background-color: mat.get-theme-color($MicroTube-dark-theme, primary, 300) !important;
   opacity: 0.4;
 }
