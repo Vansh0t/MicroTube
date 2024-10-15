@@ -36,8 +36,8 @@
 					<span class="mat-mdc-form-field-error policy-required-asterix">*</span>
 				</mat-checkbox>
 			</div>
-			<button mat-raised-button color="accent" class="mt-3" [disabled]="!formGroup.valid">Upload</button>
-			<mat-error class="small ms-3" *ngIf="uploadServerError != null">{{uploadServerError}}</mat-error>
+			<button mat-raised-button color="accent" class="submit-upload-button" [disabled]="!formGroup.valid">Upload</button>
+			<mat-error class="mat-small" *ngIf="uploadServerError != null">{{uploadServerError}}</mat-error>
 
 		</form>
 	</div>

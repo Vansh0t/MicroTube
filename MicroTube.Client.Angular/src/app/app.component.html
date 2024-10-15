@@ -1,8 +1,12 @@
 <div>
 	<div class="toolbar">
-		<button mat-button class="logo-button" routerLink="/">
+		<button mat-button class="logo-button logo-white" routerLink="/">
 			<img class="logo-header logo-full" src="/assets/img/logo/microtube-logo-full-white.svg" />
 			<img class="logo-header logo-small" src="/assets/img/logo/microtube-icon-white.svg" />
+		</button>
+		<button mat-button class="logo-button logo-black" routerLink="/">
+			<img class="logo-header logo-full" src="/assets/img/logo/microtube-logo-full-black.svg" />
+			<img class="logo-header logo-small" src="/assets/img/logo/microtube-icon-black.svg" />
 		</button>
 		<suggestion-search-bar class="video-search-bar" [suggestionsSource]="videoSearchSuggestionsSource" [onSubmit]="searchVideo.bind(this)" [onInputChanged]="updateSearchSuggestions.bind(this)" />
 		<div class="right-menus-container">
@@ -25,7 +29,7 @@
 			}
 			<misc-menu />
 		</div>
-		
+
 	</div>
   <main>
 	  <div class="global-horizontal-padding outlet-container">

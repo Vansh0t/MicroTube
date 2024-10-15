@@ -1,7 +1,7 @@
-@use '@angular/material' as mat;
-@use 'theme' as theme;
-@use 'dark-theme';
-@use 'light-theme';
+@use "@angular/material" as mat;
+@use "theme" as theme;
+@use "dark-theme" as dark-theme;
+@use "light-theme" as light-theme;
 *,
 *::before,
 *::after {
@@ -10,10 +10,24 @@
 .dark-theme {
   color-scheme: dark;
   --bg-color: rgb(15, 15, 15);
-  --link-highlight-color: mat.get-theme-color($MicroTube-dark-theme, primary, 500);
+  --toolbar-color: rgb(0, 0, 0, 0);
   --text-main-color: rgb(241, 241, 241);
   --text-secondary-color: #BDBDBD;
   @include theme.use-dark-theme();
+}
+.dark-theme .logo-black {
+  display:none;
+}
+.light-theme {
+  color-scheme: light;
+  --bg-color: rgb(255, 255, 255);
+  --toolbar-color: rgb(15, 15, 15);
+  --text-main-color: rgb(15, 15, 15);
+  --text-secondary-color: #454444;
+  @include theme.use-light-theme();
+}
+.light-theme .logo-white {
+  display: none;
 }
 html, body {
   height: 100%;
@@ -36,8 +50,12 @@ a {
   color: var(--text-main-color) !important;
   text-decoration: none;
 }
-.highlighted-link {
-  color: var(--link-highlight-color) !important;
+//get theme dependant colors this way because css variables not getting it from scss map for some reason
+.dark-theme .highlighted-link {
+  color: mat.get-theme-color(dark-theme.$MicroTube-dark-theme, primary, 500) !important;
+}
+.light-theme .highlighted-link {
+  color: mat.get-theme-color(light-theme.$MicroTube-light-theme, primary, 500) !important;
 }
 .highlighted-link:hover {
   text-decoration: underline;

@@ -9,6 +9,7 @@
   @include mat.all-component-themes(dark-theme.$MicroTube-dark-theme);
 }
 @mixin use-light-theme() {
+  @include mat.typography-hierarchy(light-theme.$MicroTube-light-theme-typography);
   @include mat.all-component-themes(light-theme.$MicroTube-light-theme);
   /*@include mat.typography-hierarchy($MicroTube-light-theme,typography);*/
 }

@@ -1,0 +1,12 @@
+.popup-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-inline: 0.625rem;
+gap:0.5rem;
+}
+.item {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
