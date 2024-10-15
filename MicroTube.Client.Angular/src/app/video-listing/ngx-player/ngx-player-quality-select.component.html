@@ -6,7 +6,7 @@
 		@for(option of qualityOptions; track option){
 		<button class="option clickable" [class.active]="option == selectedQuality" (click)="setQuality(qualityOptions.indexOf(option))">
 			<mat-icon class="selected-marker" aria-hidden="true">circle</mat-icon>
-			<p>{{option.label}}</p>
+			<p class="mat-body">{{option.label}}</p>
 		</button>
 		}
 		}

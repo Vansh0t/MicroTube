@@ -1,17 +1,17 @@
-<div class="p-2 d-flex flex-column align-items-start">
-	<button mat-button routerLink="user/profile" class="d-inline">
+<div class="main-container">
+	<button mat-button class="item" routerLink="user/profile">
 		<mat-icon>person</mat-icon>
 		Account
 	</button>
-	<hr class="w-100" />
-	<button mat-button routerLink="/upload"><mat-icon>publish</mat-icon>Upload a Video</button>
-	<button mat-button routerLink="/upload/list"><mat-icon>timeline</mat-icon>Upload History</button>
+	<hr/>
+	<button mat-button class="item" routerLink="/upload"><mat-icon>publish</mat-icon>Upload a Video</button>
+	<button mat-button class="item" routerLink="/upload/list"><mat-icon>timeline</mat-icon>Upload History</button>
 	<!-- <button mat-button>Watch History</button> -->
-	<hr class="w-100"/>
-	<button mat-button [matMenuTriggerFor]="signOutMenu" (click)="$event.stopPropagation()" #signOutMenuTrigger>
+	<hr />
+	<button mat-button class="item" [matMenuTriggerFor]="signOutMenu" (click)="$event.stopPropagation()" #signOutMenuTrigger>
 		<mat-icon>logout</mat-icon>
 		Sign Out
-		</button>
+	</button>
 	<mat-menu #signOutMenu>
 		<sign-out-form (click)="$event.stopPropagation()" (onCancelled)="closeSignOutMenu()" />
 	</mat-menu>

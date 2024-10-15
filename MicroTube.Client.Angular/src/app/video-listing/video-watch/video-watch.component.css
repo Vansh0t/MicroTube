@@ -17,6 +17,7 @@
 margin-top: 1rem;
   width: 100%;
   padding-inline: 4%;
+  gap: 0.5rem;
 }
 like-component {
   margin-left: 12rem;
@@ -32,8 +33,9 @@ gap: 0.825rem;
 .video-views-container {
   display:flex;
   flex-direction: row;
-  width: 2rem;
+  width: 2.425rem;
   justify-content: space-between;
+  align-items: center;
 }
 .video-info-second-line-container {
   display: flex;

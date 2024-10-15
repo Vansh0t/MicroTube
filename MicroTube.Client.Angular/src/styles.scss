@@ -1,11 +1,33 @@
-@use '@angular/material' as mat;
-@import './custom-theme';
-:root {
+@use "@angular/material" as mat;
+@use "theme" as theme;
+@use "dark-theme" as dark-theme;
+@use "light-theme" as light-theme;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+.dark-theme {
   color-scheme: dark;
   --bg-color: rgb(15, 15, 15);
+  --toolbar-color: rgb(0, 0, 0, 0);
   --text-main-color: rgb(241, 241, 241);
   --text-secondary-color: #BDBDBD;
-  scrollbar-color: var(--text-secondary-color) var(--bg-color);
+  @include theme.use-dark-theme();
+}
+.dark-theme .logo-black {
+  display:none;
+}
+.light-theme {
+  color-scheme: light;
+  --bg-color: rgb(255, 255, 255);
+  --toolbar-color: rgb(15, 15, 15);
+  --text-main-color: rgb(15, 15, 15);
+  --text-secondary-color: #454444;
+  @include theme.use-light-theme();
+}
+.light-theme .logo-white {
+  display: none;
 }
 html, body {
   height: 100%;
@@ -13,9 +35,14 @@ html, body {
   font-family: Roboto, "Helvetica Neue", sans-serif !important;
   overflow-y: hidden;
   color: var(--text-main-color) !important;
+  scrollbar-color: var(--text-secondary-color) var(--bg-color);
+  background-color: var(--bg-color);
 }
-p, h1, h2, h3, h4, h5, input[type=text] {
-  margin: 2px 0 0 0 !important;
+input[type=text], input[type=email], input[type=password], input[type=tel], input[type=number] {
+  margin-top: 4px !important;
+}
+p, h1, h2, h3, h4, h5 {
+  margin: 0 0 0 0 !important;
 }
 a {
   max-width: 100%;
@@ -23,8 +50,12 @@ a {
   color: var(--text-main-color) !important;
   text-decoration: none;
 }
-.highlighted-link {
-  color: mat.get-theme-color($MicroTube-theme, primary, 500) !important;
+//get theme dependant colors this way because css variables not getting it from scss map for some reason
+.dark-theme .highlighted-link {
+  color: mat.get-theme-color(dark-theme.$MicroTube-dark-theme, primary, 500) !important;
+}
+.light-theme .highlighted-link {
+  color: mat.get-theme-color(light-theme.$MicroTube-light-theme, primary, 500) !important;
 }
 .highlighted-link:hover {
   text-decoration: underline;
@@ -54,6 +85,6 @@ $xl: screen and (min-width: 1920px) and (max-width: 5000px);
   display:flex;
 flex-direction:row;
 }
-/*.mat-mdc-option {
-  padding-inline: 4% !important;
-}*/
+.cdk-global-scrollblock {
+  overflow-y: hidden !important;
+}

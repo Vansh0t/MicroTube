@@ -1,5 +1,4 @@
 @import "../breakpoints.scss";
-@import '../custom-theme';
 .video-search-bar {
   width:40vw;
   max-width: 32rem;
@@ -30,6 +29,7 @@
   align-items: center;
   background-color: transparent;
   padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
 }
 
 .navbar-username {
@@ -69,4 +69,11 @@
     padding-inline: 4vw;
     
   }
+}
+.logo-button {
+  height:100%;
+}
+.signed-in-navbar-container {
+  display: flex;
+align-items:center;
 }

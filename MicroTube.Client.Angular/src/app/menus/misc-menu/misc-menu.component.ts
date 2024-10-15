@@ -1,7 +1,6 @@
 import { Component } from "@angular/core";
-import { MatDialog } from "@angular/material/dialog";
-import { InfoPopupDialogComponent } from "../../utility-components/info-popup-dialog/info-popup-dialog.component";
 import { InfoService } from "../../services/info/InfoService";
+import { ThemeManager } from "../../services/ui/ThemeManager";
 
 @Component({
   selector: "misc-menu",
@@ -10,9 +9,15 @@ import { InfoService } from "../../services/info/InfoService";
 })
 export class MiscMenuComponent
 {
+  readonly themeManager: ThemeManager;
   readonly infoService: InfoService;
-  constructor(infoService: InfoService)
+  get isDarkTheme()
+  {
+    return this.themeManager.theme.value === "dark-theme";
+  }
+  constructor(infoService: InfoService, themeManager: ThemeManager)
   {
     this.infoService = infoService;
+    this.themeManager = themeManager;
   }
 }

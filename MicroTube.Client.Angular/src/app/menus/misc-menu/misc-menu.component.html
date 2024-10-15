@@ -2,13 +2,19 @@
 	<mat-icon>more_vert</mat-icon>
 </button>
 <mat-menu #menu="matMenu">
-	<button mat-menu-item (click)="infoService.showPrivacy()">
-		<span>Privacy</span>
-	</button>
-	<button mat-menu-item (click)="infoService.showContentPolicy()">
-		<span>Content Policy</span>
-	</button>
-	<button mat-menu-item (click)="infoService.showAbout()">
-		<span>About & Contact</span>
-	</button>
+	<div class="popup-container">
+		<button mat-button class="item" (click)="themeManager.toggleTheme(); $event.stopPropagation();">
+			Theme <mat-icon>{{isDarkTheme ? "dark_mode": "light_mode"}}</mat-icon>
+		</button>
+		<button mat-button class="item" (click)="infoService.showPrivacy()">
+			Privacy <mat-icon>admin_panel_settings</mat-icon>policy
+		</button>
+		<button mat-button class="item" (click)="infoService.showContentPolicy()">
+			Content Policy <mat-icon>policy</mat-icon>
+		</button>
+		<button mat-button class="item" (click)="infoService.showAbout()">
+			About & Contact <mat-icon>contact_support</mat-icon>
+		</button>
+	</div>
 </mat-menu>
+

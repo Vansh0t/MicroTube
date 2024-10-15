@@ -9,6 +9,7 @@
 .main-container {
   padding-inline: 1%;
   padding-top: 1rem;
+width: 100%;
   overflow-y: auto;
   max-height: calc( 100vh - var(--mat-toolbar-standard-height));
 }
@@ -68,4 +69,8 @@
 }
 .uploader-filter {
   height: auto;
+}
+.controls-container {
+  display:flex;
+  gap: 0.5rem;
 }
