@@ -3,14 +3,14 @@
   height: 100%;
   width: 64px;
 }
-.quality-select .internal-container {
-  position: absolute;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: end;
-  height: fit-content;
-}
+  .quality-select .internal-container {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    height: fit-content;
+  }
 
 .option {
   height: 50px;
@@ -31,6 +31,10 @@ p {
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
+  color: #fff;
+}
+mat-icon {
+  color: #fff;
 }
 .clickable:hover {
   cursor: pointer;
