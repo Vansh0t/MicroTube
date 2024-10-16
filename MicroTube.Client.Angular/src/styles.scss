@@ -19,12 +19,14 @@
   display:none;
 }
 .light-theme {
+  @include theme.use-light-theme();
   color-scheme: light;
-  --bg-color: rgb(255, 255, 255);
+  --mat-app-background-color: #fdfbff;
+  --mdc-dialog-container-color: #fdfbff;
+  --bg-color: #fdfbff;
   --toolbar-color: rgb(15, 15, 15);
   --text-main-color: rgb(15, 15, 15);
   --text-secondary-color: #454444;
-  @include theme.use-light-theme();
 }
 .light-theme .logo-white {
   display: none;

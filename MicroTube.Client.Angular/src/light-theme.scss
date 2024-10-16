@@ -2,7 +2,8 @@
 
 $MicroTube-light-theme-typography: mat.define-typography-config(
   $body-2: mat.define-typography-level(0.875rem, 1rem),
-  $body-1: mat.define-typography-level(0.875rem, 1rem)
+  $body-1: mat.define-typography-level(0.875rem, 1rem),
+  $subtitle-1: mat.define-typography-level(1rem, 1.8rem, 500)
 );
 $MicroTube-light-theme: mat.define-light-theme((
   color: (
