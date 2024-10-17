@@ -53,6 +53,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   videos: VideoDTO[] | null = null;
   searchControls: SearchControlsDTO | null = null;
   private routerSubscription: Subscription | null = null;
+  private endOfPaginationReached: boolean = false;
   get isLoadingVideos()
   {
     return this.videosSubscription != null;
@@ -88,6 +89,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   }
   updateVideos()
   {
+    this.endOfPaginationReached = false;
     const searchParams = this.searchQueryReader.readSearchParameters();
     this.videos = null;
     this.searchService.resetMeta();
@@ -109,7 +111,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
       return;
     }
     const scrollTopPercent = getScrollTopPercent($event.target);
-    if (this.isLoadingVideos)
+    if (this.isLoadingVideos || this.endOfPaginationReached)
     {
       this.prevScrollPercent = scrollTopPercent;
       return;
@@ -164,6 +166,10 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
     else
     {
       this.videos = this.videos.concat(result.videos);
+    }
+    if (result.videos.length == 0)
+    {
+      this.endOfPaginationReached = true;
     }
   }
   private updateSearchControls(params: VideoSearchParametersDTO)

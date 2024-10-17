@@ -1,0 +1,9 @@
+.main-container {
+  width: 100%;
+  gap: 0.125rem;
+  display: flex;
+  align-items: center;
+}
+.input-form-field {
+  width:100%;
+}

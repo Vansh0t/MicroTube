@@ -30,9 +30,10 @@
               "src/assets"
             ],
             "styles": [
-              "src/bootstrap.css",
               "src/styles.scss",
-              "src/custom-theme.scss",
+              "src/light-theme.scss",
+              "src/dark-theme.scss",
+              "src/theme.scss",
               "src/breakpoints.scss",
               "src/ngx-player-override.scss",
               "video.js/dist/video-js.css",

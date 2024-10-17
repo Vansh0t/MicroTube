@@ -1,0 +1,8 @@
+<div class="main-container">
+	@for(option of data.qualityOptions; track option){
+	<button class="option clickable" [class.active]="option == data.selectedQuality" (click)="selectQuality(option)">
+		<mat-icon class="selected-marker" aria-hidden="true">circle</mat-icon>
+		<p class="mat-body">{{option.label}}</p>
+	</button>
+	}
+</div>

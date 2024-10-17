@@ -1,5 +1,5 @@
 # MicroTube
-[![Test, Build & Deploy API](https://github.com/Vansh0t/MicroTube/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Vansh0t/MicroTube/actions/workflows/dotnet.yml) [![Build & Deploy Angular Client](https://github.com/Vansh0t/MicroTube/actions/workflows/angular.yml/badge.svg?branch=master)](https://github.com/Vansh0t/MicroTube/actions/workflows/angular.yml)
+[![Live badge](https://img.shields.io/badge/Live-microtube.dev-brightgreen.svg)](https://microtube.dev/) [![Test, Build & Deploy API](https://github.com/Vansh0t/MicroTube/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Vansh0t/MicroTube/actions/workflows/dotnet.yml) [![Build & Deploy Angular Client](https://github.com/Vansh0t/MicroTube/actions/workflows/angular.yml/badge.svg?branch=master)](https://github.com/Vansh0t/MicroTube/actions/workflows/angular.yml)
 
 MicroTube is a video hosting and streaming service made with [.NET](https://dotnet.microsoft.com) and [Angular](https://angular.dev). The out-of-the-box version of the project uses [SqlServer](https://www.microsoft.com/sql-server) as a database and some [Azure](https://azure.microsoft.com/) services, but they can be easily switched out. Preview production version is available at https://microtube.dev.
 # Features

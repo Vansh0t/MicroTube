@@ -1,6 +1,6 @@
-<div mat-dialog-content class="d-flex flex-column align-items-center mat-body">
+<div mat-dialog-content class="main-container">
 	<!-- <p class="mat-body">{{info}}</p> -->
-	<mat-dialog-content #content class="mat-typography" [innerHTML]="info">
+	<mat-dialog-content #content  [innerHTML]="info">
 	</mat-dialog-content>
 	<button mat-raised-button color="primary" (click)="close()">Ok</button>
 </div>

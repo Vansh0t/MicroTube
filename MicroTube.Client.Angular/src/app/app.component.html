@@ -1,17 +1,21 @@
 <div>
 	<div class="toolbar">
-		<button mat-button class="h-100" routerLink="/">
+		<button mat-button class="logo-button logo-white" routerLink="/">
 			<img class="logo-header logo-full" src="/assets/img/logo/microtube-logo-full-white.svg" />
 			<img class="logo-header logo-small" src="/assets/img/logo/microtube-icon-white.svg" />
+		</button>
+		<button mat-button class="logo-button logo-black" routerLink="/">
+			<img class="logo-header logo-full" src="/assets/img/logo/microtube-logo-full-black.svg" />
+			<img class="logo-header logo-small" src="/assets/img/logo/microtube-icon-black.svg" />
 		</button>
 		<suggestion-search-bar class="video-search-bar" [suggestionsSource]="videoSearchSuggestionsSource" [onSubmit]="searchVideo.bind(this)" [onInputChanged]="updateSearchSuggestions.bind(this)" />
 		<div class="right-menus-container">
 			@if(authManager.jwtSignedInUser$ | async) {
-			<div class="d-flex align-items-center">
+			<div class="signed-in-navbar-container">
 				@if(!isUserEmailConfirmed()) {
 				<email-confirmation-reminder />
 				}
-				<h4 class="m-0">{{authManager.jwtSignedInUser$.value?.publicUsername}}</h4>
+				<h4 class="mat-h4">{{authManager.jwtSignedInUser$.value?.publicUsername}}</h4>
 				<button mat-icon-button [matMenuTriggerFor]="profileMenu"><mat-icon>account_circle</mat-icon></button>
 				<mat-menu #profileMenu>
 					<profile-popup />
@@ -25,7 +29,7 @@
 			}
 			<misc-menu />
 		</div>
-		
+
 	</div>
   <main>
 	  <div class="global-horizontal-padding outlet-container">

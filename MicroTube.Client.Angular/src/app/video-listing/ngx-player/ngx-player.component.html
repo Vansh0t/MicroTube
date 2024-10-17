@@ -4,7 +4,7 @@
 	<vg-overlay-play></vg-overlay-play>
 	<!-- 	<vg-buffering></vg-buffering> -->
 	@if(isBuffering ) {
-	<div class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center">
+	<div class="spinner-container">
 		<mat-spinner></mat-spinner>
 	</div>
 	}
@@ -19,7 +19,7 @@
 		<vg-playback-button></vg-playback-button>
 
 		<vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
-		<div class="ms-auto"></div>
+		<div class="controls-separator"></div>
 		<ngx-player-quality-selector [qualityOptions]="options.qualityOptions"
 									 [selectedQualityIndex]="options.selectedQualityIndex"
 									 (onQualityChanged)="updateSource($event)" />

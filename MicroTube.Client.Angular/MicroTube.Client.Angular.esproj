@@ -18,5 +18,6 @@
   <ItemGroup>
     <Folder Include="src\app\menus\" />
     <Folder Include="src\app\services\info\" />
+    <Folder Include="src\app\services\ui\" />
   </ItemGroup>
 </Project>

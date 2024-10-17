@@ -100,7 +100,7 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     }).sort((a, b) => b.height - a.height);
     this.videoPlayerOptions = {
       qualityOptions: qualityOptions,
-      selectedQualityIndex: qualityOptions.length - (qualityOptions.length-1)
+      selectedQualityIndex: 0
     };
     return this.videoPlayerOptions;
   }

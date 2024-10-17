@@ -1,0 +1,15 @@
+@use '@angular/material' as mat;
+@use 'light-theme' as light-theme;
+@use 'dark-theme' as dark-theme;
+
+@include mat.core();
+
+@mixin use-dark-theme() {
+  @include mat.typography-hierarchy(dark-theme.$MicroTube-dark-theme-typography);
+  @include mat.all-component-themes(dark-theme.$MicroTube-dark-theme);
+}
+@mixin use-light-theme() {
+  @include mat.typography-hierarchy(light-theme.$MicroTube-light-theme-typography);
+  @include mat.all-component-themes(light-theme.$MicroTube-light-theme);
+  /*@include mat.typography-hierarchy($MicroTube-light-theme,typography);*/
+}

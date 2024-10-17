@@ -3,14 +3,15 @@
 
 @media (max-width: 599px) {
   .main-container {
-    max-height: calc( 100vh - var(--mat-toolbar-mobile-height));
+    max-height: calc( 100dvh - var(--mat-toolbar-mobile-height));
   }
 }
 .main-container {
   padding-inline: 1%;
   padding-top: 1rem;
+  width: 100%;
   overflow-y: auto;
-  max-height: calc( 100vh - var(--mat-toolbar-standard-height));
+  max-height: calc( 100dvh - var(--mat-toolbar-standard-height));
 }
 
 .video-listing-main {
@@ -68,4 +69,8 @@
 }
 .uploader-filter {
   height: auto;
+}
+.controls-container {
+  display:flex;
+  gap: 0.5rem;
 }
