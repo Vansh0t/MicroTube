@@ -1,3 +1,7 @@
+@import "../../../breakpoints.scss";
+
+
+
 .quality-select {
   position: relative;
   height: 100%;
@@ -23,8 +27,13 @@
   border: none;
 }
 .quality-select-button {
-  padding: 0px 24px 0px 24px;
+  padding: 0px 4px 0px 4px;
   background-color: transparent;
+  display:flex;
+  gap: 0.265rem;
+}
+.quality-select-button p {
+  display: block;
 }
 p {
   margin: 0;
@@ -47,3 +56,20 @@ mat-icon {
   visibility: visible;
 }
 
+@include xs {
+  .quality-select-button p {
+    display: none;
+  }
+
+  .quality-select-button {
+    padding: 0;
+  }
+
+  .quality-select {
+    position: relative;
+    height: 100%;
+    max-width: 24px;
+    min-width: 24px;
+    margin-right: 0.125rem;
+  }
+}

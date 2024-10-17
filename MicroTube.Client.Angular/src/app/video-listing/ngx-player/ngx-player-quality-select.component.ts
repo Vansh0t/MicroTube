@@ -9,7 +9,7 @@ import { VideoPlayerQualityDialogComponent } from "../video-player-quality-dialo
   standalone: true,
   selector: "ngx-player-quality-selector",
   templateUrl: "./ngx-player-quality-select.component.html",
-  styleUrls: ["./ngx-player-quality-select.component.css"],
+  styleUrls: ["./ngx-player-quality-select.component.scss"],
   imports: [
     MatIconModule
   ]
