@@ -1,0 +1,38 @@
+.main-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  background-color: #00000080;
+  background-color: rgb(15,15,15, 0.5);
+}
+mat-icon {
+color: #fff;
+}
+p {
+  margin: 0;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+  color: #fff;
+}
+.selected-marker {
+  transform: scale(0.25);
+  visibility: hidden;
+}
+.active .selected-marker {
+  visibility: visible;
+}
+.clickable:hover {
+  cursor: pointer;
+}
+.option {
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+  background-color: #00000080;
+  padding: 0px 12px 0px 0px;
+  border: none;
+}
+

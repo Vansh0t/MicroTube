@@ -2,7 +2,7 @@
 <div class="quality-select" (click)="isExpanded = !isExpanded">
 	<div class="internal-container">
 
-		@if(isExpanded) {
+		@if(isExpanded && !usePopupSelect) {
 		@for(option of qualityOptions; track option){
 		<button class="option clickable" [class.active]="option == selectedQuality" (click)="setQuality(qualityOptions.indexOf(option))">
 			<mat-icon class="selected-marker" aria-hidden="true">circle</mat-icon>
@@ -11,7 +11,7 @@
 		}
 		}
 		@if(selectedQuality != null) {
-		<button class="option quality-select-button clickable"><p>{{selectedQuality.label}}</p></button>
+		<button class="option quality-select-button clickable"><mat-icon>settings</mat-icon><p class="mat-body">{{selectedQuality.label}}</p></button>
 		}
 	</div>
 </div>

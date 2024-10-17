@@ -25,6 +25,7 @@ import { AppAuthModule } from "../auth/auth.module";
 import { LikeComponent } from "./video-reaction-component/video-reaction.component";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatCheckboxModule } from "@angular/material/checkbox";
+import { VideoPlayerQualityDialogComponent } from "./video-player-quality-dialog/video-player-quality-dialog.component";
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
     VideoWatchComponent,
     VideoUploadComponent,
     UploadProgressListComponent,
-    LikeComponent
+    LikeComponent,
+    VideoPlayerQualityDialogComponent
   ],
   imports: [
     CommonModule,
