@@ -29,7 +29,7 @@ export class NgxPlayerQualitySelectorComponent implements OnDestroy
   {
     this.dialog = dialog;
     this.breakpointObserver = breakpointObserver;
-    this.breakpointSubscription = this.breakpointObserver.observe([Breakpoints.XSmall])
+    this.breakpointSubscription = this.breakpointObserver.observe([Breakpoints.Handset])
       .subscribe(this.onBreakpoint.bind(this));
   }
   ngOnDestroy(): void
