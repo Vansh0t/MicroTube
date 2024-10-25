@@ -8,16 +8,18 @@ services:
     depends_on:
        mssql:
          condition: service_started
+       elasticsearch:
+        condition: service_healthy
     environment:
      - ASPNETCORE_ENVIRONMENT=Development
      - ASPNETCORE_URLS=https://+:7146;
      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
-     - ASPNETCORE_Kestrel__Certificates__Default__Path=/root/.aspnet/https/microtube.pfx
+     - ASPNETCORE_Kestrel__Certificates__Default__Path=/usr/local/share/ca-certificates/localhost.pfx
     ports:
       - "7146:7146"
     volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets
+      - ./Shared/Dev_Certificates/:/usr/local/share/ca-certificates
   client-angular:
     image: v4containers/microtube/client/angular
     mem_limit: 2gb
@@ -32,8 +34,8 @@ services:
       context: ./MicroTube.Client.Angular
       dockerfile: ./Dockerfile.dev
     volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets
+      - ./Shared/Dev_Certificates/:/usr/local/share/ca-certificates
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     mem_limit: 2gb
@@ -52,8 +54,6 @@ services:
     ports:
       - "10000:10000"
     entrypoint: ["azurite-blob", "--blobHost", "0.0.0.0", "--blobPort", "10000"]
-    volumes:
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
     mem_limit: 3gb
@@ -64,6 +64,15 @@ services:
     environment: 
       - discovery.type=single-node
       - xpack.security.enabled=false
+    healthcheck:
+     test:
+       [
+         "CMD-SHELL",
+         "curl -s http://elasticsearch:9200 >/dev/null || exit 1",
+       ]
+     interval: 5s
+     timeout: 10s
+     retries: 120
   kibana:
     image: docker.elastic.co/kibana/kibana:8.13.4
     mem_limit: 1gb
@@ -73,3 +82,27 @@ services:
       - "5601:5601"
     environment:
       - XPACK_SECURITY_ENABLED=false
+  devmail:
+    image: rnwood/smtp4dev
+    mem_limit: 250mb
+    container_name: devmail
+    hostname: devmail
+    ports:
+     - "5000:80"
+     - "587:587"
+    environment:
+     - ServerOptions__Urls=https://*:80
+     - ServerOptions__Port=587
+     - ServerOptions__HostName=devmail
+     - ServerOptions__TlsMode=StartTls
+     - ServerOptions__TlsCertificate=/usr/local/share/ca-certificates/devmail.crt
+     - ServerOptions__TlsCertificatePrivateKey=/usr/local/share/ca-certificates/devmail.key
+     - ServerOptions__SmtpAllowAnyCredentials=false
+     - ServerOptions__AuthenticationRequired=true
+     - ServerOptions__Users__0__Username=no-reply@devmail
+     - ServerOptions__Users__0__Password=no-reply-password
+    volumes:
+      - ./Shared/Dev_Certificates/:/usr/local/share/ca-certificates
+      - smtp4dev-data:/smtp4dev
+volumes:
+  smtp4dev-data:
