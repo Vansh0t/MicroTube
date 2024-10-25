@@ -2,7 +2,6 @@
 {
     public interface IEmailManager
     {
-        public Task Send(string subject, string recipient, string htmlMessage);
-        public Task SendMultiple(string subject, IEnumerable<string> recipients, string htmlMessage);
+        public Task Send(SenderCredentials sender, string subject, string recipient, string htmlMessage);
     }
 }

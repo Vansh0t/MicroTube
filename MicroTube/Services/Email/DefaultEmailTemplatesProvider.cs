@@ -1,4 +1,5 @@
-﻿using System.IO.Abstractions;
+﻿using MicroTube.Services.ConfigOptions;
+using System.IO.Abstractions;
 
 namespace MicroTube.Services.Email
 {
@@ -35,10 +36,9 @@ namespace MicroTube.Services.Email
         }
         private string GetTemplatesLocation()
         {
-            string? emailTemplatesLocation = _config["Email:TemplatesLocation"];
-            if (emailTemplatesLocation == null)
-                throw new ConfigurationException($"Configuration doesn't contain key for templates location Email:TemplatesLocation");
-            return emailTemplatesLocation;
+			var options = _config.GetRequiredByKey<AuthenticationEmailingOptions>(AuthenticationEmailingOptions.KEY);
+			string emailTemplatesLocation = options.TemplatesLocation;
+			return emailTemplatesLocation;
         }
     }
 }
