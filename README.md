@@ -12,3 +12,34 @@ MicroTube is a video hosting and streaming service made with [.NET](https://dotn
 - Completely dockerized with docker-compose.yml
 - Extensive configuration
 - OpenAPI docs at https://api.microtube.dev/swagger
+# Quickstart (Dev)
+- Make sure you have a Docker version supporting "docker compose"
+- Set the following secrets in a preferable way (I use secrets.json). The values in the example below should work out of the box. <b>REPLACE THEM WITH YOUR OWN FOR PRODUCTION.</b>
+```json
+{
+	"ConnectionStrings": {
+		"Default": "Server=tcp:sql-server,1433;Database=MicroTubeDb;User Id=sa;Password=devpassword12345++;Trusted_Connection=False;Connect Timeout=20;Encrypt=False;Trust Server Certificate=True;Command Timeout=10"
+	},
+	"JwtAccessTokens": {
+		"Key": "some_64_bytestring_EyTF0Zk3iMJyphaTa3j9uEeYDVdxSzuwqCePduTuP9jPA"
+	},
+	"AuthenticationEmailing": {
+		"SenderSMTPPassword": "no-reply-password"
+	},
+	"AzureBlobStorage": {
+		"ConnectionString": "UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://azurite"
+	},
+	"ElasticSearch": {
+		"ApiKey": "does_not_matter_in_development"
+	}
+}
+```
+ - Run "docker compose up".
+ - Trust the localhost certificate in Shared/Dev_Certificates/ to remove https warning in browsers.
+ - Run "docker compose up". All containers should be running. 
+
+Development endpoints:
+ - Web UI: https://localhost44466
+ - API: https://localhost:7146/swagger
+ - Dev SMTP: http://localhost:5000
+ - Kibana: http://localhost:5601
