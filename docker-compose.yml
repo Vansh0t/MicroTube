@@ -1,7 +1,7 @@
 
 services:
   microtube:
-    image: v4containers/microtube/api
+    image: v4/microtube/api
     mem_limit: 2gb
     build:
       context: ./MicroTube
@@ -21,7 +21,7 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets
       - ./Shared/Dev_Certificates/:/usr/local/share/ca-certificates
   client-angular:
-    image: v4containers/microtube/client/angular
+    image: v4/microtube/client/angular
     mem_limit: 2gb
     ports: 
       - "44466:44466"
@@ -91,7 +91,7 @@ services:
      - "5000:80"
      - "587:587"
     environment:
-     - ServerOptions__Urls=https://*:80
+     - ServerOptions__Urls=http://*:80
      - ServerOptions__Port=587
      - ServerOptions__HostName=devmail
      - ServerOptions__TlsMode=StartTls
