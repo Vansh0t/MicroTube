@@ -1,5 +1,9 @@
 FROM node:alpine
+RUN apk update
+RUN apk add ca-certificates
+RUN update-ca-certificates
 WORKDIR /app
 COPY . .
 RUN npm install
+
 ENTRYPOINT npm start
