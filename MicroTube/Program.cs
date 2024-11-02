@@ -10,6 +10,7 @@ using MicroTube.Constants;
 using MicroTube.Data.Access;
 using MicroTube.Extensions;
 using MicroTube.Services.Authentication;
+using MicroTube.Services.Comments;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
 using MicroTube.Services.Email;
@@ -60,6 +61,7 @@ builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEma
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IVideoIndexingService, DefaultVideoIndexingService>();
 builder.Services.AddScoped<IVideoViewsAggregatorService, DefaultVideoViewsAggregatorService>();
+builder.Services.AddScoped<IVideoCommentingService, DefaultVideoCommentingService>();
 builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtPasswordResetTokenProvider, DefaultJwtPasswordResetTokenProvider>();
 builder.Services.AddTransient<IJwtClaims, JwtClaims>();

@@ -10,7 +10,6 @@ using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Search;
 using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent.Likes;
-using MicroTube.Services.VideoContent.Reactions;
 using Elastic.Clients.Elasticsearch.Analysis;
 using Elastic.Clients.Elasticsearch.IndexManagement;
 using Elastic.Clients.Elasticsearch.Mapping;
@@ -30,10 +29,11 @@ using MicroTube.Constants;
 using MicroTube.Services.HangfireFilters;
 using MicroTube.Services.Authentication;
 using Hangfire.Dashboard;
+using MicroTube.Services.Reactions;
 
 namespace MicroTube.Extensions
 {
-	public static class StartupExtensions
+    public static class StartupExtensions
 	{
 		public static IServiceCollection AddDefaultBasicAuthenticationFlow(this IServiceCollection services)
 		{
@@ -44,7 +44,7 @@ namespace MicroTube.Extensions
 		}
 		public static IServiceCollection AddVideoReactions(this IServiceCollection services)
 		{
-			services.AddScoped<IVideoReactionsAggregator, DefaultVideoReactionsAggregator>();
+			services.AddScoped<ILikeDislikeReactionAggregator, LikeDislikeReactionAggregator>();
 			services.AddScoped<IVideoReactionsService, DefaultVideoReactionsService>();
 			return services;
 		}
@@ -105,7 +105,6 @@ namespace MicroTube.Extensions
 			services.AddScoped<IVideoProcessingPipeline, DefaultVideoProcessingPipeline>();
 			return services;
 		}
-		
 		public static void ScheduleBackgroundJobs()
 		{
 			RecurringJob.AddOrUpdate<IVideoIndexingService>("VideoSearchIndexing", HangfireConstants.VIDEO_INDEXING_QUEUE, service => service.EnsureVideoIndices(), Cron.Minutely);
