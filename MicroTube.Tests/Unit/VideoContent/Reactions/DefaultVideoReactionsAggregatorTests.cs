@@ -1,5 +1,5 @@
 ﻿using MicroTube.Data.Models;
-using MicroTube.Services.VideoContent.Reactions;
+using MicroTube.Services.Reactions;
 
 namespace MicroTube.Tests.Unit.VideoContent.Reactions
 {
@@ -8,27 +8,27 @@ namespace MicroTube.Tests.Unit.VideoContent.Reactions
 		[Fact]
 		public void UpdateReactionsAggregation_Success()
 		{
-			var aggregator = new DefaultVideoReactionsAggregator();
-			VideoReactionsAggregation aggregation = new() { Dislikes =99, Likes = 99 };
-			aggregation = aggregator.UpdateReactionsAggregation(aggregation, ReactionType.Like, ReactionType.None);
+			var aggregator = new LikeDislikeReactionAggregator();
+			ILikeDislikeReactionsAggregation aggregation = new VideoReactionsAggregation { Dislikes =99, Likes = 99 };
+			aggregation = aggregator.UpdateReactionsAggregation(aggregation, LikeDislikeReactionType.Like, LikeDislikeReactionType.None);
 			Assert.Equal(100, aggregation.Likes);
 			Assert.Equal(99, aggregation.Dislikes);
-			aggregation = aggregator.UpdateReactionsAggregation(aggregation, ReactionType.Dislike, ReactionType.Like);
+			aggregation = aggregator.UpdateReactionsAggregation(aggregation, LikeDislikeReactionType.Dislike, LikeDislikeReactionType.Like);
 			Assert.Equal(99, aggregation.Likes);
 			Assert.Equal(100, aggregation.Dislikes);
-			aggregation = aggregator.UpdateReactionsAggregation(aggregation, ReactionType.Like, ReactionType.Dislike);
+			aggregation = aggregator.UpdateReactionsAggregation(aggregation, LikeDislikeReactionType.Like, LikeDislikeReactionType.Dislike);
 			Assert.Equal(100, aggregation.Likes);
 			Assert.Equal(99, aggregation.Dislikes);
-			aggregation = aggregator.UpdateReactionsAggregation(aggregation, ReactionType.None, ReactionType.Like);
+			aggregation = aggregator.UpdateReactionsAggregation(aggregation, LikeDislikeReactionType.None, LikeDislikeReactionType.Like);
 			Assert.Equal(99, aggregation.Likes);
 			Assert.Equal(99, aggregation.Dislikes);
-			aggregation = aggregator.UpdateReactionsAggregation(aggregation, ReactionType.None, ReactionType.None);
+			aggregation = aggregator.UpdateReactionsAggregation(aggregation, LikeDislikeReactionType.None, LikeDislikeReactionType.None);
 			Assert.Equal(99, aggregation.Likes);
 			Assert.Equal(99, aggregation.Dislikes);
-			aggregation = aggregator.UpdateReactionsAggregation(aggregation, ReactionType.Dislike, ReactionType.None);
+			aggregation = aggregator.UpdateReactionsAggregation(aggregation, LikeDislikeReactionType.Dislike, LikeDislikeReactionType.None);
 			Assert.Equal(99, aggregation.Likes);
 			Assert.Equal(100, aggregation.Dislikes);
-			aggregation = aggregator.UpdateReactionsAggregation(aggregation, ReactionType.None, ReactionType.Dislike);
+			aggregation = aggregator.UpdateReactionsAggregation(aggregation, LikeDislikeReactionType.None, LikeDislikeReactionType.Dislike);
 			Assert.Equal(99, aggregation.Likes);
 			Assert.Equal(99, aggregation.Dislikes);
 		}
