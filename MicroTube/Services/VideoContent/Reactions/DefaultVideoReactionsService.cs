@@ -4,50 +4,50 @@ using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MicroTube.Services.VideoContent.Reactions;
+using MicroTube.Services.Reactions;
 
 namespace MicroTube.Services.VideoContent.Likes
 {
 	public class DefaultVideoReactionsService : IVideoReactionsService
 	{
 		private readonly ILogger<DefaultVideoReactionsService> _logger;
-		private readonly IVideoReactionsAggregator _reactionsAggregator;
+		private readonly ILikeDislikeReactionAggregator _reactionsAggregator;
 		private readonly MicroTubeDbContext _db;
 		public DefaultVideoReactionsService(
 			ILogger<DefaultVideoReactionsService> logger,
 			MicroTubeDbContext db,
-			IVideoReactionsAggregator reactionsAggregator)
+			ILikeDislikeReactionAggregator reactionsAggregator)
 		{
 			_logger = logger;
 			_db = db;
 			_reactionsAggregator = reactionsAggregator;
 		}
 
-		public async Task<IServiceResult<UserVideoReaction>> SetReaction(string userId, string videoId, ReactionType reactionType)
+		public async Task<IServiceResult<UserVideoReaction>> SetReaction(string userId, string videoId, LikeDislikeReactionType reactionType)
 		{
 			if(!Guid.TryParse(userId, out var guidUserId) || !Guid.TryParse(videoId, out var guidVideoId))
 			{
 				return ServiceResult<UserVideoReaction>.Fail(400, "Invalid user or video id.");
 			} 
-			IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
+			using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
 			try
 			{
 				var reaction = await _db.UserVideoReactions.FirstOrDefaultAsync(_ => _.UserId == guidUserId && _.VideoId == guidVideoId);
 				var videoReactions = await _db.VideoAggregatedReactions.FirstOrDefaultAsync(_ => _.VideoId == guidVideoId);
 				if (videoReactions == null)
 					throw new RequiredObjectNotFoundException($"Reactions for video with id {videoId} not found");
-				ReactionType prevReaction;
+				LikeDislikeReactionType prevReaction;
 				if (reaction == null)
 				{
 					reaction = new UserVideoReaction { UserId = guidUserId, VideoId = guidVideoId, ReactionType = reactionType, Time = DateTime.UtcNow };
 					_db.Add(reaction);
-					prevReaction = ReactionType.None;
+					prevReaction = LikeDislikeReactionType.None;
 				}
 				else
 				{
 					prevReaction = reaction.ReactionType;
 				}
-				videoReactions = _reactionsAggregator.UpdateReactionsAggregation(videoReactions, reactionType, prevReaction);
+				videoReactions = (VideoReactionsAggregation)_reactionsAggregator.UpdateReactionsAggregation(videoReactions, reactionType, prevReaction);
 				reaction.ReactionType = reactionType;
 				await _db.SaveChangesAsync();
 				transaction.Commit();
