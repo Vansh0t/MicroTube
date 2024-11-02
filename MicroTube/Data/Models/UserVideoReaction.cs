@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Converters;
+using MicroTube.Services.Reactions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace MicroTube.Data.Models
 {
-	[Index(nameof(UserId), nameof(VideoId), IsUnique =true)]
+    [Index(nameof(UserId), nameof(VideoId), IsUnique =true)]
 	public class UserVideoReaction
 	{
 		[Key]
@@ -19,12 +18,7 @@ namespace MicroTube.Data.Models
 		[ForeignKey(nameof(Video))]
 		public Guid VideoId { get; set; }
 		public Video? Video { get; set; }
-		public required ReactionType ReactionType { get; set; }
+		public required LikeDislikeReactionType ReactionType { get; set; }
 		public required DateTime Time { get; set; }
-	}
-	[JsonConverter(typeof(JsonStringEnumConverter))]
-	public enum ReactionType
-	{
-		None, Like, Dislike
 	}
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MicroTube.Data.Models
 {
-	public class VideoReactionsAggregation
+	public class VideoReactionsAggregation: ILikeDislikeReactionsAggregation
 	{
 		[Key]
 		public Guid Id { get; set; }

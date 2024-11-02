@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using MicroTube.Data.Models.Comments;
 
 namespace MicroTube.Data.Models
 {
@@ -23,5 +24,7 @@ namespace MicroTube.Data.Models
 		public VideoViewsAggregation? VideoViews { get; set; }
 		public VideoReactionsAggregation? VideoReactions { get; set; }
 		public VideoSearchIndexing? VideoIndexing { get; set; }
+		public IList<VideoComment> Comments { get; set; } = new List<VideoComment>();
+		public int CommentsCount { get; set; }
 	}
 }

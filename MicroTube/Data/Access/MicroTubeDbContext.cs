@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MicroTube.Data.Models;
+using MicroTube.Data.Models.Comments;
 
 namespace MicroTube.Data.Access
 {
@@ -16,6 +17,9 @@ namespace MicroTube.Data.Access
 		public DbSet<VideoView> VideoViews { get; set; }
 		public DbSet<VideoUploadProgress> VideoUploadProgresses { get; set; }
 		public DbSet<AuthenticationData> AuthenticationData { get; set; }
+		public DbSet<VideoComment> VideoComments { get; set; }
+		public DbSet<VideoCommentReaction> VideoCommentReactions { get; set; }
+		public DbSet<VideoCommentReactionsAggregation> VideoCommentAggregatedReactions { get; set; }
 		public MicroTubeDbContext()
 		{
 		}
