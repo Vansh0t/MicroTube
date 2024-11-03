@@ -32,36 +32,32 @@ namespace MicroTube.Services.VideoContent.Likes
 			using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
 			try
 			{
-				var reaction = await _db.UserVideoReactions.FirstOrDefaultAsync(_ => _.UserId == guidUserId && _.VideoId == guidVideoId);
-				var videoReactions = await _db.VideoAggregatedReactions.FirstOrDefaultAsync(_ => _.VideoId == guidVideoId);
-				if (videoReactions == null)
-					throw new RequiredObjectNotFoundException($"Reactions for video with id {videoId} not found");
-				LikeDislikeReactionType prevReaction;
-				if (reaction == null)
+				(UserVideoReaction reaction, bool created) = await GetOrCreateReaction(guidUserId, guidVideoId, reactionType);
+				VideoReactionsAggregation reactionsAggregation = await GetReactionsAggregation(guidVideoId);
+				if (created)
 				{
-					reaction = new UserVideoReaction { UserId = guidUserId, VideoId = guidVideoId, ReactionType = reactionType, Time = DateTime.UtcNow };
 					_db.Add(reaction);
-					prevReaction = LikeDislikeReactionType.None;
 				}
-				else
+				else if(reaction.ReactionType == reactionType)
 				{
-					prevReaction = reaction.ReactionType;
+					return ServiceResult<UserVideoReaction>.Success(reaction);
 				}
-				videoReactions = (VideoReactionsAggregation)_reactionsAggregator.UpdateReactionsAggregation(videoReactions, reactionType, prevReaction);
+				reactionsAggregation = (VideoReactionsAggregation)_reactionsAggregator.UpdateReactionsAggregation(reactionsAggregation, reactionType, reaction.ReactionType);
 				reaction.ReactionType = reactionType;
-				await _db.SaveChangesAsync();
-				transaction.Commit();
+				await SetReindexingRequired(guidVideoId);
+				_db.SaveChanges();
+				await transaction.CommitAsync();
 				return ServiceResult<UserVideoReaction>.Success(reaction);
 			}
 			catch (RequiredObjectNotFoundException e)
 			{
-				transaction.Rollback();
+				await transaction.RollbackAsync();
 				_logger.LogError(e, $"Failed add video like from user {userId} to video {videoId}");
 				return ServiceResult<UserVideoReaction>.Fail(404, "Requested video is not found");
 			}
 			catch (Exception e)
 			{
-				transaction.Rollback();
+				await transaction.RollbackAsync();
 				_logger.LogError(e, $"Failed add video like from user {userId} to video {videoId}");
 				return ServiceResult<UserVideoReaction>.FailInternal();
 			}
@@ -77,6 +73,37 @@ namespace MicroTube.Services.VideoContent.Likes
 				return ServiceResult<UserVideoReaction>.Fail(404, "Not found");
 			return ServiceResult<UserVideoReaction>.Success(reaction);
 		}
-
+		private async Task<(UserVideoReaction reaction, bool created)> GetOrCreateReaction(Guid userId, Guid videoId, LikeDislikeReactionType newReactionType)
+		{
+			var reaction = await _db.UserVideoReactions.FirstOrDefaultAsync(_ => _.UserId == userId && _.VideoId == videoId);
+			var videoReactions = await _db.VideoAggregatedReactions.FirstOrDefaultAsync(_ => _.VideoId == videoId);
+			if (videoReactions == null)
+				throw new RequiredObjectNotFoundException($"Reactions for video with id {videoId} not found");
+			LikeDislikeReactionType prevReaction;
+			if (reaction == null)
+			{
+				reaction = new UserVideoReaction { UserId = userId, VideoId = videoId, ReactionType = newReactionType, Time = DateTime.UtcNow };
+				prevReaction = LikeDislikeReactionType.None;
+				return (reaction, true);
+			}
+			else
+			{
+				prevReaction = reaction.ReactionType;
+				return (reaction, false);
+			}
+		}
+		private async Task<VideoReactionsAggregation> GetReactionsAggregation(Guid videoId)
+		{
+			VideoReactionsAggregation? reactionsAggregation = await _db.VideoAggregatedReactions.FirstOrDefaultAsync(_ => _.VideoId == videoId);
+			if (reactionsAggregation == null)
+				throw new RequiredObjectNotFoundException($"Reactions for video with id {videoId} not found");
+			return reactionsAggregation;
+		}
+		private async Task<VideoSearchIndexing> SetReindexingRequired(Guid videoId)
+		{
+			VideoSearchIndexing videoIndexing = await _db.VideoSearchIndexing.FirstAsync(_ => _.VideoId == videoId);
+			videoIndexing.ReindexingRequired = true;
+			return videoIndexing;
+		}
 	}
 }

@@ -47,6 +47,7 @@
   	<InternalsVisibleTo Include="MicroTube.Tests" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Services\Search\Comments\" />
     <Folder Include="Services\Users\" />
   </ItemGroup>
   <ItemGroup>

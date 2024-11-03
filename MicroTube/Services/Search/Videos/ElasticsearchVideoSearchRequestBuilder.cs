@@ -41,7 +41,6 @@ namespace MicroTube.Services.Search.Videos
 		private ICollection<SortOptions>? BuildVideoSearchSort(VideoSearchParameters parameters)
 		{
 			List<SortOptions> sortOptions = new();
-			sortOptions.Add(SortOptions.Score(new ScoreSort { Order = SortOrder.Desc }));
 			var sortType = parameters.SortType;
 			if (sortType == VideoSortType.Relevance)
 			{
@@ -49,17 +48,21 @@ namespace MicroTube.Services.Search.Videos
 			}
 			if (sortType == VideoSortType.Time)
 			{
+				sortOptions.Add(SortOptions.Score(new ScoreSort { Order = SortOrder.Desc }));
 				sortOptions.Add(SortOptions.Field(new Field("uploadedAt"), new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Date }));
 			}
 			if (sortType == VideoSortType.Views)
 			{
 				sortOptions.Add(SortOptions.Field(new Field("views"), new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Integer }));
+				sortOptions.Add(SortOptions.Score(new ScoreSort { Order = SortOrder.Desc }));
 			}
 			//TO DO: needs better rating system
 			if (sortType == VideoSortType.Rating)
 			{
 				sortOptions.Add(SortOptions.Field(new Field("likes"), new FieldSort { Order = SortOrder.Desc, UnmappedType = FieldType.Integer }));
+				sortOptions.Add(SortOptions.Score(new ScoreSort { Order = SortOrder.Desc }));
 			}
+			
 			return sortOptions;
 		}
 		private ICollection<Query>? BuildFilters(VideoTimeFilterType timeFilter, VideoLengthFilterType lengthFilter, string? uploaderId)
@@ -147,8 +150,8 @@ namespace MicroTube.Services.Search.Videos
 		private Query BuildTextSearchQuery(VideoSearchParameters parameters)
 		{
 			Guard.Against.NullOrWhiteSpace(parameters.Text);
-			var matchQueryTitle = new MatchQuery(new Field("title")) { Query = parameters.Text, Boost = 2 };
-			var matchQueryDescription = new MatchQuery(new Field("description")) { Query = parameters.Text };
+			var matchQueryTitle = new MatchQuery(new Field("title")) { Query = parameters.Text};
+			var matchQueryDescription = new MatchQuery(new Field("description")) { Query = parameters.Text, Boost = 0.5f };
 			var filters = BuildFilters(parameters.TimeFilter, parameters.LengthFilter, parameters.UploaderId);
 			var shouldQuery = new BoolQuery
 			{
