@@ -4,6 +4,7 @@ using Elastic.Transport.Products.Elasticsearch;
 using Microsoft.Extensions.Logging;
 using MicroTube.Data.Models;
 using MicroTube.Services.Search;
+using MicroTube.Services.Search.Videos;
 using MicroTube.Services.Validation;
 using NSubstitute;
 

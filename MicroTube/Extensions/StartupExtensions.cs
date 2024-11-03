@@ -30,10 +30,11 @@ using MicroTube.Services.HangfireFilters;
 using MicroTube.Services.Authentication;
 using Hangfire.Dashboard;
 using MicroTube.Services.Reactions;
+using MicroTube.Services.Search.Videos;
 
 namespace MicroTube.Extensions
 {
-    public static class StartupExtensions
+	public static class StartupExtensions
 	{
 		public static IServiceCollection AddDefaultBasicAuthenticationFlow(this IServiceCollection services)
 		{

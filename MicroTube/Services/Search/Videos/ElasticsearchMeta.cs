@@ -1,6 +1,6 @@
 ﻿using Elastic.Clients.Elasticsearch;
 
-namespace MicroTube.Services.Search
+namespace MicroTube.Services.Search.Videos
 {
 	public class ElasticsearchMeta
 	{

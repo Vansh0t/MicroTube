@@ -1,4 +1,4 @@
-﻿namespace MicroTube.Services.Search
+﻿namespace MicroTube.Services.Search.Videos
 {
 	public interface IVideoIndexingService
 	{

@@ -4,7 +4,7 @@ using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using System.Data;
 
-namespace MicroTube.Services.Search
+namespace MicroTube.Services.Search.Videos
 {
 	public class DefaultVideoIndexingService : IVideoIndexingService
 	{

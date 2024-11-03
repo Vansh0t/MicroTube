@@ -2,7 +2,7 @@
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services;
-using MicroTube.Services.Search;
+using MicroTube.Services.Search.Videos;
 using MicroTube.Tests.Utils;
 using NSubstitute;
 

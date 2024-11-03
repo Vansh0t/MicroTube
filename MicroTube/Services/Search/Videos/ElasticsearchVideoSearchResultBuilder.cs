@@ -3,7 +3,7 @@ using Elastic.Transport.Products.Elasticsearch;
 using MicroTube.Data.Models;
 using MicroTube.Services.Validation;
 
-namespace MicroTube.Services.Search
+namespace MicroTube.Services.Search.Videos
 {
 	public class ElasticsearchVideoSearchResultBuilder : IVideoSearchResultBuilder<SearchResponse<VideoSearchIndex>>
 	{

@@ -15,7 +15,7 @@ using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
 using MicroTube.Services.Email;
 using MicroTube.Services.HangfireFilters;
-using MicroTube.Services.Search;
+using MicroTube.Services.Search.Videos;
 using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent;
 using MicroTube.Services.VideoContent.Processing;

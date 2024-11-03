@@ -1,6 +1,7 @@
 ﻿using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Core.Search;
 using MicroTube.Data.Models;
+using MicroTube.Services.Search.Videos;
 using System.Text.Json;
 
 namespace MicroTube.Services.Search

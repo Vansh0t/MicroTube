@@ -5,7 +5,7 @@ using Elastic.Clients.Elasticsearch.QueryDsl;
 using MicroTube.Data.Models;
 using MicroTube.Services.ConfigOptions;
 
-namespace MicroTube.Services.Search
+namespace MicroTube.Services.Search.Videos
 {
 	public class ElasticsearchVideoSearchRequestBuilder : IVideoSearchRequestBuilder<SearchRequest<VideoSearchIndex>>
 	{
@@ -31,12 +31,12 @@ namespace MicroTube.Services.Search
 			var searchRequest = new SearchRequest<VideoSearchIndex>(options.VideosIndexName);
 			searchRequest.Size = Math.Min(parameters.BatchSize, options.PaginationMaxBatchSize);
 			searchRequest.Query = textSearchQuery;
-			if(sort != null)
+			if (sort != null)
 				searchRequest.Sort = sort;
 			if (parsedMeta != null && parsedMeta.LastSort != null)
 				searchRequest.SearchAfter = parsedMeta.LastSort.ToArray();
 			return searchRequest;
-			
+
 		}
 		private ICollection<SortOptions>? BuildVideoSearchSort(VideoSearchParameters parameters)
 		{
@@ -85,7 +85,7 @@ namespace MicroTube.Services.Search
 		}
 		private Query? BuildTimeFilterQuery(VideoTimeFilterType timeFilter)
 		{
-			if(timeFilter == VideoTimeFilterType.None)
+			if (timeFilter == VideoTimeFilterType.None)
 			{
 				return null;
 			}
@@ -94,7 +94,7 @@ namespace MicroTube.Services.Search
 			switch (timeFilter)
 			{
 				case VideoTimeFilterType.LastDay:
-					timeQuery = new DateRangeQuery(new Field("uploadedAt")) { From = now.AddDays(-1), To = now};
+					timeQuery = new DateRangeQuery(new Field("uploadedAt")) { From = now.AddDays(-1), To = now };
 					break;
 				case VideoTimeFilterType.LastWeek:
 					timeQuery = new DateRangeQuery(new Field("uploadedAt")) { From = now.AddDays(-7), To = now };
@@ -137,7 +137,7 @@ namespace MicroTube.Services.Search
 		}
 		private Query? BuildUploaderIdFilterQuery(string? uploaderId)
 		{
-			if(string.IsNullOrWhiteSpace(uploaderId))
+			if (string.IsNullOrWhiteSpace(uploaderId))
 			{
 				return null;
 			}

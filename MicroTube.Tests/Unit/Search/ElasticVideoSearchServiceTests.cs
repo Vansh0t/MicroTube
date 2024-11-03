@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services.ConfigOptions;
-using MicroTube.Services.Search;
+using MicroTube.Services.Search.Videos;
 using MicroTube.Services.Validation;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;

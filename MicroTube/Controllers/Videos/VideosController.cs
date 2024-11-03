@@ -5,7 +5,8 @@ using MicroTube.Controllers.Videos.DTO;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services.Authentication;
-using MicroTube.Services.Search;
+using MicroTube.Services.Reactions;
+using MicroTube.Services.Search.Videos;
 using MicroTube.Services.VideoContent.Likes;
 using MicroTube.Services.VideoContent.Views;
 
@@ -61,7 +62,7 @@ namespace MicroTube.Controllers.Videos
 		[HttpPost("{id}/reaction/{reactionType}")]
 		[Authorize]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserVideoReactionDTO))]
-		public async Task<IActionResult> React(string id, ReactionType reactionType)
+		public async Task<IActionResult> React(string id, LikeDislikeReactionType reactionType)
 		{
 			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
 			if (!isEmailConfirmed)

@@ -1,6 +1,6 @@
 ﻿using MicroTube.Data.Models;
 
-namespace MicroTube.Services.Search
+namespace MicroTube.Services.Search.Videos
 {
 	public class VideoSearchResult
 	{

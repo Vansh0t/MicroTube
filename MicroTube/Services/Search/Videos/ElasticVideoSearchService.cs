@@ -8,9 +8,9 @@ using MicroTube.Services.Cryptography;
 using MicroTube.Services.Validation;
 using System.Collections.Immutable;
 
-namespace MicroTube.Services.Search
+namespace MicroTube.Services.Search.Videos
 {
-    public class ElasticVideoSearchService : IVideoSearchService
+	public class ElasticVideoSearchService : IVideoSearchService
 	{
 
 		private readonly IVideoSearchDataAccess _searchDataAccess;
@@ -41,7 +41,7 @@ namespace MicroTube.Services.Search
 
 		public async Task<IServiceResult<Video>> IndexVideo(Video video)
 		{
-			if(video.VideoViews == null || video.VideoReactions == null || video.VideoIndexing == null)
+			if (video.VideoViews == null || video.VideoReactions == null || video.VideoIndexing == null)
 			{
 				_logger.LogError($"Video {video.Id} does not have {nameof(video.VideoViews)}," +
 					$" {nameof(video.VideoReactions)} or {nameof(video.VideoIndexing)}. Indexing failed.");
@@ -63,7 +63,7 @@ namespace MicroTube.Services.Search
 				video.VideoIndexing.SearchIndexId = indexId;
 				video.VideoIndexing.ReindexingRequired = false;
 				video.VideoIndexing.LastIndexingTime = DateTime.UtcNow;
-				_logger.LogInformation("ElasticSearch indexing done: " + indexId);	
+				_logger.LogInformation("ElasticSearch indexing done: " + indexId);
 			}
 			catch (Exception e)
 			{
@@ -71,7 +71,7 @@ namespace MicroTube.Services.Search
 				_logger.LogError(e, $"Failed to index search suggestion {video.Id}");
 				return ServiceResult<Video>.Fail(500, error);
 			}
-			
+
 			return ServiceResult<Video>.Success(video);
 		}
 		public async Task<IServiceResult<VideoSearchResult>> GetVideos(VideoSearchParameters parameters, string? meta)
@@ -81,7 +81,7 @@ namespace MicroTube.Services.Search
 			{
 				searchRequest = _searchRequestBuilder.Build(parameters, meta);
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
 				_logger.LogError(e, "Failed to build videos search request");
 				return ServiceResult<VideoSearchResult>.FailInternal();
@@ -93,7 +93,7 @@ namespace MicroTube.Services.Search
 				result = _searchResultBuilder.Build(response, meta);
 				return ServiceResult<VideoSearchResult>.Success(result);
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
 				_logger.LogError(e, "Failed to build videos search result");
 				return ServiceResult<VideoSearchResult>.FailInternal();
