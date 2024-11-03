@@ -124,7 +124,7 @@ namespace MicroTube.Tests.Unit.Comments
 			AppUser user = new AppUser { Email = "email@email.com", IsEmailConfirmed = true, PublicUsername = "user", Username = "user", Authentication = new MockAuthenticationData() };
 			Video video = new Video { ThumbnailUrls = "", Title = "Video", Urls = "" };
 			string editedContent = "Edited comment content";
-			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user, Video = video };
+			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user, Video = video, Time = DateTime.UtcNow };
 			db.AddRange(video, user, comment);
 			db.SaveChanges();
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
@@ -183,7 +183,7 @@ namespace MicroTube.Tests.Unit.Comments
 			MicroTubeDbContext db = Database.CreateSqliteInMemoryMock();
 			AppUser user = new AppUser { Id = validUserId, Email = "email@email.com", IsEmailConfirmed = true, PublicUsername = "user", Username = "user", Authentication = new MockAuthenticationData() };
 			Video video = new Video { ThumbnailUrls = "", Title = "Video", Urls = "" };
-			VideoComment comment = new VideoComment {Id=validCommentId, Content = "Does not matter", Deleted = false, Edited = false, User = user, Video = video };
+			VideoComment comment = new VideoComment {Id=validCommentId, Content = "Does not matter", Deleted = false, Edited = false, User = user, Video = video, Time = DateTime.UtcNow };
 			db.AddRange(video, user, comment);
 			db.SaveChanges();
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
@@ -207,7 +207,7 @@ namespace MicroTube.Tests.Unit.Comments
 			AppUser user = new AppUser { Id = validUserId, Email = "email1@email.com", IsEmailConfirmed = true, PublicUsername = "user1", Username = "user1", Authentication = new MockAuthenticationData() };
 			AppUser impostorUser = new AppUser { Id = impostorId, Email = "email2@email.com", IsEmailConfirmed = true, PublicUsername = "user2", Username = "user2", Authentication = new MockAuthenticationData() };
 			Video video = new Video { ThumbnailUrls = "", Title = "Video", Urls = "" };
-			VideoComment comment = new VideoComment {Id = validCommentId, Content = "Does not matter", Deleted = false, Edited = false, User = user, Video = video };
+			VideoComment comment = new VideoComment {Id = validCommentId, Content = "Does not matter", Deleted = false, Edited = false, User = user, Video = video, Time = DateTime.UtcNow };
 			db.AddRange(video, user, impostorUser, comment);
 			db.SaveChanges();
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
@@ -227,7 +227,7 @@ namespace MicroTube.Tests.Unit.Comments
 			AppUser user1 = new AppUser { Email = "email1@email.com", IsEmailConfirmed = true, PublicUsername = "user1", Username = "user1", Authentication = new MockAuthenticationData() };
 			AppUser user2 = new AppUser { Email = "email2@email.com", IsEmailConfirmed = true, PublicUsername = "user2", Username = "user2", Authentication = new MockAuthenticationData() };
 			Video video = new Video { ThumbnailUrls = "", Title = "Video", Urls = "" };
-			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user1, Video = video };
+			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user1, Video = video, Time = DateTime.UtcNow };
 			VideoCommentReactionsAggregation reactions = new VideoCommentReactionsAggregation { Dislikes = 0, Likes = 0, Comment = comment };
 			db.AddRange(video, user1, user2, comment, reactions);
 			db.SaveChanges();
@@ -260,7 +260,7 @@ namespace MicroTube.Tests.Unit.Comments
 			AppUser user1 = new AppUser {Email = "email1@email.com", IsEmailConfirmed = true, PublicUsername = "user1", Username = "user1", Authentication = new MockAuthenticationData() };
 			AppUser user2 = new AppUser {Email = "email2@email.com", IsEmailConfirmed = false, PublicUsername = "user2", Username = "user2", Authentication = new MockAuthenticationData() };
 			Video video = new Video { ThumbnailUrls = "", Title = "Video", Urls = "" };
-			VideoComment comment = new VideoComment {Content = "Some video comment", Edited = false, Deleted = false, User = user1, Video = video };
+			VideoComment comment = new VideoComment {Content = "Some video comment", Edited = false, Deleted = false, User = user1, Video = video, Time = DateTime.UtcNow };
 			VideoCommentReactionsAggregation reactions = new VideoCommentReactionsAggregation { Dislikes = 0, Likes = 0, Comment = comment };
 			db.AddRange(video, user1, user2, comment, reactions);
 			db.SaveChanges();
@@ -290,7 +290,7 @@ namespace MicroTube.Tests.Unit.Comments
 			MicroTubeDbContext db = Database.CreateSqliteInMemoryMock();
 			AppUser user1 = new AppUser {Id = validUserId, Email = "email1@email.com", IsEmailConfirmed = true, PublicUsername = "user1", Username = "user1", Authentication = new MockAuthenticationData() };
 			Video video = new Video { ThumbnailUrls = "", Title = "Video", Urls = "" };
-			VideoComment comment = new VideoComment {Id = validCommentId, Content = "Some video comment", Edited = false, Deleted = false, User = user1, Video = video };
+			VideoComment comment = new VideoComment {Id = validCommentId, Content = "Some video comment", Edited = false, Deleted = false, User = user1, Video = video, Time = DateTime.UtcNow };
 			VideoCommentReactionsAggregation reactions = new VideoCommentReactionsAggregation { Dislikes = 0, Likes = 0, Comment = comment };
 			db.AddRange(video, user1, comment, reactions);
 			db.SaveChanges();
@@ -310,7 +310,7 @@ namespace MicroTube.Tests.Unit.Comments
 			MicroTubeDbContext db = Database.CreateSqliteInMemoryMock();
 			AppUser user1 = new AppUser { Email = "email1@email.com", IsEmailConfirmed = true, PublicUsername = "user1", Username = "user1", Authentication = new MockAuthenticationData() };
 			Video video = new Video { ThumbnailUrls = "", Title = "Video", Urls = "" };
-			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user1, Video = video };
+			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user1, Video = video, Time = DateTime.UtcNow };
 			VideoCommentReactionsAggregation reactions = new VideoCommentReactionsAggregation { Dislikes = 0, Likes = 0, Comment = comment };
 			db.AddRange(video, user1, comment, reactions);
 			db.SaveChanges();
@@ -330,7 +330,7 @@ namespace MicroTube.Tests.Unit.Comments
 			MicroTubeDbContext db = Database.CreateSqliteInMemoryMock();
 			AppUser user = new AppUser { Email = "email@email.com", IsEmailConfirmed = true, PublicUsername = "user", Username = "user", Authentication = new MockAuthenticationData() };
 			Video video = new Video { ThumbnailUrls = "", Title = "Video", Urls = "", CommentsCount = 1 };
-			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user, Video = video };
+			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user, Video = video, Time = DateTime.UtcNow };
 			db.AddRange(video, user, comment);
 			db.SaveChanges();
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
@@ -352,7 +352,7 @@ namespace MicroTube.Tests.Unit.Comments
 			AppUser user = new AppUser { Email = "email@email.com", IsEmailConfirmed = true, PublicUsername = "user", Username = "user", Authentication = new MockAuthenticationData() };
 			AppUser impostorUser = new AppUser { Email = "email2@email.com", IsEmailConfirmed = true, PublicUsername = "user2", Username = "user2", Authentication = new MockAuthenticationData() };
 			Video video = new Video { ThumbnailUrls = "", Title = "Video", Urls = "", CommentsCount = 1 };
-			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user, Video = video };
+			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user, Video = video, Time = DateTime.UtcNow };
 			db.AddRange(video, user, impostorUser, comment);
 			db.SaveChanges();
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
@@ -384,7 +384,7 @@ namespace MicroTube.Tests.Unit.Comments
 			MicroTubeDbContext db = Database.CreateSqliteInMemoryMock();
 			AppUser user = new AppUser {Id = validUserId, Email = "email@email.com", IsEmailConfirmed = true, PublicUsername = "user", Username = "user", Authentication = new MockAuthenticationData() };
 			Video video = new Video { ThumbnailUrls = "", Title = "Video", Urls = "", CommentsCount = 1 };
-			VideoComment comment = new VideoComment {Id = validCommentId, Content = "Some video comment", Edited = false, Deleted = false, User = user, Video = video };
+			VideoComment comment = new VideoComment {Id = validCommentId, Content = "Some video comment", Edited = false, Deleted = false, User = user, Video = video, Time = DateTime.UtcNow };
 			db.AddRange(video, user, comment);
 			db.SaveChanges();
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
@@ -402,7 +402,7 @@ namespace MicroTube.Tests.Unit.Comments
 			MicroTubeDbContext db = Database.CreateSqliteInMemoryMock();
 			AppUser user = new AppUser { Email = "email@email.com", IsEmailConfirmed = true, PublicUsername = "user", Username = "user", Authentication = new MockAuthenticationData() };
 			Video video = new Video { ThumbnailUrls = "", Title = "Video", Urls = "", CommentsCount = 1 };
-			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user, Video = video };
+			VideoComment comment = new VideoComment { Content = "Some video comment", Edited = false, Deleted = false, User = user, Video = video, Time = DateTime.UtcNow };
 			db.AddRange(video, user, comment);
 			db.SaveChanges();
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();

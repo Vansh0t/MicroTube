@@ -17,7 +17,7 @@ namespace MicroTube.Data.Models.Comments
 		[Required]
 		[ForeignKey(nameof(Video))]
 		public Guid VideoId { get; set; }
-		public required DateTime UploadTime {get;set;}
+		public required DateTime Time {get;set;}
 		public Video? Video { get; set; }
 		public VideoCommentReactionsAggregation? Reactions { get; set; }
 	}

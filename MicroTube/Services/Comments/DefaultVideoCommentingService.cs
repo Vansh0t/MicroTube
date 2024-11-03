@@ -63,7 +63,8 @@ namespace MicroTube.Services.Comments
 					UserId = guidUserId,
 					User = user,
 					VideoId = guidVideoId,
-					Video = video
+					Video = video,
+					Time = DateTime.UtcNow
 				};
 				comment.Reactions.Comment = comment;
 				video.CommentsCount++;
