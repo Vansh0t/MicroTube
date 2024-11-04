@@ -13,5 +13,6 @@ namespace MicroTube.Data.Models.Comments
 		public VideoComment? Comment { get; set; }
 		public required int Likes { get; set; }
 		public required int Dislikes { get; set; }
+		public required int Difference { get; set; }
 	}
 }

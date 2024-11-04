@@ -31,6 +31,8 @@ using MicroTube.Services.Authentication;
 using Hangfire.Dashboard;
 using MicroTube.Services.Reactions;
 using MicroTube.Services.Search.Videos;
+using MicroTube.Services.Search.Comments;
+using MicroTube.Data.Models.Comments;
 
 namespace MicroTube.Extensions
 {
@@ -47,6 +49,14 @@ namespace MicroTube.Extensions
 		{
 			services.AddScoped<ILikeDislikeReactionAggregator, LikeDislikeReactionAggregator>();
 			services.AddScoped<IVideoReactionsService, DefaultVideoReactionsService>();
+			return services;
+		}
+		public static IServiceCollection AddVideoComments(this IServiceCollection services)
+		{
+			services.AddScoped<IVideoViewsAggregatorService, DefaultVideoViewsAggregatorService>();
+			services.AddScoped<ICommentContentValidator, DefaultCommentContentValidator>();
+			services.AddScoped<ICommentSearchService, VideoCommentSearchService>();
+			services.AddScoped<ISearchMetaProvider<IEnumerable<VideoComment>, VideoCommentSearchMeta>, VideoCommentSearchMetaProvider>();
 			return services;
 		}
 		public static IServiceCollection AddElasticsearchClient(this IServiceCollection services, IConfiguration config)

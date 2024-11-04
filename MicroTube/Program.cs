@@ -60,12 +60,12 @@ builder.Services.AddScoped<IUserSessionService, DefaultUserSessionService>();
 builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEmailManager>();
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IVideoIndexingService, DefaultVideoIndexingService>();
-builder.Services.AddScoped<IVideoViewsAggregatorService, DefaultVideoViewsAggregatorService>();
 builder.Services.AddScoped<IVideoCommentingService, DefaultVideoCommentingService>();
 builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtPasswordResetTokenProvider, DefaultJwtPasswordResetTokenProvider>();
 builder.Services.AddTransient<IJwtClaims, JwtClaims>();
 builder.Services.AddTransient<ISecureTokensProvider, SHA256SecureTokensProvider>();
+builder.Services.AddVideoComments();
 var configOptions = config.GetRequiredByKey<JwtAccessTokensOptions>(JwtAccessTokensOptions.KEY);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

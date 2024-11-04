@@ -59,7 +59,7 @@ namespace MicroTube.Services.Comments
 				var comment = new VideoComment
 				{
 					Content = content,
-					Reactions = new VideoCommentReactionsAggregation { Dislikes = 0, Likes = 0 },
+					Reactions = new VideoCommentReactionsAggregation { Dislikes = 0, Likes = 0, Difference = 0 },
 					UserId = guidUserId,
 					User = user,
 					VideoId = guidVideoId,
@@ -140,6 +140,7 @@ namespace MicroTube.Services.Comments
 					_db.Add(reaction);
 				}
 				comment.Reactions = (VideoCommentReactionsAggregation)_reactionAggregator.UpdateReactionsAggregation(comment.Reactions, reactionType, reaction.ReactionType);
+				comment.Reactions.Difference = comment.Reactions.Likes - comment.Reactions.Dislikes;
 				reaction.Time = DateTime.UtcNow;
 				reaction.ReactionType = reactionType;
 				_db.SaveChanges();
