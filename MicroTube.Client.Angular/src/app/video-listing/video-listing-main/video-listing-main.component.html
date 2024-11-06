@@ -1,5 +1,5 @@
-<div>
-	<div #scrollContainer class="main-container" (scroll)="onScroll($event)">
+<batch-scroller [endOfDataReached]="endOfDataReached" [isLoading]="isLoadingVideos" (onNextRequiredBatch)="getNextBatch()">
+	<div #scrollContainer class="main-container">
 		@if(isSearchControlsShown()) {
 		<div class="controls-container dense-minus-4">
 			<mat-form-field subscriptSizing="dynamic">
@@ -19,12 +19,12 @@
 				</mat-select>
 			</mat-form-field>
 			<mat-form-field subscriptSizing="dynamic">
-					<mat-select [formControl]="lengthFilterControl" placeholder="Length">
-						<mat-option>--</mat-option>
-						@for (filter of searchControls!.lengthFilterOptions; track filter) {
-						<mat-option [value]="filter">{{formatOption(filter)}}</mat-option>
-						}
-					</mat-select>
+				<mat-select [formControl]="lengthFilterControl" placeholder="Length">
+					<mat-option>--</mat-option>
+					@for (filter of searchControls!.lengthFilterOptions; track filter) {
+					<mat-option [value]="filter">{{formatOption(filter)}}</mat-option>
+					}
+				</mat-select>
 			</mat-form-field>
 			@if(getCurrentSearchParameters().uploaderIdFilter) {
 			<mat-chip-option class="uploader-filter" selected="true" selectable="false" (removed)="cancelUploadSearch()">
@@ -52,6 +52,4 @@
 		</div>
 
 	</div>
-	
-</div>
-
+</batch-scroller>

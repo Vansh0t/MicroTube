@@ -26,6 +26,8 @@ import { LikeComponent } from "./video-reaction-component/video-reaction.compone
 import { MatChipsModule } from "@angular/material/chips";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { VideoPlayerQualityDialogComponent } from "./video-player-quality-dialog/video-player-quality-dialog.component";
+import { CommentsModule } from "../comments/comments.module";
+import { UtilityComponentsModule } from "../utility-components/utility-components.module";
 
 
 @NgModule({
@@ -58,7 +60,9 @@ import { VideoPlayerQualityDialogComponent } from "./video-player-quality-dialog
     NgxPlayerComponent,
     AppAuthModule,
     MatChipsModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    CommentsModule,
+    UtilityComponentsModule
   ],
   exports: [
     VideoCardComponent,

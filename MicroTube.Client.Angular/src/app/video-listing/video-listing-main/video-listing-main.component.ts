@@ -42,18 +42,16 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   private readonly queryBuilder: QueryStringBuilder;
   private readonly router: Router;
   readonly searchService: VideoSearchService;
-  private readonly SCROLL_PERCENT_FOR_NEW_BATCH = 0.001;
   private searchSubscription: Subscription | null = null;
   private searchControlsFetchSubscription: Subscription | null = null;
   private videosSubscription: Subscription | null = null;
-  private prevScrollPercent = 0;
+  private routerSubscription: Subscription | null = null;
   timeFilterControl = new FormControl();
   lengthFilterControl = new FormControl();
   sortControl = new FormControl();
   videos: VideoDTO[] | null = null;
   searchControls: SearchControlsDTO | null = null;
-  private routerSubscription: Subscription | null = null;
-  private endOfPaginationReached: boolean = false;
+  endOfDataReached: boolean = false;
   get isLoadingVideos()
   {
     return this.videosSubscription != null;
@@ -89,7 +87,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   }
   updateVideos()
   {
-    this.endOfPaginationReached = false;
+    this.endOfDataReached = false;
     const searchParams = this.searchQueryReader.readSearchParameters();
     this.videos = null;
     this.searchService.resetMeta();
@@ -103,28 +101,6 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
       return this.optionsFormats[key];
     }
     return key;
-  }
-  onScroll($event: Event)
-  {
-    if (!($event.target instanceof (HTMLElement)))
-    {
-      return;
-    }
-    const scrollTopPercent = getScrollTopPercent($event.target);
-    if (this.isLoadingVideos || this.endOfPaginationReached)
-    {
-      this.prevScrollPercent = scrollTopPercent;
-      return;
-
-    }
-    const scrollDelta = scrollTopPercent - this.prevScrollPercent;
-    if (scrollDelta > 0 && scrollTopPercent  > 1 - this.SCROLL_PERCENT_FOR_NEW_BATCH)
-    {
-      this.updatePaginationBatchSizeByScreenWidth(window.innerWidth);
-      const searchParams = this.searchQueryReader.readSearchParameters();
-      this.getVideosBatch(searchParams);
-    }
-    this.prevScrollPercent = scrollTopPercent;
   }
   cancelUploadSearch()
   {
@@ -140,6 +116,12 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   {
     const searchParams = this.searchQueryReader.readSearchParameters();
     return this.searchControls && (searchParams.text || searchParams.uploaderIdFilter);
+  }
+  getNextBatch()
+  {
+    this.updatePaginationBatchSizeByScreenWidth(window.innerWidth);
+    const searchParams = this.searchQueryReader.readSearchParameters();
+    this.getVideosBatch(searchParams);
   }
   private getVideosBatch(params: VideoSearchParametersDTO)
   {
@@ -169,7 +151,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
     }
     if (result.videos.length == 0)
     {
-      this.endOfPaginationReached = true;
+      this.endOfDataReached = true;
     }
   }
   private updateSearchControls(params: VideoSearchParametersDTO)
