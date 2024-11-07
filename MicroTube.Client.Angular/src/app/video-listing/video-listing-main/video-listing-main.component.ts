@@ -4,7 +4,6 @@ import { SearchControlsDTO, VideoSearchParametersDTO } from "../../data/DTO/Vide
 import { FormControl } from "@angular/forms";
 import { VideoSearchService } from "../../services/videos/VideoSearchService";
 import { VideoSearchResultDTO } from "../../data/DTO/VideoSearchResultDTO";
-import { getScrollTopPercent } from "../../services/utils";
 import { VideoDTO } from "../../data/DTO/VideoDTO";
 import { VideoSearchQueryStringReader } from "../../services/query-string-processing/VideoSearchQueryStringReader";
 import { QueryStringBuilder } from "../../services/query-string-processing/QueryStringBuilder";

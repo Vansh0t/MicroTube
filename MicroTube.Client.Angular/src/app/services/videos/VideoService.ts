@@ -1,10 +1,11 @@
-import { HttpClient, HttpEvent, HttpRequest, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpEvent, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { VideoDTO, VideoRawDTO, VideoUploadDTO } from "../../data/DTO/VideoDTO";
 import { Observable, map } from "rxjs";
 import { VideoUploadProgressDTO } from "../../data/DTO/VideoUploadProgressDTO";
 import { DateTime, Duration } from "luxon";
 import { UserVideoReactionDTO } from "../../data/DTO/UserVideoReactionDTO";
+import { LikeDislikeReactionType } from "../ReactionTypes";
 
 
 @Injectable({
@@ -24,7 +25,7 @@ export class VideoService
     const result = this.client.post<HttpResponse<null>>(`videos/${videoId}/view`, {});
     return result;
   }
-  react(videoId: string, reaction: VideoReactionType): Observable<UserVideoReactionDTO>
+  react(videoId: string, reaction: LikeDislikeReactionType): Observable<UserVideoReactionDTO>
   {
     const result = this.client.post<UserVideoReactionDTO>(`videos/${videoId}/reaction/${reaction.toString()}`, {});
     return result;
@@ -81,8 +82,4 @@ export class VideoService
         ));
     return result;
   }
-}
-export enum VideoReactionType
-{
-  None = "None", Like = "Like", Dislike = "Dislike"
 }

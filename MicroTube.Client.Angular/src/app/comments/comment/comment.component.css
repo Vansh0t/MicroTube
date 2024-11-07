@@ -1,0 +1,15 @@
+.main-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.alias-time-container {
+  display: flex;
+  gap: 0.5rem;
+}
+.time-text {
+  color: var(--text-secondary-color);
+}
+.content-text {
+  word-wrap:break-word;
+}

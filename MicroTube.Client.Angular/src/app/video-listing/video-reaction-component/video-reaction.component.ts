@@ -4,9 +4,10 @@ import { VideoDTO } from "../../data/DTO/VideoDTO";
 import { Subscription } from "rxjs";
 import { AuthManager } from "../../services/auth/AuthManager";
 import { MatDialog } from "@angular/material/dialog";
-import { VideoReactionType, VideoService } from "../../services/videos/VideoService";
 import { JWTUser } from "../../services/auth/JWTUser";
 import { UserVideoReactionDTO } from "../../data/DTO/UserVideoReactionDTO";
+import { LikeDislikeReactionType } from "../../services/ReactionTypes";
+import { VideoService } from "../../services/videos/VideoService";
 
 @Component({
   selector: "video-reaction",
@@ -24,15 +25,15 @@ export class LikeComponent implements OnInit, OnDestroy
   private userGetReactionSubscription: Subscription | null = null;
   get isDisiked()
   {
-    return this.currentReactionType == VideoReactionType.Dislike;
+    return this.currentReactionType == LikeDislikeReactionType.Dislike;
   }
   get isLiked()
   {
-    return this.currentReactionType == VideoReactionType.Like;
+    return this.currentReactionType == LikeDislikeReactionType.Like;
   }
   get currentReactionType()
   {
-    return this.userCurrentReaction ? this.userCurrentReaction.reactionType : VideoReactionType.None;
+    return this.userCurrentReaction ? this.userCurrentReaction.reactionType : LikeDislikeReactionType.None;
   }
   userCurrentReaction: UserVideoReactionDTO | null = null;
   constructor(videoService: VideoService, auth: AuthManager, dialog: MatDialog)
@@ -59,7 +60,7 @@ export class LikeComponent implements OnInit, OnDestroy
     if (this.video)
     {
       this.userReactSubscription?.unsubscribe();
-      const targetReactionType = this.currentReactionType == VideoReactionType.Like ? VideoReactionType.None : VideoReactionType.Like;
+      const targetReactionType = this.currentReactionType == LikeDislikeReactionType.Like ? LikeDislikeReactionType.None : LikeDislikeReactionType.Like;
       this.userReactSubscription = this.videoService.react(this.video.id, targetReactionType).subscribe(this.onVideoReacted.bind(this));
     }
   }
@@ -73,7 +74,7 @@ export class LikeComponent implements OnInit, OnDestroy
     if (this.video)
     {
       this.userReactSubscription?.unsubscribe();
-      const targetReactionType = this.currentReactionType == VideoReactionType.Dislike ? VideoReactionType.None : VideoReactionType.Dislike;
+      const targetReactionType = this.currentReactionType == LikeDislikeReactionType.Dislike ? LikeDislikeReactionType.None : LikeDislikeReactionType.Dislike;
       this.userReactSubscription = this.videoService.react(this.video.id, targetReactionType).subscribe(this.onVideoReacted.bind(this));
     }
   }
@@ -83,33 +84,33 @@ export class LikeComponent implements OnInit, OnDestroy
       return;
     const prevReactionType = this.currentReactionType;
     this.onReaction(reaction);
-    if (prevReactionType == VideoReactionType.None)
+    if (prevReactionType == LikeDislikeReactionType.None)
     {
-      if (this.currentReactionType == VideoReactionType.Like)
+      if (this.currentReactionType == LikeDislikeReactionType.Like)
         this.video.likes++;
-      else if (this.currentReactionType == VideoReactionType.Dislike)
+      else if (this.currentReactionType == LikeDislikeReactionType.Dislike)
         this.video.dislikes++;
     }
-    else if (prevReactionType == VideoReactionType.Like)
+    else if (prevReactionType == LikeDislikeReactionType.Like)
     {
-      if (this.currentReactionType == VideoReactionType.Dislike)
+      if (this.currentReactionType == LikeDislikeReactionType.Dislike)
       {
         this.video.likes--;
         this.video.dislikes++;
       }
-      else if (this.currentReactionType == VideoReactionType.None)
+      else if (this.currentReactionType == LikeDislikeReactionType.None)
       {
         this.video.likes--;
       }
     }
-    else if (prevReactionType == VideoReactionType.Dislike)
+    else if (prevReactionType == LikeDislikeReactionType.Dislike)
     {
-      if (this.currentReactionType == VideoReactionType.Like)
+      if (this.currentReactionType == LikeDislikeReactionType.Like)
       {
         this.video.likes++;
         this.video.dislikes--;
       }
-      else if (this.currentReactionType == VideoReactionType.None)
+      else if (this.currentReactionType == LikeDislikeReactionType.None)
       {
         this.video.dislikes--;
       }

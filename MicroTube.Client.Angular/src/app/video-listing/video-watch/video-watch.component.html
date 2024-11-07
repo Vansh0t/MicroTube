@@ -1,28 +1,36 @@
-<div class="root-container">
-	@if(video$ | async; as video) {
-	<div class="video-player-container">
-		<ngx-player #player class="video-player" (onApi)="onApi($event)"
-					[options]="getVideoPlayerOptions(video.urls)"></ngx-player>
-	</div>
-	<div class="video-info-container">
-		<h2 class="mat-h2">{{video.title}}</h2>
-		<button mat-stroked-button class="uploader-button" color="primary" mat-button (click)="searchUploaderVideos()">
-			by <b>{{video.uploaderPublicUsername}}</b>
-		</button>
-		<div class="video-info-second-line-container">
-			<p class="mat-small upload-time-label">{{getUploadTimeText()}}</p>
-			<div class="video-views-container">
-				<mat-icon class="views-icon">visibility</mat-icon>
-				<h4 class="mat-small">{{video.views}}</h4>
-			</div>
-			<video-reaction [video]="video" />
+<batch-scroller [endOfDataReached]="endOfCommentsReached" [isLoading]="isLoadingComments" (onNextRequiredBatch)="loadNextCommentsBatch()">
+	<div class="main-container">
+		@if(video$ | async; as video) {
+		<div class="video-player-container">
+			<ngx-player #player class="video-player" (onApi)="onApi($event)"
+						[options]="getVideoPlayerOptions(video.urls)"></ngx-player>
 		</div>
-		<div class="video-info-description-container"><h3 class="mat-body">{{video.description}}</h3></div>
-	</div>
-	
+		<div class="video-content-container">
+			<div class="video-info-container">
+				<h2 class="mat-h2">{{video.title}}</h2>
+				<button mat-button class="uploader-button" color="primary" mat-button (click)="searchUploaderVideos()">
+					by <b>{{video.uploaderPublicUsername}}</b>
+				</button>
+				<div class="video-info-second-line-container">
+					<p class="mat-small upload-time-label">{{getUploadTimeText()}}</p>
+					<div class="video-views-container">
+						<mat-icon class="views-icon">visibility</mat-icon>
+						<h4 class="mat-small">{{video.views}}</h4>
+					</div>
+					<video-reaction [video]="video" />
+				</div>
+				<div class="video-info-description-container"><h3 class="mat-body">{{video.description}}</h3></div>
+			</div>
+			<div class="comments-container">
+				<button mat-stroked-button color="primary" (click)="openCommentPopup()">Comment</button>
+				<comments-area #commentsArea [searchService]="commentSearch" [targetId]="videoId ?? undefined" />
+			</div>
+		</div>
 
-	}
-	@else {
-	<h2 class="mat-h2">Loading...</h2>
-	}
-</div>
+
+		}
+		@else {
+		<h2 class="mat-h2">Loading...</h2>
+		}
+	</div>
+</batch-scroller>

@@ -1,0 +1,13 @@
+<div class="main-container">
+	<mat-form-field class="text-input-field" subscriptSizing="dynamic" color="accent" appearance="fill">
+		  <mat-label>Your comment...</mat-label>
+		  <textarea matInput
+		  		  [formControl]="commentControl"
+		  		  [maxlength]="validators.MAX_COMMENT_LENGTH"
+		  		  cdkTextareaAutosize
+		  		  cdkAutosizeMinRows="4"></textarea>
+		  <mat-error class="mat-small" *ngIf="getError() != null">{{getError()}}</mat-error>
+	</mat-form-field>
+	<p class="mat-small user-alias">* as {{data.userAlias??"Unknown"}}</p>
+	<button mat-button (click)="submit()" [disabled]="getError() != null">Submit</button>
+</div>

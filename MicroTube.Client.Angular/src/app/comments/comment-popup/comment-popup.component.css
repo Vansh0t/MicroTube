@@ -1,0 +1,10 @@
+.main-container {
+  display:flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+.user-alias {
+  font-weight: lighter;
+  font-style: italic;
+}

@@ -1,4 +1,4 @@
-<batch-scroller [endOfDataReached]="endOfDataReached" [isLoading]="isLoadingVideos" (onNextRequiredBatch)="getNextBatch()">
+<batch-scroller [endOfDataReached]="endOfDataReached" [isLoading]="isLoadingVideos" (onNextRequiredBatch)="getNextBatch()" [spinnerDiameter]="videos == null? 100: 28">
 	<div #scrollContainer class="main-container">
 		@if(isSearchControlsShown()) {
 		<div class="controls-container dense-minus-4">
@@ -38,18 +38,16 @@
 		</div>
 		}
 		@if(videos) {
-		<div class="video-listing-main grid-container">
-			<div *ngFor="let video of videos">
+			<div class="video-listing-main grid-container">
+				@for(video of videos; track video.id) {
 				<video-card [video]="video" />
+				}
 			</div>
-		</div>
-		}
-
-		<div class="video-loader-container">
+			<div class="video-loader-container">
 			@if(isLoadingVideos) {
-			<mat-spinner [diameter]="videos == null? 100 : 28"></mat-spinner>
+				  <mat-spinner [diameter]="videos?28:100"></mat-spinner>
 			}
-		</div>
-
+		  </div>
+		}
 	</div>
 </batch-scroller>

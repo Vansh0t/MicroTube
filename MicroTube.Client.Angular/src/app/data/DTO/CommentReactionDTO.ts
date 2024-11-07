@@ -1,9 +1,8 @@
-import { DateTime } from "luxon";
 import { LikeDislikeReactionType } from "../../services/ReactionTypes";
-export interface UserVideoReactionDTO
+
+export interface CommentReactionDTO
 {
   userId: string;
-  videoId: string;
-  time: DateTime;
+  commentId: string;
   reactionType: LikeDislikeReactionType;
 }

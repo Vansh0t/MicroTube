@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { VideoService } from "../../services/videos/VideoService";
-import { BehaviorSubject, Subscription } from "rxjs";
+import { BehaviorSubject, Subscription, pipe } from "rxjs";
 import { VideoDTO } from "../../data/DTO/VideoDTO";
 import mime from "mime";
 import { NgxPlayerComponent, NgxPlayerOptions, QualityOption } from "../ngx-player/ngx-player.component";
@@ -11,47 +11,70 @@ import { VgPlayerPlaytimeTracker } from "../../services/videos/VgPlayerPlaytimeT
 import { VgApiService } from "@videogular/ngx-videogular/core";
 import { VideoSearchService } from "../../services/videos/VideoSearchService";
 import { QueryStringBuilder } from "../../services/query-string-processing/QueryStringBuilder";
+import { MatDialog } from "@angular/material/dialog";
+import { CommentPopupComponent } from "../../comments/comment-popup/comment-popup.component";
+import { VideoCommentingService } from "../../services/videos/VideoCommentingService";
+import { CommentsAreaComponent } from "../../comments/comments-area/comments-area.component";
+import { VideoCommentSearchService } from "../../services/videos/VideoCommentSearchService";
+import { AuthManager } from "../../services/auth/AuthManager";
+import { AuthPopupComponent } from "../../auth/auth-popup/auth-popup.component";
+import { CommentDTO } from "../../data/DTO/CommentDTO";
 
 @Component({
   selector: "video-watch",
   templateUrl: "./video-watch.component.html",
-  styleUrls: ["./video-watch.component.css"]
+  styleUrls: ["./video-watch.component.scss"]
 })
 export class VideoWatchComponent implements OnInit, OnDestroy
 {
   private readonly REPORT_VIEW_TIMEOUT_SECONDS = 30;
+  @ViewChild("player") player!: NgxPlayerComponent;
+  video$: BehaviorSubject<VideoDTO | null> = new BehaviorSubject<VideoDTO | null>(null);
+  @ViewChild("commentsArea") commentsArea!: CommentsAreaComponent;
+  videoId: string | null = null;
+  readonly commentSearch: VideoCommentSearchService;
   private readonly route: ActivatedRoute;
   private readonly router: Router;
   private readonly videoService: VideoService;
-  private readonly videoSearchService: VideoSearchService;
   private readonly timeFormatter: TimeFormatter;
   private readonly queryBuilder: QueryStringBuilder;
+  private readonly dialog: MatDialog;
+  private readonly commenting: VideoCommentingService;
   private playtimeTracker: VgPlayerPlaytimeTracker | null = null;
   private videoPlayerOptions: NgxPlayerOptions | null = null;
-  private videoId: string | null = null;
-  private userAuthStateSubscription: Subscription | null = null;
   private userLikeSubscription: Subscription | null = null;
-  @ViewChild("player") player!: NgxPlayerComponent;
-  video$: BehaviorSubject<VideoDTO | null> = new BehaviorSubject<VideoDTO | null>(null);
+  readonly authManager: AuthManager;
+  get endOfCommentsReached()
+  {
+    return this.commentsArea ? this.commentsArea.endOfDataReached : false;
+  }
+  get isLoadingComments()
+  {
+    return this.commentsArea ? this.commentsArea.isLoading : false;
+  }
   constructor(
     route: ActivatedRoute,
     router: Router,
     videoService: VideoService,
     timeFormatter: TimeFormatter,
-    videoSearchService: VideoSearchService,
-    queryBuilder: QueryStringBuilder)
+    queryBuilder: QueryStringBuilder,
+    dialog: MatDialog,
+    commenting: VideoCommentingService,
+    commentSearch: VideoCommentSearchService,
+    authManager: AuthManager)
   {
+    this.commenting = commenting;
+    this.dialog = dialog;
     this.route = route;
     this.router = router;
     this.videoService = videoService;
     this.timeFormatter = timeFormatter;
-    this.videoSearchService = videoSearchService;
     this.queryBuilder = queryBuilder;
+    this.commentSearch = commentSearch;
+    this.authManager = authManager;
   }
   ngOnDestroy(): void
   {
-    this.userAuthStateSubscription?.unsubscribe();
-    this.userAuthStateSubscription = null;
     this.userLikeSubscription?.unsubscribe();
     this.userLikeSubscription = null;
     this.playtimeTracker?.dispose();
@@ -136,6 +159,40 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     this.queryBuilder.setValue("uploaderIdFilter", video.uploaderId.toLowerCase());
     this.queryBuilder.setValue("uploaderAlias", video.uploaderPublicUsername);
     this.queryBuilder.navigate("/");
+  }
+  openCommentPopup()
+  {
+    if (!this.videoId)
+    {
+      return;
+    }
+    if (!this.authManager.isSignedIn())
+    {
+      this.dialog.open(AuthPopupComponent);
+      return;
+    }
+    this.dialog.open(CommentPopupComponent, {
+      data: {
+        commentingService: this.commenting,
+        targetId: this.videoId,
+        userAlias: this.authManager.jwtSignedInUser$.value?.publicUsername
+      }
+    })
+      .afterClosed().subscribe((comment) =>
+    {
+      console.log(comment);
+      if (comment)
+      {
+        this.commentsArea.reloadComments();
+      }
+    });
+  }
+  loadNextCommentsBatch()
+  {
+    if (this.commentsArea)
+    {
+      this.commentsArea.loadNextBatch();
+    }
   }
   private resetSearch() //TO DO: move this to an extension method
   {

@@ -10,6 +10,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { BatchScrollerComponent } from "./batch-scroller/batch-scroller.component";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 
 
@@ -27,7 +28,8 @@ import { BatchScrollerComponent } from "./batch-scroller/batch-scroller.componen
     MatIconModule,
     MatFormFieldModule,
     ReactiveFormsModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatProgressSpinnerModule
   ],
   exports: [
     InfoPopupDialogComponent,

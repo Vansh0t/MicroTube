@@ -1,0 +1,10 @@
+<div class="main-container">
+	@if(comment) {
+		<div class="alias-time-container">
+			<h4 class="mat-h4">{{"@"}}{{comment.userAlias}}</h4>
+			<p class="mat-small time-text">{{getFormattedTime()}}</p>
+		</div>
+		<h4 class="mat-h4 content-text">{{comment.content}}</h4>
+	}
+</div>
+

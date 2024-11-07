@@ -10,7 +10,8 @@ export class BatchScrollerComponent
 {
   @Input() isLoading: boolean = false;
   @Input() endOfDataReached: boolean = false;
-  @Input() scrollPercentForNewBatch = 0.001;
+  @Input() scrollPercentForNewBatch = 0.05;
+  @Input() spinnerDiameter = 28;
   @Output() onNextRequiredBatch: EventEmitter<number> = new EventEmitter<number>();
 
   private prevScrollPercent: number = 0;

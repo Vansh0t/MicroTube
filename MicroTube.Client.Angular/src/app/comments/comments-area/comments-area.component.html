@@ -1,0 +1,10 @@
+<div class="main-container">
+	@for(comment of comments; track comment.id) {
+	<comment [comment]="comment" />
+	}
+	<div class="loader-container">
+		@if(isLoading) {
+		<mat-spinner [diameter]="comments ? 28:100"></mat-spinner>
+		}
+	</div>
+</div>
