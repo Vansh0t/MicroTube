@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MicroTube.Data.Models.Reactions;
 using MicroTube.Services.Reactions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MicroTube.Data.Models
 {
     [Index(nameof(UserId), nameof(VideoId), IsUnique =true)]
-	public class UserVideoReaction
+	public class VideoReaction: ILikeDislikeReaction
 	{
 		[Key]
 		public Guid Id { get; set; }
@@ -20,5 +21,10 @@ namespace MicroTube.Data.Models
 		public Video? Video { get; set; }
 		public required LikeDislikeReactionType ReactionType { get; set; }
 		public required DateTime Time { get; set; }
+
+		[NotMapped]
+		public Guid TargetId { get => VideoId; set => VideoId = value; }
+		[NotMapped]
+		public IReactable? Target => Video;
 	}
 }

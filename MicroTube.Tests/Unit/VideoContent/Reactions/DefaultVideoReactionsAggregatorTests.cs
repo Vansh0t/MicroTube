@@ -1,4 +1,5 @@
 ﻿using MicroTube.Data.Models;
+using MicroTube.Data.Models.Reactions;
 using MicroTube.Services.Reactions;
 
 namespace MicroTube.Tests.Unit.VideoContent.Reactions

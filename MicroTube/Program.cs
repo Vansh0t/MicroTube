@@ -10,11 +10,9 @@ using MicroTube.Constants;
 using MicroTube.Data.Access;
 using MicroTube.Extensions;
 using MicroTube.Services.Authentication;
-using MicroTube.Services.Comments;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
 using MicroTube.Services.Email;
-using MicroTube.Services.HangfireFilters;
 using MicroTube.Services.Search.Videos;
 using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent;
@@ -33,13 +31,18 @@ if(builder.Environment.IsProduction())
 	builder.Configuration.AddAzureKeyVault(new Uri(vaultUrl), new DefaultAzureCredential());
 }
 bool isStartupTest = config.GetValue<bool>("StartupTest");
+builder.Services.AddDbContext<MicroTubeDbContext>(
+	options => options.UseSqlServer(config.GetDefaultConnectionString())
+					  .UseExceptionProcessor());
 builder.Services.AddAzureBlobRemoteStorage(config.GetRequiredValue("AzureBlobStorage:ConnectionString"));
 builder.Services.AddSingleton<IMD5HashProvider, MD5HashProvider>();
 builder.Services.AddSingleton<IVideoAnalyzer, FFMpegVideoAnalyzer>();
 builder.Services.AddSingleton<IFileSystem, FileSystem>();
 builder.Services.AddElasticsearchClient(config);
 builder.Services.AddElasticsearchSearch();
-builder.Services.AddVideoReactions();
+builder.Services.AddComments();
+builder.Services.AddReactions();
+builder.Services.AddScoped<IVideoViewsAggregatorService, DefaultVideoViewsAggregatorService>();
 builder.Services.AddSingleton<IEmailValidator, EmailValidator>();
 builder.Services.AddSingleton<IUsernameValidator, UsernameValidator>();
 builder.Services.AddSingleton<IPasswordValidator, DefaultPasswordValidator>();
@@ -48,9 +51,6 @@ builder.Services.AddSingleton<IEmailManager, DefaultEmailManager>();
 builder.Services.AddSingleton<IEmailTemplatesProvider, DefaultEmailTemplatesProvider>();
 builder.Services.AddSingleton<IVideoPreUploadValidator, DefaultVideoPreUploadValidator>();
 builder.Services.AddSingleton<IVideoFileNameGenerator, GuidVideoFileNameGenerator>();
-builder.Services.AddDbContext<MicroTubeDbContext>(
-	options => options.UseSqlServer(config.GetDefaultConnectionString())
-					  .UseExceptionProcessor());
 if (!isStartupTest)
 	StartupExtensions.EnsureDatabaseCreated(config.GetDefaultConnectionString());
 builder.Services.AddDefaultBasicAuthenticationFlow();
@@ -60,12 +60,10 @@ builder.Services.AddScoped<IUserSessionService, DefaultUserSessionService>();
 builder.Services.AddScoped<IAuthenticationEmailManager, DefaultAuthenticationEmailManager>();
 builder.Services.AddScoped<IPasswordEncryption, PBKDF2PasswordEncryption>();
 builder.Services.AddScoped<IVideoIndexingService, DefaultVideoIndexingService>();
-builder.Services.AddScoped<IVideoCommentingService, DefaultVideoCommentingService>();
 builder.Services.AddTransient<IJwtTokenProvider, DefaultJwtTokenProvider>();
 builder.Services.AddTransient<IJwtPasswordResetTokenProvider, DefaultJwtPasswordResetTokenProvider>();
 builder.Services.AddTransient<IJwtClaims, JwtClaims>();
 builder.Services.AddTransient<ISecureTokensProvider, SHA256SecureTokensProvider>();
-builder.Services.AddVideoComments();
 var configOptions = config.GetRequiredByKey<JwtAccessTokensOptions>(JwtAccessTokensOptions.KEY);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

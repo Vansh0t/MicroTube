@@ -5,7 +5,7 @@ namespace MicroTube.Services.VideoContent.Likes
 {
 	public interface IVideoReactionsService
 	{
-		Task<IServiceResult<UserVideoReaction>> GetReaction(string userId, string videoId);
-		Task<IServiceResult<UserVideoReaction>> SetReaction(string userId, string videoId, LikeDislikeReactionType reactionType);
+		Task<IServiceResult<VideoReaction>> GetReaction(string userId, string videoId);
+		Task<IServiceResult<VideoReaction>> SetReaction(string userId, string videoId, LikeDislikeReactionType reactionType);
 	}
 }

@@ -5,7 +5,7 @@ using MicroTube.Services.ConfigOptions;
 
 namespace MicroTube.Services.Search.Comments
 {
-	public class VideoCommentSearchService : ICommentSearchService
+	public class VideoCommentSearchService : IVideoCommentSearchService
 	{
 		private readonly MicroTubeDbContext _db;
 		private readonly ISearchMetaProvider<IEnumerable<VideoComment>, VideoCommentSearchMeta> _metaProvider;
@@ -47,7 +47,7 @@ namespace MicroTube.Services.Search.Comments
 			}
 			catch (Exception e)
 			{
-				_logger.LogError($"Failed to get comments for video: {videoId}. Sort: {parameters.SortType}, BatchSize: {parameters.BatchSize}, Meta: {meta}");
+				_logger.LogError(e, $"Failed to get comments for video: {videoId}. Sort: {parameters.SortType}, BatchSize: {parameters.BatchSize}, Meta: {meta}");
 				return ServiceResult<VideoCommentSearchResult>.FailInternal();
 			}
 
@@ -59,7 +59,8 @@ namespace MicroTube.Services.Search.Comments
 			DateTime lastTime = meta != null ? meta.LastTime : DateTime.MaxValue;
 			var result = await _db.VideoComments
 				.Include(_ => _.Reactions)
-				.Where(_ => _.Id != lastGuid && (_.Reactions!.Difference < lastRank || (_.Reactions!.Difference == lastRank && _.Time < lastTime)))
+				.Include(_=>_.User)
+				.Where(_ => !_.Deleted && _.Id != lastGuid && (_.Reactions!.Difference < lastRank || (_.Reactions!.Difference == lastRank && _.Time < lastTime)))
 				.OrderByDescending(_ => _.Reactions!.Difference)
 				.ThenByDescending(_=>_.Time)
 				.Take(batchSize)
@@ -72,7 +73,8 @@ namespace MicroTube.Services.Search.Comments
 			Guid lastGuid = meta != null ? new Guid(meta.LastId) : Guid.Empty;
 			var result = await _db.VideoComments
 				.Include(_ => _.Reactions)
-				.Where(_ => _.Id != lastGuid && _.Time > lastTime)
+				.Include(_=>_.User)
+				.Where(_ => !_.Deleted && _.Id != lastGuid && _.Time > lastTime)
 				.OrderBy(_ => _.Time)
 				.Take(batchSize)
 				.ToArrayAsync();

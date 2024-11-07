@@ -1,4 +1,4 @@
-﻿using MicroTube.Data.Models;
+﻿using MicroTube.Data.Models.Reactions;
 
 namespace MicroTube.Services.Reactions
 {

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using MicroTube.Data.Models.Reactions;
 
 namespace MicroTube.Data.Models.Comments
 {
@@ -14,5 +15,10 @@ namespace MicroTube.Data.Models.Comments
 		public required int Likes { get; set; }
 		public required int Dislikes { get; set; }
 		public required int Difference { get; set; }
+
+		[NotMapped]
+		public Guid TargetId { get => CommentId; set => CommentId = value; }
+		[NotMapped]
+		public IReactable? Target { get => Comment;}
 	}
 }

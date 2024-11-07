@@ -5,10 +5,11 @@ using MicroTube.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MicroTube.Services.Reactions;
+using MicroTube.Data.Models.Reactions;
 
 namespace MicroTube.Services.VideoContent.Likes
 {
-	public class DefaultVideoReactionsService : IVideoReactionsService
+	public class DefaultVideoReactionsService : ILikeDislikeReactionService
 	{
 		private readonly ILogger<DefaultVideoReactionsService> _logger;
 		private readonly ILikeDislikeReactionAggregator _reactionsAggregator;
@@ -23,16 +24,16 @@ namespace MicroTube.Services.VideoContent.Likes
 			_reactionsAggregator = reactionsAggregator;
 		}
 
-		public async Task<IServiceResult<UserVideoReaction>> SetReaction(string userId, string videoId, LikeDislikeReactionType reactionType)
+		public async Task<IServiceResult<ILikeDislikeReaction>> SetReaction(string userId, string videoId, LikeDislikeReactionType reactionType)
 		{
 			if(!Guid.TryParse(userId, out var guidUserId) || !Guid.TryParse(videoId, out var guidVideoId))
 			{
-				return ServiceResult<UserVideoReaction>.Fail(400, "Invalid user or video id.");
+				return ServiceResult<ILikeDislikeReaction>.Fail(400, "Invalid user or video id.");
 			} 
 			using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
 			try
 			{
-				(UserVideoReaction reaction, bool created) = await GetOrCreateReaction(guidUserId, guidVideoId, reactionType);
+				(VideoReaction reaction, bool created) = await GetOrCreateReaction(guidUserId, guidVideoId, reactionType);
 				VideoReactionsAggregation reactionsAggregation = await GetReactionsAggregation(guidVideoId);
 				if (created)
 				{
@@ -40,40 +41,40 @@ namespace MicroTube.Services.VideoContent.Likes
 				}
 				else if(reaction.ReactionType == reactionType)
 				{
-					return ServiceResult<UserVideoReaction>.Success(reaction);
+					return ServiceResult<ILikeDislikeReaction>.Success(reaction);
 				}
 				reactionsAggregation = (VideoReactionsAggregation)_reactionsAggregator.UpdateReactionsAggregation(reactionsAggregation, reactionType, reaction.ReactionType);
 				reaction.ReactionType = reactionType;
 				await SetReindexingRequired(guidVideoId);
 				_db.SaveChanges();
 				await transaction.CommitAsync();
-				return ServiceResult<UserVideoReaction>.Success(reaction);
+				return ServiceResult<ILikeDislikeReaction>.Success(reaction);
 			}
 			catch (RequiredObjectNotFoundException e)
 			{
 				await transaction.RollbackAsync();
 				_logger.LogError(e, $"Failed add video like from user {userId} to video {videoId}");
-				return ServiceResult<UserVideoReaction>.Fail(404, "Requested video is not found");
+				return ServiceResult<ILikeDislikeReaction>.Fail(404, "Requested video is not found");
 			}
 			catch (Exception e)
 			{
 				await transaction.RollbackAsync();
 				_logger.LogError(e, $"Failed add video like from user {userId} to video {videoId}");
-				return ServiceResult<UserVideoReaction>.FailInternal();
+				return ServiceResult<ILikeDislikeReaction>.FailInternal();
 			}
 		}
-		public async Task<IServiceResult<UserVideoReaction>> GetReaction(string userId, string videoId)
+		public async Task<IServiceResult<ILikeDislikeReaction>> GetReaction(string userId, string videoId)
 		{
 			if (!Guid.TryParse(userId, out var guidUserId) || !Guid.TryParse(videoId, out var guidVideoId))
 			{
-				return ServiceResult<UserVideoReaction>.Fail(400, "Invalid user or video id.");
+				return ServiceResult<ILikeDislikeReaction>.Fail(400, "Invalid user or video id.");
 			}
 			var reaction = await _db.UserVideoReactions.FirstOrDefaultAsync(_ => _.UserId == guidUserId && _.VideoId == guidVideoId);
 			if (reaction == null)
-				return ServiceResult<UserVideoReaction>.Fail(404, "Not found");
-			return ServiceResult<UserVideoReaction>.Success(reaction);
+				return ServiceResult<ILikeDislikeReaction>.Fail(404, "Not found");
+			return ServiceResult<ILikeDislikeReaction>.Success(reaction);
 		}
-		private async Task<(UserVideoReaction reaction, bool created)> GetOrCreateReaction(Guid userId, Guid videoId, LikeDislikeReactionType newReactionType)
+		private async Task<(VideoReaction reaction, bool created)> GetOrCreateReaction(Guid userId, Guid videoId, LikeDislikeReactionType newReactionType)
 		{
 			var reaction = await _db.UserVideoReactions.FirstOrDefaultAsync(_ => _.UserId == userId && _.VideoId == videoId);
 			var videoReactions = await _db.VideoAggregatedReactions.FirstOrDefaultAsync(_ => _.VideoId == videoId);
@@ -82,7 +83,7 @@ namespace MicroTube.Services.VideoContent.Likes
 			LikeDislikeReactionType prevReaction;
 			if (reaction == null)
 			{
-				reaction = new UserVideoReaction { UserId = userId, VideoId = videoId, ReactionType = newReactionType, Time = DateTime.UtcNow };
+				reaction = new VideoReaction { UserId = userId, VideoId = videoId, ReactionType = newReactionType, Time = DateTime.UtcNow };
 				prevReaction = LikeDislikeReactionType.None;
 				return (reaction, true);
 			}

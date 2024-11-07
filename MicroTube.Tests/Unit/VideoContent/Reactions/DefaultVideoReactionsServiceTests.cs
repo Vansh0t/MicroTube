@@ -26,7 +26,8 @@ namespace MicroTube.Tests.Unit.VideoContent.Reactions
 			{
 				ThumbnailUrls = "",
 				Title = "Vid",
-				Urls = ""
+				Urls = "",
+				VideoIndexing = new VideoSearchIndexing()
 			};
 			VideoReactionsAggregation reactions = new() { Dislikes = 0, Likes = 0, Video = video };
 			video.VideoReactions = reactions;
@@ -116,7 +117,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Reactions
 				Urls = ""
 			};
 			VideoReactionsAggregation reactions = new() { Dislikes = 0, Likes = 0, Video = video };
-			UserVideoReaction reaction = new() { User = user, Video = video, Time = DateTime.UtcNow, ReactionType = LikeDislikeReactionType.None };
+			VideoReaction reaction = new() { User = user, Video = video, Time = DateTime.UtcNow, ReactionType = LikeDislikeReactionType.None };
 			video.VideoReactions = reactions;
 			db.AddRange(user, video, reaction);
 			db.SaveChanges();

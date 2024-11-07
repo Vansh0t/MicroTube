@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MicroTube.Data.Models.Reactions;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MicroTube.Data.Models
@@ -13,5 +14,11 @@ namespace MicroTube.Data.Models
 		public Video? Video { get; set; }
 		public required int Likes { get; set; }
 		public required int Dislikes { get; set; }
+		public int Difference { get; set; }
+
+		[NotMapped]
+		public Guid TargetId { get => VideoId; set => VideoId = value; }
+		[NotMapped]
+		public IReactable? Target => Video;
 	}
 }

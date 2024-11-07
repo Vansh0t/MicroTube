@@ -33,6 +33,9 @@ using MicroTube.Services.Reactions;
 using MicroTube.Services.Search.Videos;
 using MicroTube.Services.Search.Comments;
 using MicroTube.Data.Models.Comments;
+using MicroTube.Services.Comments.Reactions;
+using MicroTube.Services.Comments;
+using MicroTube.Services.VideoContent.Comments;
 
 namespace MicroTube.Extensions
 {
@@ -45,18 +48,21 @@ namespace MicroTube.Extensions
 			services.AddScoped<IBasicFlowPasswordHandler, DefaultBasicFlowPasswordHandler>();
 			return services;
 		}
-		public static IServiceCollection AddVideoReactions(this IServiceCollection services)
+		public static IServiceCollection AddReactions(this IServiceCollection services)
 		{
+			services.AddScoped<ReactionServicesFactory>();
 			services.AddScoped<ILikeDislikeReactionAggregator, LikeDislikeReactionAggregator>();
-			services.AddScoped<IVideoReactionsService, DefaultVideoReactionsService>();
+			services.AddScoped<ILikeDislikeReactionService, DefaultVideoReactionsService>();
+			services.AddScoped<ILikeDislikeReactionService, DefaultVideoCommentReactionsService>();
 			return services;
 		}
-		public static IServiceCollection AddVideoComments(this IServiceCollection services)
+		public static IServiceCollection AddComments(this IServiceCollection services)
 		{
-			services.AddScoped<IVideoViewsAggregatorService, DefaultVideoViewsAggregatorService>();
+			services.AddScoped<CommentServicesFactory>();
 			services.AddScoped<ICommentContentValidator, DefaultCommentContentValidator>();
-			services.AddScoped<ICommentSearchService, VideoCommentSearchService>();
+			services.AddScoped<IVideoCommentSearchService, VideoCommentSearchService>();
 			services.AddScoped<ISearchMetaProvider<IEnumerable<VideoComment>, VideoCommentSearchMeta>, VideoCommentSearchMetaProvider>();
+			services.AddScoped<ICommentingService, DefaultVideoCommentingService>();
 			return services;
 		}
 		public static IServiceCollection AddElasticsearchClient(this IServiceCollection services, IConfiguration config)

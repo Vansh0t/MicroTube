@@ -8,7 +8,7 @@ namespace MicroTube.Data.Access
 	{
 		public DbSet<AppUser> Users { get; set; }
 		public DbSet<AppUserSession> UserSessions { get; set; }
-		public DbSet<UserVideoReaction> UserVideoReactions { get; set; }
+		public DbSet<VideoReaction> UserVideoReactions { get; set; }
 		public DbSet<UsedRefreshToken> UsedRefreshTokens { get; set; }
 		public DbSet<Video> Videos { get; set; }
 		public DbSet<VideoSearchIndexing> VideoSearchIndexing { get; set; }
