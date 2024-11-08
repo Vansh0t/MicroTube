@@ -10,6 +10,7 @@ import { UtilityComponentsModule } from "../utility-components/utility-component
 import { CommentComponent } from "./comment/comment.component";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatIconModule } from "@angular/material/icon";
+import { MatSelectModule } from "@angular/material/select";
 
 
 
@@ -27,7 +28,8 @@ import { MatIconModule } from "@angular/material/icon";
     ReactiveFormsModule,
     UtilityComponentsModule,
     MatProgressSpinnerModule,
-    MatIconModule
+    MatIconModule,
+    MatSelectModule
   ],
   exports: [
     CommentPopupComponent,

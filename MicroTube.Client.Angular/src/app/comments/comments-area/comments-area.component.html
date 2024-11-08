@@ -1,4 +1,19 @@
 <div class="main-container">
+	<div class="actions-container">
+		<div class="sort-count-container">
+			<mat-form-field class="sort-select dense-minus-3" subscriptSizing="dynamic">
+				<mat-select [formControl]="sortControl">
+					<mat-option value="Top">Top</mat-option>
+					<mat-option value="Newest">New</mat-option>
+				</mat-select>
+			</mat-form-field>
+			<h2 class="mat-h2">{{commentsCount}} Comments</h2>
+		</div>
+		<button mat-stroked-button color="primary" (click)="openCommentPopup()">Comment</button>
+	</div>
+	
+	
+	
 	@for(comment of comments; track comment.id) {
 	<comment [comment]="comment" />
 	}

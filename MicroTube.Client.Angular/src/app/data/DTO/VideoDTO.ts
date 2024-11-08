@@ -17,6 +17,7 @@ export class VideoDto
   views: number;
   uploaderPublicUsername: string | null;
   uploaderId: string | null;
+  commentsCount: number;
   constructor(
     raw: VideoRawDto
   )
@@ -36,6 +37,7 @@ export class VideoDto
     this.views = raw.views;
     this.uploaderPublicUsername = raw.uploaderPublicUsername;
     this.uploaderId = raw.uploaderId;
+    this.commentsCount = raw.commentsCount;
   }
 }
 
@@ -55,6 +57,7 @@ export interface VideoRawDto
   views: number;
   uploaderPublicUsername: string | null;
   uploaderId: string | null;
+  commentsCount: number;
 }
 
 export interface VideoUploadDto

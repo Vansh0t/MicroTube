@@ -151,33 +151,7 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     this.queryBuilder.setValue("uploaderAlias", video.uploaderPublicUsername);
     this.queryBuilder.navigate("/");
   }
-  openCommentPopup()
-  {
-    if (!this.videoId)
-    {
-      return;
-    }
-    if (!this.authManager.isSignedIn())
-    {
-      this.dialog.open(AuthPopupComponent);
-      return;
-    }
-    this.dialog.open(CommentPopupComponent, {
-      data: {
-        commentTargetKey: this.VIDEO_COMMENT_TARGET_KEY,
-        targetId: this.videoId,
-        userAlias: this.authManager.jwtSignedInUser$.value?.publicUsername
-      }
-    })
-      .afterClosed().subscribe((comment) =>
-    {
-      console.log(comment);
-      if (comment)
-      {
-        this.commentsArea.reloadComments();
-      }
-    });
-  }
+  
   loadNextCommentsBatch()
   {
     if (this.commentsArea)

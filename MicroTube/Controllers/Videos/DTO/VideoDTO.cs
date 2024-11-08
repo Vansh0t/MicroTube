@@ -16,6 +16,7 @@ namespace MicroTube.Controllers.Videos.Dto
 		public int Views { get; set; }
 		public string? UploaderPublicUsername { get; set; }
 		public string? UploaderId { get; set; }
+		public required int CommentsCount { get; set; }
 		public static VideoDto FromModel(Video video)
 		{
 			VideoDto dto = new VideoDto
@@ -31,7 +32,8 @@ namespace MicroTube.Controllers.Videos.Dto
 				Dislikes = video.VideoReactions != null ? video.VideoReactions.Dislikes : 0,
 				Views = video.VideoViews != null ? video.VideoViews.Views : 0,
 				UploaderPublicUsername = video.Uploader != null ? video.Uploader.PublicUsername : "Unknown",
-				UploaderId = video.UploaderId.ToString()
+				UploaderId = video.UploaderId.ToString(),
+				CommentsCount = video.CommentsCount
 			};
 			return dto;
 			

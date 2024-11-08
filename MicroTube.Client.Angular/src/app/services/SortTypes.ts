@@ -1,4 +1,4 @@
 export enum CommentSortType
 {
-  Top = "Top", Latest = "Latest"
+  Top = "Top", Latest = "Newest"
 }

@@ -22,8 +22,7 @@
 				<div class="video-info-description-container"><h3 class="mat-body">{{video.description}}</h3></div>
 			</div>
 			<div class="comments-container">
-				<button mat-stroked-button color="primary" (click)="openCommentPopup()">Comment</button>
-				<comments-area #commentsArea [commentTargetKey]="VIDEO_COMMENT_TARGET_KEY" [targetId]="videoId ?? undefined" />
+				<comments-area #commentsArea [commentsCount]="video.commentsCount" [commentTargetKey]="VIDEO_COMMENT_TARGET_KEY" [targetId]="videoId ?? undefined" />
 			</div>
 		</div>
 

@@ -46,7 +46,8 @@ namespace MicroTube.Controllers.Videos
 					Dislikes = _.VideoReactions != null ? _.VideoReactions.Dislikes : 0,
 					Views = _.VideoViews != null ? _.VideoViews.Views : 0,
 					UploaderPublicUsername = _.Uploader != null ? _.Uploader.PublicUsername : "Unknown",
-					UploaderId = _.UploaderId.ToString()
+					UploaderId = _.UploaderId.ToString(),
+					CommentsCount = _.CommentsCount
 				})
 				.FirstOrDefaultAsync(_ => _.Id == id);
 			if (video == null)
