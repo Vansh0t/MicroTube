@@ -1,10 +1,10 @@
-﻿namespace MicroTube.Controllers.Authentication.DTO
+﻿namespace MicroTube.Controllers.Authentication.Dto
 {
-    public class AuthenticationResponseDTO
+    public class AuthenticationResponseDto
     {
         public string JWT { get; set; }
 		//public string RefreshToken { get; set; }
-		public AuthenticationResponseDTO(string jwt/*, string refreshToken*/)
+		public AuthenticationResponseDto(string jwt/*, string refreshToken*/)
 		{
 			JWT = jwt;
 			//RefreshToken = refreshToken;

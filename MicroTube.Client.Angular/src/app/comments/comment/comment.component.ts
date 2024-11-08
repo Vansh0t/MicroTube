@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core";
-import { CommentDTO } from "../../data/DTO/CommentDTO";
+import { CommentDto } from "../../data/Dto/CommentDto";
 import { TimeFormatter } from "../../services/formatting/TimeFormatter";
 import { DateTime } from "luxon";
 
@@ -10,7 +10,7 @@ import { DateTime } from "luxon";
 })
 export class CommentComponent implements OnInit
 {
-  @Input() comment: CommentDTO | undefined;
+  @Input() comment: CommentDto | undefined;
 
   private readonly timeFormatter: TimeFormatter;
   constructor(timeFormatter: TimeFormatter)

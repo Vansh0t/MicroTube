@@ -1,5 +1,5 @@
 
-export class MessageDTO
+export class MessageDto
 {
   message: string;
   constructor(message: string)

@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { CommentReactionDTO } from "../../data/DTO/CommentReactionDTO";
+import { CommentReactionDto } from "../../data/Dto/CommentReactionDto";
 import { LikeDislikeReactionType } from "../ReactionTypes";
 
 
@@ -15,12 +15,12 @@ export class VideoCommentReactionService
   {
     this.client = client;
   }
-  setReaction(commentId: string, reactionType: LikeDislikeReactionType): Observable<CommentReactionDTO>
+  setReaction(commentId: string, reactionType: LikeDislikeReactionType): Observable<CommentReactionDto>
   {
-    return this.client.post<CommentReactionDTO>(`reactions/comment/${commentId}/react/${reactionType}`, {});
+    return this.client.post<CommentReactionDto>(`reactions/comment/${commentId}/react/${reactionType}`, {});
   }
-  getReaction(commentId: string): Observable<CommentReactionDTO>
+  getReaction(commentId: string): Observable<CommentReactionDto>
   {
-    return this.client.get<CommentReactionDTO>(`reactions/comment/${commentId}/reaction`);
+    return this.client.get<CommentReactionDto>(`reactions/comment/${commentId}/reaction`);
   }
 }

@@ -1,4 +1,4 @@
-export interface CommentRequestDTO
+export interface CommentRequestDto
 {
   content: string;
 }

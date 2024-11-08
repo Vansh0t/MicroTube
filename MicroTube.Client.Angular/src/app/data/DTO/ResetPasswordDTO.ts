@@ -1,5 +1,5 @@
 
-export class ResetPasswordDTO
+export class ResetPasswordDto
 {
   email: string;
   constructor(email: string)

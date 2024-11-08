@@ -1,9 +1,9 @@
-﻿namespace MicroTube.Controllers.Authentication.DTO
+﻿namespace MicroTube.Controllers.Authentication.Dto
 {
-    public class PasswordChangeDTO
+    public class PasswordChangeDto
     {
         public string NewPassword { get; set; }
-        public PasswordChangeDTO(string newPassword)
+        public PasswordChangeDto(string newPassword)
         {
             NewPassword = newPassword;
         }

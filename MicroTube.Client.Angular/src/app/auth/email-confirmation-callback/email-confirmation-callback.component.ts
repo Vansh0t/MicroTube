@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { EmailPasswordAuthProvider } from "../../services/auth/providers/EmailPasswordAuthProvider";
 import { ActivatedRoute, Router } from "@angular/router";
-import { AuthenticationResponseDTO } from "../../data/DTO/AuthenticationResponseDTO";
+import { AuthenticationResponseDto } from "../../data/Dto/AuthenticationResponseDto";
 import { Subscription, timer } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 import { AuthManager } from "../../services/auth/AuthManager";
@@ -47,7 +47,7 @@ export class EmailConfirmationCallbackComponent implements OnInit, OnDestroy
     this.requestSubscription?.unsubscribe();
     this.timerSubscription?.unsubscribe();
   }
-  onConfirmationSuccess(authResponse: AuthenticationResponseDTO): void
+  onConfirmationSuccess(authResponse: AuthenticationResponseDto): void
   {
     if (authResponse != null && this.authManager.isSignedIn())
     {

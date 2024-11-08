@@ -1,5 +1,5 @@
 
-export class AuthenticationResponseDTO
+export class AuthenticationResponseDto
 {
   jwt: string;
   refreshToken: string;

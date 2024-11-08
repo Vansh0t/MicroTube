@@ -1,5 +1,5 @@
 
-export class SignInCredentialPasswordDTO
+export class SignInCredentialPasswordDto
 {
   credential: string;
   password: string;

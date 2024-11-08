@@ -1,6 +1,6 @@
-﻿namespace MicroTube.Controllers.Videos.DTO
+﻿namespace MicroTube.Controllers.Videos.Dto
 {
-	public class VideoRequestMetaDTO
+	public class VideoRequestMetaDto
 	{
 		public string? Meta { get; set; }
 	}

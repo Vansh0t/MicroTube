@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core";
-import { VideoDTO } from "../../data/DTO/VideoDTO";
+import { VideoDto } from "../../data/Dto/VideoDto";
 import { Subscription, timer } from "rxjs";
 import { TimeFormatter } from "../../services/formatting/TimeFormatter";
 import { DateTime } from "luxon";
@@ -14,7 +14,7 @@ export class VideoCardComponent implements OnInit
   private readonly thumbnailsRotationDelayMs = 1000;
   private thumbnailsRotation: Subscription | null = null;
   private currentThumbnailIndex: number = -1;
-  @Input() video: VideoDTO | undefined = undefined;
+  @Input() video: VideoDto | undefined = undefined;
   currentThumbnailSrc: string | undefined;
   timeFormatter: TimeFormatter;
 

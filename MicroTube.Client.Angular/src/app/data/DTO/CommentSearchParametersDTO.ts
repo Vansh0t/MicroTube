@@ -1,6 +1,6 @@
 import { CommentSortType } from "../../services/SortTypes";
 
-export interface CommentSearchParametersDTO
+export interface CommentSearchParametersDto
 {
   sortType: CommentSortType;
   batchSize: number;

@@ -1,7 +1,7 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MicroTube.Controllers.Videos.DTO;
+using MicroTube.Controllers.Videos.Dto;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Services.Search;
@@ -30,12 +30,12 @@ namespace MicroTube.Controllers.Videos
 			if (result.IsError)
 				return StatusCode(result.Code);
 			return Ok(result.GetRequiredObject().Select(_ => {
-				return new VideoSearchSuggestion(
+				return new VideoSearchSuggestionDto(
 								_);
 			}));
 		}
 		[HttpPost("videos")]
-		public async Task<IActionResult> GetVideos([FromQuery] VideoSearchParametersDTO searchParameters, [FromBody] VideoRequestMetaDTO? meta)
+		public async Task<IActionResult> GetVideos([FromQuery] VideoSearchParametersDto searchParameters, [FromBody] VideoRequestMetaDto? meta)
 		{
 			var searchResult = await _searchService.GetVideos(new VideoSearchParameters()
 			{
@@ -53,13 +53,13 @@ namespace MicroTube.Controllers.Videos
 			var videosResult = await _db.Videos.Where(_ => ids.Contains(_.Id.ToString())).ToArrayAsync();
 			IEnumerable<Video> videosResultSorted = searchData.Indices.Join(
 				videosResult, outer => outer.Id, inner => inner.Id.ToString(), (index, result)=> result);
-			var sortedVideos = videosResultSorted.Select(VideoDTO.FromModel).ToArray();
-			return Ok(new VideoSearchResultDTO(sortedVideos) { Meta = searchData.Meta });
+			var sortedVideos = videosResultSorted.Select(VideoDto.FromModel).ToArray();
+			return Ok(new VideoSearchResultDto(sortedVideos) { Meta = searchData.Meta });
 		}
 		[HttpGet("controls")]
 		public IActionResult GetControls()
 		{
-			var controls = new SearchControlsDTO()
+			var controls = new SearchControlsDto()
 			{
 				LengthFilterOptions = new string[3] {
 					nameof(VideoLengthFilterType.Short),

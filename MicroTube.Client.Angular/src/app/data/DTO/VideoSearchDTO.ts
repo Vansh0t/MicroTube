@@ -1,4 +1,4 @@
-export interface VideoSearchParametersDTO
+export interface VideoSearchParametersDto
 {
   text: string | null;
   sort: string | null;
@@ -9,7 +9,7 @@ export interface VideoSearchParametersDTO
   batchSize: number | null;
 }
 
-export interface SearchControlsDTO
+export interface SearchControlsDto
 {
   lengthFilterOptions: string[];
   timeFilterOptions: string[];

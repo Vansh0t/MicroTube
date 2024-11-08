@@ -1,11 +1,11 @@
-﻿namespace MicroTube.Controllers.Comments.DTO
+﻿namespace MicroTube.Controllers.Comments.Dto
 {
-	public class CommentSearchResultDTO
+	public class CommentSearchResultDto
 	{
 
-		public IEnumerable<CommentDTO> Comments { get; set; }
+		public IEnumerable<CommentDto> Comments { get; set; }
 		public string? Meta { get; set; }
-		public CommentSearchResultDTO(IEnumerable<CommentDTO> comments, string? meta)
+		public CommentSearchResultDto(IEnumerable<CommentDto> comments, string? meta)
 		{
 			Comments = comments;
 			Meta = meta;

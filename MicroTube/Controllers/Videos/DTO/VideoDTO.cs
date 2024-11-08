@@ -1,8 +1,8 @@
 ﻿using MicroTube.Data.Models;
 
-namespace MicroTube.Controllers.Videos.DTO
+namespace MicroTube.Controllers.Videos.Dto
 {
-	public class VideoDTO
+	public class VideoDto
 	{
 		public required string Id { get; set; }
 		public required string Urls { get; set; }
@@ -16,9 +16,9 @@ namespace MicroTube.Controllers.Videos.DTO
 		public int Views { get; set; }
 		public string? UploaderPublicUsername { get; set; }
 		public string? UploaderId { get; set; }
-		public static VideoDTO FromModel(Video video)
+		public static VideoDto FromModel(Video video)
 		{
-			VideoDTO dto = new VideoDTO
+			VideoDto dto = new VideoDto
 			{
 				Id = video.Id.ToString(),
 				Title = video.Title,

@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-export class CommentDTO
+export class CommentDto
 {
   id: string;
   userId: string;
@@ -7,7 +7,7 @@ export class CommentDTO
   videoId: string;
   content: string;
   time: DateTime;
-  constructor(raw: CommentRawDTO)
+  constructor(raw: CommentRawDto)
   {
     this.id = raw.id;
     this.userId = raw.userId;
@@ -17,7 +17,7 @@ export class CommentDTO
     this.time = DateTime.fromISO(raw.time);
   }
 }
-export interface CommentRawDTO
+export interface CommentRawDto
 {
   id: string;
   userId: string;

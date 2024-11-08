@@ -1,16 +1,16 @@
-import { CommentDTO, CommentRawDTO } from "./CommentDTO";
-export class CommentSearchResultDTO
+import { CommentDto, CommentRawDto } from "./CommentDto";
+export class CommentSearchResultDto
 {
-  comments: CommentDTO[];
+  comments: CommentDto[];
   meta: string | null;
-  constructor(raw: CommentSearchResultRawDTO)
+  constructor(raw: CommentSearchResultRawDto)
   {
-    this.comments = raw.comments.map(_ => new CommentDTO(_));
+    this.comments = raw.comments.map(_ => new CommentDto(_));
     this.meta = raw.meta;
   }
 }
-export interface CommentSearchResultRawDTO
+export interface CommentSearchResultRawDto
 {
-  comments: CommentRawDTO[];
+  comments: CommentRawDto[];
   meta: string|null;
 }

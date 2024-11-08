@@ -1,11 +1,11 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { AuthPopupComponent } from "../../auth/auth-popup/auth-popup.component";
-import { VideoDTO } from "../../data/DTO/VideoDTO";
+import { VideoDto } from "../../data/Dto/VideoDto";
 import { Subscription } from "rxjs";
 import { AuthManager } from "../../services/auth/AuthManager";
 import { MatDialog } from "@angular/material/dialog";
 import { JWTUser } from "../../services/auth/JWTUser";
-import { UserVideoReactionDTO } from "../../data/DTO/UserVideoReactionDTO";
+import { UserVideoReactionDto } from "../../data/Dto/UserVideoReactionDto";
 import { LikeDislikeReactionType } from "../../services/ReactionTypes";
 import { VideoService } from "../../services/videos/VideoService";
 
@@ -16,7 +16,7 @@ import { VideoService } from "../../services/videos/VideoService";
 })
 export class LikeComponent implements OnInit, OnDestroy
 {
-  @Input() video: VideoDTO | null = null;
+  @Input() video: VideoDto | null = null;
   private readonly auth: AuthManager;
   private readonly dialog: MatDialog;
   private readonly videoService: VideoService;
@@ -35,7 +35,7 @@ export class LikeComponent implements OnInit, OnDestroy
   {
     return this.userCurrentReaction ? this.userCurrentReaction.reactionType : LikeDislikeReactionType.None;
   }
-  userCurrentReaction: UserVideoReactionDTO | null = null;
+  userCurrentReaction: UserVideoReactionDto | null = null;
   constructor(videoService: VideoService, auth: AuthManager, dialog: MatDialog)
   {
     this.dialog = dialog;
@@ -78,7 +78,7 @@ export class LikeComponent implements OnInit, OnDestroy
       this.userReactSubscription = this.videoService.react(this.video.id, targetReactionType).subscribe(this.onVideoReacted.bind(this));
     }
   }
-  private onVideoReacted(reaction: UserVideoReactionDTO | null)
+  private onVideoReacted(reaction: UserVideoReactionDto | null)
   {
     if (!this.video)
       return;
@@ -135,7 +135,7 @@ export class LikeComponent implements OnInit, OnDestroy
       this.getUserReaction();
     }
   }
-  private onReaction(reaction: UserVideoReactionDTO | null)
+  private onReaction(reaction: UserVideoReactionDto | null)
   {
     this.userCurrentReaction = reaction;
   }

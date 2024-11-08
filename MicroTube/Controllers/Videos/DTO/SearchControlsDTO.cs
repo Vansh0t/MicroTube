@@ -1,6 +1,6 @@
-﻿namespace MicroTube.Controllers.Videos.DTO
+﻿namespace MicroTube.Controllers.Videos.Dto
 {
-	public class SearchControlsDTO
+	public class SearchControlsDto
 	{
 		public required IEnumerable<string> SortOptions { get; set; }
 		public required IEnumerable<string> TimeFilterOptions { get; set; }

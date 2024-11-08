@@ -1,10 +1,10 @@
-﻿namespace MicroTube.Controllers.Authentication.DTO
+﻿namespace MicroTube.Controllers.Authentication.Dto
 {
-    public class EmailChangeDTO
+    public class EmailChangeDto
     {
         public string NewEmail { get; set; }
         public string Password { get; set; }
-        public EmailChangeDTO(string newEmail, string password)
+        public EmailChangeDto(string newEmail, string password)
         {
             NewEmail = newEmail;
             Password = password;

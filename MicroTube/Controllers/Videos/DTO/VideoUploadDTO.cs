@@ -1,6 +1,6 @@
-﻿namespace MicroTube.Controllers.Videos.DTO
+﻿namespace MicroTube.Controllers.Videos.Dto
 {
-    public class VideoUploadDTO
+    public class VideoUploadDto
     {
         public required string Title { get; set; }
         public string? Description { get; set; }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MicroTube.Controllers.Videos.DTO;
+using MicroTube.Controllers.Videos.Dto;
 using MicroTube.Data.Access;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.Search.Videos;
@@ -29,11 +29,11 @@ namespace MicroTube.Controllers.Videos
 			_db = db;
 		}
 		[HttpGet("{id}")]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VideoDTO>))]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VideoDto>))]
 		public async Task<IActionResult> Get(string id)
 		{
 			var video = await _db.Videos
-				.Select(_=> new VideoDTO 
+				.Select(_=> new VideoDto 
 				{
 					Id = _.Id.ToString(),
 					Title = _.Title,

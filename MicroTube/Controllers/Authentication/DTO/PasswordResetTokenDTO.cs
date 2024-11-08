@@ -1,9 +1,9 @@
-﻿namespace MicroTube.Controllers.Authentication.DTO
+﻿namespace MicroTube.Controllers.Authentication.Dto
 {
-    public class PasswordResetTokenDTO
+    public class PasswordResetTokenDto
 	{
         public string JWT { get; set; }
-		public PasswordResetTokenDTO(string jwt)
+		public PasswordResetTokenDto(string jwt)
 		{
 			JWT = jwt;
 		}

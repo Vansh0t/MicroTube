@@ -2,9 +2,9 @@ import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { ICommentSearchService } from "../../services/ICommentSearchService";
 import { Subscription } from "rxjs";
 import { CommentSortType } from "../../services/SortTypes";
-import { CommentSearchResultDTO } from "../../data/DTO/CommentSearchResultDTO";
+import { CommentSearchResultDto } from "../../data/Dto/CommentSearchResultDto";
 import { HttpErrorResponse } from "@angular/common/http";
-import { CommentDTO } from "../../data/DTO/CommentDTO";
+import { CommentDto } from "../../data/Dto/CommentDto";
 
 @Component({
   selector: "comments-area",
@@ -16,7 +16,7 @@ export class CommentsAreaComponent implements OnInit, OnDestroy
   readonly COMMENTS_BATCH_SIZE = 20;
   @Input() searchService: ICommentSearchService | undefined;
   @Input() targetId: string | undefined;
-  comments: CommentDTO[] | null = null;
+  comments: CommentDto[] | null = null;
   get isLoading()
   {
     return this.commentsLoadingSubscription != null;
@@ -62,7 +62,7 @@ export class CommentsAreaComponent implements OnInit, OnDestroy
     this.endOfDataReached = false;
     this.loadNextBatch();
   }
-  private onNextBatchReceived(result: CommentSearchResultDTO)
+  private onNextBatchReceived(result: CommentSearchResultDto)
   {
     this.commentsLoadingSubscription?.unsubscribe();
     this.commentsLoadingSubscription = null;

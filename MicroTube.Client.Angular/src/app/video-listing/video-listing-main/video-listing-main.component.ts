@@ -1,10 +1,10 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Subscription } from "rxjs";
-import { SearchControlsDTO, VideoSearchParametersDTO } from "../../data/DTO/VideoSearchDTO";
+import { SearchControlsDto, VideoSearchParametersDto } from "../../data/Dto/VideoSearchDto";
 import { FormControl } from "@angular/forms";
 import { VideoSearchService } from "../../services/videos/VideoSearchService";
-import { VideoSearchResultDTO } from "../../data/DTO/VideoSearchResultDTO";
-import { VideoDTO } from "../../data/DTO/VideoDTO";
+import { VideoSearchResultDto } from "../../data/Dto/VideoSearchResultDto";
+import { VideoDto } from "../../data/Dto/VideoDto";
 import { VideoSearchQueryStringReader } from "../../services/query-string-processing/VideoSearchQueryStringReader";
 import { QueryStringBuilder } from "../../services/query-string-processing/QueryStringBuilder";
 import { NavigationEnd, Router } from "@angular/router";
@@ -48,8 +48,8 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
   timeFilterControl = new FormControl();
   lengthFilterControl = new FormControl();
   sortControl = new FormControl();
-  videos: VideoDTO[] | null = null;
-  searchControls: SearchControlsDTO | null = null;
+  videos: VideoDto[] | null = null;
+  searchControls: SearchControlsDto | null = null;
   endOfDataReached: boolean = false;
   get isLoadingVideos()
   {
@@ -122,7 +122,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
     const searchParams = this.searchQueryReader.readSearchParameters();
     this.getVideosBatch(searchParams);
   }
-  private getVideosBatch(params: VideoSearchParametersDTO)
+  private getVideosBatch(params: VideoSearchParametersDto)
   {
     this.videosSubscription?.unsubscribe();
     this.videosSubscription = this.searchService.getVideos(params)
@@ -136,7 +136,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
       this.queryBuilder.setValue("batchSize", batchSize); 
     }
   }
-  private onNewVideosBatchReceived(result: VideoSearchResultDTO)
+  private onNewVideosBatchReceived(result: VideoSearchResultDto)
   {
     this.videosSubscription?.unsubscribe();
     this.videosSubscription = null;
@@ -153,7 +153,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
       this.endOfDataReached = true;
     }
   }
-  private updateSearchControls(params: VideoSearchParametersDTO)
+  private updateSearchControls(params: VideoSearchParametersDto)
   {
     if (params.text || params.uploaderIdFilter)
     {
@@ -165,7 +165,7 @@ export class VideoListingMainComponent implements OnInit, OnDestroy
         this.lengthFilterControl.setValue(params.lengthFilter, { emitEvent: false });
     }
   }
-  private initControlsUI(controls: SearchControlsDTO)
+  private initControlsUI(controls: SearchControlsDto)
   {
     this.searchControls = controls;
     this.timeFilterControl.valueChanges.subscribe((val) =>

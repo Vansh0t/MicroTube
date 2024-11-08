@@ -1,9 +1,9 @@
-﻿namespace MicroTube.Controllers.Authentication.DTO
+﻿namespace MicroTube.Controllers.Authentication.Dto
 {
-    public class ResetPasswordStartDTO
+    public class ResetPasswordStartDto
     {
         public string Email { get; set; }
-        public ResetPasswordStartDTO(string email)
+        public ResetPasswordStartDto(string email)
         {
             Email = email;
         }

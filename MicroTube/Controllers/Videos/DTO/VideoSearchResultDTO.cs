@@ -1,10 +1,10 @@
-﻿namespace MicroTube.Controllers.Videos.DTO
+﻿namespace MicroTube.Controllers.Videos.Dto
 {
-	public class VideoSearchResultDTO
+	public class VideoSearchResultDto
 	{
-		public IEnumerable<VideoDTO> Videos { get; set; }
+		public IEnumerable<VideoDto> Videos { get; set; }
 		public string? Meta { get; set; }
-		public VideoSearchResultDTO(IEnumerable<VideoDTO> videos)
+		public VideoSearchResultDto(IEnumerable<VideoDto> videos)
 		{
 			Videos = videos;
 		}

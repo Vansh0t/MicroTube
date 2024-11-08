@@ -1,17 +1,17 @@
 import { Injectable } from "@angular/core";
-import { SearchControlsDTO, VideoSearchParametersDTO } from "../../data/DTO/VideoSearchDTO";
+import { SearchControlsDto, VideoSearchParametersDto } from "../../data/Dto/VideoSearchDto";
 import { Observable, map } from "rxjs";
-import { VideoSearchMetaDTO } from "../../data/DTO/VideoSearchMetaDTO";
+import { VideoSearchMetaDto } from "../../data/Dto/VideoSearchMetaDto";
 import { HttpClient, HttpParams } from "@angular/common/http";
-import { VideoSearchSuggestion } from "../../data/DTO/VideoSearchSuggestionDTO";
-import { VideoSearchResultDTO, VideoSearchResultRawDTO } from "../../data/DTO/VideoSearchResultDTO";
+import { VideoSearchSuggestion } from "../../data/Dto/VideoSearchSuggestionDto";
+import { VideoSearchResultDto, VideoSearchResultRawDto } from "../../data/Dto/VideoSearchResultDto";
 
 @Injectable({
   providedIn: "root"
 })
 export class VideoSearchService
 {
-  private meta: VideoSearchMetaDTO = { meta: null };
+  private meta: VideoSearchMetaDto = { meta: null };
   private readonly client: HttpClient;
   private readonly DEFAULT_BATCH_SIZE = 20;
   constructor(client: HttpClient)
@@ -27,7 +27,7 @@ export class VideoSearchService
     const result = this.client.get<VideoSearchSuggestion[]>("videos/videossearch/suggestions/" + text);
     return result;
   }
-  getVideos(params: VideoSearchParametersDTO): Observable<VideoSearchResultDTO>
+  getVideos(params: VideoSearchParametersDto): Observable<VideoSearchResultDto>
   {
     let urlParams = new HttpParams();
     if (params.text)
@@ -53,26 +53,26 @@ export class VideoSearchService
     urlParams = urlParams.set("batchSize", params.batchSize ? params.batchSize.toString() : this.DEFAULT_BATCH_SIZE);
     return this.searchVideosByQueryString(urlParams.toString());
   }
-  getSearchControls(): Observable<SearchControlsDTO>
+  getSearchControls(): Observable<SearchControlsDto>
   {
-    const result = this.client.get<SearchControlsDTO>("videos/videossearch/controls");
+    const result = this.client.get<SearchControlsDto>("videos/videossearch/controls");
     return result;
   }
   resetMeta()
   {
     this.meta.meta = null;
   }
-  private searchVideosByQueryString(parameters: string): Observable<VideoSearchResultDTO>
+  private searchVideosByQueryString(parameters: string): Observable<VideoSearchResultDto>
   {
     if (!parameters.trim())
     {
       throw new Error("Empty parameters string provided.");
     }
-    const result = this.client.post<VideoSearchResultRawDTO>("videos/videossearch/videos?" + parameters, this.meta).pipe(
+    const result = this.client.post<VideoSearchResultRawDto>("videos/videossearch/videos?" + parameters, this.meta).pipe(
       map(response =>
       {
         this.meta.meta = response.meta;
-        return new VideoSearchResultDTO(response);
+        return new VideoSearchResultDto(response);
       })
     );
     return result;

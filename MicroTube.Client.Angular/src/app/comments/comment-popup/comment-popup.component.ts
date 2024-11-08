@@ -5,7 +5,7 @@ import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import { FormControl } from "@angular/forms";
 import { DefaultCommentValidators } from "../../services/validation/DefaultCommentValidators";
 import { Subscription } from "rxjs";
-import { CommentDTO } from "../../data/DTO/CommentDTO";
+import { CommentDto } from "../../data/Dto/CommentDto";
 import { HttpErrorResponse } from "@angular/common/http";
 import { MatDialogRef } from "@angular/material/dialog";
 
@@ -85,7 +85,7 @@ export class CommentPopupComponent implements OnDestroy
   {
     this.dialogRef.close(null);
   }
-  private onCommentResponse(comment: CommentDTO)
+  private onCommentResponse(comment: CommentDto)
   {
     console.log(comment);
     this.dialogRef.close(comment);

@@ -1,9 +1,9 @@
-﻿namespace MicroTube.Controllers.Authentication.DTO
+﻿namespace MicroTube.Controllers.Authentication.Dto
 {
-	public class MessageDTO
+	public class MessageDto
 	{
 		public string Message { get; set; }
-		public MessageDTO(string message)
+		public MessageDto(string message)
 		{
 			Message = message;
 		}

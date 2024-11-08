@@ -1,5 +1,5 @@
 
-export class PasswordChangeDTO
+export class PasswordChangeDto
 {
   newPassword: string;
   constructor(newPassword: string)

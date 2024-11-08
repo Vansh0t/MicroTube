@@ -1,6 +1,6 @@
 import { DateTime, Duration } from "luxon";
 import { FileInput } from "ngx-custom-material-file-input";
-export class VideoDTO
+export class VideoDto
 {
   id: string;
   urls: string;
@@ -18,7 +18,7 @@ export class VideoDTO
   uploaderPublicUsername: string | null;
   uploaderId: string | null;
   constructor(
-    raw: VideoRawDTO
+    raw: VideoRawDto
   )
   {
     this.id = raw.id;
@@ -39,7 +39,7 @@ export class VideoDTO
   }
 }
 
-export interface VideoRawDTO
+export interface VideoRawDto
 {
   id: string;
   urls: string;
@@ -57,7 +57,7 @@ export interface VideoRawDTO
   uploaderId: string | null;
 }
 
-export interface VideoUploadDTO
+export interface VideoUploadDto
 {
   title: string;
   description: string | null;

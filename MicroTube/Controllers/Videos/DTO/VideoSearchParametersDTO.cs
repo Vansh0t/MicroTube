@@ -1,8 +1,8 @@
 ﻿using MicroTube.Services.Search;
 
-namespace MicroTube.Controllers.Videos.DTO
+namespace MicroTube.Controllers.Videos.Dto
 {
-	public class VideoSearchParametersDTO
+	public class VideoSearchParametersDto
 	{
 		public string? Text { get; set; }
 		public VideoSortType Sort { get; set; } = VideoSortType.Relevance;

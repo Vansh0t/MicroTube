@@ -1,5 +1,5 @@
 
-export class SignUpEmailPasswordDTO
+export class SignUpEmailPasswordDto
 {
   username: string;
   email: string;

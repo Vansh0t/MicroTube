@@ -1,4 +1,4 @@
-export interface EditCommentRequestDTO
+export interface EditCommentRequestDto
 {
   newContent: string | null
 }

@@ -1,4 +1,4 @@
-export class EmailChangeDTO
+export class EmailChangeDto
 {
   newEmail: string;
   password: string;

@@ -1,11 +1,11 @@
 import { Observable } from "rxjs";
-import { CommentDTO } from "../data/DTO/CommentDTO";
-import { CommentRequestDTO } from "../data/DTO/CommentRequestDTO";
-import { EditCommentRequestDTO } from "../data/DTO/EditCommentRequestDTO";
+import { CommentDto } from "../data/Dto/CommentDto";
+import { CommentRequestDto } from "../data/Dto/CommentRequestDto";
+import { EditCommentRequestDto } from "../data/Dto/EditCommentRequestDto";
 
 export interface ICommentingService
 {
-  comment(videoId: string, request: CommentRequestDTO): Observable<CommentDTO>;
-  editComment(commentId: string, request: EditCommentRequestDTO): Observable<CommentDTO>;
-  deleteComment(commentId: string): Observable<CommentDTO>;
+  comment(videoId: string, request: CommentRequestDto): Observable<CommentDto>;
+  editComment(commentId: string, request: EditCommentRequestDto): Observable<CommentDto>;
+  deleteComment(commentId: string): Observable<CommentDto>;
 }

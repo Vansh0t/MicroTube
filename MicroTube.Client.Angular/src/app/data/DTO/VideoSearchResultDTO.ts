@@ -1,17 +1,17 @@
-import { VideoDTO, VideoRawDTO } from "./VideoDTO";
+import { VideoDto, VideoRawDto } from "./VideoDto";
 
-export class VideoSearchResultDTO
+export class VideoSearchResultDto
 {
-  videos: VideoDTO[];
+  videos: VideoDto[];
   meta: string | null;
-  constructor(raw: VideoSearchResultRawDTO)
+  constructor(raw: VideoSearchResultRawDto)
   {
-    this.videos = raw.videos.map(_ => new VideoDTO(_));
+    this.videos = raw.videos.map(_ => new VideoDto(_));
     this.meta = raw.meta;
   }
 }
-export interface VideoSearchResultRawDTO
+export interface VideoSearchResultRawDto
 {
-  videos: VideoRawDTO[];
+  videos: VideoRawDto[];
   meta: string | null;
 }

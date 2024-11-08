@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MicroTube.Controllers.Reactions.DTO;
+using MicroTube.Controllers.Reactions.Dto;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.Reactions;
 
@@ -21,7 +21,7 @@ namespace MicroTube.Controllers.Reactions
 
 		[HttpPost("{targetKey}/{id}/react/{reactionType}")]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LikeDislikeReactionDTO))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LikeDislikeReactionDto))]
         public async Task<IActionResult> React(string targetKey, string id, LikeDislikeReactionType reactionType)
         {
 			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
@@ -37,11 +37,11 @@ namespace MicroTube.Controllers.Reactions
             var result = await service!.SetReaction(userId, id, reactionType);
             if (result.IsError)
                 return StatusCode(result.Code, result.Error);
-            return Ok(LikeDislikeReactionDTO.FromModel(result.GetRequiredObject()));
+            return Ok(LikeDislikeReactionDto.FromModel(result.GetRequiredObject()));
         }
         [HttpGet("{targetKey}/{id}/reaction")]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LikeDislikeReactionDTO))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LikeDislikeReactionDto))]
         public async Task<IActionResult> GetReaction(string targetKey, string id)
         {
 			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
@@ -57,7 +57,7 @@ namespace MicroTube.Controllers.Reactions
             var likeResult = await service!.GetReaction(userId, id);
             if (likeResult.IsError)
                 return StatusCode(likeResult.Code, likeResult.Code);
-            return Ok(LikeDislikeReactionDTO.FromModel(likeResult.GetRequiredObject()));
+            return Ok(LikeDislikeReactionDto.FromModel(likeResult.GetRequiredObject()));
         }
     }
 }

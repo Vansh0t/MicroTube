@@ -1,9 +1,9 @@
 import { Observable } from "rxjs";
-import { CommentSearchParametersDTO } from "../data/DTO/CommentSearchParametersDTO";
-import { CommentSearchResultDTO } from "../data/DTO/CommentSearchResultDTO";
+import { CommentSearchParametersDto } from "../data/Dto/CommentSearchParametersDto";
+import { CommentSearchResultDto } from "../data/Dto/CommentSearchResultDto";
 
 export interface ICommentSearchService
 {
-  getComments(targetId: string, params: CommentSearchParametersDTO): Observable<CommentSearchResultDTO>;
+  getComments(targetId: string, params: CommentSearchParametersDto): Observable<CommentSearchResultDto>;
   resetMeta():void;
 }

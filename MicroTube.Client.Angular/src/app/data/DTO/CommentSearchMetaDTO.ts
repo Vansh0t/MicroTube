@@ -1,4 +1,4 @@
-export interface CommentSearchMetaDTO
+export interface CommentSearchMetaDto
 {
   meta: string | null;
 }

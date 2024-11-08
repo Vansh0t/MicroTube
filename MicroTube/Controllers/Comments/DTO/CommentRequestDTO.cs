@@ -1,9 +1,9 @@
-﻿namespace MicroTube.Controllers.Comments.DTO
+﻿namespace MicroTube.Controllers.Comments.Dto
 {
-	public class CommentRequestDTO
+	public class CommentRequestDto
 	{
 		public string Content { get; set; }
-		public CommentRequestDTO(string content)
+		public CommentRequestDto(string content)
 		{
 			Content = content;
 		}

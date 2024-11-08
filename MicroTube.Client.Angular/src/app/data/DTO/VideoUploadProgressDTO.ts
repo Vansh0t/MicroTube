@@ -1,4 +1,4 @@
-export interface VideoUploadProgressDTO
+export interface VideoUploadProgressDto
 {
   id: string,
   title: string;

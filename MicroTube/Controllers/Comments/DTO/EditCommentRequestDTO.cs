@@ -1,9 +1,9 @@
-﻿namespace MicroTube.Controllers.Comments.DTO
+﻿namespace MicroTube.Controllers.Comments.Dto
 {
-	public class EditCommentRequestDTO
+	public class EditCommentRequestDto
 	{
 		public string NewContent { get; set; }
-		public EditCommentRequestDTO(string newContent)
+		public EditCommentRequestDto(string newContent)
 		{
 			NewContent = newContent;
 		}

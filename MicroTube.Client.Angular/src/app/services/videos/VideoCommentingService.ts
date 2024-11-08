@@ -1,9 +1,9 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { CommentDTO, CommentRawDTO } from "../../data/DTO/CommentDTO";
+import { CommentDto, CommentRawDto } from "../../data/Dto/CommentDto";
 import { Observable, map } from "rxjs";
-import { CommentRequestDTO } from "../../data/DTO/CommentRequestDTO";
-import { EditCommentRequestDTO } from "../../data/DTO/EditCommentRequestDTO";
+import { CommentRequestDto } from "../../data/Dto/CommentRequestDto";
+import { EditCommentRequestDto } from "../../data/Dto/EditCommentRequestDto";
 import { ICommentingService } from "../ICommentingService";
 
 
@@ -17,30 +17,30 @@ export class VideoCommentingService implements ICommentingService
   {
     this.client = client;
   }
-  comment(videoId: string, request: CommentRequestDTO): Observable<CommentDTO>
+  comment(videoId: string, request: CommentRequestDto): Observable<CommentDto>
   {
-    return this.client.post<CommentRawDTO>(`comments/video/${videoId}/comment`, request)
+    return this.client.post<CommentRawDto>(`comments/video/${videoId}/comment`, request)
       .pipe(
         map(raw =>
         {
-          return new CommentDTO(raw);
+          return new CommentDto(raw);
         }));
   }
-  editComment(commentId: string, request: EditCommentRequestDTO): Observable<CommentDTO>
+  editComment(commentId: string, request: EditCommentRequestDto): Observable<CommentDto>
   {
-    return this.client.post<CommentRawDTO>(`comments/video/${commentId}/edit`, request)
+    return this.client.post<CommentRawDto>(`comments/video/${commentId}/edit`, request)
       .pipe(
         map(raw => {
-        return new CommentDTO(raw);
+        return new CommentDto(raw);
       }));
   }
-  deleteComment(commentId: string): Observable<CommentDTO>
+  deleteComment(commentId: string): Observable<CommentDto>
   {
-    return this.client.post<CommentRawDTO>(`comments/video/${commentId}/delete`, {})
+    return this.client.post<CommentRawDto>(`comments/video/${commentId}/delete`, {})
       .pipe(
         map(raw =>
         {
-          return new CommentDTO(raw);
+          return new CommentDto(raw);
         }));
   }
 }

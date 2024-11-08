@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MicroTube.Controllers.Comments.DTO;
+using MicroTube.Controllers.Comments.Dto;
+using MicroTube.Controllers.Reactions.Dto;
 using MicroTube.Data.Access;
+using MicroTube.Data.Models.Reactions;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.Comments;
 using MicroTube.Services.Search.Comments;
@@ -26,7 +28,7 @@ namespace MicroTube.Controllers.Comments
 
 		[Authorize]
 		[HttpPost("{targetKey}/{videoId}/comment")]
-		public async Task<IActionResult> Comment(string targetKey, string videoId, CommentRequestDTO commentRequest)
+		public async Task<IActionResult> Comment(string targetKey, string videoId, CommentRequestDto commentRequest)
 		{
 			bool isEmailConfirmed = _claims.GetIsEmailConfirmed(User);
 			if (!isEmailConfirmed)
@@ -46,17 +48,25 @@ namespace MicroTube.Controllers.Comments
 			var comment = commentResult.GetRequiredObject();
 			string? posterId = comment.UserId.ToString();
 			string? posterAlias = comment.User != null ? comment.User.PublicUsername : null;
-			var result = new CommentDTO(comment.Id.ToString(), comment.Content, comment.Time, comment.Edited)
+			var result = new CommentDto(comment.Id.ToString(), comment.Content, comment.Time, comment.Edited)
 			{
 				UserId = posterId,
 				UserAlias = posterAlias,
 				TargetId = comment.TargetId.ToString()
 			};
+			if(comment is IReactable reactableComment && reactableComment.ReactionsAggregation is ILikeDislikeReactionsAggregation aggregation)
+			{
+				result.ReactionsAggregation = new LikeDislikeReactionsAggregationDto(
+					aggregation.TargetId.ToString(),
+					aggregation.Likes,
+					aggregation.Dislikes,
+					aggregation.Difference);
+			}
 			return Ok(result);
 		}
 		[Authorize]
 		[HttpPost("{targetKey}/{commentId}/edit")]
-		public async Task<IActionResult> Edit(string targetKey, string commentId, EditCommentRequestDTO editRequest)
+		public async Task<IActionResult> Edit(string targetKey, string commentId, EditCommentRequestDto editRequest)
 		{
 			string userId = _claims.GetUserId(User);
 			if (!_serviceFactory.TryGetCommentingService(targetKey, out var service))
@@ -72,7 +82,7 @@ namespace MicroTube.Controllers.Comments
 			string? posterId = comment.UserId.ToString();
 			string? posterAlias = comment.User != null ? comment.User.PublicUsername : null;
 			string? targetId = comment.TargetId.ToString();
-			return Ok(new CommentDTO(comment.Id.ToString(), comment.Content, comment.Time, comment.Edited)
+			return Ok(new CommentDto(comment.Id.ToString(), comment.Content, comment.Time, comment.Edited)
 			{ 
 				UserId = posterId, 
 				UserAlias = posterAlias, 
@@ -97,7 +107,7 @@ namespace MicroTube.Controllers.Comments
 			string? posterId = comment.UserId.ToString();
 			string? posterAlias = comment.User != null ? comment.User.PublicUsername : null;
 			string? targetId = comment.TargetId.ToString();
-			return Ok(new CommentDTO(comment.Id.ToString(), comment.Content, comment.Time, comment.Edited) 
+			return Ok(new CommentDto(comment.Id.ToString(), comment.Content, comment.Time, comment.Edited) 
 			{ 
 				UserId = posterId, 
 				UserAlias = posterAlias,
@@ -105,7 +115,7 @@ namespace MicroTube.Controllers.Comments
 			});
 		}
 		[HttpPost("video/{videoId}/get")]
-		public async Task<IActionResult> GetComments(string videoId, [FromQuery] CommentSearchParametersDTO searchParameters, [FromBody] CommentSearchMetaDTO? meta)
+		public async Task<IActionResult> GetComments(string videoId, [FromQuery] CommentSearchParametersDto searchParameters, [FromBody] CommentSearchMetaDto? meta)
 		{
 			VideoCommentSearchParameters parameters = new VideoCommentSearchParameters
 			{
@@ -118,9 +128,9 @@ namespace MicroTube.Controllers.Comments
 				return StatusCode(result.Code, result.Error);
 			}
 			var resultObject = result.GetRequiredObject();
-			CommentSearchResultDTO finalResult = new CommentSearchResultDTO(
+			CommentSearchResultDto finalResult = new CommentSearchResultDto(
 				resultObject.Comments.Select(
-					_=>new CommentDTO(_.Id.ToString(), _.Content, _.Time, _.Edited)
+					_=>new CommentDto(_.Id.ToString(), _.Content, _.Time, _.Edited)
 					{
 						TargetId = _.Id.ToString(),
 						UserAlias = _.User != null ? _.User.PublicUsername : "Unknown",

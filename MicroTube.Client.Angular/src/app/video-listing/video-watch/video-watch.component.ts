@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { VideoService } from "../../services/videos/VideoService";
 import { BehaviorSubject, Subscription, pipe } from "rxjs";
-import { VideoDTO } from "../../data/DTO/VideoDTO";
+import { VideoDto } from "../../data/Dto/VideoDto";
 import mime from "mime";
 import { NgxPlayerComponent, NgxPlayerOptions, QualityOption } from "../ngx-player/ngx-player.component";
 import { TimeFormatter } from "../../services/formatting/TimeFormatter";
@@ -18,7 +18,7 @@ import { CommentsAreaComponent } from "../../comments/comments-area/comments-are
 import { VideoCommentSearchService } from "../../services/videos/VideoCommentSearchService";
 import { AuthManager } from "../../services/auth/AuthManager";
 import { AuthPopupComponent } from "../../auth/auth-popup/auth-popup.component";
-import { CommentDTO } from "../../data/DTO/CommentDTO";
+import { CommentDto } from "../../data/Dto/CommentDto";
 
 @Component({
   selector: "video-watch",
@@ -29,7 +29,7 @@ export class VideoWatchComponent implements OnInit, OnDestroy
 {
   private readonly REPORT_VIEW_TIMEOUT_SECONDS = 30;
   @ViewChild("player") player!: NgxPlayerComponent;
-  video$: BehaviorSubject<VideoDTO | null> = new BehaviorSubject<VideoDTO | null>(null);
+  video$: BehaviorSubject<VideoDto | null> = new BehaviorSubject<VideoDto | null>(null);
   @ViewChild("commentsArea") commentsArea!: CommentsAreaComponent;
   videoId: string | null = null;
   readonly commentSearch: VideoCommentSearchService;
