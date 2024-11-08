@@ -53,7 +53,7 @@ namespace MicroTube.Extensions
 			services.AddScoped<ReactionServicesFactory>();
 			services.AddScoped<ILikeDislikeReactionAggregator, LikeDislikeReactionAggregator>();
 			services.AddScoped<ILikeDislikeReactionService, DefaultVideoReactionsService>();
-			services.AddScoped<ILikeDislikeReactionService, DefaultVideoCommentReactionsService>();
+			services.AddScoped<ILikeDislikeReactionService, LikeDislikeVideoCommentReactionsService>();
 			return services;
 		}
 		public static IServiceCollection AddComments(this IServiceCollection services)
@@ -63,6 +63,7 @@ namespace MicroTube.Extensions
 			services.AddScoped<IVideoCommentSearchService, VideoCommentSearchService>();
 			services.AddScoped<ISearchMetaProvider<IEnumerable<VideoComment>, VideoCommentSearchMeta>, VideoCommentSearchMetaProvider>();
 			services.AddScoped<ICommentingService, DefaultVideoCommentingService>();
+			services.AddScoped<ICommentReactionsProvider, LikeDislikeVideoCommentReactionsProvider>();
 			return services;
 		}
 		public static IServiceCollection AddElasticsearchClient(this IServiceCollection services, IConfiguration config)

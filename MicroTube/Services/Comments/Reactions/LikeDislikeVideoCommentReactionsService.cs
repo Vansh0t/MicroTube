@@ -10,13 +10,13 @@ using System.Data;
 
 namespace MicroTube.Services.Comments.Reactions
 {
-    public class DefaultVideoCommentReactionsService : ILikeDislikeReactionService
+    public class LikeDislikeVideoCommentReactionsService : ILikeDislikeReactionService
 	{
 		private readonly MicroTubeDbContext _db;
 		private readonly ILogger<DefaultVideoCommentingService> _logger;
 		private readonly ILikeDislikeReactionAggregator _reactionAggregator;
 
-		public DefaultVideoCommentReactionsService(MicroTubeDbContext db, ILogger<DefaultVideoCommentingService> logger, ILikeDislikeReactionAggregator reactionAggregator)
+		public LikeDislikeVideoCommentReactionsService(MicroTubeDbContext db, ILogger<DefaultVideoCommentingService> logger, ILikeDislikeReactionAggregator reactionAggregator)
 		{
 			_db = db;
 			_logger = logger;

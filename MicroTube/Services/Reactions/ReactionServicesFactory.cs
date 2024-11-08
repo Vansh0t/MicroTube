@@ -10,7 +10,7 @@ namespace MicroTube.Services.Reactions
 		private readonly Dictionary<string, Type> _serviceMap = new Dictionary<string, Type>()
 		{
 			{FactoryConstants.TARGET_VIDEO_KEY, typeof(DefaultVideoReactionsService) },
-			{FactoryConstants.TARGET_COMMENT_KEY, typeof(DefaultVideoCommentReactionsService) }
+			{FactoryConstants.TARGET_COMMENT_KEY, typeof(LikeDislikeVideoCommentReactionsService) }
 			//add additional services for different reaction targets (articles, subcomments, etc.)
 		};
 		public ReactionServicesFactory(IEnumerable<ILikeDislikeReactionService> commentingServices)

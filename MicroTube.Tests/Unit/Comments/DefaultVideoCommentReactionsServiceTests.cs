@@ -27,7 +27,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
 			var reactionsAggregator = new LikeDislikeReactionAggregator();
 
-			DefaultVideoCommentReactionsService service = new DefaultVideoCommentReactionsService(db, mockLogger, reactionsAggregator);
+			LikeDislikeVideoCommentReactionsService service = new LikeDislikeVideoCommentReactionsService(db, mockLogger, reactionsAggregator);
 			var commentsResult = await Task.WhenAll(service.SetReaction(user1.Id.ToString(), comment.Id.ToString(), LikeDislikeReactionType.Like),
 													service.SetReaction(user2.Id.ToString(), comment.Id.ToString(), LikeDislikeReactionType.Like));
 			Assert.False(commentsResult[0].IsError);
@@ -58,7 +58,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
 			var reactionsAggregator = new LikeDislikeReactionAggregator();
 
-			DefaultVideoCommentReactionsService service = new DefaultVideoCommentReactionsService(db, mockLogger, reactionsAggregator);
+			LikeDislikeVideoCommentReactionsService service = new LikeDislikeVideoCommentReactionsService(db, mockLogger, reactionsAggregator);
 			var commentResult = await service.SetReaction(user2.Id.ToString(), comment.Id.ToString(), LikeDislikeReactionType.Like);
 			Assert.True(commentResult.IsError);
 			Assert.Equal(403, commentResult.Code);
@@ -86,7 +86,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
 			var reactionsAggregator = new LikeDislikeReactionAggregator();
 
-			DefaultVideoCommentReactionsService service = new DefaultVideoCommentReactionsService(db, mockLogger, reactionsAggregator);
+			LikeDislikeVideoCommentReactionsService service = new LikeDislikeVideoCommentReactionsService(db, mockLogger, reactionsAggregator);
 			var commentResult = await service.SetReaction(userId!, commentId!, LikeDislikeReactionType.Like);
 			Assert.True(commentResult.IsError);
 			Assert.Equal(400, commentResult.Code);
@@ -104,7 +104,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
 			var reactionsAggregator = new LikeDislikeReactionAggregator();
 
-			DefaultVideoCommentReactionsService service = new DefaultVideoCommentReactionsService(db, mockLogger, reactionsAggregator);
+			LikeDislikeVideoCommentReactionsService service = new LikeDislikeVideoCommentReactionsService(db, mockLogger, reactionsAggregator);
 			var commentResult = await service.SetReaction(user1.Id.ToString(), "3a3e152e-1111-4a1f-af6d-d1099a069227", LikeDislikeReactionType.Like);
 			Assert.True(commentResult.IsError);
 			Assert.Equal(404, commentResult.Code);
