@@ -1,10 +1,20 @@
 <div class="main-container">
 	@if(comment) {
-		<div class="alias-time-container">
-			<h4 class="mat-h4">{{"@"}}{{comment.userAlias}}</h4>
-			<p class="mat-small time-text">{{getFormattedTime()}}</p>
+	<div class="alias-time-container">
+		<h4 class="mat-h4">{{"@"}}{{comment.userAlias}}</h4>
+		<p class="mat-small time-text">{{getFormattedTime()}}</p>
+	</div>
+	<h4 class="mat-h4 content-text">{{comment.content}}</h4>
+	<div class="reactions-container">
+		<div class="like-container">
+			<button mat-icon-button (click)="likeComment()"><mat-icon class="like" [class.like-active]="isLiked">thumb_up</mat-icon></button>
+			<h3 class="mat-h3">{{comment.reactionsAggregation?.likes ?? 0}}</h3>
 		</div>
-		<h4 class="mat-h4 content-text">{{comment.content}}</h4>
+		<div class="like-container">
+			<button mat-icon-button (click)="dislikeComment()"><mat-icon class="like" [class.like-active]="isDisliked">thumb_down</mat-icon></button>
+			<h3 class="mat-h3">{{comment.reactionsAggregation?.dislikes ?? 0}}</h3>
+		</div>
+	</div>
 	}
 </div>
 

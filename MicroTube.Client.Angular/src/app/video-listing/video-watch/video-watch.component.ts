@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { VideoService } from "../../services/videos/VideoService";
-import { BehaviorSubject, Subscription, pipe } from "rxjs";
+import { BehaviorSubject, Subscription } from "rxjs";
 import { VideoDto } from "../../data/Dto/VideoDto";
 import mime from "mime";
 import { NgxPlayerComponent, NgxPlayerOptions, QualityOption } from "../ngx-player/ngx-player.component";
@@ -9,16 +9,12 @@ import { TimeFormatter } from "../../services/formatting/TimeFormatter";
 import { DateTime } from "luxon";
 import { VgPlayerPlaytimeTracker } from "../../services/videos/VgPlayerPlaytimeTracker";
 import { VgApiService } from "@videogular/ngx-videogular/core";
-import { VideoSearchService } from "../../services/videos/VideoSearchService";
 import { QueryStringBuilder } from "../../services/query-string-processing/QueryStringBuilder";
 import { MatDialog } from "@angular/material/dialog";
 import { CommentPopupComponent } from "../../comments/comment-popup/comment-popup.component";
-import { VideoCommentingService } from "../../services/videos/VideoCommentingService";
 import { CommentsAreaComponent } from "../../comments/comments-area/comments-area.component";
-import { VideoCommentSearchService } from "../../services/videos/VideoCommentSearchService";
 import { AuthManager } from "../../services/auth/AuthManager";
 import { AuthPopupComponent } from "../../auth/auth-popup/auth-popup.component";
-import { CommentDto } from "../../data/Dto/CommentDto";
 
 @Component({
   selector: "video-watch",
@@ -27,19 +23,18 @@ import { CommentDto } from "../../data/Dto/CommentDto";
 })
 export class VideoWatchComponent implements OnInit, OnDestroy
 {
+  readonly VIDEO_COMMENT_TARGET_KEY = "video";
   private readonly REPORT_VIEW_TIMEOUT_SECONDS = 30;
   @ViewChild("player") player!: NgxPlayerComponent;
   video$: BehaviorSubject<VideoDto | null> = new BehaviorSubject<VideoDto | null>(null);
   @ViewChild("commentsArea") commentsArea!: CommentsAreaComponent;
   videoId: string | null = null;
-  readonly commentSearch: VideoCommentSearchService;
   private readonly route: ActivatedRoute;
   private readonly router: Router;
   private readonly videoService: VideoService;
   private readonly timeFormatter: TimeFormatter;
   private readonly queryBuilder: QueryStringBuilder;
   private readonly dialog: MatDialog;
-  private readonly commenting: VideoCommentingService;
   private playtimeTracker: VgPlayerPlaytimeTracker | null = null;
   private videoPlayerOptions: NgxPlayerOptions | null = null;
   private userLikeSubscription: Subscription | null = null;
@@ -59,18 +54,14 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     timeFormatter: TimeFormatter,
     queryBuilder: QueryStringBuilder,
     dialog: MatDialog,
-    commenting: VideoCommentingService,
-    commentSearch: VideoCommentSearchService,
     authManager: AuthManager)
   {
-    this.commenting = commenting;
     this.dialog = dialog;
     this.route = route;
     this.router = router;
     this.videoService = videoService;
     this.timeFormatter = timeFormatter;
     this.queryBuilder = queryBuilder;
-    this.commentSearch = commentSearch;
     this.authManager = authManager;
   }
   ngOnDestroy(): void
@@ -173,7 +164,7 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     }
     this.dialog.open(CommentPopupComponent, {
       data: {
-        commentingService: this.commenting,
+        commentTargetKey: this.VIDEO_COMMENT_TARGET_KEY,
         targetId: this.videoId,
         userAlias: this.authManager.jwtSignedInUser$.value?.publicUsername
       }

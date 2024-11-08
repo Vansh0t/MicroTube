@@ -1,5 +1,4 @@
 import { Component, Inject, OnDestroy, ViewChild } from "@angular/core";
-import { ICommentingService } from "../../services/ICommentingService";
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import { FormControl } from "@angular/forms";
@@ -8,6 +7,7 @@ import { Subscription } from "rxjs";
 import { CommentDto } from "../../data/Dto/CommentDto";
 import { HttpErrorResponse } from "@angular/common/http";
 import { MatDialogRef } from "@angular/material/dialog";
+import { CommentingService } from "../../services/comments/CommentingService";
 
 @Component({
   selector: "comment-popup",
@@ -21,18 +21,18 @@ export class CommentPopupComponent implements OnDestroy
   @ViewChild("autosize") autosize!: CdkTextareaAutosize;
   commentControl: FormControl;
   serverError: string | null = null;
-  commenting: ICommentingService;
 
   readonly validators: DefaultCommentValidators;
   private submitSubscription: Subscription | null = null;
-  constructor(dialogRef: MatDialogRef<CommentPopupComponent>, @Inject(DIALOG_DATA) data: CommentPopupData, validators: DefaultCommentValidators)
+  private readonly commentingService: CommentingService;
+  constructor(dialogRef: MatDialogRef<CommentPopupComponent>, @Inject(DIALOG_DATA) data: CommentPopupData, validators: DefaultCommentValidators, commentingService: CommentingService)
   {
-    if (!data.commentingService || !data.targetId)
+    if (!data.commentTargetKey || !data.targetId)
     {
       dialogRef.close();
       throw new Error("Invalid data provided. Closing the popup.");
     }
-    this.commenting = data.commentingService;
+    this.commentingService = commentingService;
     this.validators = validators;
     this.dialogRef = dialogRef;
     this.data = data;
@@ -70,7 +70,7 @@ export class CommentPopupComponent implements OnDestroy
       return;
     }
     this.serverError = null;
-    this.submitSubscription = this.commenting.comment(this.data.targetId, { content: this.commentControl.value })
+    this.submitSubscription = this.commentingService.comment(this.data.commentTargetKey, this.data.targetId, { content: this.commentControl.value })
       .subscribe(
         {
           next: this.onCommentResponse.bind(this),
@@ -94,7 +94,7 @@ export class CommentPopupComponent implements OnDestroy
 }
 export interface CommentPopupData
 {
-  commentingService: ICommentingService;
   targetId: string;
   userAlias: string | null;
+  commentTargetKey: string;
 }

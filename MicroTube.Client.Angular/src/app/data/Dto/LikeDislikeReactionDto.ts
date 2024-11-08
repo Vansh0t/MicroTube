@@ -1,6 +1,6 @@
 import { LikeDislikeReactionType } from "../../services/ReactionTypes";
 
-export interface CommentReactionDto
+export interface LikeDislikeReactionDto
 {
   userId: string;
   commentId: string;

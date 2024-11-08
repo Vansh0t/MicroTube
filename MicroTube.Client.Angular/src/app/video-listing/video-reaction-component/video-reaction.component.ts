@@ -82,39 +82,9 @@ export class LikeComponent implements OnInit, OnDestroy
   {
     if (!this.video)
       return;
-    const prevReactionType = this.currentReactionType;
+    //const prevReactionType = this.currentReactionType;
     this.onReaction(reaction);
-    if (prevReactionType == LikeDislikeReactionType.None)
-    {
-      if (this.currentReactionType == LikeDislikeReactionType.Like)
-        this.video.likes++;
-      else if (this.currentReactionType == LikeDislikeReactionType.Dislike)
-        this.video.dislikes++;
-    }
-    else if (prevReactionType == LikeDislikeReactionType.Like)
-    {
-      if (this.currentReactionType == LikeDislikeReactionType.Dislike)
-      {
-        this.video.likes--;
-        this.video.dislikes++;
-      }
-      else if (this.currentReactionType == LikeDislikeReactionType.None)
-      {
-        this.video.likes--;
-      }
-    }
-    else if (prevReactionType == LikeDislikeReactionType.Dislike)
-    {
-      if (this.currentReactionType == LikeDislikeReactionType.Like)
-      {
-        this.video.likes++;
-        this.video.dislikes--;
-      }
-      else if (this.currentReactionType == LikeDislikeReactionType.None)
-      {
-        this.video.dislikes--;
-      }
-    }
+    
   }
   private getUserReaction()
   {

@@ -139,11 +139,7 @@ namespace MicroTube.Controllers.Comments
 						 	UserAlias = _.User != null ? _.User.PublicUsername : "Unknown",
 						 	UserId = _.UserId.ToString()
 						 }, _)).ToArray();
-			if(User.Identity != null && User.Identity.IsAuthenticated)
-			{
-				string userId = _claims.GetUserId(User);
-				var updatedPairs = await ResolveReactionsBatch("video", userId, dtoPairs);
-			}
+			var updatedPairs = await ResolveReactionsBatch("video", dtoPairs);
 			CommentSearchResultDto finalResult = new CommentSearchResultDto(dtoPairs.Select(_=>_.CommentDto), resultObject.Meta);
 			return Ok(finalResult);
 		}
@@ -161,14 +157,18 @@ namespace MicroTube.Controllers.Comments
 			result = dtoWithReactionsAggregationResult.IsError ? commentDto : dtoWithReactionsAggregationResult.GetRequiredObject();
 			return result;
 		}
-		private async Task<IEnumerable<CommentDtoPair>> ResolveReactionsBatch(string targetKey, string userId, IEnumerable<CommentDtoPair> commentDtoPairs)
+		private async Task<IEnumerable<CommentDtoPair>> ResolveReactionsBatch(string targetKey, IEnumerable<CommentDtoPair> commentDtoPairs)
 		{
 			if (!_serviceFactory.TryGetCommentReactionsProviderService(targetKey, out var reactionsProvider))
 			{
 				_logger.LogCritical($"Unable to resolve reactions provider from {nameof(CommentServicesFactory)} for target {targetKey}");
 				return new CommentDtoPair[0];
 			}
-			var dtoWithUserReactionResult = await reactionsProvider.ResolveUserReactionForCommentDto(userId, commentDtoPairs);
+			if(User.Identity != null && User.Identity.IsAuthenticated)
+			{
+				string userId = _claims.GetUserId(User);
+				var dtoWithUserReactionResult = await reactionsProvider.ResolveUserReactionForCommentDto(userId, commentDtoPairs);
+			}
 			var dtoWithReactionsAggregationResult = await reactionsProvider.ResolveReactionsAggregationForCommentDto(commentDtoPairs);
 			return commentDtoPairs;
 		}

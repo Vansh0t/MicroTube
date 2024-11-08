@@ -1,10 +1,10 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { ICommentSearchService } from "../../services/ICommentSearchService";
 import { Subscription } from "rxjs";
 import { CommentSortType } from "../../services/SortTypes";
 import { CommentSearchResultDto } from "../../data/Dto/CommentSearchResultDto";
 import { HttpErrorResponse } from "@angular/common/http";
 import { CommentDto } from "../../data/Dto/CommentDto";
+import { CommentSearchService } from "../../services/comments/CommentSearchService";
 
 @Component({
   selector: "comments-area",
@@ -14,9 +14,15 @@ import { CommentDto } from "../../data/Dto/CommentDto";
 export class CommentsAreaComponent implements OnInit, OnDestroy
 {
   readonly COMMENTS_BATCH_SIZE = 20;
-  @Input() searchService: ICommentSearchService | undefined;
+  @Input() commentTargetKey: string | undefined;
   @Input() targetId: string | undefined;
   comments: CommentDto[] | null = null;
+  private readonly searchService: CommentSearchService;
+
+  constructor(searchService: CommentSearchService)
+  {
+    this.searchService = searchService;
+  }
   get isLoading()
   {
     return this.commentsLoadingSubscription != null;
@@ -27,9 +33,9 @@ export class CommentsAreaComponent implements OnInit, OnDestroy
   
   ngOnInit(): void
   {
-    if (!this.searchService || !this.targetId)
+    if (!this.commentTargetKey || !this.targetId)
     {
-      throw new Error("Search service or targetId is not set.");
+      throw new Error("commentTargetKey or targetId is not set.");
     }
     this.searchService.resetMeta();
     this.loadNextBatch();
@@ -41,13 +47,13 @@ export class CommentsAreaComponent implements OnInit, OnDestroy
   }
   loadNextBatch()
   {
-    if (this.isLoading || !this.targetId || !this.searchService)
+    if (this.isLoading || !this.targetId || !this.commentTargetKey)
     {
       return;
     }
     this.commentsLoadingSubscription?.unsubscribe();
     this.commentsLoadingSubscription = null;
-    this.commentsLoadingSubscription = this.searchService.getComments(this.targetId, { batchSize: this.COMMENTS_BATCH_SIZE, sortType: CommentSortType.Top })
+    this.commentsLoadingSubscription = this.searchService.getComments(this.commentTargetKey, this.targetId, { batchSize: this.COMMENTS_BATCH_SIZE, sortType: CommentSortType.Top })
       .subscribe({
         next: this.onNextBatchReceived.bind(this),
         error: this.onNextBatchFailed.bind(this)

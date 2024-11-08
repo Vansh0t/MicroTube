@@ -23,7 +23,7 @@
 			</div>
 			<div class="comments-container">
 				<button mat-stroked-button color="primary" (click)="openCommentPopup()">Comment</button>
-				<comments-area #commentsArea [searchService]="commentSearch" [targetId]="videoId ?? undefined" />
+				<comments-area #commentsArea [commentTargetKey]="VIDEO_COMMENT_TARGET_KEY" [targetId]="videoId ?? undefined" />
 			</div>
 		</div>
 

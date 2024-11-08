@@ -4,39 +4,38 @@ import { CommentDto, CommentRawDto } from "../../data/Dto/CommentDto";
 import { Observable, map } from "rxjs";
 import { CommentRequestDto } from "../../data/Dto/CommentRequestDto";
 import { EditCommentRequestDto } from "../../data/Dto/EditCommentRequestDto";
-import { ICommentingService } from "../ICommentingService";
 
 
 @Injectable({
   providedIn: "root"
 })
-export class VideoCommentingService implements ICommentingService
+export class CommentingService
 {
   private readonly client: HttpClient;
   constructor(client: HttpClient)
   {
     this.client = client;
   }
-  comment(videoId: string, request: CommentRequestDto): Observable<CommentDto>
+  comment(targetKey: string, targetId: string, request: CommentRequestDto): Observable<CommentDto>
   {
-    return this.client.post<CommentRawDto>(`comments/video/${videoId}/comment`, request)
+    return this.client.post<CommentRawDto>(`comments/${targetKey}/${targetId}/comment`, request)
       .pipe(
         map(raw =>
         {
           return new CommentDto(raw);
         }));
   }
-  editComment(commentId: string, request: EditCommentRequestDto): Observable<CommentDto>
+  editComment(targetKey: string, commentId: string, request: EditCommentRequestDto): Observable<CommentDto>
   {
-    return this.client.post<CommentRawDto>(`comments/video/${commentId}/edit`, request)
+    return this.client.post<CommentRawDto>(`comments/${targetKey}/${commentId}/edit`, request)
       .pipe(
         map(raw => {
         return new CommentDto(raw);
       }));
   }
-  deleteComment(commentId: string): Observable<CommentDto>
+  deleteComment(targetKey: string, commentId: string): Observable<CommentDto>
   {
-    return this.client.post<CommentRawDto>(`comments/video/${commentId}/delete`, {})
+    return this.client.post<CommentRawDto>(`comments/${targetKey}/${commentId}/delete`, {})
       .pipe(
         map(raw =>
         {

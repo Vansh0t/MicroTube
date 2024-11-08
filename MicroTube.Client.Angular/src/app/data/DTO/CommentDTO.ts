@@ -1,4 +1,6 @@
 import { DateTime } from "luxon";
+import { LikeDislikeReactionDto } from "./LikeDislikeReactionDto";
+import { LikeDislikeReactionsAggregationDto } from "./LikeDislikeReactionsAggregationDto";
 export class CommentDto
 {
   id: string;
@@ -7,6 +9,8 @@ export class CommentDto
   videoId: string;
   content: string;
   time: DateTime;
+  reaction: LikeDislikeReactionDto | null;
+  reactionsAggregation: LikeDislikeReactionsAggregationDto | null;
   constructor(raw: CommentRawDto)
   {
     this.id = raw.id;
@@ -15,6 +19,8 @@ export class CommentDto
     this.videoId = raw.videoId;
     this.content = raw.content;
     this.time = DateTime.fromISO(raw.time);
+    this.reaction = raw.reaction;
+    this.reactionsAggregation = raw.reactionsAggregation;
   }
 }
 export interface CommentRawDto
@@ -25,4 +31,6 @@ export interface CommentRawDto
   videoId: string;
   content: string;
   time: string;
+  reaction: LikeDislikeReactionDto | null;
+  reactionsAggregation: LikeDislikeReactionsAggregationDto | null;
 }

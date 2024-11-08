@@ -1,7 +1,8 @@
 .main-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  max-width: 800px;
 }
 .alias-time-container {
   display: flex;
@@ -12,4 +13,30 @@
 }
 .content-text {
   word-wrap:break-word;
+}
+.like {
+  opacity: 0.5;
+}
+
+.like-active {
+  opacity: 1;
+}
+
+.reactions-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  gap: 0.8rem;
+  transform: scale(0.8);
+  transform-origin: left top;
+  margin-left: -0.5rem;
+  margin-top: -0.25rem;
+}
+.like-container {
+  display: flex;
+  flex-direction:row;
+  align-items: center;
+}
+.like-container h4 {
+  margin: 0;
 }

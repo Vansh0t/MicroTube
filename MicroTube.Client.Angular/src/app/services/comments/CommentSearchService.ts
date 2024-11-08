@@ -4,12 +4,11 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { CommentSearchMetaDto } from "../../data/Dto/CommentSearchMetaDto";
 import { CommentSearchParametersDto } from "../../data/Dto/CommentSearchParametersDto";
 import { CommentSearchResultDto, CommentSearchResultRawDto } from "../../data/Dto/CommentSearchResultDto";
-import { ICommentSearchService } from "../ICommentSearchService";
 
 @Injectable({
   providedIn: "root"
 })
-export class VideoCommentSearchService implements ICommentSearchService
+export class CommentSearchService
 {
   private meta: CommentSearchMetaDto = { meta: null };
   private readonly client: HttpClient;
@@ -18,12 +17,12 @@ export class VideoCommentSearchService implements ICommentSearchService
   {
     this.client = client;
   }
-  getComments(targetId: string, params: CommentSearchParametersDto): Observable<CommentSearchResultDto>
+  getComments(targetKey: string, targetId: string, params: CommentSearchParametersDto): Observable<CommentSearchResultDto>
   {
     let urlParams = new HttpParams();
     urlParams = urlParams.set("batchSize", params.batchSize ? params.batchSize.toString() : this.DEFAULT_BATCH_SIZE);
     urlParams = urlParams.set("sortType", params.sortType);
-    return this.searchCommentsByQueryString(targetId, urlParams.toString());
+    return this.searchCommentsByQueryString(targetKey, targetId, urlParams.toString());
   }
  /* getSearchControls(): Observable<SearchControlsDto>
   {
@@ -34,13 +33,13 @@ export class VideoCommentSearchService implements ICommentSearchService
   {
     this.meta.meta = null;
   }
-  private searchCommentsByQueryString(videoId: string, parameters: string): Observable<CommentSearchResultDto>
+  private searchCommentsByQueryString(targetKey: string, videoId: string, parameters: string): Observable<CommentSearchResultDto>
   {
     if (!parameters.trim())
     {
       throw new Error("Empty parameters string provided.");
     }
-    const result = this.client.post<CommentSearchResultRawDto>(`comments/video/${videoId}/get?${parameters}`, this.meta)
+    const result = this.client.post<CommentSearchResultRawDto>(`comments/${targetKey}/${videoId}/get?${parameters}`, this.meta)
       .pipe(
         map(response =>
         {

@@ -38,7 +38,7 @@ namespace MicroTube.Services.Comments
 		public bool TryGetCommentReactionsProviderService(string key, [NotNullWhen(returnValue: true)] out ICommentReactionsProvider? service)
 		{
 			service = null;
-			if (!_commentingServiceMap.TryGetValue(key, out var serviceType))
+			if (!_commentReactionsProviderServiceMap.TryGetValue(key, out var serviceType))
 			{
 				return false;
 			}

@@ -9,6 +9,7 @@ import { CommentsAreaComponent } from "./comments-area/comments-area.component";
 import { UtilityComponentsModule } from "../utility-components/utility-components.module";
 import { CommentComponent } from "./comment/comment.component";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatIconModule } from "@angular/material/icon";
 
 
 
@@ -25,7 +26,8 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
     MatButtonModule,
     ReactiveFormsModule,
     UtilityComponentsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatIconModule
   ],
   exports: [
     CommentPopupComponent,
