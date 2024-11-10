@@ -75,7 +75,7 @@ namespace MicroTube.Services.Search.Comments
 				.Include(_ => _.Reactions)
 				.Include(_=>_.User)
 				.Where(_ => !_.Deleted && _.Id != lastGuid && _.Time > lastTime)
-				.OrderBy(_ => _.Time)
+				.OrderByDescending(_ => _.Time)
 				.Take(batchSize)
 				.ToArrayAsync();
 			return result;
