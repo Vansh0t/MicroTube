@@ -25,16 +25,6 @@ export class VideoService
     const result = this.client.post<HttpResponse<null>>(`videos/${videoId}/view`, {});
     return result;
   }
-  react(videoId: string, reaction: LikeDislikeReactionType): Observable<UserVideoReactionDto>
-  {
-    const result = this.client.post<UserVideoReactionDto>(`videos/${videoId}/reaction/${reaction.toString()}`, {});
-    return result;
-  }
-  getReaction(videoId: string): Observable<UserVideoReactionDto>
-  {
-    const result = this.client.get<UserVideoReactionDto>(`videos/${videoId}/reaction`);
-    return result;
-  }
   getVideo(videoId: string): Observable<VideoDto>
   {
     const result = this.client.get<VideoRawDto>("videos/" + videoId)

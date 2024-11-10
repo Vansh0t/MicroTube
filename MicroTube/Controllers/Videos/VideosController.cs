@@ -32,27 +32,17 @@ namespace MicroTube.Controllers.Videos
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VideoDto>))]
 		public async Task<IActionResult> Get(string id)
 		{
+			if(!Guid.TryParse(id, out var guidVideoId))
+			{
+				return BadRequest("Invalid video Id");
+			}
 			var video = await _db.Videos
-				.Select(_=> new VideoDto 
-				{
-					Id = _.Id.ToString(),
-					Title = _.Title,
-					Urls = _.Urls,
-					Description = _.Description,
-					UploadTime = _.UploadTime,
-					ThumbnailUrls = _.ThumbnailUrls,
-					LengthSeconds = _.LengthSeconds,
-					Likes = _.VideoReactions != null ? _.VideoReactions.Likes : 0,
-					Dislikes = _.VideoReactions != null ? _.VideoReactions.Dislikes : 0,
-					Views = _.VideoViews != null ? _.VideoViews.Views : 0,
-					UploaderPublicUsername = _.Uploader != null ? _.Uploader.PublicUsername : "Unknown",
-					UploaderId = _.UploaderId.ToString(),
-					CommentsCount = _.CommentsCount
-				})
-				.FirstOrDefaultAsync(_ => _.Id == id);
+				.Include(_=>_.Uploader)
+				.Include(_=>_.VideoReactions)
+				.FirstOrDefaultAsync(_ => _.Id == guidVideoId);
 			if (video == null)
 				return NotFound("Video not found");
-			return Accepted(video);
+			return Accepted(VideoDto.FromModel(video));
 		}
 		[HttpPost("{id}/view")]
 		[ProducesResponseType(StatusCodes.Status202Accepted)]

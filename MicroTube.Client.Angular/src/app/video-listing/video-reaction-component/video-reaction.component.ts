@@ -5,21 +5,24 @@ import { Subscription } from "rxjs";
 import { AuthManager } from "../../services/auth/AuthManager";
 import { MatDialog } from "@angular/material/dialog";
 import { JWTUser } from "../../services/auth/JWTUser";
-import { UserVideoReactionDto } from "../../data/Dto/UserVideoReactionDto";
 import { LikeDislikeReactionType } from "../../services/ReactionTypes";
-import { VideoService } from "../../services/videos/VideoService";
+import { LikeDislikeReactionService } from "../../services/reactions/LikeDislikeReactionService";
+import { LikeDislikeReactionDto } from "../../data/Dto/LikeDislikeReactionDto";
+import { LikeDislikeReactionsAggregator } from "../../services/reactions/LikeDislikeReactionsAggregator";
 
 @Component({
   selector: "video-reaction",
   templateUrl: "./video-reaction.component.html",
   styleUrl: "./video-reaction.component.css"
 })
-export class LikeComponent implements OnInit, OnDestroy
+export class VideoReactionComponent implements OnInit, OnDestroy
 {
+  private VIDEO_REACTION_TARGET_KEY = "video";
   @Input() video: VideoDto | null = null;
   private readonly auth: AuthManager;
   private readonly dialog: MatDialog;
-  private readonly videoService: VideoService;
+  private readonly reactionService: LikeDislikeReactionService;
+  private readonly reactionsAggregator: LikeDislikeReactionsAggregator;
   private userAuthStateSubscription: Subscription | null = null;
   private userReactSubscription: Subscription | null = null;
   private userGetReactionSubscription: Subscription | null = null;
@@ -35,12 +38,13 @@ export class LikeComponent implements OnInit, OnDestroy
   {
     return this.userCurrentReaction ? this.userCurrentReaction.reactionType : LikeDislikeReactionType.None;
   }
-  userCurrentReaction: UserVideoReactionDto | null = null;
-  constructor(videoService: VideoService, auth: AuthManager, dialog: MatDialog)
+  userCurrentReaction: LikeDislikeReactionDto | null = null;
+  constructor(auth: AuthManager, dialog: MatDialog, reactionService: LikeDislikeReactionService, reactionsAggregator: LikeDislikeReactionsAggregator)
   {
     this.dialog = dialog;
     this.auth = auth;
-    this.videoService = videoService;
+    this.reactionService = reactionService;
+    this.reactionsAggregator = reactionsAggregator;
   }
   ngOnInit(): void
   {
@@ -61,7 +65,9 @@ export class LikeComponent implements OnInit, OnDestroy
     {
       this.userReactSubscription?.unsubscribe();
       const targetReactionType = this.currentReactionType == LikeDislikeReactionType.Like ? LikeDislikeReactionType.None : LikeDislikeReactionType.Like;
-      this.userReactSubscription = this.videoService.react(this.video.id, targetReactionType).subscribe(this.onVideoReacted.bind(this));
+      this.userReactSubscription = this.reactionService
+        .setReaction(this.VIDEO_REACTION_TARGET_KEY, this.video.id, targetReactionType)
+        .subscribe(this.onReactionUpdate.bind(this));
     }
   }
   dislikeVideo()
@@ -75,23 +81,25 @@ export class LikeComponent implements OnInit, OnDestroy
     {
       this.userReactSubscription?.unsubscribe();
       const targetReactionType = this.currentReactionType == LikeDislikeReactionType.Dislike ? LikeDislikeReactionType.None : LikeDislikeReactionType.Dislike;
-      this.userReactSubscription = this.videoService.react(this.video.id, targetReactionType).subscribe(this.onVideoReacted.bind(this));
+      this.userReactSubscription = this.reactionService
+        .setReaction(this.VIDEO_REACTION_TARGET_KEY, this.video.id, targetReactionType)
+        .subscribe(this.onReactionUpdate.bind(this));
     }
   }
-  private onVideoReacted(reaction: UserVideoReactionDto | null)
+  private onReactionUpdate(reaction: LikeDislikeReactionDto | null)
   {
-    if (!this.video)
-      return;
-    //const prevReactionType = this.currentReactionType;
+    if (this.video && reaction)
+    {
+      this.video.reactionsAggregation = this.reactionsAggregator.aggregate(this.video.reactionsAggregation, this.currentReactionType, reaction.reactionType);
+    }
     this.onReaction(reaction);
-    
   }
   private getUserReaction()
   {
     if (this.video)
     {
       this.userGetReactionSubscription?.unsubscribe();
-      this.userGetReactionSubscription = this.videoService.getReaction(this.video.id)
+      this.userGetReactionSubscription = this.reactionService.getReaction(this.VIDEO_REACTION_TARGET_KEY, this.video.id)
         .subscribe({
           next: this.onReaction.bind(this),
           error: () => this.onReaction(null)
@@ -105,7 +113,7 @@ export class LikeComponent implements OnInit, OnDestroy
       this.getUserReaction();
     }
   }
-  private onReaction(reaction: UserVideoReactionDto | null)
+  private onReaction(reaction: LikeDislikeReactionDto | null)
   {
     this.userCurrentReaction = reaction;
   }

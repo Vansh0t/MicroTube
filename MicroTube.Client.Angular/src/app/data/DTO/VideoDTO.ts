@@ -1,5 +1,6 @@
 import { DateTime, Duration } from "luxon";
 import { FileInput } from "ngx-custom-material-file-input";
+import { LikeDislikeReactionsAggregationDto } from "./LikeDislikeReactionsAggregationDto";
 export class VideoDto
 {
   id: string;
@@ -12,12 +13,11 @@ export class VideoDto
   length: Duration;
   lengthHuman: string | null;
   searchMeta: string | null;
-  likes: number;
-  dislikes: number;
   views: number;
   uploaderPublicUsername: string | null;
   uploaderId: string | null;
   commentsCount: number;
+  reactionsAggregation: LikeDislikeReactionsAggregationDto;
   constructor(
     raw: VideoRawDto
   )
@@ -32,8 +32,7 @@ export class VideoDto
     this.length = Duration.fromDurationLike({ seconds: raw.lengthSeconds });
     this.lengthHuman = this.length.toISOTime({ suppressMilliseconds: true });
     this.searchMeta = raw.searchMeta;
-    this.likes = raw.likes;
-    this.dislikes = raw.dislikes;
+    this.reactionsAggregation = raw.reactionsAggregation;
     this.views = raw.views;
     this.uploaderPublicUsername = raw.uploaderPublicUsername;
     this.uploaderId = raw.uploaderId;
@@ -52,12 +51,12 @@ export interface VideoRawDto
   snapshotUrls: string | undefined;
   lengthSeconds: number;
   searchMeta: string | null;
-  likes: number;
-  dislikes: number;
   views: number;
   uploaderPublicUsername: string | null;
   uploaderId: string | null;
   commentsCount: number;
+  reactionsAggregation: LikeDislikeReactionsAggregationDto;
+
 }
 
 export interface VideoUploadDto

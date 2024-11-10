@@ -2,11 +2,11 @@
 <div class="container">
 	<div class="like-container">
 		<button mat-icon-button (click)="likeVideo()"><mat-icon class="like" [class.like-active]="isLiked">thumb_up</mat-icon></button>
-		<h3 class="mat-h3">{{video.likes}}</h3>
+		<h3 class="mat-h3">{{video.reactionsAggregation.likes}}</h3>
 	</div>
 	<div class="like-container">
 		<button mat-icon-button (click)="dislikeVideo()"><mat-icon class="like" [class.like-active]="isDisiked">thumb_down</mat-icon></button>
-		<h3 class="mat-h3">{{video.dislikes}}</h3>
+		<h3 class="mat-h3">{{video.reactionsAggregation.dislikes}}</h3>
 	</div>
 </div>
 

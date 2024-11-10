@@ -15,12 +15,12 @@ export class LikeDislikeReactionService
   {
     this.client = client;
   }
-  setReaction(targetKey: string, commentId: string, reactionType: LikeDislikeReactionType): Observable<LikeDislikeReactionDto>
+  setReaction(targetKey: string, targetId: string, reactionType: LikeDislikeReactionType): Observable<LikeDislikeReactionDto>
   {
-    return this.client.post<LikeDislikeReactionDto>(`reactions/${targetKey}/${commentId}/react/${reactionType}`, {});
+    return this.client.post<LikeDislikeReactionDto>(`reactions/${targetKey}/${targetId}/react/${reactionType}`, {});
   }
-  getReaction(targetKey: string, commentId: string): Observable<LikeDislikeReactionDto>
+  getReaction(targetKey: string, targetId: string): Observable<LikeDislikeReactionDto>
   {
-    return this.client.get<LikeDislikeReactionDto>(`reactions/${targetKey}/${commentId}/reaction`);
+    return this.client.get<LikeDislikeReactionDto>(`reactions/${targetKey}/${targetId}/reaction`);
   }
 }
