@@ -12,6 +12,7 @@ export class CommentDto
   reaction: LikeDislikeReactionDto | null;
   reactionsAggregation: LikeDislikeReactionsAggregationDto | null;
   deleted: boolean = false;
+  edited: boolean;
   constructor(raw: CommentRawDto)
   {
     this.id = raw.id;
@@ -22,6 +23,7 @@ export class CommentDto
     this.time = DateTime.fromISO(raw.time);
     this.reaction = raw.reaction;
     this.reactionsAggregation = raw.reactionsAggregation;
+    this.edited = raw.edited;
   }
   belongsToUser(userId: string | null)
   {
@@ -40,6 +42,7 @@ export interface CommentRawDto
   videoId: string;
   content: string;
   time: string;
+  edited: boolean;
   reaction: LikeDislikeReactionDto | null;
   reactionsAggregation: LikeDislikeReactionsAggregationDto | null;
 }

@@ -27,15 +27,15 @@ export class CommentPopupComponent implements OnDestroy
   private readonly commentingService: CommentingService;
   constructor(dialogRef: MatDialogRef<CommentPopupComponent>, @Inject(DIALOG_DATA) data: CommentPopupData, validators: DefaultCommentValidators, commentingService: CommentingService)
   {
-    if (!data.commentTargetKey || !data.targetId)
+    if (data.editMode && (!data.commentTargetKey || !data.commentId))
     {
       dialogRef.close();
       throw new Error("Invalid data provided. Closing the popup.");
     }
-    if (data.editMode || !data.commentId)
+    if (!data.editMode && (!data.commentTargetKey || !data.targetId))
     {
       dialogRef.close();
-      throw new Error("Comment id is required for edit mode. Closing the popup");
+      throw new Error("Invalid data provided. Closing the popup.");
     }
     this.commentingService = commentingService;
     this.validators = validators;
@@ -100,6 +100,10 @@ export class CommentPopupComponent implements OnDestroy
   }
   private commentNew()
   {
+    if (!this.data.targetId)
+    {
+      return null;
+    }
     return this.commentingService.comment(this.data.commentTargetKey, this.data.targetId, { content: this.commentControl.value })
       .subscribe(
         {
@@ -136,7 +140,7 @@ export class CommentPopupComponent implements OnDestroy
 }
 export interface CommentPopupData
 {
-  targetId: string;
+  targetId: string | null;
   commentId: string | null;
   userAlias: string | null;
   commentTargetKey: string;

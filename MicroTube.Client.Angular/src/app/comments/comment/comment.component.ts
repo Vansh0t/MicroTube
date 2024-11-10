@@ -13,6 +13,7 @@ import { AuthPopupComponent } from "../../auth/auth-popup/auth-popup.component";
 import { ConfirmPopupDialogComponent, ConfirmationImportance } from "../../utility-components/confirm-popup-dialog/confirm-popup-dialog.component";
 import { CommentingService } from "../../services/comments/CommentingService";
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { CommentPopupComponent } from "../comment-popup/comment-popup.component";
 
 @Component({
   selector: "comment",
@@ -24,9 +25,11 @@ export class CommentComponent implements OnInit, OnDestroy
   private readonly REACTION_TARGET_KEY = "comment";
   @Input() comment: CommentDto | undefined;
   @Input() commentTargetKey: string | undefined;
+  @Input() commentTargetId: string | undefined;
   private readonly authManager: AuthManager;
   private readonly dialog: MatDialog;
   private readonly commentingService: CommentingService;
+  private editSubscription: Subscription | null = null;
 
   get currentReactionType()
   {
@@ -75,6 +78,8 @@ export class CommentComponent implements OnInit, OnDestroy
   {
     this.reactionSubscription?.unsubscribe();
     this.reactionSubscription = null;
+    this.editSubscription?.unsubscribe();
+    this.editSubscription = null;
   }
   ngOnInit(): void
   {
@@ -82,7 +87,6 @@ export class CommentComponent implements OnInit, OnDestroy
     {
       throw new Error("comment and targetKey are required");
     }
-    console.log(this.comment);
   }
   getFormattedTime()
   {
@@ -139,6 +143,42 @@ export class CommentComponent implements OnInit, OnDestroy
           this.deleteComment();
         }
       });
+  }/*export interface CommentPopupData
+{
+  targetId: string;
+  commentId: string | null;
+  userAlias: string | null;
+  commentTargetKey: string;
+  editMode: boolean;
+  content: string | null;
+}*/
+
+  startCommentEdit()
+  {
+    if (!this.comment)
+    {
+      return;
+    }
+    this.editSubscription?.unsubscribe();
+    this.editSubscription = this.dialog.open(CommentPopupComponent, {
+      data: {
+        targetId: this.commentTargetId,
+        commentId: this.comment.id,
+        userAlias: this.comment.userAlias,
+        commentTargetKey: this.commentTargetKey,
+        editMode: true,
+        content: this.comment.content
+      }
+    }).afterClosed().subscribe((comment: CommentDto) =>
+    {
+      if (!this.comment)
+      {
+        return;
+      }
+      this.comment.content = comment.content;
+      this.comment.edited = comment.edited;
+    }
+    );
   }
   private onReaction(reaction: LikeDislikeReactionDto)
   {

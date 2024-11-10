@@ -16,7 +16,7 @@
 
 	@for(comment of comments; track comment.id) {
 		  @if(!comment.deleted) {
-		  <comment [comment]="comment" [commentTargetKey]="commentTargetKey" />
+		  <comment [comment]="comment" [commentTargetKey]="commentTargetKey" [commentTargetId]="targetId" />
 		  }
 	}
 	<div class="loader-container">
