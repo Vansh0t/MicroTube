@@ -143,16 +143,7 @@ export class CommentComponent implements OnInit, OnDestroy
           this.deleteComment();
         }
       });
-  }/*export interface CommentPopupData
-{
-  targetId: string;
-  commentId: string | null;
-  userAlias: string | null;
-  commentTargetKey: string;
-  editMode: boolean;
-  content: string | null;
-}*/
-
+  }
   startCommentEdit()
   {
     if (!this.comment)

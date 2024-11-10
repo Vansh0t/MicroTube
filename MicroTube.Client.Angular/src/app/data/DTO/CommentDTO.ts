@@ -20,7 +20,7 @@ export class CommentDto
     this.userAlias = raw.userAlias;
     this.videoId = raw.videoId;
     this.content = raw.content;
-    this.time = DateTime.fromISO(raw.time);
+    this.time = DateTime.fromISO(raw.time, { zone: "utc" });
     this.reaction = raw.reaction;
     this.reactionsAggregation = raw.reactionsAggregation;
     this.edited = raw.edited;
