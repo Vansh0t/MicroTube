@@ -11,6 +11,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { BatchScrollerComponent } from "./batch-scroller/batch-scroller.component";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { ConfirmPopupDialogComponent } from "./confirm-popup-dialog/confirm-popup-dialog.component";
 
 
 
@@ -18,7 +19,8 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
   declarations: [
     InfoPopupDialogComponent,
     SuggestionSearchBarComponent,
-    BatchScrollerComponent
+    BatchScrollerComponent,
+    ConfirmPopupDialogComponent
   ],
   imports: [
     CommonModule,
@@ -34,7 +36,8 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
   exports: [
     InfoPopupDialogComponent,
     SuggestionSearchBarComponent,
-    BatchScrollerComponent
+    BatchScrollerComponent,
+    ConfirmPopupDialogComponent
   ]
 })
 export class UtilityComponentsModule { }

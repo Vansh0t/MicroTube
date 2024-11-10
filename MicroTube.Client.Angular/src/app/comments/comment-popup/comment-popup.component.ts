@@ -32,11 +32,16 @@ export class CommentPopupComponent implements OnDestroy
       dialogRef.close();
       throw new Error("Invalid data provided. Closing the popup.");
     }
+    if (data.editMode || !data.commentId)
+    {
+      dialogRef.close();
+      throw new Error("Comment id is required for edit mode. Closing the popup");
+    }
     this.commentingService = commentingService;
     this.validators = validators;
     this.dialogRef = dialogRef;
     this.data = data;
-    this.commentControl = new FormControl("", validators.buildCommentContentValidatorsArray());
+    this.commentControl = new FormControl(data.content, validators.buildCommentContentValidatorsArray());
   }
   ngOnDestroy(): void
   {
@@ -63,6 +68,14 @@ export class CommentPopupComponent implements OnDestroy
     }
     return null;
   }
+  getTitle()
+  {
+    if (this.data.editMode)
+    {
+      return "Comment Edit";
+    }
+    return "New Comment";
+  }
   submit()
   {
     if (this.commentControl.errors)
@@ -70,7 +83,24 @@ export class CommentPopupComponent implements OnDestroy
       return;
     }
     this.serverError = null;
-    this.submitSubscription = this.commentingService.comment(this.data.commentTargetKey, this.data.targetId, { content: this.commentControl.value })
+    this.submitSubscription?.unsubscribe();
+    if (this.data.editMode)
+    {
+      this.submitSubscription = this.commentEdit();
+    }
+    else
+    {
+      this.submitSubscription = this.commentNew();
+    }
+    
+  }
+  cancel()
+  {
+    this.dialogRef.close(null);
+  }
+  private commentNew()
+  {
+    return this.commentingService.comment(this.data.commentTargetKey, this.data.targetId, { content: this.commentControl.value })
       .subscribe(
         {
           next: this.onCommentResponse.bind(this),
@@ -81,13 +111,25 @@ export class CommentPopupComponent implements OnDestroy
           }
         });
   }
-  cancel()
+  private commentEdit()
   {
-    this.dialogRef.close(null);
+    if (!this.data.commentId)
+    {
+      return null;
+    }
+    return this.commentingService.editComment(this.data.commentTargetKey, this.data.commentId, { newContent: this.commentControl.value })
+      .subscribe(
+        {
+          next: this.onCommentResponse.bind(this),
+          error: (errorResponse: HttpErrorResponse) =>
+          {
+            console.error(errorResponse);
+            this.commentControl.setErrors({ serverError: errorResponse.error });
+          }
+        });
   }
   private onCommentResponse(comment: CommentDto)
   {
-    console.log(comment);
     this.dialogRef.close(comment);
   }
 
@@ -95,6 +137,9 @@ export class CommentPopupComponent implements OnDestroy
 export interface CommentPopupData
 {
   targetId: string;
+  commentId: string | null;
   userAlias: string | null;
   commentTargetKey: string;
+  editMode: boolean;
+  content: string | null;
 }

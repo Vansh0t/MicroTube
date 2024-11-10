@@ -7,6 +7,7 @@
 .alias-time-container {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 .time-text {
   color: var(--text-secondary-color);
@@ -39,4 +40,19 @@
 }
 .like-container h4 {
   margin: 0;
+}
+.more-actions-button {
+  transform-origin: left;
+  transform: scale(0.65);
+  
+}
+.actions-menu-container {
+  display:flex;
+  flex-direction:column;
+  align-items:start;
+}
+.actions-menu-item {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
 }

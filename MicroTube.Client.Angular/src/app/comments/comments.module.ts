@@ -11,6 +11,7 @@ import { CommentComponent } from "./comment/comment.component";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSelectModule } from "@angular/material/select";
+import { MatMenuModule } from "@angular/material/menu";
 
 
 
@@ -29,7 +30,8 @@ import { MatSelectModule } from "@angular/material/select";
     UtilityComponentsModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    MatSelectModule
+    MatSelectModule,
+    MatMenuModule
   ],
   exports: [
     CommentPopupComponent,

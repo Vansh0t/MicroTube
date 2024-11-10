@@ -11,6 +11,7 @@ export class CommentDto
   time: DateTime;
   reaction: LikeDislikeReactionDto | null;
   reactionsAggregation: LikeDislikeReactionsAggregationDto | null;
+  deleted: boolean = false;
   constructor(raw: CommentRawDto)
   {
     this.id = raw.id;
@@ -21,6 +22,14 @@ export class CommentDto
     this.time = DateTime.fromISO(raw.time);
     this.reaction = raw.reaction;
     this.reactionsAggregation = raw.reactionsAggregation;
+  }
+  belongsToUser(userId: string | null)
+  {
+    if (userId == null)
+    {
+      return false;
+    }
+    return this.userId === userId;
   }
 }
 export interface CommentRawDto

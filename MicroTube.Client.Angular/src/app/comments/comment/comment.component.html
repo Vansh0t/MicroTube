@@ -3,6 +3,9 @@
 	<div class="alias-time-container">
 		<h4 class="mat-h4">{{"@"}}{{comment.userAlias}}</h4>
 		<p class="mat-small time-text">{{getFormattedTime()}}</p>
+		@if(comment.belongsToUser(signedInUserId)) {
+		<button mat-icon-button class="more-actions-button" [mat-menu-trigger-for]="actionsMenu"><mat-icon>more_vert</mat-icon></button>
+		}
 	</div>
 	<h4 class="mat-h4 content-text">{{comment.content}}</h4>
 	<div class="reactions-container">
@@ -17,4 +20,11 @@
 	</div>
 	}
 </div>
+<mat-menu #actionsMenu>
+	<div class="actions-menu-container">
+		<button mat-button class="actions-menu-item">Edit</button>
+		<button mat-button class="actions-menu-item" color="warn" (click)="openDeleteConfirmation()">Delete</button>
+	</div>
+	
+</mat-menu>
 

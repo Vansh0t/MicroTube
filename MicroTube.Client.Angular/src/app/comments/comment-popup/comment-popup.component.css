@@ -8,3 +8,7 @@
   font-weight: lighter;
   font-style: italic;
 }
+.title-container {
+  margin-inline: auto;
+margin-block: 0.5rem;
+}

@@ -10,6 +10,9 @@ import { LikeDislikeReactionsAggregator } from "../../services/reactions/LikeDis
 import { AuthManager } from "../../services/auth/AuthManager";
 import { MatDialog } from "@angular/material/dialog";
 import { AuthPopupComponent } from "../../auth/auth-popup/auth-popup.component";
+import { ConfirmPopupDialogComponent, ConfirmationImportance } from "../../utility-components/confirm-popup-dialog/confirm-popup-dialog.component";
+import { CommentingService } from "../../services/comments/CommentingService";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
   selector: "comment",
@@ -20,8 +23,10 @@ export class CommentComponent implements OnInit, OnDestroy
 {
   private readonly REACTION_TARGET_KEY = "comment";
   @Input() comment: CommentDto | undefined;
+  @Input() commentTargetKey: string | undefined;
   private readonly authManager: AuthManager;
   private readonly dialog: MatDialog;
+  private readonly commentingService: CommentingService;
 
   get currentReactionType()
   {
@@ -35,27 +40,47 @@ export class CommentComponent implements OnInit, OnDestroy
   {
     return this.currentReactionType == LikeDislikeReactionType.Dislike;
   }
+  get signedInUserId()
+  {
+    if (this.authManager.isSignedIn())
+    {
+      return this.authManager.jwtSignedInUser$.value!.userId;
+    }
+    return null;
+  }
   private reactionSubscription: Subscription | null = null;
+  private deletionSubscription: Subscription | null = null;
   private readonly timeFormatter: TimeFormatter;
   private readonly reactionService: LikeDislikeReactionService;
   private readonly aggregator: LikeDislikeReactionsAggregator;
-  constructor(timeFormatter: TimeFormatter, reactionService: LikeDislikeReactionService, aggregator: LikeDislikeReactionsAggregator, authManager: AuthManager, dialog: MatDialog)
+  private readonly snackbar: MatSnackBar;
+  constructor(
+    timeFormatter: TimeFormatter,
+    reactionService: LikeDislikeReactionService,
+    aggregator: LikeDislikeReactionsAggregator,
+    authManager: AuthManager,
+    dialog: MatDialog,
+    commentingService: CommentingService,
+    snackbar: MatSnackBar)
   {
     this.timeFormatter = timeFormatter;
     this.reactionService = reactionService;
     this.aggregator = aggregator;
     this.authManager = authManager;
     this.dialog = dialog;
+    this.commentingService = commentingService;
+    this.snackbar = snackbar;
   }
   ngOnDestroy(): void
   {
     this.reactionSubscription?.unsubscribe();
     this.reactionSubscription = null;
   }
-  ngOnInit(): void {
-    if (!this.comment)
+  ngOnInit(): void
+  {
+    if (!this.comment || !this.commentTargetKey)
     {
-      throw new Error("comment is required");
+      throw new Error("comment and targetKey are required");
     }
     console.log(this.comment);
   }
@@ -104,6 +129,17 @@ export class CommentComponent implements OnInit, OnDestroy
         error: console.error
       });
   }
+  openDeleteConfirmation()
+  {
+    this.dialog.open(ConfirmPopupDialogComponent, { data: { info: "The comment will be deleted, this action cannot be undone. Proceed?", importance: ConfirmationImportance.High } })
+      .afterClosed().subscribe((shouldProceed: boolean) =>
+      {
+        if (shouldProceed)
+        {
+          this.deleteComment();
+        }
+      });
+  }
   private onReaction(reaction: LikeDislikeReactionDto)
   {
     if (!this.comment)
@@ -117,4 +153,24 @@ export class CommentComponent implements OnInit, OnDestroy
     }
     this.comment.reaction = reaction;
   }
-}
+  private deleteComment()
+  {
+    if (!this.comment || !this.commentTargetKey)
+    {
+      return;
+    }
+    this.deletionSubscription?.unsubscribe();
+    this.deletionSubscription = this.commentingService.deleteComment(this.commentTargetKey, this.comment.id)
+      .subscribe({
+        next: () =>
+        {
+          this.snackbar.open("Comment was deleted.", undefined, {duration: 3000});
+          if (this.comment)
+          {
+            this.comment.deleted = true;
+          }
+        },
+        error: (error) => { this.snackbar.open("Failed to delete the comment. " + error.error); }
+      });
+  }
+} 

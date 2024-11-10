@@ -11,11 +11,13 @@
 		</div>
 		<button mat-stroked-button color="primary" (click)="openCommentPopup()">Comment</button>
 	</div>
-	
-	
-	
+
+
+
 	@for(comment of comments; track comment.id) {
-	<comment [comment]="comment" />
+		  @if(!comment.deleted) {
+		  <comment [comment]="comment" [commentTargetKey]="commentTargetKey" />
+		  }
 	}
 	<div class="loader-container">
 		@if(isLoading) {
