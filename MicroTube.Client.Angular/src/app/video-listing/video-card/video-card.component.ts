@@ -3,6 +3,7 @@ import { VideoDto } from "../../data/Dto/VideoDto";
 import { Subscription, timer } from "rxjs";
 import { TimeFormatter } from "../../services/formatting/TimeFormatter";
 import { DateTime } from "luxon";
+import { IntFormatter } from "../../services/formatting/IntFormatter";
 
 @Component({
   selector: "video-card",
@@ -12,15 +13,17 @@ import { DateTime } from "luxon";
 export class VideoCardComponent implements OnInit
 {
   private readonly thumbnailsRotationDelayMs = 1000;
+  private readonly viewsFormatter: IntFormatter;
   private thumbnailsRotation: Subscription | null = null;
   private currentThumbnailIndex: number = -1;
   @Input() video: VideoDto | undefined = undefined;
   currentThumbnailSrc: string | undefined;
   timeFormatter: TimeFormatter;
 
-  constructor(timeFormatter: TimeFormatter)
+  constructor(timeFormatter: TimeFormatter, viewsFormatter: IntFormatter)
   {
     this.timeFormatter = timeFormatter;
+    this.viewsFormatter = viewsFormatter;
   }
 
   ngOnInit(): void
@@ -75,5 +78,11 @@ export class VideoCardComponent implements OnInit
     const uploadTimeLocal = this.video.uploadTime.toLocal();
     const nowLocal = DateTime.local();
     return this.timeFormatter.getUserFriendlyTimeDifference(uploadTimeLocal, nowLocal);
+  }
+  getViewsText()
+  {
+    if (this.video == null)
+      return "";
+    return this.viewsFormatter.getUserFriendlyInt(this.video.views);
   }
 }
