@@ -28,6 +28,10 @@ namespace MicroTube.Services.Search.Comments
 		{
 			var options = _config.GetRequiredByKey<VideoCommentSearchOptions>(VideoCommentSearchOptions.KEY);
 			int batchSize = Math.Min(options.PaginationMaxBatchSize, parameters.BatchSize);
+			if(!Guid.TryParse(videoId, out var guidVideoId))
+			{
+				return ServiceResult<VideoCommentSearchResult>.Fail(400, "Invalid video Id");
+			}
 			try
 			{
 				VideoCommentSearchMeta? parsedMeta = _metaProvider.DeserializeMeta(meta);
@@ -35,10 +39,10 @@ namespace MicroTube.Services.Search.Comments
 				switch (parameters.SortType)
 				{
 					case VideoCommentSortType.Top:
-						result = await GetTopCommentsBatch(batchSize, parsedMeta);
+						result = await GetTopCommentsBatch(guidVideoId, batchSize, parsedMeta);
 						break;
 					case VideoCommentSortType.Newest:
-						result = await GetLatestCommentsBatch(batchSize, parsedMeta);
+						result = await GetLatestCommentsBatch(guidVideoId, batchSize, parsedMeta);
 						break;
 				}
 				var newMeta = result != null ? _metaProvider.BuildMeta(result) : null;
@@ -52,7 +56,7 @@ namespace MicroTube.Services.Search.Comments
 			}
 
 		}
-		private async Task<IEnumerable<VideoComment>> GetTopCommentsBatch(int batchSize, VideoCommentSearchMeta? meta)
+		private async Task<IEnumerable<VideoComment>> GetTopCommentsBatch(Guid videoId, int batchSize, VideoCommentSearchMeta? meta)
 		{
 			int lastRank = meta != null ? meta.LastLikes - meta.LastDislikes : int.MaxValue;
 			Guid lastGuid = meta != null ? new Guid(meta.LastId) : Guid.Empty;
@@ -60,21 +64,21 @@ namespace MicroTube.Services.Search.Comments
 			var result = await _db.VideoComments
 				.Include(_ => _.Reactions)
 				.Include(_=>_.User)
-				.Where(_ => !_.Deleted && _.Id != lastGuid && (_.Reactions!.Difference < lastRank || (_.Reactions!.Difference == lastRank && _.Time < lastTime)))
+				.Where(_ => _.VideoId == videoId && !_.Deleted && _.Id != lastGuid && (_.Reactions!.Difference < lastRank || (_.Reactions!.Difference == lastRank && _.Time < lastTime)))
 				.OrderByDescending(_ => _.Reactions!.Difference)
 				.ThenByDescending(_=>_.Time)
 				.Take(batchSize)
 				.ToArrayAsync();
 			return result;
 		}
-		private async Task<IEnumerable<VideoComment>> GetLatestCommentsBatch(int batchSize, VideoCommentSearchMeta? meta)
+		private async Task<IEnumerable<VideoComment>> GetLatestCommentsBatch(Guid videoId, int batchSize, VideoCommentSearchMeta? meta)
 		{
 			DateTime lastTime = meta != null ? meta.LastTime : DateTime.MaxValue;
 			Guid lastGuid = meta != null ? new Guid(meta.LastId) : Guid.Empty;
 			var result = await _db.VideoComments
 				.Include(_ => _.Reactions)
 				.Include(_=>_.User)
-				.Where(_ => !_.Deleted && _.Id != lastGuid && _.Time < lastTime)
+				.Where(_ => _.VideoId == videoId && !_.Deleted && _.Id != lastGuid && _.Time < lastTime)
 				.OrderByDescending(_ => _.Time)
 				.Take(batchSize)
 				.ToArrayAsync();
