@@ -69,12 +69,12 @@ namespace MicroTube.Services.Search.Comments
 		}
 		private async Task<IEnumerable<VideoComment>> GetLatestCommentsBatch(int batchSize, VideoCommentSearchMeta? meta)
 		{
-			DateTime lastTime = meta != null ? meta.LastTime : DateTime.UnixEpoch;
+			DateTime lastTime = meta != null ? meta.LastTime : DateTime.MaxValue;
 			Guid lastGuid = meta != null ? new Guid(meta.LastId) : Guid.Empty;
 			var result = await _db.VideoComments
 				.Include(_ => _.Reactions)
 				.Include(_=>_.User)
-				.Where(_ => !_.Deleted && _.Id != lastGuid && _.Time > lastTime)
+				.Where(_ => !_.Deleted && _.Id != lastGuid && _.Time < lastTime)
 				.OrderByDescending(_ => _.Time)
 				.Take(batchSize)
 				.ToArrayAsync();
