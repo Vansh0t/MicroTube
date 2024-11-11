@@ -1,7 +1,7 @@
 name: Build & Deploy Angular Client
 on:
   pull_request:
-    branches: [ "master", "development" ]
+    branches: [ "development" ]
 jobs:
   build-and-deploy-container-app:
     runs-on: ubuntu-latest
