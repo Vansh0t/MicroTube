@@ -1,8 +1,8 @@
-﻿using MicroTube.Data.Models;
+﻿using MicroTube.Data.Models.Videos;
 
 namespace MicroTube.Services.Search.Videos
 {
-	public class VideoSearchResult
+    public class VideoSearchResult
 	{
 		public IEnumerable<VideoSearchIndex> Indices { get; set; }
 		public string? Meta { get; set; }

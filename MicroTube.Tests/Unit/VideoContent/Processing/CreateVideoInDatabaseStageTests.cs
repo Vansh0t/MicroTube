@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using AutoFixture.Kernel;
 using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.Base;
 using MicroTube.Services.VideoContent.Processing.Stages;
 using MicroTube.Tests.Mock.Models;
@@ -8,7 +9,7 @@ using MicroTube.Tests.Utils;
 
 namespace MicroTube.Tests.Unit.VideoContent.Processing
 {
-	public class CreateVideoInDatabaseStageTests
+    public class CreateVideoInDatabaseStageTests
 	{
 		[Fact]
 		public async Task Execute_Success()

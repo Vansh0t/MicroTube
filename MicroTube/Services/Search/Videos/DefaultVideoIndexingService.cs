@@ -1,12 +1,12 @@
 ﻿using Ardalis.GuardClauses;
 using Microsoft.EntityFrameworkCore;
 using MicroTube.Data.Access;
-using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using System.Data;
 
 namespace MicroTube.Services.Search.Videos
 {
-	public class DefaultVideoIndexingService : IVideoIndexingService
+    public class DefaultVideoIndexingService : IVideoIndexingService
 	{
 		private readonly ILogger<DefaultVideoIndexingService> _logger;
 		private readonly IVideoSearchService _videoSearch;
@@ -24,8 +24,8 @@ namespace MicroTube.Services.Search.Videos
 			var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
 			var videoToReindex = await _db.Videos
 				.Include(_ => _.VideoIndexing)
-				.Include(_ => _.VideoViews)
-				.Include(_ => _.VideoReactions)
+				.Include(_ => _.VideoViewsAggregation)
+				.Include(_ => _.VideoReactionsAggregation)
 				.Where(_ => _.VideoIndexing!.ReindexingRequired)
 				.ToArrayAsync();
 			var indexTasks = videoToReindex.Select(IndexVideoNonThrowing!);

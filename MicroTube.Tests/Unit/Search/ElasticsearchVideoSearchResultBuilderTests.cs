@@ -2,7 +2,7 @@
 using Elastic.Clients.Elasticsearch.Core.Search;
 using Elastic.Transport.Products.Elasticsearch;
 using Microsoft.Extensions.Logging;
-using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.Search;
 using MicroTube.Services.Search.Videos;
 using MicroTube.Services.Validation;
@@ -10,7 +10,7 @@ using NSubstitute;
 
 namespace MicroTube.Tests.Unit.Search
 {
-	public class ElasticsearchVideoSearchResultBuilderTests
+    public class ElasticsearchVideoSearchResultBuilderTests
 	{
 		[Theory]
 		[InlineData("meta")]

@@ -6,7 +6,7 @@ import { LikeDislikeReactionService } from "../../services/reactions/LikeDislike
 import { LikeDislikeReactionDto } from "../../data/Dto/LikeDislikeReactionDto";
 import { LikeDislikeReactionType } from "../../services/ReactionTypes";
 import { Subscription } from "rxjs";
-import { LikeDislikeReactionsAggregator } from "../../services/reactions/LikeDislikeReactionsAggregator";
+import { FakeLikeDislikeReactionsAggregator } from "../../services/reactions/FakeLikeDislikeReactionsAggregator";
 import { AuthManager } from "../../services/auth/AuthManager";
 import { MatDialog } from "@angular/material/dialog";
 import { AuthPopupComponent } from "../../auth/auth-popup/auth-popup.component";
@@ -55,12 +55,12 @@ export class CommentComponent implements OnInit, OnDestroy
   private deletionSubscription: Subscription | null = null;
   private readonly timeFormatter: TimeFormatter;
   private readonly reactionService: LikeDislikeReactionService;
-  private readonly aggregator: LikeDislikeReactionsAggregator;
+  private readonly aggregator: FakeLikeDislikeReactionsAggregator;
   private readonly snackbar: MatSnackBar;
   constructor(
     timeFormatter: TimeFormatter,
     reactionService: LikeDislikeReactionService,
-    aggregator: LikeDislikeReactionsAggregator,
+    aggregator: FakeLikeDislikeReactionsAggregator,
     authManager: AuthManager,
     dialog: MatDialog,
     commentingService: CommentingService,

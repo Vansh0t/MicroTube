@@ -8,7 +8,7 @@ import { JWTUser } from "../../services/auth/JWTUser";
 import { LikeDislikeReactionType } from "../../services/ReactionTypes";
 import { LikeDislikeReactionService } from "../../services/reactions/LikeDislikeReactionService";
 import { LikeDislikeReactionDto } from "../../data/Dto/LikeDislikeReactionDto";
-import { LikeDislikeReactionsAggregator } from "../../services/reactions/LikeDislikeReactionsAggregator";
+import { FakeLikeDislikeReactionsAggregator } from "../../services/reactions/FakeLikeDislikeReactionsAggregator";
 
 @Component({
   selector: "video-reaction",
@@ -22,7 +22,7 @@ export class VideoReactionComponent implements OnInit, OnDestroy
   private readonly auth: AuthManager;
   private readonly dialog: MatDialog;
   private readonly reactionService: LikeDislikeReactionService;
-  private readonly reactionsAggregator: LikeDislikeReactionsAggregator;
+  private readonly reactionsAggregator: FakeLikeDislikeReactionsAggregator;
   private userAuthStateSubscription: Subscription | null = null;
   private userReactSubscription: Subscription | null = null;
   private userGetReactionSubscription: Subscription | null = null;
@@ -39,7 +39,7 @@ export class VideoReactionComponent implements OnInit, OnDestroy
     return this.userCurrentReaction ? this.userCurrentReaction.reactionType : LikeDislikeReactionType.None;
   }
   userCurrentReaction: LikeDislikeReactionDto | null = null;
-  constructor(auth: AuthManager, dialog: MatDialog, reactionService: LikeDislikeReactionService, reactionsAggregator: LikeDislikeReactionsAggregator)
+  constructor(auth: AuthManager, dialog: MatDialog, reactionService: LikeDislikeReactionService, reactionsAggregator: FakeLikeDislikeReactionsAggregator)
   {
     this.dialog = dialog;
     this.auth = auth;

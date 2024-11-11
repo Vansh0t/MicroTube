@@ -24,9 +24,9 @@ namespace MicroTube.Services.Comments.Reactions
 				if (commentDtoPair.Comment is VideoComment videoComment)
 				{
 					VideoCommentReactionsAggregation? aggregation;
-					if (videoComment.Reactions != null)
+					if (videoComment.CommentReactionsAggregation != null)
 					{
-						aggregation = videoComment.Reactions;
+						aggregation = videoComment.CommentReactionsAggregation;
 
 					}
 					else

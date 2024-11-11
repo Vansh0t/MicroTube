@@ -1,12 +1,13 @@
 ﻿using AutoFixture;
 using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.Base;
 using MicroTube.Services.VideoContent.Processing.Stages;
 using MicroTube.Tests.Utils;
 
 namespace MicroTube.Tests.Unit.VideoContent.Processing
 {
-	public class FetchVideoUploadProgressStageTests
+    public class FetchVideoUploadProgressStageTests
 	{
 		[Fact]
 		public async Task Execute_Success()

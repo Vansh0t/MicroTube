@@ -3,11 +3,12 @@ using Microsoft.Extensions.Logging;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
 using MicroTube.Data.Models.Comments;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services;
+using MicroTube.Services.Comments;
 using MicroTube.Services.Comments.Reactions;
 using MicroTube.Services.Reactions;
 using MicroTube.Services.Validation;
-using MicroTube.Services.VideoContent.Comments;
 using MicroTube.Tests.Mock.Models;
 using MicroTube.Tests.Utils;
 
@@ -36,12 +37,12 @@ namespace MicroTube.Tests.Unit.Comments
 			Assert.Equal(commentContent, commentFromResult.Content);
 			Assert.False(commentFromResult.Deleted);
 			Assert.False(commentFromResult.Edited);
-			var commentFromDb = db.VideoComments.Include(_ => _.Reactions).Include(_=>_.Video).First(_ => _.Id == commentFromResult.Id);
+			var commentFromDb = db.VideoComments.Include(_ => _.CommentReactionsAggregation).Include(_=>_.Video).First(_ => _.Id == commentFromResult.Id);
 			Assert.True(commentFromDb.IsEqualByContentValues(commentFromResult));
-			Assert.NotNull(commentFromDb.Reactions);
+			Assert.NotNull(commentFromDb.CommentReactionsAggregation);
 			Assert.NotNull(commentFromDb.Video);
-			Assert.Equal(0, commentFromDb.Reactions.Likes);
-			Assert.Equal(0, commentFromDb.Reactions.Dislikes);
+			Assert.Equal(0, commentFromDb.CommentReactionsAggregation.Likes);
+			Assert.Equal(0, commentFromDb.CommentReactionsAggregation.Dislikes);
 			Assert.Equal(1, commentFromDb.Video.CommentsCount);
 		}
 		[Fact]

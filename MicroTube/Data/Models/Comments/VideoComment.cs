@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using MicroTube.Data.Models.Reactions;
+using MicroTube.Data.Models.Videos;
 
 namespace MicroTube.Data.Models.Comments
 {
-	public class VideoComment : IComment, IReactable
+    public class VideoComment : IComment, IReactable
 	{
 		public Guid Id { get; set; }
 		[Column(TypeName = "NVARCHAR"), StringLength(512)]
@@ -20,11 +21,11 @@ namespace MicroTube.Data.Models.Comments
 		public bool Edited { get; set; }
 		public bool Deleted { get; set; }
 		public required DateTime Time {get;set;}
-		public VideoCommentReactionsAggregation? Reactions { get; set; }
+		public VideoCommentReactionsAggregation? CommentReactionsAggregation { get; set; }
 
 		[NotMapped]
 		public Guid TargetId { get => VideoId; set => VideoId = value; }
 		[NotMapped]
-		public IReactionsAggregation? ReactionsAggregation { get => Reactions;}
+		public IReactionsAggregation? ReactionsAggregation { get => CommentReactionsAggregation;}
 	}
 }

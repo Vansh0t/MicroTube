@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Search.Videos;
 using MicroTube.Services.Validation;
@@ -15,7 +16,7 @@ using System.Collections.Immutable;
 
 namespace MicroTube.Tests.Unit.Search
 {
-	public class ElasticVideoSearchServiceTests
+    public class ElasticVideoSearchServiceTests
 	{
 		[Fact]
 		public async Task IndexVideo_Success()
@@ -30,8 +31,8 @@ namespace MicroTube.Tests.Unit.Search
 				Description = "description",
 				Urls = "",
 				ThumbnailUrls = "",
-				VideoReactions = new VideoReactionsAggregation { Dislikes = 1, Likes = 2 },
-				VideoViews = new VideoViewsAggregation { Views = 3 },
+				VideoReactionsAggregation = new VideoReactionsAggregation { Dislikes = 1, Likes = 2 },
+				VideoViewsAggregation = new VideoViewsAggregation { Views = 3 },
 				VideoIndexing = new VideoSearchIndexing { Id = Guid.NewGuid(), ReindexingRequired = true, LastIndexingTime = lastIndexingTime },
 			};
 			VideoSearchIndex expectedIndex = new(
@@ -39,9 +40,9 @@ namespace MicroTube.Tests.Unit.Search
 				videoToIndex.Title,
 				videoToIndex.Description,
 				videoToIndex.Title,
-				videoToIndex.VideoViews.Views, 
-				videoToIndex.VideoReactions.Likes,
-				videoToIndex.VideoReactions.Dislikes,
+				videoToIndex.VideoViewsAggregation.Views, 
+				videoToIndex.VideoReactionsAggregation.Likes,
+				videoToIndex.VideoReactionsAggregation.Dislikes,
 				videoToIndex.LengthSeconds,
 				DateTime.UtcNow, null);
 			IVideoSearchService searchService = CreateVideoSearchService(

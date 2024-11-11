@@ -4,7 +4,6 @@ using Elastic.Transport.Products.Elasticsearch;
 using Elastic.Transport;
 using MicroTube.Data.Access.Elasticsearch;
 using MicroTube.Data.Access;
-using MicroTube.Data.Models;
 using MicroTube.Services.Authentication.BasicFlow;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Search;
@@ -35,11 +34,11 @@ using MicroTube.Services.Search.Comments;
 using MicroTube.Data.Models.Comments;
 using MicroTube.Services.Comments.Reactions;
 using MicroTube.Services.Comments;
-using MicroTube.Services.VideoContent.Comments;
+using MicroTube.Data.Models.Videos;
 
 namespace MicroTube.Extensions
 {
-	public static class StartupExtensions
+    public static class StartupExtensions
 	{
 		public static IServiceCollection AddDefaultBasicAuthenticationFlow(this IServiceCollection services)
 		{
@@ -98,7 +97,7 @@ namespace MicroTube.Extensions
 		public static IServiceCollection AddAzureCdnVideoPreprocessing(this IServiceCollection services)
 		{
 			services.AddTransient<IVideoFileNameGenerator, GuidVideoFileNameGenerator>();
-			services.AddTransient<IRemoteLocationNameGenerator, ExtensionlessFileNameRemoteLocationNameGenerator>();
+			services.AddTransient<IRemoteLocationNameGenerator, FileNameRemoteLocationNameGenerator>();
 			services.AddScoped<VideoPreprocessingStage, UploadVideoSourceToRemoteStorageStage>();
 			services.AddScoped<VideoPreprocessingStage, CreateUploadProgressStage>();
 			services.AddScoped<VideoPreprocessingStage, MakeProcessingJobStage>();

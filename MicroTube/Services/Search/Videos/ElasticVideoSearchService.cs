@@ -2,7 +2,7 @@
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using Elastic.Transport.Products.Elasticsearch;
 using MicroTube.Data.Access;
-using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
 using MicroTube.Services.Validation;
@@ -10,7 +10,7 @@ using System.Collections.Immutable;
 
 namespace MicroTube.Services.Search.Videos
 {
-	public class ElasticVideoSearchService : IVideoSearchService
+    public class ElasticVideoSearchService : IVideoSearchService
 	{
 
 		private readonly IVideoSearchDataAccess _searchDataAccess;
@@ -41,19 +41,19 @@ namespace MicroTube.Services.Search.Videos
 
 		public async Task<IServiceResult<Video>> IndexVideo(Video video)
 		{
-			if (video.VideoViews == null || video.VideoReactions == null || video.VideoIndexing == null)
+			if (video.VideoViewsAggregation == null || video.VideoReactionsAggregation == null || video.VideoIndexing == null)
 			{
-				_logger.LogError($"Video {video.Id} does not have {nameof(video.VideoViews)}," +
-					$" {nameof(video.VideoReactions)} or {nameof(video.VideoIndexing)}. Indexing failed.");
+				_logger.LogError($"Video {video.Id} does not have {nameof(video.VideoViewsAggregation)}," +
+					$" {nameof(video.VideoReactionsAggregation)} or {nameof(video.VideoIndexing)}. Indexing failed.");
 				return ServiceResult<Video>.FailInternal();
 			}
 			var videoIndexData = new VideoSearchIndex(video.Id.ToString(),
 				video.Title,
 				video.Description,
 				video.Title,
-				video.VideoViews.Views,
-				video.VideoReactions.Likes,
-				video.VideoReactions.Dislikes,
+				video.VideoViewsAggregation.Views,
+				video.VideoReactionsAggregation.Likes,
+				video.VideoReactionsAggregation.Dislikes,
 				video.LengthSeconds,
 				video.UploadTime,
 				video.UploaderId.ToString());

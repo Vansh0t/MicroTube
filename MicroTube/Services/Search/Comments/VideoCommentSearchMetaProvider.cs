@@ -12,11 +12,11 @@ namespace MicroTube.Services.Search.Comments
 			{
 				return null;
 			}
-			if(last.Reactions == null)
+			if(last.CommentReactionsAggregation == null)
 			{
 				throw new RequiredObjectNotFoundException("Unable to build search meta: comment reactions is null");
 			}
-			return new VideoCommentSearchMeta(last.Time, last.Reactions.Likes, last.Reactions.Dislikes, last.Id.ToString());
+			return new VideoCommentSearchMeta(last.Time, last.CommentReactionsAggregation.Likes, last.CommentReactionsAggregation.Dislikes, last.Id.ToString());
 		}
 
 		public VideoCommentSearchMeta? DeserializeMeta(string? data)

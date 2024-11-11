@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MicroTube.Controllers.Videos.Dto;
 using MicroTube.Data.Access;
-using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.Search;
 using MicroTube.Services.Search.Videos;
 
 namespace MicroTube.Controllers.Videos
 {
-	[Route("Videos/[controller]")]
+    [Route("Videos/[controller]")]
 	[ApiController]
 	public class VideosSearchController : ControllerBase
 	{

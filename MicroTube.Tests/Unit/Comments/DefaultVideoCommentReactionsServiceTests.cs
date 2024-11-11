@@ -4,14 +4,15 @@ using MicroTube.Data.Models.Comments;
 using MicroTube.Data.Models;
 using MicroTube.Services.Comments.Reactions;
 using MicroTube.Services.Reactions;
-using MicroTube.Services.VideoContent.Comments;
 using MicroTube.Tests.Mock.Models;
 using MicroTube.Tests.Utils;
 using Microsoft.EntityFrameworkCore;
+using MicroTube.Data.Models.Videos;
+using MicroTube.Services.Comments;
 
 namespace MicroTube.Tests.Unit.Comments
 {
-	public class DefaultVideoCommentReactionsServiceTests
+    public class DefaultVideoCommentReactionsServiceTests
 	{
 		[Fact]
 		public async Task SetReaction_Success()
@@ -34,15 +35,15 @@ namespace MicroTube.Tests.Unit.Comments
 			Assert.False(commentsResult[1].IsError);
 			Assert.NotNull(commentsResult[0].ResultObject);
 			Assert.NotNull(commentsResult[1].ResultObject);
-			var commentFromDb = db.VideoComments.Include(_ => _.Reactions).First(_ => _.Id == comment.Id);
-			Assert.NotNull(commentFromDb.Reactions);
-			Assert.Equal(2, commentFromDb.Reactions.Likes);
+			var commentFromDb = db.VideoComments.Include(_ => _.CommentReactionsAggregation).First(_ => _.Id == comment.Id);
+			Assert.NotNull(commentFromDb.CommentReactionsAggregation);
+			Assert.Equal(2, commentFromDb.CommentReactionsAggregation.Likes);
 			var dislikeResult = await service.SetReaction(user1.Id.ToString(), comment.Id.ToString(), LikeDislikeReactionType.Dislike);
 			Assert.False(dislikeResult.IsError);
 			Assert.NotNull(dislikeResult.ResultObject);
-			commentFromDb = db.VideoComments.Include(_ => _.Reactions).First(_ => _.Id == comment.Id);
-			Assert.Equal(1, commentFromDb.Reactions!.Likes);
-			Assert.Equal(1, commentFromDb.Reactions!.Dislikes);
+			commentFromDb = db.VideoComments.Include(_ => _.CommentReactionsAggregation).First(_ => _.Id == comment.Id);
+			Assert.Equal(1, commentFromDb.CommentReactionsAggregation!.Likes);
+			Assert.Equal(1, commentFromDb.CommentReactionsAggregation!.Dislikes);
 		}
 		[Fact]
 		public async Task ReactToComment_EmailNotConfirmedFail()

@@ -1,8 +1,8 @@
-﻿using MicroTube.Data.Models;
+﻿using MicroTube.Data.Models.Videos;
 
 namespace MicroTube.Services.Search.Videos
 {
-	public interface IVideoSearchService
+    public interface IVideoSearchService
 	{
 		Task<IServiceResult<Video>> IndexVideo(Video video);
 		Task<IServiceResult<VideoSearchResult>> GetVideos(VideoSearchParameters parameters, string? meta);

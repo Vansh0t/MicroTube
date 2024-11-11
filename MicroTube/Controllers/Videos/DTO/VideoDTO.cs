@@ -1,9 +1,9 @@
 ﻿using MicroTube.Controllers.Reactions.Dto;
-using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 
 namespace MicroTube.Controllers.Videos.Dto
 {
-	public class VideoDto
+    public class VideoDto
 	{
 		public required string Id { get; set; }
 		public required string Urls { get; set; }
@@ -19,9 +19,9 @@ namespace MicroTube.Controllers.Videos.Dto
 		public required int CommentsCount { get; set; }
 		public static VideoDto FromModel(Video video)
 		{
-			int likes = video.VideoReactions != null ? video.VideoReactions.Likes : 0;
-			int dislikes = video.VideoReactions != null ? video.VideoReactions.Dislikes : 0;
-			int difference = video.VideoReactions != null ? video.VideoReactions.Difference : 0;
+			int likes = video.VideoReactionsAggregation != null ? video.VideoReactionsAggregation.Likes : 0;
+			int dislikes = video.VideoReactionsAggregation != null ? video.VideoReactionsAggregation.Dislikes : 0;
+			int difference = video.VideoReactionsAggregation != null ? video.VideoReactionsAggregation.Difference : 0;
 			VideoDto dto = new VideoDto
 			{
 				Id = video.Id.ToString(),
@@ -32,7 +32,7 @@ namespace MicroTube.Controllers.Videos.Dto
 				ThumbnailUrls = video.ThumbnailUrls,
 				LengthSeconds = video.LengthSeconds,
 				ReactionsAggregation = new LikeDislikeReactionsAggregationDto(video.Id.ToString(), likes, dislikes, difference),
-				Views = video.VideoViews != null ? video.VideoViews.Views : 0,
+				Views = video.VideoViewsAggregation != null ? video.VideoViewsAggregation.Views : 0,
 				UploaderPublicUsername = video.Uploader != null ? video.Uploader.PublicUsername : "Unknown",
 				UploaderId = video.UploaderId.ToString(),
 				CommentsCount = video.CommentsCount

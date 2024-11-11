@@ -11,12 +11,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\Users\**" />
     <Compile Remove="Utils\**" />
     <Compile Remove="wwwroot\**" />
+    <Content Remove="Services\Users\**" />
     <Content Remove="Utils\**" />
     <Content Remove="wwwroot\**" />
+    <EmbeddedResource Remove="Services\Users\**" />
     <EmbeddedResource Remove="Utils\**" />
     <EmbeddedResource Remove="wwwroot\**" />
+    <None Remove="Services\Users\**" />
     <None Remove="Utils\**" />
     <None Remove="wwwroot\**" />
   </ItemGroup>
@@ -49,9 +53,6 @@
   </ItemGroup>
   <ItemGroup>
   	<InternalsVisibleTo Include="MicroTube.Tests" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\Users\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Templates\Email\EmailConfirmation.html">

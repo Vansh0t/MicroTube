@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.Reactions;
 using MicroTube.Services.VideoContent.Likes;
 using MicroTube.Tests.Mock.Models;
@@ -8,7 +9,7 @@ using MicroTube.Tests.Utils;
 
 namespace MicroTube.Tests.Unit.VideoContent.Reactions
 {
-	public class DefaultVideoReactionsServiceTests
+    public class DefaultVideoReactionsServiceTests
 	{
 		[Fact]
 		public async Task SetReaction_Success()
@@ -30,7 +31,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Reactions
 				VideoIndexing = new VideoSearchIndexing()
 			};
 			VideoReactionsAggregation reactions = new() { Dislikes = 0, Likes = 0, Video = video };
-			video.VideoReactions = reactions;
+			video.VideoReactionsAggregation = reactions;
 			db.AddRange(user, video);
 			db.SaveChanges();
 			var aggregator = new LikeDislikeReactionAggregator();
@@ -38,21 +39,21 @@ namespace MicroTube.Tests.Unit.VideoContent.Reactions
 
 			var result = await reactionService.SetReaction(user.Id.ToString(), video.Id.ToString(), LikeDislikeReactionType.Like);
 			Assert.False(result.IsError);
-			var userReaction = db.UserVideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
+			var userReaction = db.VideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
 			Assert.NotNull(userReaction);
 			Assert.Equal(LikeDislikeReactionType.Like, userReaction.ReactionType);
 			Assert.True(userReaction.IsEqualByContentValues(result.GetRequiredObject()));
 
 			result = await reactionService.SetReaction(user.Id.ToString(), video.Id.ToString(), LikeDislikeReactionType.Dislike);
 			Assert.False(result.IsError);
-			userReaction = db.UserVideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
+			userReaction = db.VideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
 			Assert.NotNull(userReaction);
 			Assert.Equal(LikeDislikeReactionType.Dislike, userReaction.ReactionType);
 			Assert.True(userReaction.IsEqualByContentValues(result.GetRequiredObject()));
 
 			result = await reactionService.SetReaction(user.Id.ToString(), video.Id.ToString(), LikeDislikeReactionType.None);
 			Assert.False(result.IsError);
-			userReaction = db.UserVideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
+			userReaction = db.VideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
 			Assert.NotNull(userReaction);
 			Assert.Equal(LikeDislikeReactionType.None, userReaction.ReactionType);
 			Assert.True(userReaction.IsEqualByContentValues(result.GetRequiredObject()));
@@ -87,15 +88,15 @@ namespace MicroTube.Tests.Unit.VideoContent.Reactions
 				Urls = ""
 			};
 			VideoReactionsAggregation reactions = new() { Dislikes = 0, Likes = 0, Video = video };
-			video.VideoReactions = reactions;
+			video.VideoReactionsAggregation = reactions;
 			db.AddRange(user, video);
 			db.SaveChanges();
 			var aggregator = Substitute.For<ILikeDislikeReactionAggregator>();
 			var reactionService = new DefaultVideoReactionsService(Substitute.For<ILogger<DefaultVideoReactionsService>>(), db, aggregator);
-			var result = await reactionService.SetReaction(requestUserId, requestVideoId, LikeDislikeReactionType.Like);
+			var result = await reactionService.SetReaction(requestUserId!, requestVideoId!, LikeDislikeReactionType.Like);
 			Assert.True(result.IsError);
 			Assert.True(400 == result.Code || 404 == result.Code);
-			var userReaction = db.UserVideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
+			var userReaction = db.VideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
 			Assert.Null(userReaction);
 		}
 		[Fact]
@@ -118,7 +119,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Reactions
 			};
 			VideoReactionsAggregation reactions = new() { Dislikes = 0, Likes = 0, Video = video };
 			VideoReaction reaction = new() { User = user, Video = video, Time = DateTime.UtcNow, ReactionType = LikeDislikeReactionType.None };
-			video.VideoReactions = reactions;
+			video.VideoReactionsAggregation = reactions;
 			db.AddRange(user, video, reaction);
 			db.SaveChanges();
 			var aggregator = Substitute.For<ILikeDislikeReactionAggregator>();
@@ -126,7 +127,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Reactions
 
 			var result = await reactionService.GetReaction(user.Id.ToString(), video.Id.ToString());
 			Assert.False(result.IsError);
-			var userReaction = db.UserVideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
+			var userReaction = db.VideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
 			Assert.NotNull(userReaction);
 			Assert.True(userReaction.IsEqualByContentValues(result.GetRequiredObject()));
 		}
@@ -160,15 +161,15 @@ namespace MicroTube.Tests.Unit.VideoContent.Reactions
 				Urls = ""
 			};
 			VideoReactionsAggregation reactions = new() { Dislikes = 0, Likes = 0, Video = video };
-			video.VideoReactions = reactions;
+			video.VideoReactionsAggregation = reactions;
 			db.AddRange(user, video);
 			db.SaveChanges();
 			var aggregator = Substitute.For<ILikeDislikeReactionAggregator>();
 			var reactionService = new DefaultVideoReactionsService(Substitute.For<ILogger<DefaultVideoReactionsService>>(), db, aggregator);
-			var result = await reactionService.GetReaction(requestUserId, requestVideoId);
+			var result = await reactionService.GetReaction(requestUserId!, requestVideoId!);
 			Assert.True(result.IsError);
 			Assert.True(400 == result.Code || 404 == result.Code);
-			var userReaction = db.UserVideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
+			var userReaction = db.VideoReactions.FirstOrDefault(_ => _.VideoId == video.Id);
 			Assert.Null(userReaction);
 		}
 	}

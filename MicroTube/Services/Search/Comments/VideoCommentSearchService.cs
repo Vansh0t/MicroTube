@@ -62,10 +62,10 @@ namespace MicroTube.Services.Search.Comments
 			Guid lastGuid = meta != null ? new Guid(meta.LastId) : Guid.Empty;
 			DateTime lastTime = meta != null ? meta.LastTime : DateTime.MaxValue;
 			var result = await _db.VideoComments
-				.Include(_ => _.Reactions)
+				.Include(_ => _.CommentReactionsAggregation)
 				.Include(_=>_.User)
-				.Where(_ => _.VideoId == videoId && !_.Deleted && _.Id != lastGuid && (_.Reactions!.Difference < lastRank || (_.Reactions!.Difference == lastRank && _.Time < lastTime)))
-				.OrderByDescending(_ => _.Reactions!.Difference)
+				.Where(_ => _.VideoId == videoId && !_.Deleted && _.Id != lastGuid && (_.CommentReactionsAggregation!.Difference < lastRank || (_.CommentReactionsAggregation!.Difference == lastRank && _.Time < lastTime)))
+				.OrderByDescending(_ => _.CommentReactionsAggregation!.Difference)
 				.ThenByDescending(_=>_.Time)
 				.Take(batchSize)
 				.ToArrayAsync();
@@ -76,7 +76,7 @@ namespace MicroTube.Services.Search.Comments
 			DateTime lastTime = meta != null ? meta.LastTime : DateTime.MaxValue;
 			Guid lastGuid = meta != null ? new Guid(meta.LastId) : Guid.Empty;
 			var result = await _db.VideoComments
-				.Include(_ => _.Reactions)
+				.Include(_ => _.CommentReactionsAggregation)
 				.Include(_=>_.User)
 				.Where(_ => _.VideoId == videoId && !_.Deleted && _.Id != lastGuid && _.Time < lastTime)
 				.OrderByDescending(_ => _.Time)

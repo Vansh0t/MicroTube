@@ -1,11 +1,10 @@
 ﻿using MicroTube.Constants;
 using MicroTube.Services.Comments.Reactions;
-using MicroTube.Services.VideoContent.Comments;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MicroTube.Services.Comments
 {
-	public class CommentServicesFactory
+    public class CommentServicesFactory
 	{
 		private IEnumerable<ICommentingService> _commentingServices;
 		private IEnumerable<ICommentReactionsProvider> _commentReactionsProviderServices;

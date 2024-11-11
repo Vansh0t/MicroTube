@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MicroTube.Data.Models;
 using MicroTube.Data.Models.Comments;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Search;
 using MicroTube.Services.Search.Comments;
@@ -14,7 +15,7 @@ using MicroTube.Tests.Utils;
 
 namespace MicroTube.Tests.Unit.Search
 {
-	public class VideoCommentSearchServiceTests
+    public class VideoCommentSearchServiceTests
 	{
 		private readonly Fixture _commentsFixture;
 		private readonly AppUser _videoUploader = new AppUser
@@ -58,13 +59,13 @@ namespace MicroTube.Tests.Unit.Search
 				int dislikes = random.Next(0, 10000);
 				int difference = likes - dislikes;
 				var reactions = new VideoCommentReactionsAggregation {Likes = likes, Dislikes = dislikes, Difference = difference, Comment = comment, CommentId = comment.Id };
-				comment.Reactions = reactions;
+				comment.CommentReactionsAggregation = reactions;
 				comment.Time = DateTime.UtcNow + TimeSpan.FromMilliseconds(random.Next(2, 100000000));
 			}
 			var db = Database.CreateSqliteInMemoryMock();
 			db.AddRange(comments);
 			db.SaveChanges();
-			var commentsFromDb = await db.VideoComments.Include(_=>_.Reactions).ToArrayAsync();
+			var commentsFromDb = await db.VideoComments.Include(_=>_.CommentReactionsAggregation).ToArrayAsync();
 			ISearchMetaProvider<IEnumerable<VideoComment>, VideoCommentSearchMeta> metaProvider = new VideoCommentSearchMetaProvider();
 			var config = new ConfigurationBuilder().AddConfigObject<VideoCommentSearchOptions>(VideoCommentSearchOptions.KEY, new VideoCommentSearchOptions(batchSize)).Build();
 			var commentsSearch = new VideoCommentSearchService(db, metaProvider, config, Substitute.For<ILogger<VideoCommentSearchService>>());
@@ -101,7 +102,7 @@ namespace MicroTube.Tests.Unit.Search
 			Assert.Empty(notRetrieved);
 			Assert.Equal(commentsAmount, retrievedComments.Count);
 			Assert.Equal(desiredBatchesCount, batchesCount);
-			var desiredIds = commentsFromDb.OrderByDescending(_ => _.Reactions!.Difference).ThenByDescending(_ => _.Time).Select(_ => _.Id);
+			var desiredIds = commentsFromDb.OrderByDescending(_ => _.CommentReactionsAggregation!.Difference).ThenByDescending(_ => _.Time).Select(_ => _.Id);
 			var retrievedIds = retrievedComments.Select(_ => _.Id);
 			Assert.Equal(desiredIds, retrievedIds);
 		}
@@ -129,13 +130,13 @@ namespace MicroTube.Tests.Unit.Search
 				int dislikes = random.Next(0, 10000);
 				int difference = likes - dislikes;
 				var reactions = new VideoCommentReactionsAggregation { Likes = likes, Dislikes = dislikes, Difference = difference, Comment = comment, CommentId = comment.Id };
-				comment.Reactions = reactions;
+				comment.CommentReactionsAggregation = reactions;
 				comment.Time = DateTime.UtcNow + TimeSpan.FromMilliseconds(random.Next(2, 100000000));
 			}
 			var db = Database.CreateSqliteInMemoryMock();
 			db.AddRange(comments);
 			db.SaveChanges();
-			var commentsFromDb = await db.VideoComments.Include(_ => _.Reactions).ToArrayAsync();
+			var commentsFromDb = await db.VideoComments.Include(_ => _.CommentReactionsAggregation).ToArrayAsync();
 			ISearchMetaProvider<IEnumerable<VideoComment>, VideoCommentSearchMeta> metaProvider = new VideoCommentSearchMetaProvider();
 			var config = new ConfigurationBuilder().AddConfigObject<VideoCommentSearchOptions>(VideoCommentSearchOptions.KEY, new VideoCommentSearchOptions(batchSize)).Build();
 			var commentsSearch = new VideoCommentSearchService(db, metaProvider, config, Substitute.For<ILogger<VideoCommentSearchService>>());

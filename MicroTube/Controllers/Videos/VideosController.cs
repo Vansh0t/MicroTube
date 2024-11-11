@@ -38,7 +38,7 @@ namespace MicroTube.Controllers.Videos
 			}
 			var video = await _db.Videos
 				.Include(_=>_.Uploader)
-				.Include(_=>_.VideoReactions)
+				.Include(_=>_.VideoReactionsAggregation)
 				.FirstOrDefaultAsync(_ => _.Id == guidVideoId);
 			if (video == null)
 				return NotFound("Video not found");

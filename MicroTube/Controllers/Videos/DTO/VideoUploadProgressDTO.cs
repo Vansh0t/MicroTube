@@ -1,9 +1,9 @@
-﻿using MicroTube.Data.Models;
+﻿using MicroTube.Data.Models.Videos;
 using System.Text.Json.Serialization;
 
 namespace MicroTube.Controllers.Videos.Dto
 {
-	public class VideoUploadProgressDto
+    public class VideoUploadProgressDto
 	{
 		public string Id { get; set; }
 		public string Title { get; set; }

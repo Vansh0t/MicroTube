@@ -2,12 +2,12 @@
 using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Mapping;
 using Elastic.Clients.Elasticsearch.QueryDsl;
-using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.ConfigOptions;
 
 namespace MicroTube.Services.Search.Videos
 {
-	public class ElasticsearchVideoSearchRequestBuilder : IVideoSearchRequestBuilder<SearchRequest<VideoSearchIndex>>
+    public class ElasticsearchVideoSearchRequestBuilder : IVideoSearchRequestBuilder<SearchRequest<VideoSearchIndex>>
 	{
 		private readonly IConfiguration _config;
 		private readonly ILogger<ElasticsearchVideoSearchRequestBuilder> _logger;

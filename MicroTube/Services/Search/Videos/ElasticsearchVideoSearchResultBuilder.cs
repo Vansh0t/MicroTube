@@ -1,11 +1,11 @@
 ﻿using Elastic.Clients.Elasticsearch;
 using Elastic.Transport.Products.Elasticsearch;
-using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.Validation;
 
 namespace MicroTube.Services.Search.Videos
 {
-	public class ElasticsearchVideoSearchResultBuilder : IVideoSearchResultBuilder<SearchResponse<VideoSearchIndex>>
+    public class ElasticsearchVideoSearchResultBuilder : IVideoSearchResultBuilder<SearchResponse<VideoSearchIndex>>
 	{
 		private readonly ILogger<ElasticsearchVideoSearchResultBuilder> _logger;
 		private readonly ISearchMetaProvider<SearchResponse<VideoSearchIndex>, ElasticsearchMeta> _searchMetaProvider;

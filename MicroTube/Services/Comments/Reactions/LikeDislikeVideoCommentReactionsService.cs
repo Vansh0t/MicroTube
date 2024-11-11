@@ -5,7 +5,6 @@ using MicroTube.Data.Models;
 using MicroTube.Data.Models.Comments;
 using MicroTube.Data.Models.Reactions;
 using MicroTube.Services.Reactions;
-using MicroTube.Services.VideoContent.Comments;
 using System.Data;
 
 namespace MicroTube.Services.Comments.Reactions
@@ -44,13 +43,13 @@ namespace MicroTube.Services.Comments.Reactions
 			using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
 			try
 			{
-				VideoComment? comment = await _db.VideoComments.Include(_ => _.Reactions).FirstOrDefaultAsync(_ => _.Id == guidCommentId);
+				VideoComment? comment = await _db.VideoComments.Include(_ => _.CommentReactionsAggregation).FirstOrDefaultAsync(_ => _.Id == guidCommentId);
 				AppUser? user = await _db.Users.FirstOrDefaultAsync(_ => _.Id == guidUserId);
 				if (user == null || !user.IsEmailConfirmed)
 				{
 					return ServiceResult<ILikeDislikeReaction>.Fail(403, "Forbidden");
 				}
-				if (comment == null || comment.Reactions == null)
+				if (comment == null || comment.CommentReactionsAggregation == null)
 				{
 					return ServiceResult<ILikeDislikeReaction>.Fail(404, "Target comment does not exist or does not have reactions available.");
 				}
@@ -60,8 +59,8 @@ namespace MicroTube.Services.Comments.Reactions
 					reaction = new VideoCommentReaction { ReactionType = LikeDislikeReactionType.None, Time = DateTime.UtcNow, Comment = comment, UserId = guidUserId };
 					_db.Add(reaction);
 				}
-				comment.Reactions = (VideoCommentReactionsAggregation)_reactionAggregator.UpdateReactionsAggregation(comment.Reactions, reactionType, reaction.ReactionType);
-				comment.Reactions.Difference = comment.Reactions.Likes - comment.Reactions.Dislikes;
+				comment.CommentReactionsAggregation = (VideoCommentReactionsAggregation)_reactionAggregator.UpdateReactionsAggregation(comment.CommentReactionsAggregation, reactionType, reaction.ReactionType);
+				comment.CommentReactionsAggregation.Difference = comment.CommentReactionsAggregation.Likes - comment.CommentReactionsAggregation.Dislikes;
 				reaction.Time = DateTime.UtcNow;
 				reaction.ReactionType = reactionType;
 				_db.SaveChanges();
