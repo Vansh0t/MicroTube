@@ -11,7 +11,7 @@ hr {
   border: 0;
   opacity: .25;
   height: 1px;
-  background-color: white;
+  background-color: var(--text-main-color);
 }
 .item {
   width: 100%;

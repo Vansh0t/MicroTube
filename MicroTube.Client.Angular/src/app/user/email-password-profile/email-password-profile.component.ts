@@ -2,12 +2,12 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { AuthManager } from "../../services/auth/AuthManager";
 import { Router } from "@angular/router";
-import { UserDTO } from "../../data/DTO/UserDTO";
+import { UserDto } from "../../data/Dto/UserDto";
 import { Observable, Subscription, catchError, tap, throwError } from "rxjs";
 import { ProfileManager } from "../../services/user/ProfileManager";
 import { HttpErrorResponse } from "@angular/common/http";
 import { EmailPasswordAuthProvider } from "../../services/auth/providers/EmailPasswordAuthProvider";
-import { MessageDTO } from "../../data/DTO/MessageDTO";
+import { MessageDto } from "../../data/Dto/MessageDto";
 import { InfoPopupDialogComponent } from "../../utility-components/info-popup-dialog/info-popup-dialog.component";
 import { MatDialog } from "@angular/material/dialog";
 import { JWTUser } from "../../services/auth/JWTUser";
@@ -24,8 +24,8 @@ export class EmailPasswordProfileComponent implements OnInit, OnDestroy
   readonly emailChangePasswordControl: FormControl;
 
 
-  user$: Observable<UserDTO> | null = null;
-  user: UserDTO | null = null;
+  user$: Observable<UserDto> | null = null;
+  user: UserDto | null = null;
   userRequestError: string | null = null;
 
   readonly authManager: AuthManager;
@@ -56,7 +56,7 @@ export class EmailPasswordProfileComponent implements OnInit, OnDestroy
   }
   ngOnInit(): void {
     this.user$ = this.profileManager.getUser().pipe(
-      tap((response: UserDTO) =>
+      tap((response: UserDto) =>
       {
         this.user = response;
       },
@@ -136,7 +136,7 @@ export class EmailPasswordProfileComponent implements OnInit, OnDestroy
     return null;
   }
 
-  private onPasswordResetResponse(response: MessageDTO)
+  private onPasswordResetResponse(response: MessageDto)
   {
     console.log(response);
     if (this?.dialog != null)

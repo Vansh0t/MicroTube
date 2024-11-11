@@ -14,7 +14,11 @@
 	<a [routerLink]="getWatchRouterLink()">
 		<div class="video-info">
 			<h4 class="video-title mat-h3">{{video?.title}}</h4>
-			<p class="mat-caption caption-grey">{{getUploadTimeText()}}</p>
+			<div class="video-subinfo-container">
+				<p class="mat-caption caption-grey">{{getViewsText()}} views</p>
+				<p class="mat-caption caption-grey">|</p>
+				<p class="mat-caption caption-grey">{{getUploadTimeText()}}</p>
+			</div>
 		</div>
 	</a>
 </div>

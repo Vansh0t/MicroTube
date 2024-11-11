@@ -1,7 +1,7 @@
 name: Build & Deploy API
 on:
   pull_request:
-    branches: [ "master", "development" ]
+    branches: [ "development" ]
 
 jobs:
   test:

@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.Base;
 using MicroTube.Services.VideoContent.Processing;
 using MicroTube.Services.VideoContent.Processing.Stages;
@@ -7,7 +8,7 @@ using MicroTube.Tests.Utils;
 
 namespace MicroTube.Tests.Unit.VideoContent.Processing
 {
-	public class SetProgressFinishedStageTests
+    public class SetProgressFinishedStageTests
 	{
 		[Fact]
 		public async Task Execute_Success()

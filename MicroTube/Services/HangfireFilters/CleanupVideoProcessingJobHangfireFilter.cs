@@ -4,6 +4,7 @@ using Hangfire.States;
 using Hangfire.Storage;
 using MicroTube.Constants;
 using MicroTube.Data.Access;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.ContentStorage;
 using MicroTube.Services.VideoContent.Processing.Stages;
 
@@ -82,7 +83,7 @@ namespace MicroTube.Services.HangfireFilters
 			{
 				return;
 			}
-			progress.Status = Data.Models.VideoUploadStatus.Fail;
+			progress.Status = VideoUploadStatus.Fail;
 			progress.Message = "Failed to process the video. All attempts failed";
 			db.SaveChanges();
 		}

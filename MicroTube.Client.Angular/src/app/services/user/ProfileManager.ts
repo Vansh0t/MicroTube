@@ -1,5 +1,5 @@
 import { Observable } from "rxjs";
-import { UserDTO } from "../../data/DTO/UserDTO";
+import { UserDto } from "../../data/Dto/UserDto";
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 
@@ -16,9 +16,9 @@ export class ProfileManager
     this.client = client;
   }
 
-  getUser(): Observable<UserDTO>
+  getUser(): Observable<UserDto>
   {
-    const request = this.client.get<UserDTO>("user/profile");
+    const request = this.client.get<UserDto>("user/profile");
     return request;
   }
 }

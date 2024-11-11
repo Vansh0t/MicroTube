@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MicroTube.Constants;
-using MicroTube.Controllers.Authentication.DTO;
+using MicroTube.Controllers.Authentication.Dto;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.Authentication.BasicFlow;
 using MicroTube.Services.Cryptography;
@@ -42,8 +42,8 @@ namespace MicroTube.Controllers.Authentication
 		}
 
 		[HttpPost("SignUp")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AuthenticationResponseDTO))]
-        public async Task<IActionResult> SignUp(SignUpEmailPasswordDTO data)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AuthenticationResponseDto))]
+        public async Task<IActionResult> SignUp(SignUpEmailPasswordDto data)
         {
             var resultCreatedUser = await _basicFlowAuthentication.CreateUser(data.Username, data.Email, data.Password);
             if (resultCreatedUser.IsError)
@@ -55,11 +55,11 @@ namespace MicroTube.Controllers.Authentication
 				return StatusCode(newSessionResult.Code, newSessionResult.Error);
 			var newSession = newSessionResult.GetRequiredObject();
 			HttpContext.AddRefreshTokenCookie(_config, newSession.RefreshTokenRaw, newSession.Session.Expiration);
-            return Ok(new AuthenticationResponseDTO(newSession.AccessToken));
+            return Ok(new AuthenticationResponseDto(newSession.AccessToken));
         }
         [HttpPost("SignIn")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
-        public async Task<IActionResult> SignIn(SignInCredentialPasswordDTO data)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDto))]
+        public async Task<IActionResult> SignIn(SignInCredentialPasswordDto data)
         {
             var signInResult = await _basicFlowAuthentication.SignIn(data.Credential, data.Password);
             if (signInResult.IsError)
@@ -72,7 +72,7 @@ namespace MicroTube.Controllers.Authentication
 			var newSession = newSessionResult.GetRequiredObject();
 			HttpContext.AddRefreshTokenCookie(_config, newSession.RefreshTokenRaw, newSession.Session.Expiration);
 
-			return Ok(new AuthenticationResponseDTO(newSession.AccessToken));
+			return Ok(new AuthenticationResponseDto(newSession.AccessToken));
         }
 		[Authorize]
 		[HttpPost("ConfirmEmailResend")]
@@ -87,8 +87,8 @@ namespace MicroTube.Controllers.Authentication
 		}
 		[HttpPost("ConfirmEmail")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
-        public async Task<IActionResult> ConfirmEmail(MessageDTO emailConfirmationString)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDto))]
+        public async Task<IActionResult> ConfirmEmail(MessageDto emailConfirmationString)
         {
             var confirmedUser = await _basicFlowEmailHandler.ConfirmEmail(emailConfirmationString.Message);
             if (confirmedUser.IsError)
@@ -101,14 +101,14 @@ namespace MicroTube.Controllers.Authentication
 					return StatusCode(newSessionResult.Code, newSessionResult.Error);
 				var newSession = newSessionResult.GetRequiredObject();
 				HttpContext.AddRefreshTokenCookie(_config, newSession.RefreshTokenRaw, newSession.Session.Expiration);
-				return Ok(new AuthenticationResponseDTO(newSession.AccessToken));
+				return Ok(new AuthenticationResponseDto(newSession.AccessToken));
 			}
 			return Ok();
         }
         [Authorize]
         [HttpPost("ChangeEmailStart")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangeEmailStart(EmailChangeDTO emailChangeData)
+        public async Task<IActionResult> ChangeEmailStart(EmailChangeDto emailChangeData)
         {
             var userId = _claims.GetUserId(HttpContext.User);
             var resultJWT = await _basicFlowEmailHandler.StartEmailChange(userId, emailChangeData.NewEmail, emailChangeData.Password);
@@ -117,27 +117,27 @@ namespace MicroTube.Controllers.Authentication
             return Ok();
         }
         [HttpPost("ResetPassword")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MessageDTO))]
-        public async Task<IActionResult> ResetPasswordStart(ResetPasswordStartDTO resetData)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MessageDto))]
+        public async Task<IActionResult> ResetPasswordStart(ResetPasswordStartDto resetData)
         {
             var result = await _basicFlowPasswordHandler.StartPasswordReset(resetData.Email);
             if(result.IsError)
                 return StatusCode(result.Code, result.Error);
-            return Ok(new MessageDTO("An email will be sent to this address if an account is registered under it."));
+            return Ok(new MessageDto("An email will be sent to this address if an account is registered under it."));
         }
         [HttpPost("ValidatePasswordReset")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PasswordResetTokenDTO))]
-        public async Task<IActionResult> ValidatePasswordReset(MessageDTO passwordResetString)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PasswordResetTokenDto))]
+        public async Task<IActionResult> ValidatePasswordReset(MessageDto passwordResetString)
         {
             var result = await _basicFlowPasswordHandler.UsePasswordResetString(passwordResetString.Message);
             if (result.IsError)
                 return StatusCode(result.Code, result.Error);
-            return Ok(new PasswordResetTokenDTO(result.GetRequiredObject()));
+            return Ok(new PasswordResetTokenDto(result.GetRequiredObject()));
         }
         [Authorize(AuthorizationConstants.PASSWORD_RESET_ONLY_POLICY)]
         [HttpPost("ChangePassword")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
-        public async Task<IActionResult> ChangePassword(PasswordChangeDTO changeData)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDto))]
+        public async Task<IActionResult> ChangePassword(PasswordChangeDto changeData)
         {
             string userId = _claims.GetUserId(HttpContext.User);
             var result = await  _basicFlowPasswordHandler.ChangePassword(userId, changeData.NewPassword);

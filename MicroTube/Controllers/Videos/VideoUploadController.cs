@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MicroTube.Controllers.Videos.DTO;
+using MicroTube.Controllers.Videos.Dto;
 using MicroTube.Data.Access;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.VideoContent.Preprocessing;
@@ -31,8 +31,8 @@ namespace MicroTube.Controllers.Videos
 		[Authorize]
 		[DisableRequestSizeLimit]
 		[RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = long.MaxValue)]
-		[ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(VideoUploadProgressDTO))]
-		public async Task<IActionResult> Upload([FromForm] VideoUploadDTO uploadData)
+		[ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(VideoUploadProgressDto))]
+		public async Task<IActionResult> Upload([FromForm] VideoUploadDto uploadData)
 		{
 			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
 			if (!isEmailConfirmed)
@@ -42,7 +42,7 @@ namespace MicroTube.Controllers.Videos
 			var preprocessingResult = await _preprocessingPipeline.Execute(new DefaultVideoPreprocessingContext {PreprocessingData = preprocessingData });
 			var uploadProgress = preprocessingResult.UploadProgress;
 			Guard.Against.Null(uploadProgress);
-			var result = new VideoUploadProgressDTO(
+			var result = new VideoUploadProgressDto(
 				userId,
 				uploadProgress.Status,
 				uploadData.Title,
@@ -62,7 +62,7 @@ namespace MicroTube.Controllers.Videos
 			string userId = _jwtClaims.GetUserId(User);
 			var result = await _db.VideoUploadProgresses.Where(_ => _.UploaderId == new Guid(userId)).ToArrayAsync();
 			return Ok(result.Select(_ => 
-			new VideoUploadProgressDTO(
+			new VideoUploadProgressDto(
 				_.Id.ToString(), 
 				_.Status, 
 				_.Title, 

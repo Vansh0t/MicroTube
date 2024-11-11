@@ -1,19 +1,23 @@
 @import "../../../breakpoints.scss";
 
 
+.main-container {
+  padding-inline: 1%;
+  padding-top: 1rem;
+  width: 100%;
+  max-height: calc( 100dvh - var(--mat-toolbar-standard-height));
+}
 @media (max-width: 599px) {
   .main-container {
     max-height: calc( 100dvh - var(--mat-toolbar-mobile-height));
   }
 }
-.main-container {
-  padding-inline: 1%;
-  padding-top: 1rem;
+.video-loader-container {
+  display: flex;
   width: 100%;
-  overflow-y: auto;
-  max-height: calc( 100dvh - var(--mat-toolbar-standard-height));
+  height: fit-content;
+  justify-content: center;
 }
-
 .video-listing-main {
   /*overflow-y:scroll;*/
   width: 100%;
@@ -53,12 +57,13 @@
   }
 
   .main-container {
-    padding-inline: 4vw;
+    padding-left: 4vw;
+    padding-right: 2vw;
   }
 }
 @include xl {
   .grid-container {
-    grid-template-columns: 25% 25% 25% 25%;
+    grid-template-columns: 24% 24% 24% 24%;
   }
 }
 .video-loader-container {

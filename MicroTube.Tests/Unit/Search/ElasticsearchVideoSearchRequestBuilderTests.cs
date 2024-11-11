@@ -2,14 +2,15 @@
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Search;
+using MicroTube.Services.Search.Videos;
 using NSubstitute;
 
 namespace MicroTube.Tests.Unit.Search
 {
-	public class ElasticsearchVideoSearchRequestBuilderTests
+    public class ElasticsearchVideoSearchRequestBuilderTests
 	{
 		[Theory]
 		[InlineData("some text", VideoTimeFilterType.LastDay, VideoLengthFilterType.Medium, VideoSortType.Time, null)]

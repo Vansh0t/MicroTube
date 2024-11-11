@@ -1,14 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services;
-using MicroTube.Services.Search;
+using MicroTube.Services.Search.Videos;
 using MicroTube.Tests.Utils;
 using NSubstitute;
 
 namespace MicroTube.Tests.Unit.Search
 {
-	public class DefaultVideoIndexingServiceTests
+    public class DefaultVideoIndexingServiceTests
 	{
 		[Fact]
 		public async Task EnsureVideoIndices_FullSuccess()
@@ -23,8 +24,8 @@ namespace MicroTube.Tests.Unit.Search
 				Title = "Vid1",
 			};
 			video1.VideoIndexing = new VideoSearchIndexing { LastIndexingTime = DateTime.UtcNow, SearchIndexId = null, ReindexingRequired = true, Video = video1 };
-			video1.VideoReactions = new VideoReactionsAggregation { Dislikes = 0, Likes = 0, Video = video1 };
-			video1.VideoViews = new VideoViewsAggregation { Views = 0, Video = video1 };
+			video1.VideoReactionsAggregation = new VideoReactionsAggregation { Dislikes = 0, Likes = 0, Video = video1 };
+			video1.VideoViewsAggregation = new VideoViewsAggregation { Views = 0, Video = video1 };
 			var video2 = new Video
 			{
 				ThumbnailUrls = "",
@@ -32,8 +33,8 @@ namespace MicroTube.Tests.Unit.Search
 				Title = "Vid2",
 			};
 			video2.VideoIndexing = new VideoSearchIndexing { LastIndexingTime = DateTime.UtcNow, SearchIndexId = null, ReindexingRequired = true, Video = video2 };
-			video2.VideoReactions = new VideoReactionsAggregation { Dislikes = 0, Likes = 0, Video = video2 };
-			video2.VideoViews = new VideoViewsAggregation { Views = 0, Video = video2 };
+			video2.VideoReactionsAggregation = new VideoReactionsAggregation { Dislikes = 0, Likes = 0, Video = video2 };
+			video2.VideoViewsAggregation = new VideoViewsAggregation { Views = 0, Video = video2 };
 			db.AddRange(video1, video2);
 			db.SaveChanges();
 			IVideoIndexingService videoIndexing = CreateVideoIndexingService(db, expectedReindexTime, searchIndexId);

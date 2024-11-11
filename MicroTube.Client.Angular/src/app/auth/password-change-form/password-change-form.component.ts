@@ -6,7 +6,7 @@ import { ActivatedRoute } from "@angular/router";
 import { Subscription } from "rxjs";
 import { RequestStatus } from "../../enums";
 import { HttpErrorResponse } from "@angular/common/http";
-import { PasswordResetTokenDTO } from "../../data/DTO/PasswordResetTokenDTO";
+import { PasswordResetTokenDto } from "../../data/Dto/PasswordResetTokenDto";
 
 @Component({
   selector: "password-change-form",
@@ -126,7 +126,7 @@ export class PasswordChangeFormComponent implements OnInit, OnDestroy
       
     }
   }
-  private onGetResetJWT(authResponse: PasswordResetTokenDTO): void
+  private onGetResetJWT(authResponse: PasswordResetTokenDto): void
   {
     this.status = RequestStatus.Success;
     this.showForm = true;

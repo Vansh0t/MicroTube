@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { AuthManager } from "../../services/auth/AuthManager";
 import { VideoService } from "../../services/videos/VideoService";
 import { Subscription } from "rxjs";
-import { VideoUploadProgressDTO } from "../../data/DTO/VideoUploadProgressDTO";
+import { VideoUploadProgressDto } from "../../data/Dto/VideoUploadProgressDto";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
@@ -23,7 +23,7 @@ export class UploadProgressListComponent implements OnInit, OnDestroy
 
   progressListSubscription: Subscription | null = null;
 
-  uiListDataSource = new MatTableDataSource<VideoUploadProgressDTO>();
+  uiListDataSource = new MatTableDataSource<VideoUploadProgressDto>();
   tableColumns: string[] = ["timestamp", "status", "title", "description", "lengthSeconds", "format", "fps"];
 
   constructor(videoService: VideoService, authManager: AuthManager)
@@ -36,7 +36,7 @@ export class UploadProgressListComponent implements OnInit, OnDestroy
       {
         return DateTime.fromISO(item.timestamp).toLocal().toUnixInteger();
       }
-      const value = item[headerId as keyof VideoUploadProgressDTO];
+      const value = item[headerId as keyof VideoUploadProgressDto];
       return value != null ? value: 0;
     };
   }
@@ -58,13 +58,13 @@ export class UploadProgressListComponent implements OnInit, OnDestroy
       this.progressListSubscription = null;
     }
   }
-  onProgressListUpdated(list: VideoUploadProgressDTO[]): void
+  onProgressListUpdated(list: VideoUploadProgressDto[]): void
   {
     this.uiListDataSource.data = list;
     this.uiListDataSource.paginator = this.paginator;
     this.uiListDataSource.sort = this.sort;
   }
-  getProgressStatusStyleClass(uploadProgress: VideoUploadProgressDTO): string
+  getProgressStatusStyleClass(uploadProgress: VideoUploadProgressDto): string
   {
     switch (uploadProgress.status.trim().toLowerCase())
     {
@@ -80,7 +80,7 @@ export class UploadProgressListComponent implements OnInit, OnDestroy
         return "";
     }
   }
-  getProgressStatusIcon(uploadProgress: VideoUploadProgressDTO): string
+  getProgressStatusIcon(uploadProgress: VideoUploadProgressDto): string
   {
     switch (uploadProgress.status.trim().toLowerCase())
     {

@@ -4,13 +4,11 @@ using Elastic.Transport.Products.Elasticsearch;
 using Elastic.Transport;
 using MicroTube.Data.Access.Elasticsearch;
 using MicroTube.Data.Access;
-using MicroTube.Data.Models;
 using MicroTube.Services.Authentication.BasicFlow;
 using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Search;
 using MicroTube.Services.Validation;
 using MicroTube.Services.VideoContent.Likes;
-using MicroTube.Services.VideoContent.Reactions;
 using Elastic.Clients.Elasticsearch.Analysis;
 using Elastic.Clients.Elasticsearch.IndexManagement;
 using Elastic.Clients.Elasticsearch.Mapping;
@@ -30,10 +28,17 @@ using MicroTube.Constants;
 using MicroTube.Services.HangfireFilters;
 using MicroTube.Services.Authentication;
 using Hangfire.Dashboard;
+using MicroTube.Services.Reactions;
+using MicroTube.Services.Search.Videos;
+using MicroTube.Services.Search.Comments;
+using MicroTube.Data.Models.Comments;
+using MicroTube.Services.Comments.Reactions;
+using MicroTube.Services.Comments;
+using MicroTube.Data.Models.Videos;
 
 namespace MicroTube.Extensions
 {
-	public static class StartupExtensions
+    public static class StartupExtensions
 	{
 		public static IServiceCollection AddDefaultBasicAuthenticationFlow(this IServiceCollection services)
 		{
@@ -42,10 +47,22 @@ namespace MicroTube.Extensions
 			services.AddScoped<IBasicFlowPasswordHandler, DefaultBasicFlowPasswordHandler>();
 			return services;
 		}
-		public static IServiceCollection AddVideoReactions(this IServiceCollection services)
+		public static IServiceCollection AddReactions(this IServiceCollection services)
 		{
-			services.AddScoped<IVideoReactionsAggregator, DefaultVideoReactionsAggregator>();
-			services.AddScoped<IVideoReactionsService, DefaultVideoReactionsService>();
+			services.AddScoped<ReactionServicesFactory>();
+			services.AddScoped<ILikeDislikeReactionAggregator, LikeDislikeReactionAggregator>();
+			services.AddScoped<ILikeDislikeReactionService, DefaultVideoReactionsService>();
+			services.AddScoped<ILikeDislikeReactionService, LikeDislikeVideoCommentReactionsService>();
+			return services;
+		}
+		public static IServiceCollection AddComments(this IServiceCollection services)
+		{
+			services.AddScoped<CommentServicesFactory>();
+			services.AddScoped<ICommentContentValidator, DefaultCommentContentValidator>();
+			services.AddScoped<IVideoCommentSearchService, VideoCommentSearchService>();
+			services.AddScoped<ISearchMetaProvider<IEnumerable<VideoComment>, VideoCommentSearchMeta>, VideoCommentSearchMetaProvider>();
+			services.AddScoped<ICommentingService, DefaultVideoCommentingService>();
+			services.AddScoped<ICommentReactionsProvider, LikeDislikeVideoCommentReactionsProvider>();
 			return services;
 		}
 		public static IServiceCollection AddElasticsearchClient(this IServiceCollection services, IConfiguration config)
@@ -80,7 +97,7 @@ namespace MicroTube.Extensions
 		public static IServiceCollection AddAzureCdnVideoPreprocessing(this IServiceCollection services)
 		{
 			services.AddTransient<IVideoFileNameGenerator, GuidVideoFileNameGenerator>();
-			services.AddTransient<IRemoteLocationNameGenerator, ExtensionlessFileNameRemoteLocationNameGenerator>();
+			services.AddTransient<IRemoteLocationNameGenerator, FileNameRemoteLocationNameGenerator>();
 			services.AddScoped<VideoPreprocessingStage, UploadVideoSourceToRemoteStorageStage>();
 			services.AddScoped<VideoPreprocessingStage, CreateUploadProgressStage>();
 			services.AddScoped<VideoPreprocessingStage, MakeProcessingJobStage>();
@@ -105,19 +122,18 @@ namespace MicroTube.Extensions
 			services.AddScoped<IVideoProcessingPipeline, DefaultVideoProcessingPipeline>();
 			return services;
 		}
-		
 		public static void ScheduleBackgroundJobs()
 		{
 			RecurringJob.AddOrUpdate<IVideoIndexingService>("VideoSearchIndexing", HangfireConstants.VIDEO_INDEXING_QUEUE, service => service.EnsureVideoIndices(), Cron.Minutely);
 			RecurringJob.AddOrUpdate<IVideoViewsAggregatorService>("VideoViewsAggregation", HangfireConstants.VIDEO_VIEWS_AGGREGATION_QUEUE, service => service.Aggregate(), Cron.Minutely);
 		}
-		public static void EnsureDatabaseCreated(string connectionString)
+		public static void EnsureDatabaseMigrations(string connectionString)
 		{
 			Guard.Against.NullOrWhiteSpace(connectionString);
 			var dbOptionsBuilder = new DbContextOptionsBuilder<MicroTubeDbContext>();
 			dbOptionsBuilder.UseSqlServer(connectionString);
 			using var dbContext = new MicroTubeDbContext(dbOptionsBuilder.Options);
-			dbContext.Database.EnsureCreated();
+			dbContext.Database.Migrate();
 		}
 		public static IServiceCollection AddHangfireClient(this IServiceCollection services, IConfiguration config)
 		{

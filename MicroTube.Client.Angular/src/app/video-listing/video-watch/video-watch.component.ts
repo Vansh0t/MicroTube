@@ -2,56 +2,70 @@ import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { VideoService } from "../../services/videos/VideoService";
 import { BehaviorSubject, Subscription } from "rxjs";
-import { VideoDTO } from "../../data/DTO/VideoDTO";
+import { VideoDto } from "../../data/Dto/VideoDto";
 import mime from "mime";
 import { NgxPlayerComponent, NgxPlayerOptions, QualityOption } from "../ngx-player/ngx-player.component";
 import { TimeFormatter } from "../../services/formatting/TimeFormatter";
 import { DateTime } from "luxon";
 import { VgPlayerPlaytimeTracker } from "../../services/videos/VgPlayerPlaytimeTracker";
 import { VgApiService } from "@videogular/ngx-videogular/core";
-import { VideoSearchService } from "../../services/videos/VideoSearchService";
 import { QueryStringBuilder } from "../../services/query-string-processing/QueryStringBuilder";
+import { MatDialog } from "@angular/material/dialog";
+import { CommentPopupComponent } from "../../comments/comment-popup/comment-popup.component";
+import { CommentsAreaComponent } from "../../comments/comments-area/comments-area.component";
+import { AuthManager } from "../../services/auth/AuthManager";
+import { AuthPopupComponent } from "../../auth/auth-popup/auth-popup.component";
 
 @Component({
   selector: "video-watch",
   templateUrl: "./video-watch.component.html",
-  styleUrls: ["./video-watch.component.css"]
+  styleUrls: ["./video-watch.component.scss"]
 })
 export class VideoWatchComponent implements OnInit, OnDestroy
 {
+  readonly VIDEO_COMMENT_TARGET_KEY = "video";
   private readonly REPORT_VIEW_TIMEOUT_SECONDS = 30;
+  @ViewChild("player") player!: NgxPlayerComponent;
+  video$: BehaviorSubject<VideoDto | null> = new BehaviorSubject<VideoDto | null>(null);
+  @ViewChild("commentsArea") commentsArea!: CommentsAreaComponent;
+  videoId: string | null = null;
   private readonly route: ActivatedRoute;
   private readonly router: Router;
   private readonly videoService: VideoService;
-  private readonly videoSearchService: VideoSearchService;
   private readonly timeFormatter: TimeFormatter;
   private readonly queryBuilder: QueryStringBuilder;
+  private readonly dialog: MatDialog;
   private playtimeTracker: VgPlayerPlaytimeTracker | null = null;
   private videoPlayerOptions: NgxPlayerOptions | null = null;
-  private videoId: string | null = null;
-  private userAuthStateSubscription: Subscription | null = null;
   private userLikeSubscription: Subscription | null = null;
-  @ViewChild("player") player!: NgxPlayerComponent;
-  video$: BehaviorSubject<VideoDTO | null> = new BehaviorSubject<VideoDTO | null>(null);
+  readonly authManager: AuthManager;
+  get endOfCommentsReached()
+  {
+    return this.commentsArea ? this.commentsArea.endOfDataReached : false;
+  }
+  get isLoadingComments()
+  {
+    return this.commentsArea ? this.commentsArea.isLoading : false;
+  }
   constructor(
     route: ActivatedRoute,
     router: Router,
     videoService: VideoService,
     timeFormatter: TimeFormatter,
-    videoSearchService: VideoSearchService,
-    queryBuilder: QueryStringBuilder)
+    queryBuilder: QueryStringBuilder,
+    dialog: MatDialog,
+    authManager: AuthManager)
   {
+    this.dialog = dialog;
     this.route = route;
     this.router = router;
     this.videoService = videoService;
     this.timeFormatter = timeFormatter;
-    this.videoSearchService = videoSearchService;
     this.queryBuilder = queryBuilder;
+    this.authManager = authManager;
   }
   ngOnDestroy(): void
   {
-    this.userAuthStateSubscription?.unsubscribe();
-    this.userAuthStateSubscription = null;
     this.userLikeSubscription?.unsubscribe();
     this.userLikeSubscription = null;
     this.playtimeTracker?.dispose();
@@ -136,6 +150,14 @@ export class VideoWatchComponent implements OnInit, OnDestroy
     this.queryBuilder.setValue("uploaderIdFilter", video.uploaderId.toLowerCase());
     this.queryBuilder.setValue("uploaderAlias", video.uploaderPublicUsername);
     this.queryBuilder.navigate("/");
+  }
+  
+  loadNextCommentsBatch()
+  {
+    if (this.commentsArea)
+    {
+      this.commentsArea.loadNextBatch();
+    }
   }
   private resetSearch() //TO DO: move this to an extension method
   {

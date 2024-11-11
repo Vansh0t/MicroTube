@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MicroTube.Controllers.Videos.DTO;
+using MicroTube.Controllers.Videos.Dto;
 using MicroTube.Data.Access;
-using MicroTube.Data.Models;
 using MicroTube.Services.Authentication;
-using MicroTube.Services.Search;
+using MicroTube.Services.Search.Videos;
 using MicroTube.Services.VideoContent.Likes;
 using MicroTube.Services.VideoContent.Views;
 
@@ -19,72 +17,32 @@ namespace MicroTube.Controllers.Videos
 		private readonly IJwtClaims _jwtClaims;
 		private readonly IVideoViewsAggregatorService _viewsService;
 		private readonly MicroTubeDbContext _db;
-		private readonly IVideoReactionsService _videoReactions;
 		public VideosController(
 			IVideoSearchService searchService,
 			IJwtClaims jwtClaims,
 			IVideoViewsAggregatorService viewsService,
-			MicroTubeDbContext db,
-			IVideoReactionsService videoReactions)
+			MicroTubeDbContext db)
 		{
 			_searchService = searchService;
 			_jwtClaims = jwtClaims;
 			_viewsService = viewsService;
 			_db = db;
-			_videoReactions = videoReactions;
 		}
 		[HttpGet("{id}")]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VideoDTO>))]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VideoDto>))]
 		public async Task<IActionResult> Get(string id)
 		{
+			if(!Guid.TryParse(id, out var guidVideoId))
+			{
+				return BadRequest("Invalid video Id");
+			}
 			var video = await _db.Videos
-				.Select(_=> new VideoDTO 
-				{
-					Id = _.Id.ToString(),
-					Title = _.Title,
-					Urls = _.Urls,
-					Description = _.Description,
-					UploadTime = _.UploadTime,
-					ThumbnailUrls = _.ThumbnailUrls,
-					LengthSeconds = _.LengthSeconds,
-					Likes = _.VideoReactions != null ? _.VideoReactions.Likes : 0,
-					Dislikes = _.VideoReactions != null ? _.VideoReactions.Dislikes : 0,
-					Views = _.VideoViews != null ? _.VideoViews.Views : 0,
-					UploaderPublicUsername = _.Uploader != null ? _.Uploader.PublicUsername : "Unknown",
-					UploaderId = _.UploaderId.ToString()
-				})
-				.FirstOrDefaultAsync(_ => _.Id == id);
+				.Include(_=>_.Uploader)
+				.Include(_=>_.VideoReactionsAggregation)
+				.FirstOrDefaultAsync(_ => _.Id == guidVideoId);
 			if (video == null)
 				return NotFound("Video not found");
-			return Accepted(video);
-		}
-		[HttpPost("{id}/reaction/{reactionType}")]
-		[Authorize]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserVideoReactionDTO))]
-		public async Task<IActionResult> React(string id, ReactionType reactionType)
-		{
-			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
-			if (!isEmailConfirmed)
-				return StatusCode(403, "Email confirmation is required for this action");
-			string userId = _jwtClaims.GetUserId(User);
-			var result = await _videoReactions.SetReaction(userId, id, reactionType);
-			if (result.IsError)
-				return StatusCode(result.Code, result.Error);
-			return Ok(UserVideoReactionDTO.FromModel(result.GetRequiredObject()));
-		}
-		[HttpGet("{id}/reaction")]
-		[Authorize]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserVideoReactionDTO))]
-		public async Task<IActionResult> GetReaction(string id)
-		{
-			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
-			if (!isEmailConfirmed)
-				return StatusCode(403, "Email confirmation is required for this action");
-			string userId = _jwtClaims.GetUserId(User);
-			var likeResult = await _videoReactions.GetReaction(userId, id);
-			if (likeResult.IsError)
-				return StatusCode(likeResult.Code, likeResult.Code);
-			return Ok(UserVideoReactionDTO.FromModel(likeResult.GetRequiredObject()));
+			return Accepted(VideoDto.FromModel(video));
 		}
 		[HttpPost("{id}/view")]
 		[ProducesResponseType(StatusCodes.Status202Accepted)]

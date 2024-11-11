@@ -9,4 +9,6 @@ namespace MicroTube.Services.Search
 	public enum VideoLengthFilterType { None, Short, Medium, Long}
 	[JsonConverter(typeof(StringEnumConverter))]
 	public enum VideoTimeFilterType { None, LastDay, LastWeek, LastMonth, LastSixMonths, LastYear, }
+	[JsonConverter(typeof(StringEnumConverter))]
+	public enum VideoCommentSortType { Top, Newest }
 }

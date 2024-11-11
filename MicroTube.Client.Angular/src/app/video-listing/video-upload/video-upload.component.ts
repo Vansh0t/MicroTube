@@ -5,12 +5,12 @@ import { FileInput } from "ngx-custom-material-file-input";
 import { DefaultVideoFileUploadValidators } from "../../services/validation/DefaultVideoFileUploadValidators";
 import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import { VideoService } from "../../services/videos/VideoService";
-import { VideoUploadDTO } from "../../data/DTO/VideoDTO";
+import { VideoUploadDto } from "../../data/Dto/VideoDto";
 import { Router } from "@angular/router";
 import { HttpErrorResponse, HttpEvent, HttpEventType } from "@angular/common/http";
 import { Subscription } from "rxjs";
 import { InfoService } from "../../services/info/InfoService";
-import { VideoUploadProgressDTO } from "../../data/DTO/VideoUploadProgressDTO";
+import { VideoUploadProgressDto } from "../../data/Dto/VideoUploadProgressDto";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
 
 @Component({
@@ -59,7 +59,7 @@ export class VideoUploadComponent implements OnDestroy
   {
     if (!this.formGroup.valid || this.fileControl.value == null)
       return;
-    const videoData: VideoUploadDTO = {
+    const videoData: VideoUploadDto = {
       title: this.titleControl.value,
       description: this.descriptionControl.value,
       file: this.fileControl.value
@@ -116,7 +116,7 @@ export class VideoUploadComponent implements OnDestroy
     if (this.uploadProgressSubscription != null)
       this.uploadProgressSubscription.unsubscribe();
   }
-  private onUploadEvent(event: HttpEvent<VideoUploadProgressDTO>)
+  private onUploadEvent(event: HttpEvent<VideoUploadProgressDto>)
   {
     if (event.type === HttpEventType.UploadProgress && event.total)
     {

@@ -9,13 +9,18 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
+import { BatchScrollerComponent } from "./batch-scroller/batch-scroller.component";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { ConfirmPopupDialogComponent } from "./confirm-popup-dialog/confirm-popup-dialog.component";
 
 
 
 @NgModule({
   declarations: [
     InfoPopupDialogComponent,
-    SuggestionSearchBarComponent
+    SuggestionSearchBarComponent,
+    BatchScrollerComponent,
+    ConfirmPopupDialogComponent
   ],
   imports: [
     CommonModule,
@@ -25,11 +30,14 @@ import { MatAutocompleteModule } from "@angular/material/autocomplete";
     MatIconModule,
     MatFormFieldModule,
     ReactiveFormsModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatProgressSpinnerModule
   ],
   exports: [
     InfoPopupDialogComponent,
-    SuggestionSearchBarComponent
+    SuggestionSearchBarComponent,
+    BatchScrollerComponent,
+    ConfirmPopupDialogComponent
   ]
 })
 export class UtilityComponentsModule { }

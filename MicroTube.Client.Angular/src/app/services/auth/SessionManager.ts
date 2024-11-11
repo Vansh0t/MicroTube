@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { AuthManager } from "./AuthManager";
 import { JWTUser } from "./JWTUser";
 import { Observable, Subscription, timer } from "rxjs";
-import { AuthenticationResponseDTO } from "../../data/DTO/AuthenticationResponseDTO";
+import { AuthenticationResponseDto } from "../../data/Dto/AuthenticationResponseDto";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { DateTime } from "luxon";
 
@@ -42,20 +42,20 @@ export class SessionManager
         next: this.refreshSession.bind(this)
       });
   }
-  refreshSession(): Observable<AuthenticationResponseDTO>
+  refreshSession(): Observable<AuthenticationResponseDto>
   {
     this.nextRefresh?.unsubscribe();
     const httpOptions = {
       withCredentials: true,
     };
-    const request = this.client.post<AuthenticationResponseDTO>("authentication/session/refresh", null, httpOptions);
+    const request = this.client.post<AuthenticationResponseDto>("authentication/session/refresh", null, httpOptions);
     request.subscribe({
       next: this.onRefreshSuccess.bind(this),
       error: this.onRefreshFail.bind(this)
     });
     return request;
   }
-  private onRefreshSuccess(response: AuthenticationResponseDTO)
+  private onRefreshSuccess(response: AuthenticationResponseDto)
   {
     this.authManager.applyAuthResult(response);
   }

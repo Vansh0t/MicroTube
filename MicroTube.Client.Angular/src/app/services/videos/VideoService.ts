@@ -1,10 +1,11 @@
-import { HttpClient, HttpEvent, HttpRequest, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpEvent, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { VideoDTO, VideoRawDTO, VideoUploadDTO } from "../../data/DTO/VideoDTO";
+import { VideoDto, VideoRawDto, VideoUploadDto } from "../../data/Dto/VideoDto";
 import { Observable, map } from "rxjs";
-import { VideoUploadProgressDTO } from "../../data/DTO/VideoUploadProgressDTO";
+import { VideoUploadProgressDto } from "../../data/Dto/VideoUploadProgressDto";
 import { DateTime, Duration } from "luxon";
-import { UserVideoReactionDTO } from "../../data/DTO/UserVideoReactionDTO";
+import { UserVideoReactionDto } from "../../data/Dto/UserVideoReactionDto";
+import { LikeDislikeReactionType } from "../ReactionTypes";
 
 
 @Injectable({
@@ -24,44 +25,34 @@ export class VideoService
     const result = this.client.post<HttpResponse<null>>(`videos/${videoId}/view`, {});
     return result;
   }
-  react(videoId: string, reaction: VideoReactionType): Observable<UserVideoReactionDTO>
+  getVideo(videoId: string): Observable<VideoDto>
   {
-    const result = this.client.post<UserVideoReactionDTO>(`videos/${videoId}/reaction/${reaction.toString()}`, {});
-    return result;
-  }
-  getReaction(videoId: string): Observable<UserVideoReactionDTO>
-  {
-    const result = this.client.get<UserVideoReactionDTO>(`videos/${videoId}/reaction`);
-    return result;
-  }
-  getVideo(videoId: string): Observable<VideoDTO>
-  {
-    const result = this.client.get<VideoRawDTO>("videos/" + videoId)
+    const result = this.client.get<VideoRawDto>("videos/" + videoId)
       .pipe(
         map(response =>
         {
-          return new VideoDTO(response);
+          return new VideoDto(response);
         })
       );
     return result;
   }
-  uploadVideo(data: VideoUploadDTO): Observable<HttpEvent<VideoUploadProgressDTO>>
+  uploadVideo(data: VideoUploadDto): Observable<HttpEvent<VideoUploadProgressDto>>
   {
     const formData = new FormData();
     formData.append("title", data.title);
     if (data.description != null)
       formData.append("description", data.description);
     formData.append("file", data.file.files[0]);
-    const result = this.client.post<VideoUploadProgressDTO>("videos/videoupload", formData,
+    const result = this.client.post<VideoUploadProgressDto>("videos/videoupload", formData,
       {
         reportProgress: true,
         observe: "events"
       });
     return result;
   }
-  getUploadProgressList(): Observable<VideoUploadProgressDTO[]>
+  getUploadProgressList(): Observable<VideoUploadProgressDto[]>
   {
-    const result = this.client.get<VideoUploadProgressDTO[]>("videos/videoupload/Progress")
+    const result = this.client.get<VideoUploadProgressDto[]>("videos/videoupload/Progress")
       .pipe(
         map(response =>
         {
@@ -81,8 +72,4 @@ export class VideoService
         ));
     return result;
   }
-}
-export enum VideoReactionType
-{
-  None = "None", Like = "Like", Dislike = "Dislike"
 }
