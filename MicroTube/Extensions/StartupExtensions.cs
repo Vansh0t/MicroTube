@@ -127,13 +127,13 @@ namespace MicroTube.Extensions
 			RecurringJob.AddOrUpdate<IVideoIndexingService>("VideoSearchIndexing", HangfireConstants.VIDEO_INDEXING_QUEUE, service => service.EnsureVideoIndices(), Cron.Minutely);
 			RecurringJob.AddOrUpdate<IVideoViewsAggregatorService>("VideoViewsAggregation", HangfireConstants.VIDEO_VIEWS_AGGREGATION_QUEUE, service => service.Aggregate(), Cron.Minutely);
 		}
-		public static void EnsureDatabaseCreated(string connectionString)
+		public static void EnsureDatabaseMigrations(string connectionString)
 		{
 			Guard.Against.NullOrWhiteSpace(connectionString);
 			var dbOptionsBuilder = new DbContextOptionsBuilder<MicroTubeDbContext>();
 			dbOptionsBuilder.UseSqlServer(connectionString);
 			using var dbContext = new MicroTubeDbContext(dbOptionsBuilder.Options);
-			dbContext.Database.EnsureCreated();
+			dbContext.Database.Migrate();
 		}
 		public static IServiceCollection AddHangfireClient(this IServiceCollection services, IConfiguration config)
 		{

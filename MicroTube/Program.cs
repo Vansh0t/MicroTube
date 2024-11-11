@@ -52,7 +52,7 @@ builder.Services.AddSingleton<IEmailTemplatesProvider, DefaultEmailTemplatesProv
 builder.Services.AddSingleton<IVideoPreUploadValidator, DefaultVideoPreUploadValidator>();
 builder.Services.AddSingleton<IVideoFileNameGenerator, GuidVideoFileNameGenerator>();
 if (!isStartupTest)
-	StartupExtensions.EnsureDatabaseCreated(config.GetDefaultConnectionString());
+	StartupExtensions.EnsureDatabaseMigrations(config.GetDefaultConnectionString());
 builder.Services.AddDefaultBasicAuthenticationFlow();
 builder.Services.AddAzureCdnVideoPreprocessing();
 builder.Services.AddAzureCdnVideoProcessing();
