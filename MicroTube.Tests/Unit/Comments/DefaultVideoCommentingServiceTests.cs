@@ -27,7 +27,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
 			mockContentValidator.Validate("").ReturnsForAnyArgs(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			string commentContent = "Some comment content";
 			var commentResult = await service.Comment(user.Id.ToString(), video.Id.ToString(), commentContent);
@@ -56,7 +56,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
 			mockContentValidator.Validate("").ReturnsForAnyArgs(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			string commentContent = "Some comment content";
 			var commentResult = await service.Comment(user.Id.ToString(), video.Id.ToString(), commentContent);
@@ -90,7 +90,7 @@ namespace MicroTube.Tests.Unit.Comments
 			mockContentValidator.Validate(Arg.Is<string>(_=> _ !=validContent)).Returns(ServiceResult.Fail(400, "Bad content"));
 			mockContentValidator.Validate(Arg.Is<string>(_ => _ == validContent)).Returns(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			var commentResult = await service.Comment(userId!, videoId!, content!);
 			Assert.True(commentResult.IsError);
@@ -113,7 +113,7 @@ namespace MicroTube.Tests.Unit.Comments
 			mockContentValidator.Validate(Arg.Is<string>(_ => _ != validContent)).Returns(ServiceResult.Fail(400, "Bad content"));
 			mockContentValidator.Validate(Arg.Is<string>(_ => _ == validContent)).Returns(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			var commentResult = await service.Comment(userId!, videoId!, validContent);
 			Assert.True(commentResult.IsError);
@@ -132,7 +132,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
 			mockContentValidator.Validate("").ReturnsForAnyArgs(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			var commentResult = await service.EditComment(user.Id.ToString(), editedContent, comment.Id.ToString());
 			Assert.False(commentResult.IsError);
@@ -158,7 +158,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
 			mockContentValidator.Validate("").ReturnsForAnyArgs(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			var commentResult = await service.EditComment(user.Id.ToString(), editedContent, "3a3e152e-dcd1-4a1f-af6d-d1099a069227");
 			Assert.True(commentResult.IsError);
@@ -192,7 +192,7 @@ namespace MicroTube.Tests.Unit.Comments
 			mockContentValidator.Validate(Arg.Is<string>(_ => _ != validEditedContent)).Returns(ServiceResult.Fail(400, "Bad content"));
 			mockContentValidator.Validate(Arg.Is<string>(_ => _ == validEditedContent)).Returns(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			var commentResult = await service.EditComment(userId!, editedContent!, commentId!);
 			Assert.True(commentResult.IsError);
@@ -216,7 +216,7 @@ namespace MicroTube.Tests.Unit.Comments
 			mockContentValidator.Validate(Arg.Is<string>(_ => _ != validEditedContent)).Returns(ServiceResult.Fail(400, "Bad content"));
 			mockContentValidator.Validate(Arg.Is<string>(_ => _ == validEditedContent)).Returns(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			var commentResult = await service.EditComment(impostorId.ToString(), validEditedContent, validCommentId.ToString());
 			Assert.True(commentResult.IsError);
@@ -234,7 +234,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
 			mockContentValidator.Validate("").ReturnsForAnyArgs(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			var deleteResult = await service.DeleteComment(user.Id.ToString(), comment.Id.ToString());
 			Assert.False(deleteResult.IsError);
@@ -256,7 +256,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
 			mockContentValidator.Validate("").ReturnsForAnyArgs(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			var deleteResult = await service.DeleteComment(impostorUser.Id.ToString(), comment.Id.ToString());
 			Assert.True(deleteResult.IsError);
@@ -288,7 +288,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
 			mockContentValidator.Validate("").ReturnsForAnyArgs(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			var deleteResult = await service.DeleteComment(userId!, commentId!);
 			Assert.True(deleteResult.IsError);
@@ -306,7 +306,7 @@ namespace MicroTube.Tests.Unit.Comments
 			var mockContentValidator = Substitute.For<ICommentContentValidator>();
 			mockContentValidator.Validate("").ReturnsForAnyArgs(ServiceResult.Success());
 			var mockLogger = Substitute.For<ILogger<DefaultVideoCommentingService>>();
-			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregator>();
+			var mockReactionsAggregator = Substitute.For<ILikeDislikeReactionAggregationHandler>();
 			DefaultVideoCommentingService service = new DefaultVideoCommentingService(db, mockLogger, mockContentValidator, mockReactionsAggregator);
 			var deleteResult = await service.DeleteComment(user.Id.ToString(), "3a3e152e-dcd1-4a1f-af6d-d1099a069227");
 			Assert.True(deleteResult.IsError);
