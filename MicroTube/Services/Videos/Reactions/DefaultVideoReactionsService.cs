@@ -12,16 +12,16 @@ namespace MicroTube.Services.VideoContent.Likes
     public class DefaultVideoReactionsService : ILikeDislikeReactionService
 	{
 		private readonly ILogger<DefaultVideoReactionsService> _logger;
-		private readonly ILikeDislikeReactionAggregator _reactionsAggregator;
+		private readonly ILikeDislikeReactionAggregationHandler _aggregationHandler;
 		private readonly MicroTubeDbContext _db;
 		public DefaultVideoReactionsService(
 			ILogger<DefaultVideoReactionsService> logger,
 			MicroTubeDbContext db,
-			ILikeDislikeReactionAggregator reactionsAggregator)
+			ILikeDislikeReactionAggregationHandler aggregationHandler)
 		{
 			_logger = logger;
 			_db = db;
-			_reactionsAggregator = reactionsAggregator;
+			_aggregationHandler = aggregationHandler;
 		}
 
 		public async Task<IServiceResult<ILikeDislikeReaction>> SetReaction(string userId, string videoId, LikeDislikeReactionType reactionType)
@@ -30,10 +30,19 @@ namespace MicroTube.Services.VideoContent.Likes
 			{
 				return ServiceResult<ILikeDislikeReaction>.Fail(400, "Invalid user or video id.");
 			} 
-			using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
+			using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync();
 			try
 			{
-				VideoReactionsAggregation reactionsAggregation = await GetReactionsAggregation(guidVideoId);
+				var validUserExists = await _db.Users.AnyAsync(_ => _.Id == guidUserId && _.IsEmailConfirmed);
+				if (!validUserExists)
+				{
+					return ServiceResult<ILikeDislikeReaction>.Fail(403, "Email confirmation is required for this action");
+				}
+				bool videoExists = await _db.Videos.AnyAsync(_ => _.Id == guidVideoId);
+				if (!videoExists)
+				{
+					return ServiceResult<ILikeDislikeReaction>.Fail(404, "Target video does not exist.");
+				}
 				(VideoReaction reaction, bool created) = await GetOrCreateReaction(guidUserId, guidVideoId);
 				if (created)
 				{
@@ -43,7 +52,7 @@ namespace MicroTube.Services.VideoContent.Likes
 				{
 					return ServiceResult<ILikeDislikeReaction>.Success(reaction);
 				}
-				reactionsAggregation = (VideoReactionsAggregation)_reactionsAggregator.UpdateReactionsAggregation(reactionsAggregation, reactionType, reaction.ReactionType);
+				await UpdateReactionsAggregation(guidVideoId, reactionType, reaction.ReactionType);
 				reaction.ReactionType = reactionType;
 				await SetReindexingRequired(guidVideoId);
 				_db.SaveChanges();
@@ -84,18 +93,31 @@ namespace MicroTube.Services.VideoContent.Likes
 			}
 			return (reaction, false);
 		}
-		private async Task<VideoReactionsAggregation> GetReactionsAggregation(Guid videoId)
+		private async Task UpdateReactionsAggregation(Guid videoId, LikeDislikeReactionType reactionType, LikeDislikeReactionType prevReactionType)
 		{
-			VideoReactionsAggregation? reactionsAggregation = await _db.VideoAggregatedReactions.FirstOrDefaultAsync(_ => _.VideoId == videoId);
-			if (reactionsAggregation == null)
-				throw new RequiredObjectNotFoundException($"Reactions for video with id {videoId} not found");
-			return reactionsAggregation;
+			var aggregationChanges = _aggregationHandler.GetAggregationChange(reactionType, prevReactionType);
+			if (aggregationChanges.DislikesChange != 0 || aggregationChanges.LikesChange != 0)
+			{
+				var rowsAffected = await _db.VideoAggregatedReactions
+					.Where(_ => _.VideoId == videoId)
+					.ExecuteUpdateAsync(_ => _.SetProperty(__ => __.Likes, __ => __.Likes + aggregationChanges.LikesChange)
+										.SetProperty(__ => __.Dislikes, __ => __.Dislikes + aggregationChanges.DislikesChange));
+				if (rowsAffected == 0)
+				{
+					throw new DataAccessException("No rows were affected by the aggregation update.");
+				}
+			}
 		}
-		private async Task<VideoSearchIndexing> SetReindexingRequired(Guid videoId)
+		private async Task SetReindexingRequired(Guid videoId)
 		{
-			VideoSearchIndexing videoIndexing = await _db.VideoSearchIndexing.FirstAsync(_ => _.VideoId == videoId);
-			videoIndexing.ReindexingRequired = true;
-			return videoIndexing;
+			var rowsAffected = await _db.VideoSearchIndexing
+					.Where(_ => _.VideoId == videoId)
+					.ExecuteUpdateAsync(_ => _.SetProperty(__ => __.ReindexingRequired, __ =>  true));
+			if (rowsAffected == 0)
+			{
+				throw new DataAccessException("No rows were affected by the aggregation update.");
+			}
 		}
+
 	}
 }

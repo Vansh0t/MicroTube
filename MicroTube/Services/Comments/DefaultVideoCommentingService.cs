@@ -13,13 +13,13 @@ namespace MicroTube.Services.Comments
         private readonly MicroTubeDbContext _db;
         private readonly ILogger<DefaultVideoCommentingService> _logger;
         private readonly ICommentContentValidator _contentValidator;
-        private readonly ILikeDislikeReactionAggregator _reactionAggregator;
+        private readonly ILikeDislikeReactionAggregationHandler _reactionAggregator;
 
         public DefaultVideoCommentingService(
             MicroTubeDbContext db,
             ILogger<DefaultVideoCommentingService> logger,
             ICommentContentValidator contentValidator,
-            ILikeDislikeReactionAggregator reactionAggregator)
+			ILikeDislikeReactionAggregationHandler reactionAggregator)
         {
             _db = db;
             _logger = logger;
