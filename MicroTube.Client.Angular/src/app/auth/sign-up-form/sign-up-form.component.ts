@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { DefaultAuthValidators } from "../../services/validation/DefaultAuthValidators";
 import { AuthManager } from "../../services/auth/AuthManager";
 import { EmailPasswordAuthProvider } from "../../services/auth/providers/EmailPasswordAuthProvider";
-import { SignUpEmailPasswordDTO } from "../../data/DTO/SignUpEmailPasswordDTO";
+import { SignUpEmailPasswordDto } from "../../data/Dto/SignUpEmailPasswordDto";
 import { Subscription } from "rxjs";
 import { Router } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -134,7 +134,7 @@ export class SignUpFormComponent {
   {
     if (!this.formGroup.valid)
       return;
-    this.authProvider.signUpData = new SignUpEmailPasswordDTO(this.usernameControl.value, this.emailControl.value, this.passwordControl.value);
+    this.authProvider.signUpData = new SignUpEmailPasswordDto(this.usernameControl.value, this.emailControl.value, this.passwordControl.value);
     this.authManager.signUp(this.authProvider, this.rememberMeControl.value, this.onServerError.bind(this));
   }
   getServerError()

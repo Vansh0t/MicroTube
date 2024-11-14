@@ -22,10 +22,12 @@ import { MatOptionModule } from "@angular/material/core";
 import { MatSelectModule } from "@angular/material/select";
 import { NgxPlayerComponent } from "./ngx-player/ngx-player.component";
 import { AppAuthModule } from "../auth/auth.module";
-import { LikeComponent } from "./video-reaction-component/video-reaction.component";
+import { VideoReactionComponent } from "./video-reaction-component/video-reaction.component";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { VideoPlayerQualityDialogComponent } from "./video-player-quality-dialog/video-player-quality-dialog.component";
+import { CommentsModule } from "../comments/comments.module";
+import { UtilityComponentsModule } from "../utility-components/utility-components.module";
 
 
 @NgModule({
@@ -35,7 +37,7 @@ import { VideoPlayerQualityDialogComponent } from "./video-player-quality-dialog
     VideoWatchComponent,
     VideoUploadComponent,
     UploadProgressListComponent,
-    LikeComponent,
+    VideoReactionComponent,
     VideoPlayerQualityDialogComponent
   ],
   imports: [
@@ -58,7 +60,9 @@ import { VideoPlayerQualityDialogComponent } from "./video-player-quality-dialog
     NgxPlayerComponent,
     AppAuthModule,
     MatChipsModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    CommentsModule,
+    UtilityComponentsModule
   ],
   exports: [
     VideoCardComponent,

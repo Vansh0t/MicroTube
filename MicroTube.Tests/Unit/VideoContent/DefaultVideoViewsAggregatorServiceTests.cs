@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MicroTube.Data.Access;
 using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.VideoContent.Views;
 using MicroTube.Tests.Utils;
 using NSubstitute;
@@ -8,7 +9,7 @@ using System.Net;
 
 namespace MicroTube.Tests.Unit.VideoContent
 {
-	public class DefaultVideoViewsAggregatorServiceTests
+    public class DefaultVideoViewsAggregatorServiceTests
 	{
 		[Fact]
 		public async Task CreateViewForAggregation_Success()

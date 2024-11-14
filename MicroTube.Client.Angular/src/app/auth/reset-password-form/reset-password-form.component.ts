@@ -3,7 +3,7 @@ import { FormControl, Validators } from "@angular/forms";
 import { EmailPasswordAuthProvider } from "../../services/auth/providers/EmailPasswordAuthProvider";
 import { MatDialog } from "@angular/material/dialog";
 import { InfoPopupDialogComponent } from "../../utility-components/info-popup-dialog/info-popup-dialog.component";
-import { MessageDTO } from "../../data/DTO/MessageDTO";
+import { MessageDto } from "../../data/Dto/MessageDto";
 
 @Component({
   selector: "reset-password-form",
@@ -41,7 +41,7 @@ export class ResetPasswordFormComponent
         error: (error) => console.error(error)
     });
   }
-  private onResponse(response: MessageDTO)
+  private onResponse(response: MessageDto)
   {
     console.log(response);
     this.dialog.open(InfoPopupDialogComponent, {

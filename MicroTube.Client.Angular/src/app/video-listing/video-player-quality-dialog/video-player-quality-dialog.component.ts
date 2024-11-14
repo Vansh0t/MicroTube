@@ -1,4 +1,4 @@
-import { Component, Inject, Input } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 import { QualityOption } from "../ngx-player/ngx-player.component";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
@@ -17,7 +17,6 @@ export class VideoPlayerQualityDialogComponent
   {
     this.dialogRef = dialogRef;
     this.data = data;
-    console.log(data);
   }
 
   selectQuality(qualityOption: QualityOption): void

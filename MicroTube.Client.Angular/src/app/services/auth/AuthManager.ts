@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { JWTUser } from "./JWTUser";
 import { IAuthProvider } from "./providers/IAuthProvider";
 import { BehaviorSubject} from "rxjs";
-import { AuthenticationResponseDTO } from "../../data/DTO/AuthenticationResponseDTO";
+import { AuthenticationResponseDto } from "../../data/Dto/AuthenticationResponseDto";
 import { HttpErrorResponse } from "@angular/common/http";
 
 @Injectable({
@@ -79,7 +79,7 @@ export class AuthManager
     }
     return true;
   }
-  applyAuthResult(response: AuthenticationResponseDTO)
+  applyAuthResult(response: AuthenticationResponseDto)
   {
     if (response == null || response.jwt == null || response.jwt.trim() == "")
       throw new Error("Got invalid sign in response. The response or response.jwt is null");

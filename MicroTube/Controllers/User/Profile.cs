@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MicroTube.Controllers.User.DTO;
+using MicroTube.Controllers.User.Dto;
 using MicroTube.Data.Access;
 using MicroTube.Services.Authentication;
 
@@ -23,7 +23,7 @@ namespace MicroTube.Controllers.User
 		}
 		[HttpGet]
 		[Authorize]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO))]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> GetUser()
 		{
@@ -31,7 +31,7 @@ namespace MicroTube.Controllers.User
 			var user = await _db.Users.FirstOrDefaultAsync(_ => _.Id == new Guid(userId));
 			if (user == null)
 				return NotFound("User does not exists");
-			return Ok(new UserDTO(user.Id.ToString(), user.Username, user.Email, user.PublicUsername, user.IsEmailConfirmed ));
+			return Ok(new UserDto(user.Id.ToString(), user.Username, user.Email, user.PublicUsername, user.IsEmailConfirmed ));
 		}
         
     }

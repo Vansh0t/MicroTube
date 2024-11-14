@@ -43,48 +43,32 @@ namespace MicroTube.Services.Authentication.BasicFlow
 		public async Task<IServiceResult<AppUser>> CreateUser(
 			string username, string email, string password)
 		{
-			var validationResult = ValidateUserCreationParameters(username, email, password);
-			if (validationResult.IsError)
-			{
-				return ServiceResult<AppUser>.Fail(400, validationResult.Error!);
-			}
-
-			string encryptedPassword;
+			using var transaction = await _db.Database.BeginTransactionAsync();
 			try
 			{
-				encryptedPassword = _passwordEncryption.Encrypt(password);
-			}
-			catch (Exception e)
-			{
-				_logger.LogError(e, "Failed to encrypt a password of length " + password.Length);
-				return ServiceResult<AppUser>.FailInternal();
-			}
-
-			BasicFlowAuthenticationData authData = new BasicFlowAuthenticationData { PasswordHash = encryptedPassword };
-			string confirmationString;
-			try
-			{
-				authData = _basicFlowEmailHandler.ApplyEmailConfirmation(authData, out confirmationString);
-			}
-			catch (Exception e)
-			{
-				_logger.LogError(e, "Failed to apply  email confirmation.");
-				return ServiceResult<AppUser>.FailInternal();
-			}
-			var newUser = new AppUser
-			{
-				Email = email,
-				Username = username,
-				Authentication = authData,
-				IsEmailConfirmed = false,
-				PublicUsername = username
-			};
-			authData.User = newUser;
-			try
-			{
+				var validationResult = ValidateUserCreationParameters(username, email, password);
+				if (validationResult.IsError)
+				{
+					return ServiceResult<AppUser>.Fail(400, validationResult.Error!);
+				}
+				string encryptedPassword = _passwordEncryption.Encrypt(password);
+				BasicFlowAuthenticationData authData = new BasicFlowAuthenticationData { PasswordHash = encryptedPassword };
+				authData = _basicFlowEmailHandler.ApplyEmailConfirmation(authData, out var confirmationString);
+				var newUser = new AppUser
+				{
+					Email = email,
+					Username = username,
+					Authentication = authData,
+					IsEmailConfirmed = false,
+					PublicUsername = username
+				};
+				authData.User = newUser;
 				_db.AddRange(newUser, authData);
-				await _db.SaveChangesAsync();
+				_db.SaveChanges();
 				await _emailManager.SendEmailConfirmation(newUser.Email, confirmationString);
+				_logger.LogInformation("New user {username} created with id {id}.", newUser.Username, newUser.Id);
+				await transaction.CommitAsync();
+				return new ServiceResult<AppUser>(201, newUser);
 			}
 			catch (UniqueConstraintException uniqueConstraintException)
 			{
@@ -95,15 +79,15 @@ namespace MicroTube.Services.Authentication.BasicFlow
 					return ServiceResult<AppUser>.Fail(400, "Username or Email are already in use.");
 				}
 				_logger.LogError(uniqueConstraintException, "Failed to insert new user into database with unhandled SQL exception.");
+				await transaction.RollbackAsync();
 				return ServiceResult<AppUser>.FailInternal();
 			}
 			catch (Exception e)
 			{
 				_logger.LogError(e, "Failed to insert new user into database with unhandled exception.");
+				await transaction.RollbackAsync();
 				return ServiceResult<AppUser>.FailInternal();
 			}
-			_logger.LogInformation("New user {username} created with id {id}.", newUser.Username, newUser.Id);
-			return new ServiceResult<AppUser>(201, newUser);
 		}
 		public async Task<IServiceResult<AppUser>> SignIn(string credential, string password)
 		{

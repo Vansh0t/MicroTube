@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MicroTube.Controllers.Authentication.DTO;
+using MicroTube.Controllers.Authentication.Dto;
 using MicroTube.Services.Authentication;
 
 namespace MicroTube.Controllers.Authentication
@@ -18,7 +18,7 @@ namespace MicroTube.Controllers.Authentication
 		}
 
 		[HttpPost("Refresh")]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDTO))]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponseDto))]
 		public async Task<IActionResult> Refresh()
 		{
 			if(!HttpContext.Request.Cookies.TryGetValue(Constants.AuthorizationConstants.REFRESH_TOKEN_COOKIE_KEY, out string? refreshToken) 
@@ -32,7 +32,7 @@ namespace MicroTube.Controllers.Authentication
 			var newSession = refreshResult.GetRequiredObject();
 
 			HttpContext.AddRefreshTokenCookie(_config, newSession.RefreshTokenRaw, newSession.Session.Expiration);
-			return Ok(new AuthenticationResponseDTO(newSession.AccessToken));
+			return Ok(new AuthenticationResponseDto(newSession.AccessToken));
 		}
     }
 }

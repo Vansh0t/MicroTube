@@ -1,6 +1,6 @@
 ﻿using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.QueryDsl;
-using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
 using MicroTube.Services.ConfigOptions;
 
 namespace MicroTube.Data.Access.Elasticsearch

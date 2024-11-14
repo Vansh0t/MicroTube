@@ -1,11 +1,12 @@
 ﻿using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Core.Search;
-using MicroTube.Data.Models;
+using MicroTube.Data.Models.Videos;
+using MicroTube.Services.Search.Videos;
 using System.Text.Json;
 
 namespace MicroTube.Services.Search
 {
-	public class ElasticsearchSearchMetaProvider : ISearchMetaProvider<SearchResponse<VideoSearchIndex>, ElasticsearchMeta>
+    public class ElasticsearchSearchMetaProvider : ISearchMetaProvider<SearchResponse<VideoSearchIndex>, ElasticsearchMeta>
 	{
 		public ElasticsearchMeta? BuildMeta(SearchResponse<VideoSearchIndex> data)
 		{

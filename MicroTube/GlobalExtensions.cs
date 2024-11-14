@@ -1,25 +1,9 @@
-﻿using Azure.Storage.Blobs;
-using Elastic.Clients.Elasticsearch;
-using Elastic.Clients.Elasticsearch.Analysis;
-using Elastic.Clients.Elasticsearch.IndexManagement;
-using Elastic.Clients.Elasticsearch.Mapping;
-using Elastic.Transport;
-using MicroTube.Data.Access.Elasticsearch;
-using MicroTube.Data.Access;
+﻿using Elastic.Transport;
 using MicroTube.Data.Models;
 using MicroTube.Services;
 using MicroTube.Services.Authentication;
-using MicroTube.Services.ConfigOptions;
 using MicroTube.Services.Cryptography;
-using MicroTube.Services.Search;
-using MicroTube.Services.Authentication.BasicFlow;
-using MicroTube.Services.VideoContent.Reactions;
-using MicroTube.Services.VideoContent.Likes;
-using Elastic.Transport.Products.Elasticsearch;
-using MicroTube.Services.Validation;
-using System.IO;
 using System.IO.Abstractions;
-using System;
 
 namespace MicroTube
 {

@@ -1,5 +1,5 @@
 import { ActivatedRoute } from "@angular/router";
-import { VideoSearchParametersDTO } from "../../data/DTO/VideoSearchDTO";
+import { VideoSearchParametersDto } from "../../data/Dto/VideoSearchDto";
 import { Injectable } from "@angular/core";
 
 @Injectable({
@@ -14,7 +14,7 @@ export class VideoSearchQueryStringReader
     this.activatedRoute = activatedRoute;
   }
 
-  readSearchParameters(): VideoSearchParametersDTO
+  readSearchParameters(): VideoSearchParametersDto
   {
     const textParam = <string>this.activatedRoute.snapshot.queryParams["text"]?.trim();
     const sortParam = <string>this.activatedRoute.snapshot.queryParams["sort"]?.trim();
@@ -23,7 +23,7 @@ export class VideoSearchQueryStringReader
     const uploaderIdFilterParam = <string>this.activatedRoute.snapshot.queryParams["uploaderIdFilter"]?.trim();
     const uploaderAliasParam = <string>this.activatedRoute.snapshot.queryParams["uploaderAlias"]?.trim();
     const batchSizeParam = <number>this.activatedRoute.snapshot.queryParams["batchSize"]?.trim();
-    const params: VideoSearchParametersDTO = {
+    const params: VideoSearchParametersDto = {
       text: textParam,
       sort: sortParam,
       timeFilter: timeFilterParam,

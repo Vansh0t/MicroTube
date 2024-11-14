@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { EmailPasswordAuthProvider } from "../../services/auth/providers/EmailPasswordAuthProvider";
 import { AuthManager } from "../../services/auth/AuthManager";
-import { SignInCredentialPasswordDTO } from "../../data/DTO/SignInCredentialPasswordDTO";
+import { SignInCredentialPasswordDto } from "../../data/Dto/SignInCredentialPasswordDto";
 import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
@@ -51,7 +51,7 @@ export class SignInFormComponent
   {
     if (!this.formGroup.valid)
       return;
-    const signInData = new SignInCredentialPasswordDTO(<string>this.credentialControl.value, <string>this.passwordControl.value);
+    const signInData = new SignInCredentialPasswordDto(<string>this.credentialControl.value, <string>this.passwordControl.value);
     this.authProvider.signInData = signInData;
     this.authManager.signIn(this.authProvider, <boolean>this.rememberMeControl.value, this.onServerError.bind(this));
   }

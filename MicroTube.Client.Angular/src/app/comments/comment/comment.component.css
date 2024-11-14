@@ -1,0 +1,59 @@
+.main-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-width: 800px;
+}
+.alias-time-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  max-height: 2rem;
+}
+.time-text {
+  color: var(--text-secondary-color);
+}
+.content-text {
+  word-wrap:break-word;
+}
+.like {
+  opacity: 0.5;
+}
+
+.like-active {
+  opacity: 1;
+}
+
+.reactions-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  gap: 0.8rem;
+  transform: scale(0.8);
+  transform-origin: left top;
+  margin-left: -0.5rem;
+  margin-top: -0.25rem;
+}
+.like-container {
+  display: flex;
+  flex-direction:row;
+  align-items: center;
+}
+.like-container h4 {
+  margin: 0;
+}
+.more-actions-button {
+  transform-origin: left;
+  transform: scale(0.65);
+  
+}
+.actions-menu-container {
+  display:flex;
+  flex-direction:column;
+  align-items:start;
+}
+.actions-menu-item {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}

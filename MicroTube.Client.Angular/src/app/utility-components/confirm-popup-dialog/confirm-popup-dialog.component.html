@@ -1,0 +1,17 @@
+<div mat-dialog-content class="main-container">
+
+	<!-- <p class="mat-body">{{info}}</p> -->
+	<mat-dialog-content #content  [innerHTML]="info">
+	</mat-dialog-content>
+	<div class="action-buttons-container">
+		@if(importance == "High") {
+		<button mat-raised-button color="warn" (click)="confirm()">Confirm</button>
+		<button mat-raised-button color="primary" (click)="cancel()">Cancel</button>
+		}
+		@else {
+		<button mat-stroked-button color="primary" (click)="cancel()">Cancel</button>
+		<button mat-stroked-button color="primary" (click)="confirm()">Confirm</button>
+		}
+	</div>
+	
+</div>
