@@ -41,5 +41,6 @@ MicroTube is a video hosting and streaming service made with [.NET](https://dotn
 Development endpoints:
  - Web UI: https://localhost44466
  - API: https://localhost:7146/swagger
- - Dev SMTP: http://localhost:5000
+ - Dev SMTP: http://localhost:5000 (all emails will end up here)
  - Kibana: http://localhost:5601
+ - Elasticsearch: http://localhost:9200
