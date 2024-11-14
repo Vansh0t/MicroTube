@@ -50,7 +50,7 @@ namespace MicroTube.Extensions
 		public static IServiceCollection AddReactions(this IServiceCollection services)
 		{
 			services.AddScoped<ReactionServicesFactory>();
-			services.AddScoped<ILikeDislikeReactionAggregator, LikeDislikeReactionAggregator>();
+			services.AddScoped<ILikeDislikeReactionAggregationHandler, LikeDislikeReactionAggregationHandler>();
 			services.AddScoped<ILikeDislikeReactionService, DefaultVideoReactionsService>();
 			services.AddScoped<ILikeDislikeReactionService, LikeDislikeVideoCommentReactionsService>();
 			return services;
