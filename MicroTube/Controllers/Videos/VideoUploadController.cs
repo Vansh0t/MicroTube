@@ -7,6 +7,7 @@ using MicroTube.Data.Access;
 using MicroTube.Services.Authentication;
 using MicroTube.Services.VideoContent.Preprocessing;
 using MicroTube.Services.VideoContent.Preprocessing.Stages;
+using MicroTube.Services.Videos;
 
 namespace MicroTube.Controllers.Videos
 {
@@ -17,43 +18,74 @@ namespace MicroTube.Controllers.Videos
 		private readonly IJwtClaims _jwtClaims;
 		private readonly MicroTubeDbContext _db;
 		private readonly IVideoPreprocessingPipeline _preprocessingPipeline;
+		private readonly IVideoUploadLinkProvider _uploadLinkProvider;
+		private readonly IRemoteStorageVideoMetaHandler _metaHandler;
 		public VideoUploadController(
 			IJwtClaims jwtClaims,
 			MicroTubeDbContext db,
-			IVideoPreprocessingPipeline preprocessingPipeline)
+			IVideoPreprocessingPipeline preprocessingPipeline,
+			IVideoUploadLinkProvider uploadLinkProvider,
+			IRemoteStorageVideoMetaHandler metaHandler)
 		{
 			_jwtClaims = jwtClaims;
 			_db = db;
 			_preprocessingPipeline = preprocessingPipeline;
+			_uploadLinkProvider = uploadLinkProvider;
+			_metaHandler = metaHandler;
 		}
 
-		[HttpPost]
+		[HttpPost("link")]
 		[Authorize]
-		[DisableRequestSizeLimit]
-		[RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = long.MaxValue)]
-		[ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(VideoUploadProgressDto))]
-		public async Task<IActionResult> Upload([FromForm] VideoUploadDto uploadData)
+		public async Task<IActionResult> GetUploadLink(VideoUploadDto uploadData)
 		{
 			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
 			if (!isEmailConfirmed)
 				return StatusCode(403, "Email confirmation is required for this action");
 			string userId = _jwtClaims.GetUserId(User);
-			var preprocessingData = new VideoPreprocessingData(userId, uploadData.Title, uploadData.Description, uploadData.File);
-			var preprocessingResult = await _preprocessingPipeline.Execute(new DefaultVideoPreprocessingContext {PreprocessingData = preprocessingData });
-			var uploadProgress = preprocessingResult.UploadProgress;
-			Guard.Against.Null(uploadProgress);
-			var result = new VideoUploadProgressDto(
-				userId,
-				uploadProgress.Status,
-				uploadData.Title,
-				uploadProgress.Description,
-				uploadProgress.Message,
-				uploadProgress.Timestamp,
-				uploadProgress.LengthSeconds,
-				uploadProgress.Fps,
-				uploadProgress.FrameSize,
-				uploadProgress.Format);
-			return Accepted(result);
+			Dictionary<string, string?> meta = new Dictionary<string, string?>();
+			_metaHandler.WriteTitle(meta, uploadData.Title);
+			_metaHandler.WriteDescription(meta, uploadData.Description);
+			_metaHandler.WriteUploaderId(meta, userId);
+			var linkResult = await _uploadLinkProvider.GetUploadLink(uploadData.FileName, meta);
+			if(linkResult.IsError)
+			{
+				return StatusCode(linkResult.Code, linkResult.Error);
+			}
+			return Ok(linkResult.GetRequiredObject());
+		}
+		[HttpPost("notify")]
+		[Authorize]
+		public async Task<IActionResult> NotifyVideoSourceUploadComplete(VideoNotifyUploadDto notifyUploadData)
+		{
+			bool isEmailConfirmed = _jwtClaims.GetIsEmailConfirmed(User);
+			if (!isEmailConfirmed)
+				return StatusCode(403, "Email confirmation is required for this action");
+			string userId = _jwtClaims.GetUserId(User);
+			var preprocessingData = new VideoPreprocessingData(userId, notifyUploadData.GeneratedFileName, notifyUploadData.GeneratedLocationName);
+			//TO DO: This needs better error handling
+			try
+			{
+				var preprocessingResult = await _preprocessingPipeline.Execute(new DefaultVideoPreprocessingContext { PreprocessingData = preprocessingData });
+				var uploadProgress = preprocessingResult.UploadProgress;
+				Guard.Against.Null(uploadProgress);
+				var result = new VideoUploadProgressDto(
+					userId,
+					uploadProgress.Status,
+					uploadProgress.Title,
+					uploadProgress.Description,
+					uploadProgress.Message,
+					uploadProgress.Timestamp,
+					uploadProgress.LengthSeconds,
+					uploadProgress.Fps,
+					uploadProgress.FrameSize,
+					uploadProgress.Format);
+				return Accepted(result);
+			}
+			catch (RequiredObjectNotFoundException)
+			{
+				return NotFound("Video file was not found in remote location");
+			}
+			
 		}
 		[HttpGet("progress")]
 		[Authorize]

@@ -34,7 +34,7 @@ bool isStartupTest = config.GetValue<bool>("StartupTest");
 builder.Services.AddDbContext<MicroTubeDbContext>(
 	options => options.UseSqlServer(config.GetDefaultConnectionString())
 					  .UseExceptionProcessor());
-builder.Services.AddAzureBlobRemoteStorage(config.GetRequiredValue("AzureBlobStorage:ConnectionString"));
+builder.Services.AddAzureBlobRemoteStorage(config);
 builder.Services.AddSingleton<IMD5HashProvider, MD5HashProvider>();
 builder.Services.AddSingleton<IVideoAnalyzer, FFMpegVideoAnalyzer>();
 builder.Services.AddSingleton<IFileSystem, FileSystem>();

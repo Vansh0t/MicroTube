@@ -1,5 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Azure.Storage.Blobs.Models;
+using MicroTube.Extensions;
 using MicroTube.Services.ConfigOptions;
 using System.IO.Abstractions;
 using System.Threading;
@@ -52,7 +53,7 @@ namespace MicroTube.Services.ContentStorage
 					}
 				};
 				BulkUploadResult result = await _videoRemoteStorage.UploadDirectory(directory, accessOptions, uploadOptions, cancellationToken);
-				var urls = result.SuccessfulUploadsFileNames.Select(_ => new Uri(videoUploadOptions.CdnUrl.JoinUrl($"{remoteLocation}/{_}")));
+				var urls = result.SuccessfulUploadsFileNames.Select(_ => new Uri(videoUploadOptions.CdnUrl.UrlCombine($"{remoteLocation}/{_}")));
 				if (result.SuccessfulUploadsFileNames.Count() == 0)
 				{
 					return ServiceResult<IEnumerable<Uri>>.Fail(500, $"No video content were uploaded to cdn from {directory} to {remoteLocation}");

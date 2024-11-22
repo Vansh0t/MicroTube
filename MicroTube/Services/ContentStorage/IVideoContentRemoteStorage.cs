@@ -1,6 +1,4 @@
-﻿using Azure.Storage.Blobs.Models;
-
-namespace MicroTube.Services.ContentStorage
+﻿namespace MicroTube.Services.ContentStorage
 {
 	public interface IRemoteStorage<TAccessOptions, TUploadOptions>
 	{
@@ -11,6 +9,9 @@ namespace MicroTube.Services.ContentStorage
 		Task<string> Download(string saveToPath, TAccessOptions options, CancellationToken cancellationToken = default);
 		Task EnsureLocation(string locationName, RemoteLocationAccess locationAccess, CancellationToken cancellationToken = default);
 		Task DeleteLocation(string locationName, CancellationToken cancellationToken = default);
+		Task<bool> FileExists(TAccessOptions accessOptions, CancellationToken cancellationToken = default);
+		Task<IDictionary<string, string?>> GetFileMetadata (TAccessOptions accessOptions, CancellationToken cancellationToken = default);
+		Task<IDictionary<string, string?>> GetLocationMetadata(string locationName, CancellationToken cancellationToken = default);
 	}
 	public enum RemoteLocationAccess
 	{
