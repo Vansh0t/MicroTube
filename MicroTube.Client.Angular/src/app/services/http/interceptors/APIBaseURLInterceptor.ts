@@ -1,15 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
+import { HttpContextToken, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../../../../environments/environment";
 
+export const IS_NO_API_REQUEST = new HttpContextToken<boolean>(() => false);
 @Injectable()
 export class APIBaseURLInterceptor implements HttpInterceptor
 {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>>
   {
-    const apiReq = req.clone({ url: `${environment.apiUrl}/${req.url}` });
-    return next.handle(apiReq);
+    if (req.context.get(IS_NO_API_REQUEST) === false)
+    {
+      const apiReq = req.clone({ url: `${environment.apiUrl}/${req.url}` });
+      return next.handle(apiReq);
+    }
+    return next.handle(req);
   }
 }
