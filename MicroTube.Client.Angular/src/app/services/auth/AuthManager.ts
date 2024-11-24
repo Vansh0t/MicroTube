@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { JWTUser } from "./JWTUser";
 import { IAuthProvider } from "./providers/IAuthProvider";
-import { BehaviorSubject} from "rxjs";
+import { BehaviorSubject, Observable, tap} from "rxjs";
 import { AuthenticationResponseDto } from "../../data/Dto/AuthenticationResponseDto";
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -50,23 +50,19 @@ export class AuthManager
     this.clearJWTStorage();
     this.jwtSignedInUser$.next(null);
   }
-  signUp(authProvider: IAuthProvider, rememberUser: boolean, onError: (error: HttpErrorResponse) => void)
+  signUp(authProvider: IAuthProvider, rememberUser: boolean): Observable<AuthenticationResponseDto>
   {
-    authProvider.signUp()
-      .subscribe({
-        next: this.applyAuthResult.bind(this),
-        error: onError
-      });
     this.rememberUser = rememberUser;
+    return authProvider.signUp().pipe(
+      tap(this.applyAuthResult.bind(this))
+    );
   }
-  signIn(authProvider: IAuthProvider, rememberUser: boolean, onError: (error: HttpErrorResponse) => void)
+  signIn(authProvider: IAuthProvider, rememberUser: boolean): Observable<AuthenticationResponseDto>
   {
-    authProvider.signIn()
-      .subscribe({
-        next: this.applyAuthResult.bind(this),
-        error: onError
-      });
     this.rememberUser = rememberUser;
+    return authProvider.signIn().pipe(
+      tap(this.applyAuthResult.bind(this))
+    );
   }
   isSignedIn(): boolean
   {

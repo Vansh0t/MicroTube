@@ -1,16 +1,17 @@
-import { Component } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { EmailPasswordAuthProvider } from "../../services/auth/providers/EmailPasswordAuthProvider";
 import { AuthManager } from "../../services/auth/AuthManager";
 import { SignInCredentialPasswordDto } from "../../data/Dto/SignInCredentialPasswordDto";
 import { HttpErrorResponse } from "@angular/common/http";
+import { Subscription } from "rxjs";
 
 @Component({
   selector: "sign-in-form",
   templateUrl: "./sign-in-form.component.html",
   styleUrls: ["./sign-in-form.component.css"]
 })
-export class SignInFormComponent
+export class SignInFormComponent implements OnDestroy
 {
   readonly MIN_LENGTH = 2;
   readonly credentialControl = new FormControl("", [Validators.required, Validators.minLength(this.MIN_LENGTH)]);
@@ -18,12 +19,19 @@ export class SignInFormComponent
   readonly rememberMeControl = new FormControl(true);
   readonly formGroup = new FormGroup([this.credentialControl, this.passwordControl, this.rememberMeControl]);
 
+  signInSubscription: Subscription | null = null;
+
   private readonly authProvider: EmailPasswordAuthProvider;
   private readonly authManager: AuthManager;
   constructor(authManager: AuthManager, authProvider: EmailPasswordAuthProvider)
   {
     this.authManager = authManager;
     this.authProvider = authProvider;
+  }
+  ngOnDestroy(): void
+  {
+    this.signInSubscription?.unsubscribe();
+    this.signInSubscription = null;
   }
 
   getCredentialError(): string | null
@@ -49,15 +57,23 @@ export class SignInFormComponent
   }
   submit(): void
   {
-    if (!this.formGroup.valid)
+    if (!this.formGroup.valid || this.signInSubscription != null)
       return;
     const signInData = new SignInCredentialPasswordDto(<string>this.credentialControl.value, <string>this.passwordControl.value);
     this.authProvider.signInData = signInData;
-    this.authManager.signIn(this.authProvider, <boolean>this.rememberMeControl.value, this.onServerError.bind(this));
+    this.signInSubscription = this.authManager.signIn(this.authProvider, <boolean>this.rememberMeControl.value).subscribe({
+      next: this.onSignInResponse.bind(this),
+      error: this.onServerError
+    });
+  }
+  onSignInResponse()
+  {
+    this.signInSubscription?.unsubscribe;
+    this.signInSubscription = null;
   }
   onServerError(error: HttpErrorResponse)
   {
-    console.log(error.error);
     this.formGroup.setErrors({ serverError: error.error });
+    this.onSignInResponse();
   }
 }

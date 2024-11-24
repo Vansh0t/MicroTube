@@ -28,8 +28,13 @@
 		</mat-form-field>
 		<mat-error *ngIf="getServerError() != null">{{getServerError()}}</mat-error>
 		<!-- <div class="rememberMeContainer">
-			<mat-checkbox  [formControl]="rememberMeControl">Remember Me</mat-checkbox>
-		</div> -->
+		<mat-checkbox  [formControl]="rememberMeControl">Remember Me</mat-checkbox>
+	</div> -->
+		@if(signUpSubscription) {
+		<mat-spinner diameter="25"></mat-spinner>
+		}
+		@else {
 		<button class="mt-2" color="accent" mat-raised-button [disabled]="!formGroup.valid">Sign Up</button>
+		}
 	</form>
 </div>

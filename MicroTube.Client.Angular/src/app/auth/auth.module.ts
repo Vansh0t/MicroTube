@@ -18,6 +18,7 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { PasswordChangeFormComponent } from "./password-change-form/password-change-form.component";
 import { AuthPopupComponent } from "./auth-popup/auth-popup.component";
 import { MatTabsModule } from "@angular/material/tabs";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { MatTabsModule } from "@angular/material/tabs";
     MatMenuModule,
     UtilityComponentsModule,
     MatSnackBarModule,
-    MatTabsModule
+    MatTabsModule,
+    MatProgressSpinnerModule
   ],
   exports: [
     SignUpFormComponent,
