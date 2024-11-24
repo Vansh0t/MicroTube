@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { HttpClient, HttpContext, HttpContextToken, HttpEvent, HttpEventType, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpContext, HttpEvent, HttpEventType, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { VideoDto, VideoRawDto, VideoUploadDto } from "../../data/Dto/VideoDto";
 import { Observable, concatMap, filter, map, tap } from "rxjs";
@@ -7,8 +7,8 @@ import { VideoUploadProgressDto } from "../../data/Dto/VideoUploadProgressDto";
 import { DateTime, Duration } from "luxon";
 import { VideoUploadLinkDto } from "../../data/Dto/VideoUploadLinkDto";
 import { VideoNotifyUploadDto } from "../../data/Dto/VideoNotifyUploadDto";
-import { IS_NO_API_REQUEST } from "../http/interceptors/APIBaseURLInterceptor";
 import mime from "mime";
+import { IS_NO_API_REQUEST } from "../http/interceptors/InterceptorsShared";
 
 @Injectable({
   providedIn: "root"
