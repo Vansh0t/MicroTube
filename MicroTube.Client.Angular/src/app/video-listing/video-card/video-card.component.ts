@@ -68,6 +68,8 @@ export class VideoCardComponent implements OnInit
     if (this.video != undefined && this.video.thumbnailUrls != null)
     {
       const midIndex = Math.floor(this.video.thumbnailUrls.length / 2);
+      console.log(midIndex);
+      console.log(this.video.thumbnailUrls);
       this.setThumbnail(midIndex);
     }
   }
