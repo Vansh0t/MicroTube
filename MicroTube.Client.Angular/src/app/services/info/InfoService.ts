@@ -54,7 +54,7 @@ export class InfoService
 
                <b>&#x2022; Content Removal:</b> As this is a development version, Microtube.dev reserves the right to remove any content at any time without prior warning or notification.</br></br>
 
-               <b>&#x2022; File Size:</b> File size is temporarily limited to 100mb in the preview version.</br></br>
+               <b>&#x2022; File Size:</b> As this is a development version, the processing times could be long for big files. It is not recommended to upload big files.</br></br>
 
                By using this service, you agree to follow these content guidelines.`
       }
