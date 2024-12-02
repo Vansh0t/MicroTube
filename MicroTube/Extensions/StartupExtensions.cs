@@ -35,6 +35,7 @@ using MicroTube.Data.Models.Comments;
 using MicroTube.Services.Comments.Reactions;
 using MicroTube.Services.Comments;
 using MicroTube.Data.Models.Videos;
+using MicroTube.Services.Videos;
 
 namespace MicroTube.Extensions
 {
@@ -87,18 +88,39 @@ namespace MicroTube.Extensions
 			services.AddScoped<IVideoSearchService, ElasticVideoSearchService>();
 			return services;
 		}
-		public static IServiceCollection AddAzureBlobRemoteStorage(this IServiceCollection services, string connectionString)
+		public static IServiceCollection AddAzureBlobRemoteStorage(this IServiceCollection services, IConfiguration config)
 		{
-			var blobServiceClient = new BlobServiceClient(connectionString);
+			var options = config.GetRequiredByKey<AzureBlobStorageOptions>(AzureBlobStorageOptions.KEY);
+			var blobServiceClient = new BlobServiceClient(options.ConnectionString);
 			services.AddSingleton(blobServiceClient);
 			services.AddScoped<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>, AzureBlobContentStorage>();
+			var properties = blobServiceClient.GetProperties();
+			var storageProperties = blobServiceClient.GetProperties().Value;
+			string originsString = string.Join(",", options.CorsAllowedOrigins);
+			string methodsString = string.Join(",", options.CorsAllowedMethods);
+			if(storageProperties.Cors.Any(_=>_.AllowedOrigins == originsString && _.AllowedMethods == methodsString))
+			{
+				return services;
+			}
+			BlobCorsRule cors = new BlobCorsRule()
+			{
+				AllowedHeaders = "*",
+				AllowedMethods = methodsString,
+				AllowedOrigins = originsString,
+				MaxAgeInSeconds = TimeSpan.FromDays(7).Seconds
+			};
+			storageProperties.Cors.Add(cors);
+			blobServiceClient.SetProperties(storageProperties);
+			
 			return services;
 		}
 		public static IServiceCollection AddAzureCdnVideoPreprocessing(this IServiceCollection services)
 		{
+			services.AddScoped<IRemoteStorageVideoMetaHandler, DefaultRemoteStorageVideoMetaHandler>();
+			services.AddScoped<IVideoUploadLinkProvider, AzureStorageVideoUploadLinkProvider>();
 			services.AddTransient<IVideoFileNameGenerator, GuidVideoFileNameGenerator>();
 			services.AddTransient<IRemoteLocationNameGenerator, FileNameRemoteLocationNameGenerator>();
-			services.AddScoped<VideoPreprocessingStage, UploadVideoSourceToRemoteStorageStage>();
+			services.AddScoped<VideoPreprocessingStage, EnsureVideoSourceInRemoteStorage>();
 			services.AddScoped<VideoPreprocessingStage, CreateUploadProgressStage>();
 			services.AddScoped<VideoPreprocessingStage, MakeProcessingJobStage>();
 			services.AddScoped<IVideoPreprocessingPipeline, DefaultVideoPreprocessingPipeline>();

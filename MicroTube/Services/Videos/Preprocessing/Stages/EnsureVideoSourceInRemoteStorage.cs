@@ -5,13 +5,13 @@ using System.IO.Abstractions;
 
 namespace MicroTube.Services.VideoContent.Preprocessing.Stages
 {
-	public class UploadVideoSourceToRemoteStorageStage : VideoPreprocessingStage
+	public class EnsureVideoSourceInRemoteStorage : VideoPreprocessingStage
 	{
 		private readonly IVideoFileNameGenerator _videoNameGenerator;
 		private readonly IFileSystem _fileSystem;
 		private readonly IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions> _videoRemoteStorage;
 		private readonly IRemoteLocationNameGenerator _remoteLocationNameGenerator;
-		public UploadVideoSourceToRemoteStorageStage(
+		public EnsureVideoSourceInRemoteStorage(
 			IVideoFileNameGenerator videoNameGenerator,
 			IFileSystem fileSystem,
 			IRemoteLocationNameGenerator remoteLocationNameGenerator,
@@ -27,17 +27,17 @@ namespace MicroTube.Services.VideoContent.Preprocessing.Stages
 		{
 			Guard.Against.Null(context);
 			Guard.Against.Null(context.PreprocessingData);
-			string generatedFileName = _videoNameGenerator.GenerateVideoName() + _fileSystem.Path.GetExtension(context.PreprocessingData.VideoFile.FileName);
-			string generatedRemoteLocationName = _remoteLocationNameGenerator.GetLocationName(generatedFileName);
-			using var stream = context.PreprocessingData.VideoFile.OpenReadStream();
-			var blobUploadOptions = new BlobUploadOptions
+			var accessOptions = new AzureBlobAccessOptions(context.PreprocessingData.GeneratedSourceFileName, context.PreprocessingData.GeneratedSourceFileLocation);
+			bool videoSourceExists = await _videoRemoteStorage.FileExists(accessOptions, cancellationToken);
+			if(!videoSourceExists)
 			{
-				AccessTier = AccessTier.Cold
+				throw new RequiredObjectNotFoundException("Video was not uploaded.");
+			}
+			context.RemoteCache = new Processing.Stages.VideoProcessingRemoteCache 
+			{ 
+				VideoFileLocation = accessOptions.ContainerName,
+				VideoFileName = accessOptions.FileName
 			};
-			await _videoRemoteStorage.EnsureLocation(generatedRemoteLocationName, RemoteLocationAccess.Public, cancellationToken);
-			string uploadedFileName = await _videoRemoteStorage.Upload(stream, 
-				new AzureBlobAccessOptions(generatedFileName, generatedRemoteLocationName), new BlobUploadOptions { AccessTier = AccessTier.Cold });
-			context.RemoteCache = new Processing.Stages.VideoProcessingRemoteCache { VideoFileLocation = generatedRemoteLocationName, VideoFileName = uploadedFileName };
 			return context;
 		}
 	}

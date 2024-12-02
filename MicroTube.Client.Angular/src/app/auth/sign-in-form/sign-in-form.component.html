@@ -15,7 +15,12 @@
 		<mat-menu #resetPasswordMenu>
 			<reset-password-form (click)="$event.stopPropagation()" />
 		</mat-menu>
-		<button mat-raised-button color="accent" [disabled]="!formGroup.valid">Sign In</button>
+		@if(signInSubscription) {
+			<mat-spinner diameter="25"></mat-spinner>
+		}
+		@else {
+			<button mat-raised-button color="accent" [disabled]="!formGroup.valid">Sign In</button>
+		}
 		<!-- <div class="w-100 d-flex">
 		<mat-checkbox class="me-auto" [formControl]="rememberMeControl">Remember Me</mat-checkbox>
 				  <button class="me-2" mat-button color="accent" [disabled]="!formGroup.valid">Sign In</button>

@@ -2,16 +2,14 @@
 {
     public class VideoPreprocessingData
     {
-        public string UserId { get; set; }
-        public string VideoTitle { get; set; }
-        public string? VideoDescription { get; set; }
-        public IFormFile VideoFile { get; set; }
-        public VideoPreprocessingData(string userId, string videoTitle, string? videoDescription, IFormFile videoFile)
-        {
-            UserId = userId;
-            VideoTitle = videoTitle;
-            VideoDescription = videoDescription;
-            VideoFile = videoFile;
-        }
-    }
+		public string UserId { get; set; }
+		public string GeneratedSourceFileName { get; set; }
+		public string GeneratedSourceFileLocation { get; set; }
+		public VideoPreprocessingData(string userId, string generatedSourceFileName, string generatedSourceFileLocation)
+		{
+			UserId = userId;
+			GeneratedSourceFileName = generatedSourceFileName;
+			GeneratedSourceFileLocation = generatedSourceFileLocation;
+		}
+	}
 }

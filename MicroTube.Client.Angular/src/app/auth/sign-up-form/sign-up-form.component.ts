@@ -22,6 +22,7 @@ export class SignUpFormComponent {
   readonly passwordControl: FormControl;
   readonly passwordConfirmationControl: FormControl;
   readonly rememberMeControl: FormControl;
+  signUpSubscription: Subscription | null = null;
 
   private readonly authManager: AuthManager;
   private readonly authProvider: EmailPasswordAuthProvider;
@@ -30,7 +31,7 @@ export class SignUpFormComponent {
   private readonly MIN_PASSWORD_LENGTH: number;
   private readonly MAX_PASSWORD_LENGTH: number;
 
-  private onSignInSubscription: Subscription | null = null;
+  private authStateSubscription: Subscription | null = null;
   private readonly router: Router;
   constructor(authValidators: DefaultAuthValidators, authManager: AuthManager, authProvider: EmailPasswordAuthProvider, router: Router)
   {
@@ -58,17 +59,16 @@ export class SignUpFormComponent {
   }
   ngOnInit()
   {
-    this.onSignInSubscription = this.authManager.jwtSignedInUser$.subscribe({
+    this.authStateSubscription = this.authManager.jwtSignedInUser$.subscribe({
       next: this.onUserSignedIn.bind(this)
     });
   }
   ngOnDestroy()
   {
-    if (this.onSignInSubscription != null)
-    {
-      this.onSignInSubscription.unsubscribe();
-      this.onSignInSubscription = null;
-    }
+      this.authStateSubscription?.unsubscribe();
+    this.authStateSubscription = null;
+    this.signUpSubscription?.unsubscribe();
+    this.signUpSubscription = null;
   }
   getUsernameRequiredError()
   {
@@ -135,7 +135,12 @@ export class SignUpFormComponent {
     if (!this.formGroup.valid)
       return;
     this.authProvider.signUpData = new SignUpEmailPasswordDto(this.usernameControl.value, this.emailControl.value, this.passwordControl.value);
-    this.authManager.signUp(this.authProvider, this.rememberMeControl.value, this.onServerError.bind(this));
+    this.signUpSubscription = this.authManager.signUp(this.authProvider, this.rememberMeControl.value).subscribe(
+      {
+        next: this.onSignUpResponse.bind(this),
+        error: this.onServerError.bind(this)
+      }
+    );
   }
   getServerError()
   {
@@ -143,16 +148,21 @@ export class SignUpFormComponent {
       return this.formGroup.getError("serverError");
     return null;
   }
+  onSignUpResponse()
+  {
+    this.signUpSubscription?.unsubscribe;
+    this.signUpSubscription = null;
+  }
+  onServerError(error: HttpErrorResponse)
+  {
+    this.formGroup.setErrors({ serverError: error.error });
+    this.onSignUpResponse();
+  }
   private onUserSignedIn()
   {
     if (!this.redirectOnSignedIn)
       return;
     if (this.authManager.isSignedIn())
       this.router.navigate(["/"]);
-  }
-  private onServerError(error: HttpErrorResponse)
-  {
-    console.error(error);
-    this.formGroup.setErrors({ serverError: error.error });
   }
 }

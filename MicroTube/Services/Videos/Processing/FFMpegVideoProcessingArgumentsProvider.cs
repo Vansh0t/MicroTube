@@ -10,15 +10,15 @@ namespace MicroTube.Services.VideoContent.Processing
 			{".mov", "-vf \"scale=-2:{0}\" -threads 3" },
 			{".avi", "-vf \"scale=-2:{0}\" -threads 3" },
 			{".wmv", "-vf \"scale=-2:{0}\" -threads 3" },
-			{".webm", "-c:v libx264 -acodec copy -vf \"scale=-2:{0}\" -threads 3" },
+			{".webm", "-c:v libx264 -c:a aac -b:a 192k -vf \"scale=-2:{0}\" -threads 3" },
 		};
 		private readonly IReadOnlyDictionary<string, string> thumbnailsArguments = new Dictionary<string, string>
 		{
-			{".mp4", "-vf \"thumbnail=n={0}/{1},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync 0 -threads 3" },
-			{".mov", "-vf \"thumbnail=n={0}/{1},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync 0 -threads 3" },
-			{".avi", "-vf \"thumbnail=n={0}/{1},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync 0 -threads 3" },
-			{".wmv", "-vf \"thumbnail=n={0}/{1},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync 0 -threads 3" },
-			{".webm", "-vf \"thumbnail=n={0}/{1},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync 0 -threads 3" },
+			{".mp4", "-vf \"fps=1/{0},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync vfr -threads 1" },
+			{".mov", "-vf \"fps=1/{0},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync vfr -threads 1" },
+			{".avi", "-vf \"fps=1/{0},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync vfr -threads 1" },
+			{".wmv", "-vf \"fps=1/{0},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync vfr -threads 1" },
+			{".webm", "-vf \"fps=1/{0},scale={2}:{3}:force_original_aspect_ratio=decrease\" -vsync vfr -threads 1" },
 		};
 		public string ProvideForCompression(string fileExtension)
 		{

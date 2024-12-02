@@ -17,7 +17,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			string directory = "/some/directory";
 			string containerName = "container_name";
 			var mockRemoteStorage = Substitute.For<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
-			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com")).Build();
+			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com", 5)).Build();
 			var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
 				{ "/tiers/file1.mp4", "content" },
 				{ "/tiers/file2.mp4", "content" },
@@ -43,7 +43,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			string directory = "/some/directory";
 			string containerName = "container_name";
 			var mockRemoteStorage = Substitute.For<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
-			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com")).Build();
+			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com", 5)).Build();
 			var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
 				{ "/tiers/file1.mp4", "content" },
 				{ "/tiers/file2.mp4", "content" },
@@ -71,7 +71,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 		public async Task UploadVideo_InvalidArgumentsFail(string? directoryName, string? containerName)
 		{
 			var mockRemoteStorage = Substitute.For<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
-			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com")).Build();
+			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com", 5)).Build();
 			var mockFileSystem = new MockFileSystem();
 			var cdn = new AzureCdnMediaContentAccess(mockRemoteStorage, config, Substitute.For<ILogger<AzureCdnMediaContentAccess>>(), mockFileSystem);
 			var result = await cdn.UploadVideoQualityTiers(directoryName!, containerName!);
@@ -84,7 +84,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Processing
 			string directory = "/some/directory";
 			string containerName = "container_name";
 			var mockRemoteStorage = Substitute.For<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
-			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com")).Build();
+			var config = new ConfigurationBuilder().AddConfigObject(VideoContentUploadOptions.KEY, new VideoContentUploadOptions("http://cdn.com", 5)).Build();
 			var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
 				{ "/tiers/file1.mp4", "content" },
 				{ "/tiers/file2.mp4", "content" },

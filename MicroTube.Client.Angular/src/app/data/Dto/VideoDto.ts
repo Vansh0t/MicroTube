@@ -63,5 +63,5 @@ export interface VideoUploadDto
 {
   title: string;
   description: string | null;
-  file: FileInput;
+  fileName: string;
 }

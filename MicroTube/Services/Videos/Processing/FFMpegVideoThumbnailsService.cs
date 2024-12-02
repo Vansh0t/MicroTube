@@ -68,11 +68,11 @@ namespace MicroTube.Services.VideoContent.Processing
 					throw new RequiredObjectNotFoundException($"Output location at {saveToPath} does not exist. Aborting thumbnail generation.");
 				VideoProcessingOptions processingOptions = _config.GetRequiredByKey<VideoProcessingOptions>(VideoProcessingOptions.KEY);
 				var videoAnalysis = await _videoAnalyzer.Analyze(filePath);
-				double framesCount = videoAnalysis.FrameCount;
+				double intervals = Math.Floor((double)videoAnalysis.LengthSeconds / processingOptions.ThumbnailsAmount);
 				var inputFile = new InputFile(filePath);
 				string processingArguments = _argumentsProvider.ProvideForThumbnails(Path.GetExtension(filePath));
 				string ffmpegCustomArgs = string.Format(processingArguments,
-					framesCount, processingOptions.ThumbnailsAmount, processingOptions.ThumbnailsWidth, processingOptions.ThumbnailsHeight);
+					intervals, processingOptions.ThumbnailsAmount, processingOptions.ThumbnailsWidth, processingOptions.ThumbnailsHeight);
 				var options = new ConversionOptions
 				{
 					ExtraArguments = ffmpegCustomArgs

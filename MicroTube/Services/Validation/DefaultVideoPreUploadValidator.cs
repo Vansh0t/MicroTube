@@ -21,6 +21,21 @@ namespace MicroTube.Services.Validation
 			return ServiceResult.Success();
 		}
 
+		public IServiceResult ValidateExtension(string? fileName)
+		{
+			var extension = Path.GetExtension(fileName);
+			if(string.IsNullOrWhiteSpace(extension))
+			{
+				return ServiceResult.Fail(400, "File must have an extension.");
+			}
+			var options = _config.GetRequiredSection(VideoProcessingOptions.KEY).GetRequired<VideoProcessingOptions>();
+			if(!options.AllowedFileExtensions.Contains(extension))
+			{
+				return ServiceResult.Fail(400, $"File type {extension} is not supported.");
+			}
+			return ServiceResult.Success();
+		}
+
 		public IServiceResult ValidateFile(IFormFile file)
 		{
 			var options = _config.GetRequiredSection(VideoContentUploadOptions.KEY).GetRequired<VideoContentUploadOptions>();

@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.Http;
 using MicroTube.Data.Models;
+using MicroTube.Services.ContentStorage;
 using MicroTube.Services.VideoContent.Preprocessing;
 using MicroTube.Services.VideoContent.Preprocessing.Stages;
 using MicroTube.Services.VideoContent.Processing.Stages;
+using MicroTube.Services.Videos;
 using MicroTube.Tests.Mock;
 using MicroTube.Tests.Utils;
 using NSubstitute;
@@ -15,17 +18,26 @@ namespace MicroTube.Tests.Unit.VideoContent.Preprocessing
 		[Fact]
 		public async Task Execute_Success()
 		{
+			string generatedName = "somerandomname.mp4";
+			string generatedLocationName = "somerandomname";
 			MockDbContext mockDb = Database.CreateSqliteInMemoryMock();
-			AppUser user = new AppUser { Email = "", IsEmailConfirmed = true, PublicUsername = "", Username = "" };
+			AppUser user = new AppUser {Id = Guid.NewGuid(), Email = "", IsEmailConfirmed = true, PublicUsername = "", Username = "" };
 			mockDb.Add(user);
 			mockDb.SaveChanges();
 			MockFileSystem mockFileSystem = new MockFileSystem();
+			var mockRemoteStorage = Substitute.For<IRemoteStorage<AzureBlobAccessOptions, BlobUploadOptions>>();
+			var meta = new Dictionary<string, string?>();
+			mockRemoteStorage.GetLocationMetadata(generatedLocationName).Returns(meta);
+			var metaHandler = Substitute.For<IRemoteStorageVideoMetaHandler>();
+			metaHandler.ReadDescription(meta).Returns("Description");
+			metaHandler.ReadUploaderId(meta).Returns(user.Id.ToString());
+			metaHandler.ReadTitle(meta).Returns("Title");
 			var mockFormFile = Substitute.For<IFormFile>();
-			var stage = new CreateUploadProgressStage(mockFileSystem, mockDb);
+			var stage = new CreateUploadProgressStage(mockFileSystem, mockDb, mockRemoteStorage, metaHandler);
 			var context = new DefaultVideoPreprocessingContext
 			{
-				PreprocessingData = new VideoPreprocessingData(user.Id.ToString(), "video", "description", mockFormFile),
-				RemoteCache = new VideoProcessingRemoteCache { VideoFileLocation = "video_location", VideoFileName = "video.mp4"}
+				PreprocessingData = new VideoPreprocessingData(user.Id.ToString(), generatedName, generatedLocationName),
+				RemoteCache = new VideoProcessingRemoteCache { VideoFileLocation = generatedLocationName, VideoFileName = generatedName }
 			};
 			context = await stage.Execute(context);
 
@@ -33,8 +45,8 @@ namespace MicroTube.Tests.Unit.VideoContent.Preprocessing
 			Assert.NotNull(createdProgress);
 			Assert.NotNull(context.UploadProgress);
 			Assert.Equal(user.Id, createdProgress.UploaderId);
-			Assert.Equal(context.PreprocessingData.VideoTitle, createdProgress.Title);
-			Assert.Equal(context.PreprocessingData.VideoDescription, createdProgress.Description);
+			Assert.Equal("Title", createdProgress.Title);
+			Assert.Equal("Description", createdProgress.Description);
 			Assert.Equal(context.RemoteCache!.VideoFileName, createdProgress.SourceFileRemoteCacheFileName);
 			Assert.Equal(context.RemoteCache!.VideoFileLocation, createdProgress.SourceFileRemoteCacheLocation);
 		}

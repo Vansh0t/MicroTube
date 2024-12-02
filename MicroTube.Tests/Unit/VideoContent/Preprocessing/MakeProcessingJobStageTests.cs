@@ -20,7 +20,7 @@ namespace MicroTube.Tests.Unit.VideoContent.Preprocessing
 		{
 			var context = new DefaultVideoPreprocessingContext()
 			{
-				PreprocessingData = new VideoPreprocessingData("id", "vid_title", "desc", null!),
+				PreprocessingData = new VideoPreprocessingData("id", "generatedname.mp4", "generatedname"),
 				RemoteCache = new VideoProcessingRemoteCache { VideoFileLocation = "video", VideoFileName = "video.mp4" }
 			};
 			Expression<Func<IVideoProcessingPipeline, Task>> job = processing => processing.Execute(new DefaultVideoProcessingContext(), default); //TO DO: check if arguments passed into job correctly

@@ -62,17 +62,18 @@ export class VideoUploadComponent implements OnDestroy
     const videoData: VideoUploadDto = {
       title: this.titleControl.value,
       description: this.descriptionControl.value,
-      file: this.fileControl.value
+      fileName: this.fileControl.value.files[0].name
     };
-    this.uploadProgressSubscription = this.videoService.uploadVideo(videoData)
+    console.log(videoData.fileName);
+    this.uploadProgressSubscription = this.videoService.uploadVideo(videoData, this.fileControl.value.files[0], this.onUploadEvent.bind(this))
       .subscribe({
-        next: this.onUploadEvent.bind(this),
-      error: (error: HttpErrorResponse) =>
-      {
-        this.uploadProgressSubscription?.unsubscribe();
-        this.uploadProgressSubscription = null;
-        this.uploadServerError = error.error;
-      }
+        next: ()  => this.router.navigate(["upload/list"]),
+        error: (error: HttpErrorResponse) =>
+        {
+          this.uploadProgressSubscription?.unsubscribe();
+          this.uploadProgressSubscription = null;
+          this.uploadServerError = error.error;
+        }
     });
     this.uploadServerError = null;
   }
@@ -121,11 +122,6 @@ export class VideoUploadComponent implements OnDestroy
     if (event.type === HttpEventType.UploadProgress && event.total)
     {
       this.uploadPercent = (event.loaded / event.total) * 100;
-      console.log(this.uploadPercent);
-    }
-    if (event.type === HttpEventType.Response)
-    {
-      this.router.navigate(["upload/list"]);
     }
   }
 }

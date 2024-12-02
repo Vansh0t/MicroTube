@@ -122,12 +122,6 @@ namespace MicroTube
 			}
 			return false;
 		}
-		public static string JoinUrl(this string part1, string part2)
-		{
-			part1 = part1.TrimEnd('/');
-			part2 = part2.TrimStart('/');
-			return string.Format("{0}/{1}", part1, part2);
-		}
 		
 	}
 }

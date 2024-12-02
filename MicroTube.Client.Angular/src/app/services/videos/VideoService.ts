@@ -1,12 +1,14 @@
-import { HttpClient, HttpEvent, HttpResponse } from "@angular/common/http";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { HttpClient, HttpContext, HttpEvent, HttpEventType, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { VideoDto, VideoRawDto, VideoUploadDto } from "../../data/Dto/VideoDto";
-import { Observable, map } from "rxjs";
+import { Observable, concatMap, filter, map, tap } from "rxjs";
 import { VideoUploadProgressDto } from "../../data/Dto/VideoUploadProgressDto";
 import { DateTime, Duration } from "luxon";
-import { UserVideoReactionDto } from "../../data/Dto/UserVideoReactionDto";
-import { LikeDislikeReactionType } from "../ReactionTypes";
-
+import { VideoUploadLinkDto } from "../../data/Dto/VideoUploadLinkDto";
+import { VideoNotifyUploadDto } from "../../data/Dto/VideoNotifyUploadDto";
+import mime from "mime";
+import { IS_NO_API_REQUEST } from "../http/interceptors/InterceptorsShared";
 
 @Injectable({
   providedIn: "root"
@@ -36,18 +38,22 @@ export class VideoService
       );
     return result;
   }
-  uploadVideo(data: VideoUploadDto): Observable<HttpEvent<VideoUploadProgressDto>>
+  uploadVideo(data: VideoUploadDto, file: File, onFileUploadProgress: (event: HttpEvent<any>) => void): Observable<VideoUploadProgressDto>
   {
-    const formData = new FormData();
-    formData.append("title", data.title);
-    if (data.description != null)
-      formData.append("description", data.description);
-    formData.append("file", data.file.files[0]);
-    const result = this.client.post<VideoUploadProgressDto>("videos/videoupload", formData,
+    let linkDto: VideoUploadLinkDto;
+    const result = this.client.post<VideoUploadLinkDto>("videos/videoupload/link", data
+    ).pipe(
+      concatMap((linkResponse) =>
       {
-        reportProgress: true,
-        observe: "events"
-      });
+        linkDto = linkResponse;
+        return this.uploadVideoFileToRemoteStorage.bind(this, linkResponse, file, onFileUploadProgress)();
+      }),
+      filter((event): event is HttpResponse<any> => event.type == HttpEventType.Response),
+      concatMap(() =>
+      {
+        return this.notifyVideoUploaded.bind(this, linkDto)();
+      })
+    );
     return result;
   }
   getUploadProgressList(): Observable<VideoUploadProgressDto[]>
@@ -70,6 +76,34 @@ export class VideoService
           return response;
         }
         ));
+    return result;
+  }
+  private uploadVideoFileToRemoteStorage(linkDto: VideoUploadLinkDto, file: File, onFileUploadProgress: (event: HttpEvent<any>) => void)
+  {
+    const context = new HttpContext();
+    context.set(IS_NO_API_REQUEST, true);
+    const result = this.client.put<HttpEvent<VideoUploadProgressDto>>(linkDto.link, file,
+      {
+        context: context,
+        headers: {
+          "x-ms-blob-type": "BlockBlob",
+          "Content-Type": mime.getType(linkDto.generatedFileName)!,
+          "x-ms-access-tier": "Cold"
+        },
+        reportProgress: true,
+        observe: "events"
+      }).pipe(
+        tap(onFileUploadProgress)
+      );
+    return result;
+  }
+  private notifyVideoUploaded(linkDto: VideoUploadLinkDto)
+  {
+    const notifyDto: VideoNotifyUploadDto = {
+      generatedFileName: linkDto.generatedFileName,
+      generatedLocationName: linkDto.generatedRemoteLocationName
+    };
+    const result = this.client.post<VideoUploadProgressDto>("videos/videoupload/notify", notifyDto);
     return result;
   }
 }

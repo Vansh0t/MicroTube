@@ -3,6 +3,7 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using Microsoft.Extensions.Options;
 using System.IO.Abstractions;
 
 namespace MicroTube.Services.ContentStorage
@@ -137,6 +138,33 @@ namespace MicroTube.Services.ContentStorage
 			var response = await blobContainerClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
 			ThrowIfErrorResponse(response.GetRawResponse());
 		}
+		public async Task<bool> FileExists(AzureBlobAccessOptions accessOptions, CancellationToken cancellationToken = default)
+		{
+			Guard.Against.NullOrWhiteSpace(accessOptions.FileName);
+			Guard.Against.NullOrWhiteSpace(accessOptions.ContainerName);
+			var blobContainerClient = _azureBlobServiceClient.GetBlobContainerClient(accessOptions.ContainerName);
+			var blobClient = blobContainerClient.GetBlobClient(accessOptions.FileName);
+			var existsResponse = await blobClient.ExistsAsync();
+			return existsResponse.Value;
+		}
+		public async Task<IDictionary<string, string?>> GetFileMetadata(AzureBlobAccessOptions accessOptions, CancellationToken cancellationToken = default)
+		{
+			Guard.Against.NullOrWhiteSpace(accessOptions.FileName);
+			Guard.Against.NullOrWhiteSpace(accessOptions.ContainerName);
+			var blobContainerClient = _azureBlobServiceClient.GetBlobContainerClient(accessOptions.ContainerName);
+			var blobClient = blobContainerClient.GetBlobClient(accessOptions.FileName);
+			var propertiesResponse = await blobClient.GetPropertiesAsync();
+			BlobProperties properties = propertiesResponse.Value;
+			return properties.Metadata;
+		}
+		public async Task<IDictionary<string, string?>> GetLocationMetadata(string locationName, CancellationToken cancellationToken = default)
+		{
+			Guard.Against.NullOrWhiteSpace(locationName);
+			var blobContainerClient = _azureBlobServiceClient.GetBlobContainerClient(locationName);
+			var propertiesResponse = await blobContainerClient.GetPropertiesAsync();
+			BlobContainerProperties properties = propertiesResponse.Value;
+			return properties.Metadata;
+		}
 		private void ThrowIfErrorResponse(Response response)
 		{
 			if (response != null && response.IsError) //httpResponse is null here if container already exists for some reason
@@ -158,6 +186,7 @@ namespace MicroTube.Services.ContentStorage
 			}
 			return blobUploadOptions;
 		}
+
 		private readonly struct UploadTaskContainer
 		{
 			public Task<Azure.Response<BlobContentInfo>> Task { get; }
